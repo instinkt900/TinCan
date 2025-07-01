@@ -12,14 +12,21 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 set(SOURCES ${SOURCES}
 	src/main.cpp
 	src/game_layer.cpp
+	src/system_input.cpp
+	src/system_movement.cpp
+	src/system_sprite.cpp
+	src/system_weapon.cpp
+	src/system_lifetime.cpp
 )
 
 find_package(canyon REQUIRED)
+find_package(EnTT REQUIRED)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 target_link_libraries(${PROJECT_NAME} canyon::canyon)
+target_link_libraries(${PROJECT_NAME} EnTT::EnTT)
 
 if (MSVC)
 	set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/ignore:4099")

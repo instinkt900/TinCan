@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <canyon/platform/glfw/glfw_platform.h>
 #include <canyon/platform/application.h>
 #include "game_layer.h"
@@ -15,7 +14,7 @@ void start(canyon::platform::IPlatform& platform) {
     // mothContext.GetFontFactory().LoadProject("assets/fonts.json");
     //
     // // add an example layer
-    window->GetLayerStack().PushLayer(std::make_unique<GameLayer>(mothContext, graphics));
+    window->GetLayerStack().PushLayer(std::make_unique<GameLayer>(*window, mothContext, graphics));
 
     // start the application
     application->Run();

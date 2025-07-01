@@ -10,6 +10,7 @@ class TinCan(ConanFile):
 
     def requirements(self):
         self.requires("canyon/0.2.0")
+        self.requires("entt/3.15.0")
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.27.0]")
