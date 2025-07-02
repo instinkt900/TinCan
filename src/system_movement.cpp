@@ -10,16 +10,16 @@ void SystemMovement::Update(entt::registry& registry, uint32_t ticks) {
         auto velocity = vel.m_velocity;
         if (auto* input = registry.try_get<ComponentInput>(entity)) {
             if (input->m_state[moth_ui::Key::Up]) {
-                velocity.y -= 300.0f;
+                velocity.y -= 400.0f;
             }
             if (input->m_state[moth_ui::Key::Down]) {
-                velocity.y += 300.0f;
+                velocity.y += 400.0f;
             }
             if (input->m_state[moth_ui::Key::Left]) {
-                velocity.x -= 300.0f;
+                velocity.x -= 400.0f;
             }
             if (input->m_state[moth_ui::Key::Right]) {
-                velocity.x += 300.0f;
+                velocity.x += 400.0f;
             }
 
         }

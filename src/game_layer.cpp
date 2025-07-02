@@ -12,10 +12,10 @@
 #include <stdio.h>
 #include <spdlog/spdlog.h>
 
-GameLayer::GameLayer(canyon::platform::Window& window, moth_ui::Context& context, canyon::graphics::IGraphics& graphics)
+GameLayer::GameLayer(canyon::platform::Window& window, moth_ui::Context& context,
+                     canyon::graphics::IGraphics& graphics)
     : m_window(window)
-    , m_graphics(graphics) {
-}
+    , m_graphics(graphics) {}
 
 GameLayer::~GameLayer() {}
 
@@ -30,13 +30,11 @@ bool GameLayer::OnEvent(moth_ui::Event const& event) {
 
 void GameLayer::Update(uint32_t ticks) {
     SystemMovement::Update(m_registry, ticks);
-    SystemWeapon::Update(m_registry, ticks, m_window.GetSurfaceContext());
+    SystemWeapon::Update(m_registry, ticks);
     SystemLifetime::Update(m_registry, ticks);
 }
 
-void GameLayer::Draw() {
-    SystemSprite::Update(m_registry, m_graphics);
-}
+void GameLayer::Draw() { SystemSprite::Update(m_registry, m_graphics); }
 
 void GameLayer::OnAddedToStack(moth_ui::LayerStack* stack) {
     Layer::OnAddedToStack(stack);
@@ -45,7 +43,7 @@ void GameLayer::OnAddedToStack(moth_ui::LayerStack* stack) {
 
     m_player = m_registry.create();
     auto& position = m_registry.emplace<ComponentPosition>(m_player);
-    position.m_position = { m_window.GetWidth() / 2, m_window.GetHeight() - 30 };
+    position.m_position = { m_window.GetWidth() / 2, m_window.GetHeight() - 60 };
 
     auto& velocity = m_registry.emplace<ComponentVelocity>(m_player);
     velocity.m_velocity = { 0, 0 };
@@ -54,23 +52,24 @@ void GameLayer::OnAddedToStack(moth_ui::LayerStack* stack) {
 
     auto& sprite = m_registry.emplace<ComponentSprite>(m_player);
     sprite.m_sprite = surfaceContext.ImageFromFile("assets/player.png");
-    sprite.m_size = { 150, 150 };
+    sprite.m_size = { 48, 48 };
 
     auto& weapon = m_registry.emplace<ComponentWeapon>(m_player);
     weapon.m_player = true;
     weapon.m_color = BulletColor::WHITE;
-    weapon.m_maxCooldown = 1000;
-    weapon.m_cooldown = 1000;
-
-    spdlog::info("SIZE {} {}\n", m_window.GetWidth(), m_window.GetHeight());
-    spdlog::info("POS {} {}\n", position.m_position.x, position.m_position.y);
+    weapon.m_maxCooldown = 200;
+    weapon.m_cooldown = 0;
+    weapon.m_projectile.m_sprite = surfaceContext.ImageFromFile("assets/bullet.png");
+    weapon.m_projectile.m_spriteSize = { weapon.m_projectile.m_sprite->GetWidth(),
+                                         weapon.m_projectile.m_sprite->GetHeight() };
+    weapon.m_projectile.m_speed = 2000;
+    weapon.m_projectile.m_lifetime = 500;
 }
 
 
 bool GameLayer::OnWindowResize(canyon::EventWindowSize const& event) {
     auto& position = m_registry.get<ComponentPosition>(m_player);
-    position.m_position = { event.GetWidth() / 2, event.GetHeight() - 30 };
-    spdlog::info("RESIZE\n");
+    position.m_position = { event.GetWidth() / 2, event.GetHeight() - 60 };
     return false;
 }
 

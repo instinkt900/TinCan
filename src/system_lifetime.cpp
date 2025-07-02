@@ -15,7 +15,6 @@ void SystemLifetime::Update(entt::registry& registry, uint32_t ticks) {
     }
 
     for (auto entity : deadEntities) {
-        spdlog::info("killed entity");
         registry.destroy(entity);
     }
 }

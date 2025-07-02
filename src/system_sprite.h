@@ -5,7 +5,7 @@
 #include <moth_ui/utils/vector.h>
 
 struct ComponentSprite {
-    std::unique_ptr<canyon::graphics::IImage> m_sprite;
+    std::shared_ptr<canyon::graphics::IImage> m_sprite;
     moth_ui::FloatVec2 m_size;
 };
 
