@@ -1,13 +1,15 @@
 #pragma once
 
+#include "system_projectile.h"
 #include <canyon/events/event_window.h>
 #include <canyon/graphics/igraphics.h>
 #include <moth_ui/events/event_key.h>
 #include <moth_ui/layers/layer.h>
 #include <entt/entt.hpp>
 
-struct ComponentPlayer {
-  uint32_t m_playerNumber = 1;
+struct ComponentEntity {
+    Team m_team;
+    float m_radius;
 };
 
 class GameLayer : public moth_ui::Layer {
@@ -29,6 +31,8 @@ private:
     bool OnKeyEvent(moth_ui::EventKey const& event);
     bool OnWindowResize(canyon::EventWindowSize const& event);
     bool OnRequestQuitEvent(canyon::EventRequestQuit const& event);
+
+    void CreatePlayer();
 
     canyon::platform::Window& m_window;
     canyon::graphics::IGraphics& m_graphics;

@@ -5,14 +5,11 @@
 #include "system_weapon.h"
 #include "system_lifetime.h"
 #include "system_enemy_spawner.h"
-#include "system_collision.h"
-#include "system_health.h"
 #include <canyon/events/event_window.h>
 #include <canyon/platform/window.h>
 #include <moth_ui/events/event_dispatch.h>
 #include <moth_ui/events/event_key.h>
 #include <moth_ui/layers/layer_stack.h>
-#include <stdio.h>
 #include <spdlog/spdlog.h>
 
 GameLayer::GameLayer(canyon::platform::Window& window, moth_ui::Context& context,
@@ -32,12 +29,11 @@ bool GameLayer::OnEvent(moth_ui::Event const& event) {
 }
 
 void GameLayer::Update(uint32_t ticks) {
+    SystemLifetime::Update(m_registry, ticks);
     SystemEnemySpawner::Update(m_registry, ticks);
     SystemMovement::Update(m_registry, ticks);
     SystemWeapon::Update(m_registry, ticks);
-    SystemCollision::Update(m_registry, ticks);
-    SystemHealth::Update(m_registry, ticks);
-    SystemLifetime::Update(m_registry, ticks);
+    SystemProjectile::Update(m_registry, ticks);
 }
 
 void GameLayer::Draw() {
@@ -55,106 +51,39 @@ void GameLayer::OnAddedToStack(moth_ui::LayerStack* stack) {
     Layer::OnAddedToStack(stack);
 
     auto& surfaceContext = m_window.GetSurfaceContext();
-
     m_font = surfaceContext.FontFromFile("assets/font.ttf", 24);
 
-    m_player = m_registry.create();
-    m_registry.emplace<ComponentPlayer>(m_player);
-
-    auto& playerHealth = m_registry.emplace<ComponentHealth>(m_player);
-    playerHealth.m_maxHealth = 100;
-    playerHealth.m_currentHealth = 100;
-    playerHealth.m_onDeath = [&](entt::entity thisEntity, entt::entity killerEntity) {
-        spdlog::info("Player dies");
-    };
-
-    auto& playerCollision = m_registry.emplace<ComponentCollision>(m_player);
-    playerCollision.m_collisionMask = CollisionGroups::PLAYER;
-    playerCollision.m_collidesWithMask = 0;
-    playerCollision.m_radius = 5;
-
-    auto& position = m_registry.emplace<ComponentPosition>(m_player);
-    position.m_position = { m_window.GetWidth() / 2, m_window.GetHeight() - 60 };
-
-    auto& velocity = m_registry.emplace<ComponentVelocity>(m_player);
-    velocity.m_velocity = { 0, 0 };
-
-    m_registry.emplace<ComponentInput>(m_player);
-
-    auto& sprite = m_registry.emplace<ComponentSprite>(m_player);
-    sprite.m_sprite = surfaceContext.ImageFromFile("assets/player.png");
-    sprite.m_size = { 48, 48 };
-
-    auto& weapon = m_registry.emplace<ComponentWeapon>(m_player);
-    weapon.m_player = true;
-    weapon.m_color = BulletColor::WHITE;
-    weapon.m_maxCooldown = 200;
-    weapon.m_cooldown = 0;
-    weapon.m_projectile.m_sprite = surfaceContext.ImageFromFile("assets/bullet.png");
-    weapon.m_projectile.m_spriteSize = { weapon.m_projectile.m_sprite->GetWidth(),
-                                         weapon.m_projectile.m_sprite->GetHeight() };
-    weapon.m_projectile.m_damage = 10;
-    weapon.m_projectile.m_speed = 2000;
-    weapon.m_projectile.m_lifetime = 500;
-    weapon.m_projectile.m_radius = 5;
-    weapon.m_projectile.m_collisionMask = 0;
-    weapon.m_projectile.m_collidesWithMask = CollisionGroups::ENEMY;
-    weapon.m_projectile.m_onCollision = [&](entt::entity projectile, entt::entity enemy) {
-        // TODO: probably should be a system?
-        if (auto* projectileData = m_registry.try_get<ComponentBullet>(projectile)) {
-
-            if (auto* health = m_registry.try_get<ComponentHealth>(enemy)) {
-                health->m_currentHealth -= projectileData->m_damage;
-            }
-        }
-
-        // destroy projectile
-        if (auto* lifetime = m_registry.try_get<ComponentLifetime>(projectile)) {
-            lifetime->m_lifetime = 0;
-        }
-    };
+    CreatePlayer();
 
     m_enemySpawner = m_registry.create();
     auto& enemySpawner = m_registry.emplace<ComponentEnemySpawner>(m_enemySpawner);
     enemySpawner.m_active = true;
     enemySpawner.m_maxCooldown = 5000;
-    enemySpawner.m_template.m_sprite = surfaceContext.ImageFromFile("assets/enemy.png");
-    enemySpawner.m_template.m_spriteSize = { enemySpawner.m_template.m_sprite->GetWidth(),
-                                             enemySpawner.m_template.m_sprite->GetHeight() };
-    enemySpawner.m_template.m_maxHealth = 30;
-    enemySpawner.m_template.m_onDeath = [&](entt::entity enemy, entt::entity damager) {
-      if (auto* lifetime = m_registry.try_get<ComponentLifetime>(enemy)) {
-        lifetime->m_lifetime = 0;
-      }
-    };
-    enemySpawner.m_template.m_speed = 200.0f;
-    enemySpawner.m_template.m_weapon.m_player = false;
-    enemySpawner.m_template.m_weapon.m_maxCooldown = 2000;
-    enemySpawner.m_template.m_weapon.m_projectile.m_sprite =
-        surfaceContext.ImageFromFile("assets/enemy_bullet.png");
-    enemySpawner.m_template.m_weapon.m_projectile.m_spriteSize = {
-        enemySpawner.m_template.m_weapon.m_projectile.m_sprite->GetWidth(),
-        enemySpawner.m_template.m_weapon.m_projectile.m_sprite->GetHeight()
-    };
-    enemySpawner.m_template.m_weapon.m_projectile.m_damage = 10;
-    enemySpawner.m_template.m_weapon.m_projectile.m_speed = 1000;
-    enemySpawner.m_template.m_weapon.m_projectile.m_collidesWithMask = CollisionGroups::PLAYER;
-    enemySpawner.m_template.m_weapon.m_projectile.m_radius = 5;
-    enemySpawner.m_template.m_weapon.m_projectile.m_onCollision = [&](entt::entity projectileEntity,
-                                                                      entt::entity otherEntity) {
-        // TODO: probably should be a system?
-        if (auto* projectileData = m_registry.try_get<ComponentBullet>(projectileEntity)) {
-
-            if (auto* health = m_registry.try_get<ComponentHealth>(otherEntity)) {
-                health->m_currentHealth -= projectileData->m_damage;
-            }
-        }
-
-        // destroy projectile
-        if (auto* lifetime = m_registry.try_get<ComponentLifetime>(projectileEntity)) {
+    enemySpawner.m_enemyTemplate.m_sprite = surfaceContext.ImageFromFile("assets/enemy.png");
+    enemySpawner.m_enemyTemplate.m_spriteSize = { enemySpawner.m_enemyTemplate.m_sprite->GetWidth(),
+                                                  enemySpawner.m_enemyTemplate.m_sprite->GetHeight() };
+    enemySpawner.m_enemyTemplate.m_team = Team::ENEMY;
+    enemySpawner.m_enemyTemplate.m_radius = 10.0f;
+    enemySpawner.m_enemyTemplate.m_maxHealth = 30;
+    enemySpawner.m_enemyTemplate.m_onDeath = [&](entt::entity enemy, entt::entity damager) {
+        if (auto* lifetime = m_registry.try_get<ComponentLifetime>(enemy)) {
             lifetime->m_lifetime = 0;
         }
     };
+    enemySpawner.m_enemyTemplate.m_speed = 200.0f;
+    enemySpawner.m_enemyTemplate.m_lifetime = 10000.0f;
+    enemySpawner.m_enemyTemplate.m_weapon.m_maxCooldown = 2000;
+    auto enemyProjectileSprite = surfaceContext.ImageFromFile("assets/enemy_bullet.png");
+    enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_spriteSize = {
+        enemyProjectileSprite->GetWidth(), enemyProjectileSprite->GetHeight()
+    };
+    enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_sprite = std::move(enemyProjectileSprite);
+    enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_team = Team::ENEMY;
+    enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_color = ProjectileColor::WHITE;
+    enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_damage = 10;
+    enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_speed = 1000;
+    enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_lifetime = 4000;
+    enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_radius = 5;
 }
 
 
@@ -187,4 +116,47 @@ bool GameLayer::OnKeyEvent(moth_ui::EventKey const& event) {
     SystemInput::OnKey(m_registry, event);
 
     return false;
+}
+
+void GameLayer::CreatePlayer() {
+    m_player = m_registry.create();
+
+    auto& entityData = m_registry.emplace<ComponentEntity>(m_player);
+    entityData.m_team = Team::PLAYER;
+    entityData.m_radius = 5.0f;
+
+    auto& playerHealth = m_registry.emplace<ComponentHealth>(m_player);
+    playerHealth.m_maxHealth = 100;
+    playerHealth.m_currentHealth = 100;
+    playerHealth.m_onDeath = [&](entt::entity thisEntity, entt::entity killerEntity) {
+        spdlog::info("Player dies");
+    };
+
+    auto& position = m_registry.emplace<ComponentPosition>(m_player);
+    position.m_position = { m_window.GetWidth() / 2, m_window.GetHeight() - 60 };
+
+    auto& velocity = m_registry.emplace<ComponentVelocity>(m_player);
+    velocity.m_velocity = { 0, 0 };
+
+    m_registry.emplace<ComponentInput>(m_player);
+
+    auto& surfaceContext = m_window.GetSurfaceContext();
+    auto& sprite = m_registry.emplace<ComponentSprite>(m_player);
+    sprite.m_sprite = surfaceContext.ImageFromFile("assets/player.png");
+    sprite.m_size = { 48, 48 };
+
+    auto& weapon = m_registry.emplace<ComponentWeapon>(m_player);
+    weapon.m_active = false;
+    weapon.m_cooldown = 0;
+    weapon.m_maxCooldown = 200;
+    auto projectileSprite = surfaceContext.ImageFromFile("assets/bullet.png");
+    weapon.m_projectileTemplate.m_spriteSize = { projectileSprite->GetWidth(),
+                                                 projectileSprite->GetHeight() };
+    weapon.m_projectileTemplate.m_sprite = std::move(projectileSprite);
+    weapon.m_projectileTemplate.m_team = Team::PLAYER;
+    weapon.m_projectileTemplate.m_color = ProjectileColor::WHITE;
+    weapon.m_projectileTemplate.m_damage = 10;
+    weapon.m_projectileTemplate.m_speed = 2000;
+    weapon.m_projectileTemplate.m_lifetime = 500;
+    weapon.m_projectileTemplate.m_radius = 5;
 }

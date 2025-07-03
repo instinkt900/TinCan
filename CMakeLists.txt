@@ -18,8 +18,7 @@ set(SOURCES ${SOURCES}
 	src/system_weapon.cpp
 	src/system_lifetime.cpp
 	src/system_enemy_spawner.cpp
-	src/system_collision.cpp
-	src/system_health.cpp
+	src/system_projectile.cpp
 )
 
 find_package(canyon REQUIRED)

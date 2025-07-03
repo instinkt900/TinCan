@@ -3,12 +3,15 @@
 #include "system_weapon.h"
 #include <canyon/graphics/iimage.h>
 #include <entt/entity/fwd.hpp>
+#include <functional>
 #include <moth_ui/utils/vector.h>
 #include <moth_ui/utils/rect.h>
 
 struct EnemyTemplate {
     std::shared_ptr<canyon::graphics::IImage> m_sprite;
     moth_ui::FloatVec2 m_spriteSize = { 0, 0 };
+    Team m_team;
+    float m_radius;
     int32_t m_maxHealth = 100;
     float m_speed = 1.0f;
     uint32_t m_lifetime = 1000;
@@ -21,11 +24,7 @@ struct ComponentEnemySpawner {
     uint32_t m_cooldown = 0;
     uint32_t m_maxCooldown = 1000;
     moth_ui::IntRect m_spawnRegion;
-    EnemyTemplate m_template;
-};
-
-struct ComponentEnemy {
-    int m_dummy = 1;
+    EnemyTemplate m_enemyTemplate;
 };
 
 class SystemEnemySpawner {

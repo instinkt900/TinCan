@@ -1,6 +1,6 @@
 #include "system_enemy_spawner.h"
-#include "system_collision.h"
-#include "system_health.h"
+#include "game_layer.h"
+#include "system_projectile.h"
 #include "system_lifetime.h"
 #include "system_movement.h"
 #include "system_sprite.h"
@@ -17,25 +17,23 @@ void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks) {
 
         if (spawner.m_active && spawner.m_cooldown <= ticks) {
             auto enemy = registry.create();
-            registry.emplace<ComponentEnemy>(enemy);
+            auto& entityData = registry.emplace<ComponentEntity>(enemy);
             auto& health = registry.emplace<ComponentHealth>(enemy);
-            auto& collision = registry.emplace<ComponentCollision>(enemy);
             auto& sprite = registry.emplace<ComponentSprite>(enemy);
             auto& pos = registry.emplace<ComponentPosition>(enemy);
             auto& vel = registry.emplace<ComponentVelocity>(enemy);
             auto& weapon = registry.emplace<ComponentWeapon>(enemy);
             auto& lifetime = registry.emplace<ComponentLifetime>(enemy);
 
-            health.m_currentHealth = spawner.m_template.m_maxHealth;
-            health.m_maxHealth = spawner.m_template.m_maxHealth;
-            health.m_onDeath = spawner.m_template.m_onDeath;
+            entityData.m_team = spawner.m_enemyTemplate.m_team;
+            entityData.m_radius = spawner.m_enemyTemplate.m_radius;
 
-            collision.m_radius = 5;
-            collision.m_collisionMask = CollisionGroups::ENEMY;
-            collision.m_collidesWithMask = 0;
+            health.m_currentHealth = spawner.m_enemyTemplate.m_maxHealth;
+            health.m_maxHealth = spawner.m_enemyTemplate.m_maxHealth;
+            health.m_onDeath = spawner.m_enemyTemplate.m_onDeath;
 
-            sprite.m_sprite = spawner.m_template.m_sprite;
-            sprite.m_size = spawner.m_template.m_spriteSize;
+            sprite.m_sprite = spawner.m_enemyTemplate.m_sprite;
+            sprite.m_size = spawner.m_enemyTemplate.m_spriteSize;
 
             float const xfact = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
             float const yfact = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
@@ -47,23 +45,20 @@ void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks) {
             pos.m_position.y = minY + height;
 
             vel.m_velocity.x = 0;
-            vel.m_velocity.y = spawner.m_template.m_speed;
+            vel.m_velocity.y = spawner.m_enemyTemplate.m_speed;
 
-            weapon.m_player = false;
             weapon.m_active = true;
-            weapon.m_maxCooldown = spawner.m_template.m_weapon.m_maxCooldown;
-            weapon.m_cooldown = weapon.m_maxCooldown;
-            weapon.m_projectile.m_sprite = spawner.m_template.m_weapon.m_projectile.m_sprite;
-            weapon.m_projectile.m_spriteSize = spawner.m_template.m_weapon.m_projectile.m_spriteSize;
-            weapon.m_projectile.m_damage = spawner.m_template.m_weapon.m_projectile.m_damage;
-            weapon.m_projectile.m_speed = spawner.m_template.m_weapon.m_projectile.m_speed;
-            weapon.m_projectile.m_lifetime = spawner.m_template.m_weapon.m_projectile.m_lifetime;
-            weapon.m_projectile.m_collisionMask = spawner.m_template.m_weapon.m_projectile.m_collisionMask;
-            weapon.m_projectile.m_collidesWithMask = spawner.m_template.m_weapon.m_projectile.m_collidesWithMask;
-            weapon.m_projectile.m_radius = spawner.m_template.m_weapon.m_projectile.m_radius;
-            weapon.m_projectile.m_onCollision = spawner.m_template.m_weapon.m_projectile.m_onCollision;
+            weapon.m_cooldown = spawner.m_enemyTemplate.m_weapon.m_maxCooldown;
+            weapon.m_maxCooldown = spawner.m_enemyTemplate.m_weapon.m_maxCooldown;
+            weapon.m_projectileTemplate.m_sprite = spawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_sprite;
+            weapon.m_projectileTemplate.m_spriteSize = spawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_spriteSize;
+            weapon.m_projectileTemplate.m_team = spawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_team;
+            weapon.m_projectileTemplate.m_damage = spawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_damage;
+            weapon.m_projectileTemplate.m_speed = spawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_speed;
+            weapon.m_projectileTemplate.m_lifetime = spawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_lifetime;
+            weapon.m_projectileTemplate.m_radius = spawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_radius;
 
-            lifetime.m_lifetime = 5000;
+            lifetime.m_lifetime = spawner.m_enemyTemplate.m_lifetime;;
 
             spawner.m_cooldown += spawner.m_maxCooldown - (ticks - spawner.m_cooldown);
         }
