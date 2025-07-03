@@ -6,6 +6,11 @@
 #include <moth_ui/layers/layer.h>
 #include <entt/entt.hpp>
 
+struct ComponentPlayer {
+  uint32_t m_playerNumber = 1;
+  uint32_t m_health = 100;
+};
+
 class GameLayer : public moth_ui::Layer {
 public:
     GameLayer(canyon::platform::Window& window, moth_ui::Context& context, canyon::graphics::IGraphics& graphics);
@@ -28,6 +33,8 @@ private:
 
     canyon::platform::Window& m_window;
     canyon::graphics::IGraphics& m_graphics;
+    std::unique_ptr<canyon::graphics::IFont> m_font;
     entt::registry m_registry;
     entt::entity m_player;
+    entt::entity m_enemySpawner;
 };

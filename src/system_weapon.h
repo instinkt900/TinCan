@@ -2,6 +2,7 @@
 
 #include <entt/entity/fwd.hpp>
 #include <canyon/graphics/surface_context.h>
+#include <functional>
 #include <moth_ui/utils/vector.h>
 
 enum BulletColor {
@@ -14,6 +15,10 @@ struct ProjectileTemplate {
     moth_ui::FloatVec2 m_spriteSize = { 0, 0 };
     float m_speed = 1000.0f;
     uint32_t m_lifetime = 1000;
+    float m_radius = 0;
+    uint32_t m_collisionMask = 0;
+    uint32_t m_collidesWithMask = 0;
+    std::function<void(entt::entity, entt::entity)> m_onCollision;
 };
 
 struct ComponentWeapon {
