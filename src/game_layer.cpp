@@ -6,6 +6,7 @@
 #include "system_lifetime.h"
 #include "system_enemy_spawner.h"
 #include "system_collision.h"
+#include "system_health.h"
 #include <canyon/events/event_window.h>
 #include <canyon/platform/window.h>
 #include <moth_ui/events/event_dispatch.h>
@@ -35,14 +36,15 @@ void GameLayer::Update(uint32_t ticks) {
     SystemMovement::Update(m_registry, ticks);
     SystemWeapon::Update(m_registry, ticks);
     SystemCollision::Update(m_registry, ticks);
+    SystemHealth::Update(m_registry, ticks);
     SystemLifetime::Update(m_registry, ticks);
 }
 
 void GameLayer::Draw() {
     SystemSprite::Update(m_registry, m_graphics);
 
-    if (auto* playerHealth = m_registry.try_get<ComponentPlayer>(m_player)) {
-        m_graphics.DrawText(fmt::format("Player health: {}", playerHealth->m_health), *m_font,
+    if (auto* playerHealth = m_registry.try_get<ComponentHealth>(m_player)) {
+        m_graphics.DrawText(fmt::format("Player health: {}", playerHealth->m_currentHealth), *m_font,
                             canyon::graphics::TextHorizAlignment::Left,
                             canyon::graphics::TextVertAlignment::Middle,
                             canyon::MakeRect(0, 0, m_window.GetWidth(), 80));
@@ -58,6 +60,13 @@ void GameLayer::OnAddedToStack(moth_ui::LayerStack* stack) {
 
     m_player = m_registry.create();
     m_registry.emplace<ComponentPlayer>(m_player);
+
+    auto& playerHealth = m_registry.emplace<ComponentHealth>(m_player);
+    playerHealth.m_maxHealth = 100;
+    playerHealth.m_currentHealth = 100;
+    playerHealth.m_onDeath = [&](entt::entity thisEntity, entt::entity killerEntity) {
+        spdlog::info("Player dies");
+    };
 
     auto& playerCollision = m_registry.emplace<ComponentCollision>(m_player);
     playerCollision.m_collisionMask = CollisionGroups::PLAYER;
@@ -84,13 +93,25 @@ void GameLayer::OnAddedToStack(moth_ui::LayerStack* stack) {
     weapon.m_projectile.m_sprite = surfaceContext.ImageFromFile("assets/bullet.png");
     weapon.m_projectile.m_spriteSize = { weapon.m_projectile.m_sprite->GetWidth(),
                                          weapon.m_projectile.m_sprite->GetHeight() };
+    weapon.m_projectile.m_damage = 10;
     weapon.m_projectile.m_speed = 2000;
     weapon.m_projectile.m_lifetime = 500;
     weapon.m_projectile.m_radius = 5;
     weapon.m_projectile.m_collisionMask = 0;
     weapon.m_projectile.m_collidesWithMask = CollisionGroups::ENEMY;
     weapon.m_projectile.m_onCollision = [&](entt::entity projectile, entt::entity enemy) {
-      spdlog::info("Enemy hit");
+        // TODO: probably should be a system?
+        if (auto* projectileData = m_registry.try_get<ComponentBullet>(projectile)) {
+
+            if (auto* health = m_registry.try_get<ComponentHealth>(enemy)) {
+                health->m_currentHealth -= projectileData->m_damage;
+            }
+        }
+
+        // destroy projectile
+        if (auto* lifetime = m_registry.try_get<ComponentLifetime>(projectile)) {
+            lifetime->m_lifetime = 0;
+        }
     };
 
     m_enemySpawner = m_registry.create();
@@ -100,6 +121,12 @@ void GameLayer::OnAddedToStack(moth_ui::LayerStack* stack) {
     enemySpawner.m_template.m_sprite = surfaceContext.ImageFromFile("assets/enemy.png");
     enemySpawner.m_template.m_spriteSize = { enemySpawner.m_template.m_sprite->GetWidth(),
                                              enemySpawner.m_template.m_sprite->GetHeight() };
+    enemySpawner.m_template.m_maxHealth = 30;
+    enemySpawner.m_template.m_onDeath = [&](entt::entity enemy, entt::entity damager) {
+      if (auto* lifetime = m_registry.try_get<ComponentLifetime>(enemy)) {
+        lifetime->m_lifetime = 0;
+      }
+    };
     enemySpawner.m_template.m_speed = 200.0f;
     enemySpawner.m_template.m_weapon.m_player = false;
     enemySpawner.m_template.m_weapon.m_maxCooldown = 2000;
@@ -109,23 +136,23 @@ void GameLayer::OnAddedToStack(moth_ui::LayerStack* stack) {
         enemySpawner.m_template.m_weapon.m_projectile.m_sprite->GetWidth(),
         enemySpawner.m_template.m_weapon.m_projectile.m_sprite->GetHeight()
     };
+    enemySpawner.m_template.m_weapon.m_projectile.m_damage = 10;
     enemySpawner.m_template.m_weapon.m_projectile.m_speed = 1000;
     enemySpawner.m_template.m_weapon.m_projectile.m_collidesWithMask = CollisionGroups::PLAYER;
     enemySpawner.m_template.m_weapon.m_projectile.m_radius = 5;
     enemySpawner.m_template.m_weapon.m_projectile.m_onCollision = [&](entt::entity projectileEntity,
                                                                       entt::entity otherEntity) {
-        spdlog::info("enemy bullet hit player");
-        if (auto* lifetime = m_registry.try_get<ComponentLifetime>(projectileEntity)) {
-            lifetime->m_lifetime = 0;
+        // TODO: probably should be a system?
+        if (auto* projectileData = m_registry.try_get<ComponentBullet>(projectileEntity)) {
+
+            if (auto* health = m_registry.try_get<ComponentHealth>(otherEntity)) {
+                health->m_currentHealth -= projectileData->m_damage;
+            }
         }
 
-        uint32_t const damage = 10;
-        if (auto* player = m_registry.try_get<ComponentPlayer>(otherEntity)) {
-            if (player->m_health <= damage) {
-                spdlog::info("player dies");
-            } else {
-                player->m_health -= damage;
-            }
+        // destroy projectile
+        if (auto* lifetime = m_registry.try_get<ComponentLifetime>(projectileEntity)) {
+            lifetime->m_lifetime = 0;
         }
     };
 }

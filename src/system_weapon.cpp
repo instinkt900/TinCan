@@ -24,6 +24,7 @@ void SystemWeapon::Update(entt::registry& registry, uint32_t ticks) {
                 bulletVel.m_velocity.y *= weapon.m_player ? -1 : 1;
                 bulletData.m_player = weapon.m_player;
                 bulletData.m_color = weapon.m_color;
+                bulletData.m_damage = weapon.m_projectile.m_damage;
                 bulletLifetime.m_lifetime = weapon.m_projectile.m_lifetime;
                 bulletSprite.m_sprite = weapon.m_projectile.m_sprite;
                 bulletSprite.m_size = weapon.m_projectile.m_spriteSize;

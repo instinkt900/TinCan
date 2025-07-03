@@ -8,7 +8,6 @@
 
 struct ComponentPlayer {
   uint32_t m_playerNumber = 1;
-  uint32_t m_health = 100;
 };
 
 class GameLayer : public moth_ui::Layer {

@@ -1,5 +1,6 @@
 #include "system_enemy_spawner.h"
 #include "system_collision.h"
+#include "system_health.h"
 #include "system_lifetime.h"
 #include "system_movement.h"
 #include "system_sprite.h"
@@ -16,7 +17,8 @@ void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks) {
 
         if (spawner.m_active && spawner.m_cooldown <= ticks) {
             auto enemy = registry.create();
-            auto& enemyComponent = registry.emplace<ComponentEnemy>(enemy);
+            registry.emplace<ComponentEnemy>(enemy);
+            auto& health = registry.emplace<ComponentHealth>(enemy);
             auto& collision = registry.emplace<ComponentCollision>(enemy);
             auto& sprite = registry.emplace<ComponentSprite>(enemy);
             auto& pos = registry.emplace<ComponentPosition>(enemy);
@@ -24,7 +26,9 @@ void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks) {
             auto& weapon = registry.emplace<ComponentWeapon>(enemy);
             auto& lifetime = registry.emplace<ComponentLifetime>(enemy);
 
-            enemyComponent.m_health = 100;
+            health.m_currentHealth = spawner.m_template.m_maxHealth;
+            health.m_maxHealth = spawner.m_template.m_maxHealth;
+            health.m_onDeath = spawner.m_template.m_onDeath;
 
             collision.m_radius = 5;
             collision.m_collisionMask = CollisionGroups::ENEMY;
@@ -51,6 +55,7 @@ void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks) {
             weapon.m_cooldown = weapon.m_maxCooldown;
             weapon.m_projectile.m_sprite = spawner.m_template.m_weapon.m_projectile.m_sprite;
             weapon.m_projectile.m_spriteSize = spawner.m_template.m_weapon.m_projectile.m_spriteSize;
+            weapon.m_projectile.m_damage = spawner.m_template.m_weapon.m_projectile.m_damage;
             weapon.m_projectile.m_speed = spawner.m_template.m_weapon.m_projectile.m_speed;
             weapon.m_projectile.m_lifetime = spawner.m_template.m_weapon.m_projectile.m_lifetime;
             weapon.m_projectile.m_collisionMask = spawner.m_template.m_weapon.m_projectile.m_collisionMask;

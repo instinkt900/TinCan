@@ -5,6 +5,8 @@
 
 struct ComponentPosition {
     moth_ui::FloatVec2 m_position;
+    moth_ui::FloatVec2 m_lastPosition;
+    uint32_t m_lastTicks = 0;
 };
 
 struct ComponentVelocity {

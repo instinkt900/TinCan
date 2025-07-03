@@ -9,9 +9,11 @@
 struct EnemyTemplate {
     std::shared_ptr<canyon::graphics::IImage> m_sprite;
     moth_ui::FloatVec2 m_spriteSize = { 0, 0 };
-    float m_speed;
+    int32_t m_maxHealth = 100;
+    float m_speed = 1.0f;
     uint32_t m_lifetime = 1000;
     ComponentWeapon m_weapon;
+    std::function<void(entt::entity, entt::entity)> m_onDeath;
 };
 
 struct ComponentEnemySpawner {
@@ -23,7 +25,7 @@ struct ComponentEnemySpawner {
 };
 
 struct ComponentEnemy {
-    int m_health = 100;
+    int m_dummy = 1;
 };
 
 class SystemEnemySpawner {

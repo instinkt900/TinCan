@@ -13,6 +13,7 @@ enum BulletColor {
 struct ProjectileTemplate {
     std::shared_ptr<canyon::graphics::IImage> m_sprite;
     moth_ui::FloatVec2 m_spriteSize = { 0, 0 };
+    int32_t m_damage = 1;
     float m_speed = 1000.0f;
     uint32_t m_lifetime = 1000;
     float m_radius = 0;
@@ -33,6 +34,7 @@ struct ComponentWeapon {
 struct ComponentBullet {
     bool m_player = false;
     BulletColor m_color = BulletColor::WHITE;
+    int32_t m_damage = 1;
 };
 
 class SystemWeapon {
