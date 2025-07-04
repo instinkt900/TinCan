@@ -8,24 +8,21 @@ void SystemShield::Update(entt::registry& registry, uint32_t ticks) {
     auto view = registry.view<ComponentShield, ComponentEntity, ComponentPosition, ComponentVelocity>();
 
     for (auto [shieldEntity, shieldData, shieldEntityData, shieldPosition, shieldVelocity] : view.each()) {
-        auto* shieldOwnerData = registry.try_get<ComponentEntity>(shieldData.m_owner);
-        if (shieldOwnerData == nullptr) {
-            continue;
-        }
         auto projectileView =
             registry.view<ComponentProjectile, ComponentEntity, ComponentPosition, ComponentVelocity>();
 
         for (auto [projectileEntity, projectileData, projectileEntityData, projectilePosition,
                    projectileVelocity] : projectileView.each()) {
-            if (projectileData.m_color == shieldOwnerData->m_color &&
+            if (projectileData.m_color == shieldEntityData.m_color &&
                 projectileEntityData.m_team != shieldEntityData.m_team) {
 
                 auto const entity1Vel = shieldPosition.m_position - shieldPosition.m_lastPosition;
                 auto const entity2Vel = projectilePosition.m_position - projectilePosition.m_lastPosition;
                 auto const relativeVel = entity2Vel - entity1Vel;
                 auto const combinedRadius = shieldData.m_radius + projectileEntityData.m_radius;
-                auto const t = SystemProjectile::Sweep(shieldPosition.m_position, projectilePosition.m_lastPosition,
-                                     relativeVel, combinedRadius);
+                auto const t =
+                    SystemProjectile::Sweep(shieldPosition.m_position, projectilePosition.m_lastPosition,
+                                            relativeVel, combinedRadius);
                 if (t < 1.0f) {
                     // projectile collided with shield
 
@@ -35,7 +32,7 @@ void SystemShield::Update(entt::registry& registry, uint32_t ticks) {
                     }
 
                     // apply power
-                    if (auto* ownerPower = registry.try_get<ComponentPower>(shieldData.m_owner)) {
+                    if (auto* ownerPower = registry.try_get<ComponentPower>(shieldEntity)) {
                         ownerPower->m_power += projectileData.m_damage;
                     }
                 }

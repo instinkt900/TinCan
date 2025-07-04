@@ -7,7 +7,6 @@ struct ComponentPower {
 };
 
 struct ComponentShield {
-    entt::entity m_owner;
     float m_radius;
 };
 

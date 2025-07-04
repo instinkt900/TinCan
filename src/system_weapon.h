@@ -19,6 +19,7 @@ struct ComponentWeapon {
     bool m_active = false;
     uint32_t m_cooldown = 0;
     uint32_t m_maxCooldown = 1000;
+    bool m_playerTracking = false;
     ProjectileTemplate m_projectileTemplate;
 };
 

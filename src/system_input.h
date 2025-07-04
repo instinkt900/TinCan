@@ -6,6 +6,7 @@
 
 struct ComponentInput {
   std::map<moth_ui::Key, bool> m_state;
+  std::map<moth_ui::Key, bool> m_lastState;
 };
 
 class SystemInput {

@@ -48,6 +48,7 @@ void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks) {
             vel.m_velocity.y = spawner.m_enemyTemplate.m_speed;
 
             weapon.m_active = true;
+            weapon.m_playerTracking = spawner.m_enemyTemplate.m_weapon.m_playerTracking;
             weapon.m_cooldown = spawner.m_enemyTemplate.m_weapon.m_maxCooldown;
             weapon.m_maxCooldown = spawner.m_enemyTemplate.m_weapon.m_maxCooldown;
             weapon.m_projectileTemplate.m_drawable = spawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_drawable;

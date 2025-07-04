@@ -2,6 +2,7 @@
 #include "system_input.h"
 #include "system_movement.h"
 #include "system_drawable.h"
+#include "system_player_visuals.h"
 #include "system_shield.h"
 #include "system_weapon.h"
 #include "system_lifetime.h"
@@ -36,12 +37,15 @@ void GameLayer::Update(uint32_t ticks) {
     SystemWeapon::Update(m_registry, ticks);
     SystemShield::Update(m_registry, ticks);
     SystemProjectile::Update(m_registry, ticks);
+    SystemPlayerVisuals::Update(m_registry, ticks);
 }
 
 void GameLayer::Draw() {
     SystemDrawable::Update(m_registry, m_graphics);
 
     if (auto* playerHealth = m_registry.try_get<ComponentHealth>(m_player)) {
+        m_graphics.SetColor(canyon::graphics::BasicColors::White);
+        m_graphics.SetBlendMode(canyon::graphics::BlendMode::Alpha);
         m_graphics.DrawText(fmt::format("Player health: {}", playerHealth->m_currentHealth), *m_font,
                             canyon::graphics::TextHorizAlignment::Left,
                             canyon::graphics::TextVertAlignment::Middle,
@@ -77,14 +81,16 @@ void GameLayer::OnAddedToStack(moth_ui::LayerStack* stack) {
     enemySpawner.m_enemyTemplate.m_speed = 200.0f;
     enemySpawner.m_enemyTemplate.m_lifetime = 10000.0f;
     enemySpawner.m_enemyTemplate.m_weapon.m_maxCooldown = 2000;
+    enemySpawner.m_enemyTemplate.m_weapon.m_playerTracking = true;
     auto enemyProjectileImage = surfaceContext.ImageFromFile("assets/enemy_bullet.png");
     Sprite projectileSprite;
     projectileSprite.m_size = { enemyProjectileImage->GetWidth(), enemyProjectileImage->GetHeight() };
     projectileSprite.m_image = std::move(enemyProjectileImage);
-    enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_drawable.m_sprites.push_back(projectileSprite);
+    enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_drawable.m_sprites.push_back(
+        projectileSprite);
     enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_team = Team::ENEMY;
     enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_damage = 10;
-    enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_speed = 1000;
+    enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_speed = 300;
     enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_lifetime = 4000;
     enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_radius = 5;
 }
@@ -123,6 +129,7 @@ bool GameLayer::OnKeyEvent(moth_ui::EventKey const& event) {
 
 void GameLayer::CreatePlayer() {
     m_player = m_registry.create();
+    m_registry.emplace<PlayerTag>(m_player);
 
     auto& entityData = m_registry.emplace<ComponentEntity>(m_player);
     entityData.m_team = Team::PLAYER;
@@ -147,22 +154,18 @@ void GameLayer::CreatePlayer() {
     auto& surfaceContext = m_window.GetSurfaceContext();
     auto& drawable = m_registry.emplace<ComponentDrawable>(m_player);
 
-    Sprite shipSprite;
+    Sprite& shipSprite = drawable.m_sprites.emplace_back();
     shipSprite.m_image = surfaceContext.ImageFromFile("assets/player.png");
     shipSprite.m_size = { shipSprite.m_image->GetWidth(), shipSprite.m_image->GetHeight() };
     shipSprite.m_blendMode = canyon::graphics::BlendMode::Alpha;
 
-    Sprite shieldSprite;
+    Sprite& shieldSprite = drawable.m_sprites.emplace_back();
     shieldSprite.m_image = surfaceContext.ImageFromFile("assets/shield.png");
-    shieldSprite.m_size = { shieldSprite.m_image->GetWidth() + 20, shieldSprite.m_image->GetHeight() + 20 };
+    shieldSprite.m_size = { shieldSprite.m_image->GetWidth() + 40, shieldSprite.m_image->GetHeight() + 40 };
     shieldSprite.m_blendMode = canyon::graphics::BlendMode::Add;
 
-    drawable.m_sprites.push_back(shipSprite);
-    drawable.m_sprites.push_back(shieldSprite);
-
     auto& shield = m_registry.emplace<ComponentShield>(m_player);
-    shield.m_owner = m_player;
-    shield.m_radius = 36;
+    shield.m_radius = 56;
 
     auto& power = m_registry.emplace<ComponentPower>(m_player);
     power.m_power = 0;
@@ -170,7 +173,7 @@ void GameLayer::CreatePlayer() {
     auto& weapon = m_registry.emplace<ComponentWeapon>(m_player);
     weapon.m_active = false;
     weapon.m_cooldown = 0;
-    weapon.m_maxCooldown = 100;
+    weapon.m_maxCooldown = 500;
     auto projectileImage = surfaceContext.ImageFromFile("assets/bullet.png");
     Sprite projectileSprite;
     projectileSprite.m_size = { projectileImage->GetWidth(), projectileImage->GetHeight() };

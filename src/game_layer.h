@@ -7,6 +7,8 @@
 #include <moth_ui/layers/layer.h>
 #include <entt/entt.hpp>
 
+struct PlayerTag{};
+
 struct ComponentEntity {
     Team m_team;
     EnergyColor m_color;
