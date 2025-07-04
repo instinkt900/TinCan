@@ -7,8 +7,8 @@
 #include <spdlog/spdlog.h>
 
 void SystemWeapon::Update(entt::registry& registry, uint32_t ticks) {
-    auto view = registry.view<ComponentWeapon, ComponentPosition>();
-    for (auto [entity, weapon, position] : view.each()) {
+    auto view = registry.view<ComponentWeapon, ComponentEntity, ComponentPosition>();
+    for (auto [entity, weapon, entityData, position] : view.each()) {
         if (weapon.m_cooldown <= ticks) {
             while (weapon.m_active && weapon.m_cooldown <= ticks) {
                 auto projectile = registry.create();
@@ -20,7 +20,7 @@ void SystemWeapon::Update(entt::registry& registry, uint32_t ticks) {
                 auto& projectileLifetime = registry.emplace<ComponentLifetime>(projectile);
 
                 projectileData.m_owner = entity;
-                projectileData.m_color = weapon.m_projectileTemplate.m_color;
+                projectileData.m_color = entityData.m_color;
                 projectileData.m_damage = weapon.m_projectileTemplate.m_damage;
                 projectileEntityData.m_team = weapon.m_projectileTemplate.m_team;
                 projectileEntityData.m_radius = weapon.m_projectileTemplate.m_radius;

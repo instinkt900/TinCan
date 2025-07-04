@@ -1,5 +1,6 @@
 #pragma once
 
+#include "system_projectile.h"
 #include "system_weapon.h"
 #include <canyon/graphics/iimage.h>
 #include <entt/entity/fwd.hpp>
@@ -10,6 +11,7 @@
 struct EnemyTemplate {
     ComponentDrawable m_drawable;
     Team m_team = Team::NONE;
+    EnergyColor m_color = EnergyColor::WHITE;
     float m_radius = 1;
     int32_t m_maxHealth = 100;
     float m_speed = 1.0f;

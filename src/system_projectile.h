@@ -3,6 +3,7 @@
 #include <entt/entity/entity.hpp>
 #include <entt/entity/fwd.hpp>
 #include <functional>
+#include <moth_ui/utils/vector.h>
 
 enum Team {
     NONE = 0,
@@ -10,14 +11,14 @@ enum Team {
     ENEMY = 2,
 };
 
-enum ProjectileColor {
+enum EnergyColor {
     WHITE,
     BLACK,
 };
 
 struct ComponentProjectile {
     entt::entity m_owner = entt::null;
-    ProjectileColor m_color = ProjectileColor::WHITE;
+    EnergyColor m_color = EnergyColor::WHITE;
     int32_t m_damage = 1;
 };
 
@@ -32,4 +33,7 @@ struct ComponentHealth {
 class SystemProjectile {
 public:
     static void Update(entt::registry& registry, uint32_t ticks);
+    static float Sweep(moth_ui::FloatVec2 const& stationary, moth_ui::FloatVec2 const& moving,
+                        moth_ui::FloatVec2 const& velocity, float radius);
+
 };

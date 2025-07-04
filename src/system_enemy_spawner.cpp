@@ -26,6 +26,7 @@ void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks) {
             auto& lifetime = registry.emplace<ComponentLifetime>(enemy);
 
             entityData.m_team = spawner.m_enemyTemplate.m_team;
+            entityData.m_color = spawner.m_enemyTemplate.m_color;
             entityData.m_radius = spawner.m_enemyTemplate.m_radius;
 
             health.m_currentHealth = spawner.m_enemyTemplate.m_maxHealth;

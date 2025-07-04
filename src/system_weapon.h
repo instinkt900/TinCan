@@ -9,7 +9,6 @@
 struct ProjectileTemplate {
     ComponentDrawable m_drawable{};
     Team m_team = Team::NONE;
-    ProjectileColor m_color = ProjectileColor::WHITE;
     int32_t m_damage = 1;
     float m_speed = 1000.0f;
     uint32_t m_lifetime = 1000;

@@ -6,7 +6,7 @@
 #include <moth_ui/utils/vector_utils.h>
 #include <spdlog/spdlog.h>
 
-float Sweep(moth_ui::FloatVec2 const& stationary, moth_ui::FloatVec2 const& moving,
+float SystemProjectile::Sweep(moth_ui::FloatVec2 const& stationary, moth_ui::FloatVec2 const& moving,
             moth_ui::FloatVec2 const& velocity, float radius) {
     auto const delta = moving - stationary;
 

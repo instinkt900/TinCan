@@ -2,6 +2,7 @@
 #include "system_input.h"
 #include "system_movement.h"
 #include "system_drawable.h"
+#include "system_shield.h"
 #include "system_weapon.h"
 #include "system_lifetime.h"
 #include "system_enemy_spawner.h"
@@ -33,6 +34,7 @@ void GameLayer::Update(uint32_t ticks) {
     SystemEnemySpawner::Update(m_registry, ticks);
     SystemMovement::Update(m_registry, ticks);
     SystemWeapon::Update(m_registry, ticks);
+    SystemShield::Update(m_registry, ticks);
     SystemProjectile::Update(m_registry, ticks);
 }
 
@@ -81,7 +83,6 @@ void GameLayer::OnAddedToStack(moth_ui::LayerStack* stack) {
     projectileSprite.m_image = std::move(enemyProjectileImage);
     enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_drawable.m_sprites.push_back(projectileSprite);
     enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_team = Team::ENEMY;
-    enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_color = ProjectileColor::WHITE;
     enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_damage = 10;
     enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_speed = 1000;
     enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_lifetime = 4000;
@@ -125,6 +126,7 @@ void GameLayer::CreatePlayer() {
 
     auto& entityData = m_registry.emplace<ComponentEntity>(m_player);
     entityData.m_team = Team::PLAYER;
+    entityData.m_color = EnergyColor::WHITE;
     entityData.m_radius = 5.0f;
 
     auto& playerHealth = m_registry.emplace<ComponentHealth>(m_player);
@@ -158,6 +160,13 @@ void GameLayer::CreatePlayer() {
     drawable.m_sprites.push_back(shipSprite);
     drawable.m_sprites.push_back(shieldSprite);
 
+    auto& shield = m_registry.emplace<ComponentShield>(m_player);
+    shield.m_owner = m_player;
+    shield.m_radius = 36;
+
+    auto& power = m_registry.emplace<ComponentPower>(m_player);
+    power.m_power = 0;
+
     auto& weapon = m_registry.emplace<ComponentWeapon>(m_player);
     weapon.m_active = false;
     weapon.m_cooldown = 0;
@@ -169,7 +178,6 @@ void GameLayer::CreatePlayer() {
     projectileSprite.m_blendMode = canyon::graphics::BlendMode::Alpha;
     weapon.m_projectileTemplate.m_drawable.m_sprites.push_back(projectileSprite);
     weapon.m_projectileTemplate.m_team = Team::PLAYER;
-    weapon.m_projectileTemplate.m_color = ProjectileColor::WHITE;
     weapon.m_projectileTemplate.m_damage = 10;
     weapon.m_projectileTemplate.m_speed = 2000;
     weapon.m_projectileTemplate.m_lifetime = 500;
