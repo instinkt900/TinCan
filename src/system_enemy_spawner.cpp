@@ -3,7 +3,7 @@
 #include "system_projectile.h"
 #include "system_lifetime.h"
 #include "system_movement.h"
-#include "system_sprite.h"
+#include "system_drawable.h"
 #include <entt/entt.hpp>
 #include <spdlog/spdlog.h>
 
@@ -19,7 +19,7 @@ void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks) {
             auto enemy = registry.create();
             auto& entityData = registry.emplace<ComponentEntity>(enemy);
             auto& health = registry.emplace<ComponentHealth>(enemy);
-            auto& sprite = registry.emplace<ComponentSprite>(enemy);
+            auto& drawable = registry.emplace<ComponentDrawable>(enemy);
             auto& pos = registry.emplace<ComponentPosition>(enemy);
             auto& vel = registry.emplace<ComponentVelocity>(enemy);
             auto& weapon = registry.emplace<ComponentWeapon>(enemy);
@@ -32,8 +32,7 @@ void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks) {
             health.m_maxHealth = spawner.m_enemyTemplate.m_maxHealth;
             health.m_onDeath = spawner.m_enemyTemplate.m_onDeath;
 
-            sprite.m_sprite = spawner.m_enemyTemplate.m_sprite;
-            sprite.m_size = spawner.m_enemyTemplate.m_spriteSize;
+            drawable.m_sprites = spawner.m_enemyTemplate.m_drawable.m_sprites;
 
             float const xfact = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
             float const yfact = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
@@ -50,8 +49,7 @@ void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks) {
             weapon.m_active = true;
             weapon.m_cooldown = spawner.m_enemyTemplate.m_weapon.m_maxCooldown;
             weapon.m_maxCooldown = spawner.m_enemyTemplate.m_weapon.m_maxCooldown;
-            weapon.m_projectileTemplate.m_sprite = spawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_sprite;
-            weapon.m_projectileTemplate.m_spriteSize = spawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_spriteSize;
+            weapon.m_projectileTemplate.m_drawable = spawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_drawable;
             weapon.m_projectileTemplate.m_team = spawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_team;
             weapon.m_projectileTemplate.m_damage = spawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_damage;
             weapon.m_projectileTemplate.m_speed = spawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_speed;

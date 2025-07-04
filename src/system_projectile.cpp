@@ -42,20 +42,22 @@ float Sweep(moth_ui::FloatVec2 const& stationary, moth_ui::FloatVec2 const& movi
 }
 
 void SystemProjectile::Update(entt::registry& registry, uint32_t ticks) {
-    auto projectileView = registry.view<ComponentProjectile, ComponentPosition, ComponentVelocity>();
-    for (auto [projectileEntity, projectileData, projectilePosition, projectileVelocity] :
-         projectileView.each()) {
-        auto entityView = registry.view<ComponentEntity, ComponentPosition, ComponentVelocity>();
+    auto projectileView =
+        registry.view<ComponentEntity, ComponentProjectile, ComponentPosition, ComponentVelocity>();
+    for (auto [projectileEntity, projectileEntityData, projectileData, projectilePosition,
+               projectileVelocity] : projectileView.each()) {
+        auto entityView = registry.view<ComponentEntity, ComponentPosition, ComponentVelocity>(
+            entt::exclude<ComponentProjectile>);
         for (auto [entity, entityData, entityPosition, entityVelocity] : entityView.each()) {
             if (projectileEntity == entity) {
                 // shouldnt happen but here for safety
                 continue;
             }
-            if (projectileData.m_team != entityData.m_team) {
+            if (projectileEntityData.m_team != entityData.m_team) {
                 auto const entity1Vel = projectilePosition.m_position - projectilePosition.m_lastPosition;
                 auto const entity2Vel = entityPosition.m_position - entityPosition.m_lastPosition;
                 auto const relativeVel = entity2Vel - entity1Vel;
-                auto const combinedRadius = projectileData.m_radius + entityData.m_radius;
+                auto const combinedRadius = projectileEntityData.m_radius + entityData.m_radius;
                 auto const t = Sweep(projectilePosition.m_position, entityPosition.m_lastPosition,
                                      relativeVel, combinedRadius);
                 if (t < 1.0f) {

@@ -14,7 +14,7 @@ set(SOURCES ${SOURCES}
 	src/game_layer.cpp
 	src/system_input.cpp
 	src/system_movement.cpp
-	src/system_sprite.cpp
+	src/system_drawable.cpp
 	src/system_weapon.cpp
 	src/system_lifetime.cpp
 	src/system_enemy_spawner.cpp

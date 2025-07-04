@@ -17,10 +17,8 @@ enum ProjectileColor {
 
 struct ComponentProjectile {
     entt::entity m_owner = entt::null;
-    Team m_team = Team::NONE;
     ProjectileColor m_color = ProjectileColor::WHITE;
     int32_t m_damage = 1;
-    float m_radius = 1;
 };
 
 struct ComponentHealth {
