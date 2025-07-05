@@ -1,4 +1,5 @@
 #include "system_shield.h"
+#include "collision_utils.h"
 #include "game_layer.h"
 #include "system_lifetime.h"
 #include "system_movement.h"
@@ -20,9 +21,8 @@ void SystemShield::Update(entt::registry& registry, uint32_t ticks) {
                 auto const entity2Vel = projectilePosition.m_position - projectilePosition.m_lastPosition;
                 auto const relativeVel = entity2Vel - entity1Vel;
                 auto const combinedRadius = shieldData.m_radius + projectileEntityData.m_radius;
-                auto const t =
-                    SystemProjectile::Sweep(shieldPosition.m_position, projectilePosition.m_lastPosition,
-                                            relativeVel, combinedRadius);
+                auto const t = SweepTest(shieldPosition.m_position, projectilePosition.m_lastPosition,
+                                         relativeVel, combinedRadius);
                 if (t < 1.0f) {
                     // projectile collided with shield
 

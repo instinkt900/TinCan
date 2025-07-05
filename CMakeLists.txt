@@ -21,6 +21,8 @@ set(SOURCES ${SOURCES}
 	src/system_projectile.cpp
 	src/system_shield.cpp
 	src/system_player_visuals.cpp
+	src/collision_utils.cpp
+	src/projectile_database.cpp
 )
 
 find_package(canyon REQUIRED)

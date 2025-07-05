@@ -19,7 +19,7 @@ enum EnergyColor {
 struct ComponentProjectile {
     entt::entity m_owner = entt::null;
     EnergyColor m_color = EnergyColor::WHITE;
-    int32_t m_damage = 1;
+    float m_damage = 1;
 };
 
 struct ComponentHealth {
@@ -33,7 +33,4 @@ struct ComponentHealth {
 class SystemProjectile {
 public:
     static void Update(entt::registry& registry, uint32_t ticks);
-    static float Sweep(moth_ui::FloatVec2 const& stationary, moth_ui::FloatVec2 const& moving,
-                        moth_ui::FloatVec2 const& velocity, float radius);
-
 };

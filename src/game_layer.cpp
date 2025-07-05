@@ -9,6 +9,7 @@
 #include "system_enemy_spawner.h"
 #include <canyon/events/event_window.h>
 #include <canyon/platform/window.h>
+#include <cmath>
 #include <moth_ui/events/event_dispatch.h>
 #include <moth_ui/events/event_key.h>
 #include <moth_ui/layers/layer_stack.h>
@@ -34,7 +35,7 @@ void GameLayer::Update(uint32_t ticks) {
     SystemLifetime::Update(m_registry, ticks);
     SystemEnemySpawner::Update(m_registry, ticks);
     SystemMovement::Update(m_registry, ticks);
-    SystemWeapon::Update(m_registry, ticks);
+    SystemWeapon::Update(m_registry, ticks, *m_projectileDatabase);
     SystemShield::Update(m_registry, ticks);
     SystemProjectile::Update(m_registry, ticks);
     SystemPlayerVisuals::Update(m_registry, ticks);
@@ -59,6 +60,8 @@ void GameLayer::OnAddedToStack(moth_ui::LayerStack* stack) {
     auto& surfaceContext = m_window.GetSurfaceContext();
     m_font = surfaceContext.FontFromFile("assets/font.ttf", 24);
 
+    m_projectileDatabase = ProjectileDatabase::Load("projectile_database.json", surfaceContext);
+
     CreatePlayer();
 
     m_enemySpawner = m_registry.create();
@@ -82,17 +85,7 @@ void GameLayer::OnAddedToStack(moth_ui::LayerStack* stack) {
     enemySpawner.m_enemyTemplate.m_lifetime = 10000.0f;
     enemySpawner.m_enemyTemplate.m_weapon.m_maxCooldown = 2000;
     enemySpawner.m_enemyTemplate.m_weapon.m_playerTracking = true;
-    auto enemyProjectileImage = surfaceContext.ImageFromFile("assets/enemy_bullet.png");
-    Sprite projectileSprite;
-    projectileSprite.m_size = { enemyProjectileImage->GetWidth(), enemyProjectileImage->GetHeight() };
-    projectileSprite.m_image = std::move(enemyProjectileImage);
-    enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_drawable.m_sprites.push_back(
-        projectileSprite);
-    enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_team = Team::ENEMY;
-    enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_damage = 10;
-    enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_speed = 300;
-    enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_lifetime = 4000;
-    enemySpawner.m_enemyTemplate.m_weapon.m_projectileTemplate.m_radius = 5;
+    enemySpawner.m_enemyTemplate.m_weapon.m_projectileName = "basic_bullet";
 }
 
 
@@ -174,15 +167,6 @@ void GameLayer::CreatePlayer() {
     weapon.m_active = false;
     weapon.m_cooldown = 0;
     weapon.m_maxCooldown = 500;
-    auto projectileImage = surfaceContext.ImageFromFile("assets/bullet.png");
-    Sprite projectileSprite;
-    projectileSprite.m_size = { projectileImage->GetWidth(), projectileImage->GetHeight() };
-    projectileSprite.m_image = std::move(projectileImage);
-    projectileSprite.m_blendMode = canyon::graphics::BlendMode::Alpha;
-    weapon.m_projectileTemplate.m_drawable.m_sprites.push_back(projectileSprite);
-    weapon.m_projectileTemplate.m_team = Team::PLAYER;
-    weapon.m_projectileTemplate.m_damage = 10;
-    weapon.m_projectileTemplate.m_speed = 2000;
-    weapon.m_projectileTemplate.m_lifetime = 500;
-    weapon.m_projectileTemplate.m_radius = 5;
+    weapon.m_angle = M_PI;
+    weapon.m_projectileName = "player_bullet";
 }

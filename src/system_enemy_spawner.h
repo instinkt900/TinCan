@@ -1,5 +1,6 @@
 #pragma once
 
+#include "system_drawable.h"
 #include "system_projectile.h"
 #include "system_weapon.h"
 #include <canyon/graphics/iimage.h>

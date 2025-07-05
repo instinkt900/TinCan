@@ -1,5 +1,6 @@
 #pragma once
 
+#include "projectile_database.h"
 #include "system_projectile.h"
 #include <canyon/events/event_window.h>
 #include <canyon/graphics/igraphics.h>
@@ -43,4 +44,5 @@ private:
     entt::registry m_registry;
     entt::entity m_player;
     entt::entity m_enemySpawner;
+    std::unique_ptr<ProjectileDatabase> m_projectileDatabase;
 };
