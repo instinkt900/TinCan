@@ -23,6 +23,10 @@ set(SOURCES ${SOURCES}
 	src/system_player_visuals.cpp
 	src/collision_utils.cpp
 	src/projectile_database.cpp
+	src/sprite_database.cpp
+	src/enemy_database.cpp
+	src/weapon_database.cpp
+	src/system_behaviour.cpp
 )
 
 find_package(canyon REQUIRED)

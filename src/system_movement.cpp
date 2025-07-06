@@ -25,7 +25,6 @@ void SystemMovement::Update(entt::registry& registry, uint32_t ticks) {
         }
 
         pos.m_lastPosition = pos.m_position;
-        pos.m_lastTicks = ticks;
 
         pos.m_position += velocity * dt;
     }

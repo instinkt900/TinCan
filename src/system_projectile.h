@@ -23,8 +23,8 @@ struct ComponentProjectile {
 };
 
 struct ComponentHealth {
-    int32_t m_currentHealth = 100;
-    int32_t m_maxHealth = 100;
+    float m_currentHealth = 100;
+    float m_maxHealth = 100;
     bool m_dead = false;
     entt::entity m_lastDamager;
     std::function<void(entt::entity, entt::entity)> m_onDeath;

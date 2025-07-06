@@ -1,0 +1,14 @@
+[
+    {
+        "name": "basic_enemy",
+        "sprite_name": "enemy_ship",
+        "health": 30,
+        "radius": 40,
+        "lifetime": 5000,
+        "weapon_name": "enemy_weapon",
+        "behaviour_name": "straight",
+        "behaviour_parameters": {
+            "speed": 200.0
+        }
+    }
+]

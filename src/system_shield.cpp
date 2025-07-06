@@ -28,7 +28,7 @@ void SystemShield::Update(entt::registry& registry, uint32_t ticks) {
 
                     // destroy projectile
                     if (auto* projectileLifetime = registry.try_get<ComponentLifetime>(projectileEntity)) {
-                        projectileLifetime->m_lifetime = 0;
+                        projectileLifetime->m_msLeft = 0;
                     }
 
                     // apply power

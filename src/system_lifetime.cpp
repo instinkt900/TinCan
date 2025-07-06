@@ -7,10 +7,11 @@ void SystemLifetime::Update(entt::registry& registry, uint32_t ticks) {
 
     auto view = registry.view<ComponentLifetime>();
     for (auto [entity, lifetime] : view.each()) {
-        if (lifetime.m_lifetime <= ticks) {
+        if (lifetime.m_msLeft <= ticks) {
             deadEntities.push_back(entity);
         } else {
-            lifetime.m_lifetime -= ticks;
+            lifetime.m_msLeft -= ticks;
+            lifetime.m_msAlive += ticks;
         }
     }
 

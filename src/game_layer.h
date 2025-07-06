@@ -1,7 +1,11 @@
 #pragma once
 
+#include "enemy_database.h"
 #include "projectile_database.h"
+#include "sprite_database.h"
+#include "system_behaviour.h"
 #include "system_projectile.h"
+#include "weapon_database.h"
 #include <canyon/events/event_window.h>
 #include <canyon/graphics/igraphics.h>
 #include <moth_ui/events/event_key.h>
@@ -9,6 +13,7 @@
 #include <entt/entt.hpp>
 
 struct PlayerTag{};
+struct EnemyTag{};
 
 struct ComponentEntity {
     Team m_team;
@@ -44,5 +49,10 @@ private:
     entt::registry m_registry;
     entt::entity m_player;
     entt::entity m_enemySpawner;
+    std::unique_ptr<SpriteDatabase> m_spriteDatabase;
     std::unique_ptr<ProjectileDatabase> m_projectileDatabase;
+    std::unique_ptr<WeaponDatabase> m_weaponDatabase;
+    std::unique_ptr<EnemyDatabase> m_enemyDatabase;
+
+    std::unique_ptr<SystemBehaviour> m_behaviourSystem;
 };

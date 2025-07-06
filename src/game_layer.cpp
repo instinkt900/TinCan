@@ -33,7 +33,10 @@ bool GameLayer::OnEvent(moth_ui::Event const& event) {
 
 void GameLayer::Update(uint32_t ticks) {
     SystemLifetime::Update(m_registry, ticks);
-    SystemEnemySpawner::Update(m_registry, ticks);
+    SystemEnemySpawner::Update(m_registry, ticks, *m_spriteDatabase, *m_enemyDatabase, *m_weaponDatabase);
+    if (m_behaviourSystem != nullptr) {
+        m_behaviourSystem->Update(m_registry, ticks);
+    }
     SystemMovement::Update(m_registry, ticks);
     SystemWeapon::Update(m_registry, ticks, *m_projectileDatabase);
     SystemShield::Update(m_registry, ticks);
@@ -60,7 +63,10 @@ void GameLayer::OnAddedToStack(moth_ui::LayerStack* stack) {
     auto& surfaceContext = m_window.GetSurfaceContext();
     m_font = surfaceContext.FontFromFile("assets/font.ttf", 24);
 
-    m_projectileDatabase = ProjectileDatabase::Load("projectile_database.json", surfaceContext);
+    m_spriteDatabase = SpriteDatabase::Load("sprite_database.json", surfaceContext);
+    m_projectileDatabase = ProjectileDatabase::Load("projectile_database.json", *m_spriteDatabase);
+    m_weaponDatabase = WeaponDatabase::Load("weapon_database.json", *m_spriteDatabase);
+    m_enemyDatabase = EnemyDatabase::Load("enemy_database.json", *m_spriteDatabase);
 
     CreatePlayer();
 
@@ -68,24 +74,9 @@ void GameLayer::OnAddedToStack(moth_ui::LayerStack* stack) {
     auto& enemySpawner = m_registry.emplace<ComponentEnemySpawner>(m_enemySpawner);
     enemySpawner.m_active = true;
     enemySpawner.m_maxCooldown = 5000;
-    Sprite enemyShipSprite;
-    enemyShipSprite.m_image = surfaceContext.ImageFromFile("assets/enemy.png");
-    enemyShipSprite.m_size = { enemyShipSprite.m_image->GetWidth(), enemyShipSprite.m_image->GetHeight() };
-    enemyShipSprite.m_blendMode = canyon::graphics::BlendMode::Alpha;
-    enemySpawner.m_enemyTemplate.m_drawable.m_sprites.push_back(enemyShipSprite);
-    enemySpawner.m_enemyTemplate.m_team = Team::ENEMY;
-    enemySpawner.m_enemyTemplate.m_radius = 30.0f;
-    enemySpawner.m_enemyTemplate.m_maxHealth = 30;
-    enemySpawner.m_enemyTemplate.m_onDeath = [&](entt::entity enemy, entt::entity damager) {
-        if (auto* lifetime = m_registry.try_get<ComponentLifetime>(enemy)) {
-            lifetime->m_lifetime = 0;
-        }
-    };
-    enemySpawner.m_enemyTemplate.m_speed = 200.0f;
-    enemySpawner.m_enemyTemplate.m_lifetime = 10000.0f;
-    enemySpawner.m_enemyTemplate.m_weapon.m_maxCooldown = 2000;
-    enemySpawner.m_enemyTemplate.m_weapon.m_playerTracking = true;
-    enemySpawner.m_enemyTemplate.m_weapon.m_projectileName = "basic_bullet";
+    enemySpawner.m_enemyName = "basic_enemy";
+
+    m_behaviourSystem = std::make_unique<SystemBehaviour>();
 }
 
 
@@ -144,18 +135,12 @@ void GameLayer::CreatePlayer() {
 
     m_registry.emplace<ComponentInput>(m_player);
 
-    auto& surfaceContext = m_window.GetSurfaceContext();
     auto& drawable = m_registry.emplace<ComponentDrawable>(m_player);
 
-    Sprite& shipSprite = drawable.m_sprites.emplace_back();
-    shipSprite.m_image = surfaceContext.ImageFromFile("assets/player.png");
-    shipSprite.m_size = { shipSprite.m_image->GetWidth(), shipSprite.m_image->GetHeight() };
-    shipSprite.m_blendMode = canyon::graphics::BlendMode::Alpha;
-
-    Sprite& shieldSprite = drawable.m_sprites.emplace_back();
-    shieldSprite.m_image = surfaceContext.ImageFromFile("assets/shield.png");
-    shieldSprite.m_size = { shieldSprite.m_image->GetWidth() + 40, shieldSprite.m_image->GetHeight() + 40 };
-    shieldSprite.m_blendMode = canyon::graphics::BlendMode::Add;
+    auto const* playerSprite = m_spriteDatabase->GetSpriteData("player_ship");
+    if (playerSprite != nullptr) {
+        drawable.m_spriteData = *playerSprite;
+    }
 
     auto& shield = m_registry.emplace<ComponentShield>(m_player);
     shield.m_radius = 56;

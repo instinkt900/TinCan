@@ -7,7 +7,7 @@
 
 struct ComponentWeapon {
     bool m_active = false;
-    uint32_t m_cooldown = 0;
+    int32_t m_cooldown = 0;
     uint32_t m_maxCooldown = 1000;
     bool m_playerTracking = false;
     float m_angle = 0;
