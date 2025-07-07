@@ -4,11 +4,13 @@
         "sprite_name": "enemy_ship",
         "health": 30,
         "radius": 40,
-        "lifetime": 5000,
+        "lifetime": 9000,
         "weapon_name": "enemy_weapon",
-        "behaviour_name": "straight",
+        "behaviour_name": "wave",
         "behaviour_parameters": {
-            "speed": 200.0
+            "speed": 200.0,
+            "frequency": 10.0,
+            "amplitude": 100.0
         }
     }
 ]

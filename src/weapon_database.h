@@ -11,7 +11,7 @@ struct BarrelData {
 
 struct WeaponData {
     std::string name;
-    uint32_t cooldown;
+    int32_t cooldown;
     bool player_tracking;
     std::string projectile_name;
     std::vector<BarrelData> barrels;

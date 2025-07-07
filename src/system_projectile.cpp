@@ -12,9 +12,9 @@ void SystemProjectile::Update(entt::registry& registry, uint32_t ticks) {
         registry.view<ComponentEntity, ComponentProjectile, ComponentPosition, ComponentVelocity>();
     for (auto [projectileEntity, projectileEntityData, projectileData, projectilePosition,
                projectileVelocity] : projectileView.each()) {
-        auto entityView = registry.view<ComponentEntity, ComponentPosition, ComponentVelocity>(
+        auto entityView = registry.view<ComponentEntity, ComponentPosition>(
             entt::exclude<ComponentProjectile>);
-        for (auto [entity, entityData, entityPosition, entityVelocity] : entityView.each()) {
+        for (auto [entity, entityData, entityPosition] : entityView.each()) {
             if (projectileEntity == entity) {
                 // shouldnt happen but here for safety
                 continue;

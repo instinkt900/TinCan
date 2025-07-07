@@ -71,9 +71,14 @@ void GameLayer::OnAddedToStack(moth_ui::LayerStack* stack) {
     CreatePlayer();
 
     m_enemySpawner = m_registry.create();
+    auto& enemySpawnerPosition = m_registry.emplace<ComponentPosition>(m_enemySpawner);
+    enemySpawnerPosition.m_position.x = static_cast<float>(m_window.GetWidth()) / 2.0f;
+    enemySpawnerPosition.m_position.y = -10;
     auto& enemySpawner = m_registry.emplace<ComponentEnemySpawner>(m_enemySpawner);
     enemySpawner.m_active = true;
-    enemySpawner.m_maxCooldown = 5000;
+    enemySpawner.m_maxCooldown = 9000;
+    enemySpawner.m_maxBurstDelay = 500;
+    enemySpawner.m_maxBurst = 5;
     enemySpawner.m_enemyName = "basic_enemy";
 
     m_behaviourSystem = std::make_unique<SystemBehaviour>();
@@ -84,6 +89,10 @@ bool GameLayer::OnWindowResize(canyon::EventWindowSize const& event) {
     auto& position = m_registry.get<ComponentPosition>(m_player);
     position.m_position = { event.GetWidth() / 2, event.GetHeight() - 60 };
 
+    if (auto* enemySpawnerPosition = m_registry.try_get<ComponentPosition>(m_enemySpawner)) {
+        enemySpawnerPosition->m_position.x = static_cast<float>(m_window.GetWidth()) / 2.0f;
+        enemySpawnerPosition->m_position.y = -10;
+    }
     if (auto* enemySpawner = m_registry.try_get<ComponentEnemySpawner>(m_enemySpawner)) {
         enemySpawner->m_spawnRegion.topLeft.x = 0;
         enemySpawner->m_spawnRegion.topLeft.y = -60;
