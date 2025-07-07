@@ -1,6 +1,8 @@
 #include "system_enemy_spawner.h"
 #include "game_layer.h"
 #include "system_behaviour.h"
+#include "system_group.h"
+#include "system_health.h"
 #include "system_projectile.h"
 #include "system_lifetime.h"
 #include "system_movement.h"
@@ -9,13 +11,13 @@
 #include <entt/entt.hpp>
 #include <spdlog/spdlog.h>
 
-void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks, Gamedata& databases) {
-    auto const* enemyDatabase = databases.GetEnemyDatabase();
+void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks, Gamedata const& gamedata) {
+    auto const* enemyDatabase = gamedata.GetEnemyDatabase();
     if (enemyDatabase == nullptr) {
         return;
     }
 
-    auto const* weaponDatabase = databases.GetWeaponDatabase();
+    auto const* weaponDatabase = gamedata.GetWeaponDatabase();
     if (weaponDatabase == nullptr) {
         return;
     }
@@ -30,6 +32,9 @@ void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks, Gameda
 
             if (spawner.m_cooldown <= 0) {
                 spawner.m_groupCount = spawner.m_maxGroupCount;
+                if (spawner.m_maxGroupCount > 1) {
+                    spawner.m_currentGroupEntity = entt::null;
+                }
                 spawner.m_cooldown += spawner.m_maxCooldown;
                 spawner.m_count -= 1;
             }
@@ -43,6 +48,10 @@ void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks, Gameda
             if (spawner.m_groupCooldown <= 0) {
                 spawner.m_groupCount -= 1;
                 spawner.m_groupCooldown += spawner.m_maxGroupCooldown;
+
+                if (spawner.m_groupCount <= 0 && spawner.m_count <= 0) {
+                    registry.emplace<DeadTag>(entity);
+                }
 
                 auto enemy = registry.create();
                 auto& entityData = registry.emplace<ComponentEntity>(enemy);
@@ -61,10 +70,6 @@ void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks, Gameda
 
                 health.m_currentHealth = enemyData->health;
                 health.m_maxHealth = enemyData->health;
-                health.m_onDeath = [&](entt::entity thisEntity, entt::entity killerEntity) {
-                    auto& lt = registry.get<ComponentLifetime>(thisEntity);
-                    lt.m_msLeft = 0;
-                };
 
                 drawable.m_spriteData = enemyData->sprite;
 
@@ -86,7 +91,40 @@ void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks, Gameda
                 behaviour.m_behaviourName = spawner.m_behaviourName;
                 behaviour.m_parameters = spawner.m_behaviourParameters;
                 behaviour.m_offset = pos.m_position;
+
+                if (spawner.m_maxGroupCount > 1) {
+                    if (spawner.m_currentGroupEntity == entt::null) {
+                        spawner.m_currentGroupEntity = SystemGroup::CreateGroup(registry);
+                    }
+                    SystemGroup::AddMember(registry, spawner.m_currentGroupEntity, enemy);
+                }
             }
         }
     }
+}
+
+entt::entity SystemEnemySpawner::CreateSpawner(entt::registry& registry, Gamedata const& gamedata,
+                                               moth_ui::FloatVec2 const& position) {
+    auto const* spawnerData = gamedata.GetSpawnerDatabase()->Get("basic_spawner");
+    if (spawnerData == nullptr) {
+        spdlog::error("Unable to access spawner data");
+        return entt::null;
+    }
+    auto enemySpawner = registry.create();
+
+    auto& spawner = registry.emplace<ComponentEnemySpawner>(enemySpawner);
+    spawner.m_active = true;
+    spawner.m_count = spawnerData->count;
+    spawner.m_maxCooldown = spawnerData->cooldown;
+    spawner.m_maxGroupCooldown = spawnerData->group_delay;
+    spawner.m_maxGroupCount = spawnerData->group_count;
+    spawner.m_enemyName = spawnerData->enemy_name;
+    spawner.m_behaviourName = spawnerData->behaviour_name;
+    spawner.m_behaviourParameters = spawnerData->behaviour_parameters;
+    spawner.m_currentGroupEntity = entt::null;
+
+    auto& spawnerPos = registry.emplace<ComponentPosition>(enemySpawner);
+    spawnerPos.m_position = position;
+
+    return enemySpawner;
 }

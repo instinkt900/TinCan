@@ -1,6 +1,7 @@
 #include "system_projectile.h"
 #include "collision_utils.h"
 #include "game_layer.h"
+#include "system_health.h"
 #include "system_lifetime.h"
 #include "system_movement.h"
 #include <entt/entt.hpp>
@@ -39,9 +40,7 @@ void SystemProjectile::Update(entt::registry& registry, uint32_t ticks) {
                         if (entityHealth->m_currentHealth > 0) {
                             entityHealth->m_currentHealth -= projectileData.m_damage;
                             if (entityHealth->m_currentHealth <= 0) {
-                                if (entityHealth->m_onDeath) {
-                                    entityHealth->m_onDeath(entity, projectileData.m_owner);
-                                }
+                                registry.emplace<DeadTag>(entity);
                             }
                         }
                     }

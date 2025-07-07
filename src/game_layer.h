@@ -9,8 +9,14 @@
 #include <moth_ui/layers/layer.h>
 #include <entt/entt.hpp>
 
+// Marks the entity as the player entity. Should only ever be one.
 struct PlayerTag{};
+
+// Marks the entity as a hostile entity to the player.
 struct EnemyTag{};
+
+// Marks the entity as dead and that the lifetime system should remove it.
+struct DeadTag{};
 
 struct ComponentEntity {
     Team m_team;

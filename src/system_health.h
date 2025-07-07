@@ -1,9 +1,11 @@
 #pragma once
 
+#include <entt/entity/entity.hpp>
 #include <entt/entity/fwd.hpp>
-#include <functional>
 
-class SystemHealth {
-public:
-    static void Update(entt::registry& registry, uint32_t ticks);
+struct ComponentHealth {
+    float m_currentHealth = 100;
+    float m_maxHealth = 100;
+    bool m_dead = false;
+    entt::entity m_lastDamager = entt::null;
 };

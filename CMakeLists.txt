@@ -29,6 +29,7 @@ set(SOURCES ${SOURCES}
 	src/system_behaviour.cpp
 	src/gamedata.cpp
 	src/gamedata_spawner.cpp
+	src/system_group.cpp
 )
 
 find_package(canyon REQUIRED)

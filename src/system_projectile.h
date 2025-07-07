@@ -2,7 +2,6 @@
 
 #include <entt/entity/entity.hpp>
 #include <entt/entity/fwd.hpp>
-#include <functional>
 #include <moth_ui/utils/vector.h>
 
 enum Team {
@@ -20,14 +19,6 @@ struct ComponentProjectile {
     entt::entity m_owner = entt::null;
     EnergyColor m_color = EnergyColor::WHITE;
     float m_damage = 1;
-};
-
-struct ComponentHealth {
-    float m_currentHealth = 100;
-    float m_maxHealth = 100;
-    bool m_dead = false;
-    entt::entity m_lastDamager;
-    std::function<void(entt::entity, entt::entity)> m_onDeath;
 };
 
 class SystemProjectile {

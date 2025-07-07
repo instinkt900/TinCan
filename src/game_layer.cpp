@@ -1,4 +1,5 @@
 #include "game_layer.h"
+#include "system_health.h"
 #include "system_input.h"
 #include "system_movement.h"
 #include "system_drawable.h"
@@ -7,6 +8,7 @@
 #include "system_weapon.h"
 #include "system_lifetime.h"
 #include "system_enemy_spawner.h"
+#include "system_group.h"
 #include <canyon/events/event_window.h>
 #include <canyon/platform/window.h>
 #include <cmath>
@@ -42,6 +44,7 @@ void GameLayer::Update(uint32_t ticks) {
     SystemShield::Update(m_registry, ticks);
     SystemProjectile::Update(m_registry, ticks);
     SystemPlayerVisuals::Update(m_registry, ticks);
+    SystemGroup::Update(m_registry, ticks);
 }
 
 void GameLayer::Draw() {
@@ -67,24 +70,8 @@ void GameLayer::OnAddedToStack(moth_ui::LayerStack* stack) {
 
     CreatePlayer();
 
-    auto const* spawnerData = m_gamedata->GetSpawnerDatabase()->Get("basic_spawner");
-    if (spawnerData != nullptr) {
-        m_enemySpawner = m_registry.create();
-
-        auto& enemySpawner = m_registry.emplace<ComponentEnemySpawner>(m_enemySpawner);
-        enemySpawner.m_active = true;
-        enemySpawner.m_count = spawnerData->count;
-        enemySpawner.m_maxCooldown = spawnerData->cooldown;
-        enemySpawner.m_maxGroupCooldown = spawnerData->group_delay;
-        enemySpawner.m_maxGroupCount = spawnerData->group_count;
-        enemySpawner.m_enemyName = spawnerData->enemy_name;
-        enemySpawner.m_behaviourName = spawnerData->behaviour_name;
-        enemySpawner.m_behaviourParameters = spawnerData->behaviour_parameters;
-
-        auto& enemySpawnerPosition = m_registry.emplace<ComponentPosition>(m_enemySpawner);
-        enemySpawnerPosition.m_position.x = static_cast<float>(m_window.GetWidth()) / 2.0f;
-        enemySpawnerPosition.m_position.y = -10;
-    }
+    SystemEnemySpawner::CreateSpawner(m_registry, *m_gamedata,
+                                      { static_cast<float>(m_window.GetWidth()) / 2.0f, -10.0f });
 
     m_behaviourSystem = std::make_unique<SystemBehaviour>();
 }
@@ -131,9 +118,6 @@ void GameLayer::CreatePlayer() {
     auto& playerHealth = m_registry.emplace<ComponentHealth>(m_player);
     playerHealth.m_maxHealth = 100;
     playerHealth.m_currentHealth = 100;
-    playerHealth.m_onDeath = [&](entt::entity thisEntity, entt::entity killerEntity) {
-        spdlog::info("Player dies");
-    };
 
     auto& position = m_registry.emplace<ComponentPosition>(m_player);
     position.m_position = { m_window.GetWidth() / 2, m_window.GetHeight() - 60 };
