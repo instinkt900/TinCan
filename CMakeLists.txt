@@ -27,6 +27,8 @@ set(SOURCES ${SOURCES}
 	src/enemy_database.cpp
 	src/weapon_database.cpp
 	src/system_behaviour.cpp
+	src/databases.cpp
+	src/spawner_database.cpp
 )
 
 find_package(canyon REQUIRED)

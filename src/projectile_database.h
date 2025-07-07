@@ -26,9 +26,8 @@ class ProjectileDatabase {
 public:
     static std::unique_ptr<ProjectileDatabase> Load(std::filesystem::path const& path,
                                                     SpriteDatabase const& spriteDatabase);
-    void SpawnProjectile(std::string const& name, entt::registry& registry, entt::entity source,
-                         moth_ui::FloatVec2 position, moth_ui::FloatVec2 direction, EnergyColor color,
-                         Team team, uint32_t lifetime);
+
+    ProjectileData const* GetProjectileData(std::string const& name) const;
 
 private:
     ProjectileDatabase(SpriteDatabase const& spriteDatabase)

@@ -23,7 +23,8 @@ void DrawDebugCurves(entt::registry& registry, canyon::graphics::IGraphics& grap
 }
 
 void DrawDebugs(entt::registry& registry, canyon::graphics::IGraphics& graphics) {
-    DrawDebugCurves(registry, graphics);
+    // TODO: canyon line drawing is a bit broken
+    // DrawDebugCurves(registry, graphics);
 }
 
 void SystemDrawable::Update(entt::registry& registry, canyon::graphics::IGraphics& graphics) {

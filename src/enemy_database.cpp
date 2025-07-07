@@ -10,27 +10,6 @@ bool EnemyData::Load(nlohmann::json const& json) {
     json["radius"].get_to(radius);
     json["lifetime"].get_to(lifetime);
     json["weapon_name"].get_to(weapon_name);
-    json["behaviour_name"].get_to(behaviour_name);
-
-    auto parameterList = json.value("behaviour_parameters", nlohmann::json::object());
-    if (!parameterList.is_null()) {
-        if (!parameterList.is_object()) {
-            spdlog::error("Malformed behavious parameter list for {}", name);
-        } else {
-            for (auto [optionName, optionJson] : parameterList.items()) {
-                if (optionJson.is_string()) {
-                    behaviour_parameters.insert(std::make_pair(optionName, optionJson.get<std::string>()));
-                } else if (optionJson.is_number_integer()) {
-                    behaviour_parameters.insert(std::make_pair(optionName, optionJson.get<std::int32_t>()));
-                } else if (optionJson.is_number_float()) {
-                    behaviour_parameters.insert(std::make_pair(optionName, optionJson.get<float>()));
-                } else {
-                    spdlog::error("Unknown behaviour parameter type for {}", optionName);
-                    continue;
-                }
-            }
-        }
-    }
     return true;
 }
 

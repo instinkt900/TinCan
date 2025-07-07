@@ -19,12 +19,12 @@ struct ComponentCurveCache {
     float total_length;
 };
 
-using ParameterList = std::map<std::string, std::variant<std::string, int32_t, float>>;
+using BehaviourParameterList = std::map<std::string, std::variant<std::string, int32_t, float>>;
 
 struct ComponentBehaviour {
     std::string m_behaviourName;
     moth_ui::FloatVec2 m_offset;
-    ParameterList m_parameters;
+    BehaviourParameterList m_parameters;
 };
 
 class SystemBehaviour {

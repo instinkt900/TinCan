@@ -1,0 +1,16 @@
+[
+    {
+        "name": "basic_spawner",
+        "enemy_name": "basic_enemy",
+        "behaviour_name": "wave",
+        "behaviour_parameters": {
+            "speed": 200.0,
+            "frequency": 10.0,
+            "amplitude": 100.0
+        },
+        "count": 3,
+        "cooldown": 5000,
+        "group_count": 5,
+        "group_delay": 300
+    }
+]

@@ -9,82 +9,77 @@
 #include <entt/entt.hpp>
 #include <spdlog/spdlog.h>
 
-void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks,
-                                SpriteDatabase const& spriteDatabase, EnemyDatabase const& enemyDatabase,
-                                WeaponDatabase const& weaponDatabase) {
+void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks, Databases& databases) {
     auto view = registry.view<ComponentEnemySpawner, ComponentPosition>();
 
     for (auto [entity, spawner, spawnerPosition] : view.each()) {
-        if (spawner.m_cooldown > 0) {
-            spawner.m_cooldown -= static_cast<int32_t>(ticks);
-        }
-
-        if (spawner.m_burstDelay > 0) {
-            spawner.m_burstDelay -= static_cast<int32_t>(ticks);
-        }
-
-        if (spawner.m_active && spawner.m_cooldown <= 0) {
-            spawner.m_burst = spawner.m_maxBurst;
-            spawner.m_cooldown += spawner.m_maxCooldown;
-        }
-
-        if (spawner.m_burst > 0 && spawner.m_burstDelay <= 0) {
-            spawner.m_burst -= 1;
-            spawner.m_burstDelay += spawner.m_maxBurstDelay;
-
-            auto enemy = registry.create();
-            auto& entityData = registry.emplace<ComponentEntity>(enemy);
-            auto& health = registry.emplace<ComponentHealth>(enemy);
-            auto& drawable = registry.emplace<ComponentDrawable>(enemy);
-            auto& pos = registry.emplace<ComponentPosition>(enemy);
-            auto& weapon = registry.emplace<ComponentWeapon>(enemy);
-            auto& lifetime = registry.emplace<ComponentLifetime>(enemy);
-            auto& behaviour = registry.emplace<ComponentBehaviour>(enemy);
-
-            auto const* enemyData = enemyDatabase.GetEnemyData(spawner.m_enemyName);
-
-            entityData.m_team = Team::ENEMY;
-            entityData.m_color = EnergyColor::WHITE;
-            entityData.m_radius = enemyData->radius;
-
-            health.m_currentHealth = enemyData->health;
-            health.m_maxHealth = enemyData->health;
-            health.m_onDeath = [&](entt::entity thisEntity, entt::entity killerEntity) {
-                auto& lt = registry.get<ComponentLifetime>(thisEntity);
-                lt.m_msLeft = 0;
-            };
-
-            auto const* sprite = spriteDatabase.GetSpriteData(enemyData->sprite_name);
-            if (sprite != nullptr) {
-                drawable.m_spriteData = *sprite;
+        if (spawner.m_count > 0) {
+            if (spawner.m_cooldown > 0) {
+                spawner.m_cooldown -= static_cast<int32_t>(ticks);
             }
 
-            // float const xfact = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
-            // float const yfact = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
-            // float const minX = static_cast<float>(spawner.m_spawnRegion.x());
-            // float const minY = static_cast<float>(spawner.m_spawnRegion.y());
-            // float const width = static_cast<float>(spawner.m_spawnRegion.w()) * xfact;
-            // float const height = static_cast<float>(spawner.m_spawnRegion.h()) * yfact;
-            // pos.m_position.x = minX + width;
-            // pos.m_position.y = minY + height;
-            pos.m_position = spawnerPosition.m_position;
+            if (spawner.m_cooldown <= 0) {
+                spawner.m_groupCount = spawner.m_maxGroupCount;
+                spawner.m_cooldown += spawner.m_maxCooldown;
+                spawner.m_count -= 1;
+            }
+        }
 
-            auto const* weaponData = weaponDatabase.GetWeaponData(enemyData->weapon_name);
-            if (weaponData != nullptr) {
-                weapon.m_projectileName = weaponData->projectile_name;
-                weapon.m_playerTracking = weaponData->player_tracking;
-                weapon.m_maxCooldown = weaponData->cooldown;
-                weapon.m_cooldown = weapon.m_maxCooldown;
-                weapon.m_angle = entityData.m_team == Team::PLAYER ? 0 : M_PI;
-                weapon.m_active = true;
+        if (spawner.m_groupCount > 0) {
+            if (spawner.m_groupCooldown > 0) {
+                spawner.m_groupCooldown -= static_cast<int32_t>(ticks);
             }
 
-            lifetime.m_msAlive = 0;
-            lifetime.m_msLeft = enemyData->lifetime;
+            if (spawner.m_groupCooldown <= 0) {
+                spawner.m_groupCount -= 1;
+                spawner.m_groupCooldown += spawner.m_maxGroupCooldown;
 
-            behaviour.m_behaviourName = enemyData->behaviour_name;
-            behaviour.m_parameters = enemyData->behaviour_parameters;
-            behaviour.m_offset = pos.m_position;
+                auto enemy = registry.create();
+                auto& entityData = registry.emplace<ComponentEntity>(enemy);
+                auto& health = registry.emplace<ComponentHealth>(enemy);
+                auto& drawable = registry.emplace<ComponentDrawable>(enemy);
+                auto& pos = registry.emplace<ComponentPosition>(enemy);
+                auto& weapon = registry.emplace<ComponentWeapon>(enemy);
+                auto& lifetime = registry.emplace<ComponentLifetime>(enemy);
+                auto& behaviour = registry.emplace<ComponentBehaviour>(enemy);
+
+                auto const* enemyData = databases.GetEnemyDatabase().GetEnemyData(spawner.m_enemyName);
+
+                entityData.m_team = Team::ENEMY;
+                entityData.m_color = EnergyColor::WHITE;
+                entityData.m_radius = enemyData->radius;
+
+                health.m_currentHealth = enemyData->health;
+                health.m_maxHealth = enemyData->health;
+                health.m_onDeath = [&](entt::entity thisEntity, entt::entity killerEntity) {
+                    auto& lt = registry.get<ComponentLifetime>(thisEntity);
+                    lt.m_msLeft = 0;
+                };
+
+                auto const* sprite = databases.GetSpriteDatabase().GetSpriteData(enemyData->sprite_name);
+                if (sprite != nullptr) {
+                    drawable.m_spriteData = *sprite;
+                }
+
+                pos.m_position = spawnerPosition.m_position;
+
+                auto const* weaponData = databases.GetWeaponDatabase().GetWeaponData(enemyData->weapon_name);
+                if (weaponData != nullptr) {
+                    weapon.m_projectileName = weaponData->projectile_name;
+                    weapon.m_playerTracking = weaponData->player_tracking;
+                    weapon.m_maxCooldown = weaponData->cooldown;
+                    weapon.m_cooldown = weapon.m_maxCooldown;
+                    weapon.m_angle = entityData.m_team == Team::PLAYER ? 0 : M_PI;
+                    weapon.m_active = true;
+                }
+
+                lifetime.m_msAlive = 0;
+                lifetime.m_msLeft = enemyData->lifetime;
+
+                behaviour.m_behaviourName = spawner.m_behaviourName;
+                behaviour.m_parameters = spawner.m_behaviourParameters;
+                behaviour.m_offset = pos.m_position;
+            }
         }
     }
 }

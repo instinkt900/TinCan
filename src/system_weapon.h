@@ -16,5 +16,5 @@ struct ComponentWeapon {
 
 class SystemWeapon {
 public:
-    static void Update(entt::registry& registry, uint32_t ticks, ProjectileDatabase& projectileDatabase);
+    static void Update(entt::registry& registry, uint32_t ticks, ProjectileDatabase const& projectileDatabase);
 };

@@ -6,7 +6,7 @@
 #include <spdlog/spdlog.h>
 
 template <typename T>
-T GetParameter(ParameterList const& parameterList, std::string const& name, T const defaultValue) {
+T GetParameter(BehaviourParameterList const& parameterList, std::string const& name, T const defaultValue) {
     auto entry = parameterList.find(name);
     if (entry == parameterList.end()) {
         return defaultValue;

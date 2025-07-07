@@ -33,12 +33,12 @@ bool GameLayer::OnEvent(moth_ui::Event const& event) {
 
 void GameLayer::Update(uint32_t ticks) {
     SystemLifetime::Update(m_registry, ticks);
-    SystemEnemySpawner::Update(m_registry, ticks, *m_spriteDatabase, *m_enemyDatabase, *m_weaponDatabase);
+    SystemEnemySpawner::Update(m_registry, ticks, *m_databases);
     if (m_behaviourSystem != nullptr) {
         m_behaviourSystem->Update(m_registry, ticks);
     }
     SystemMovement::Update(m_registry, ticks);
-    SystemWeapon::Update(m_registry, ticks, *m_projectileDatabase);
+    SystemWeapon::Update(m_registry, ticks, m_databases->GetProjectileDatabase());
     SystemShield::Update(m_registry, ticks);
     SystemProjectile::Update(m_registry, ticks);
     SystemPlayerVisuals::Update(m_registry, ticks);
@@ -63,23 +63,28 @@ void GameLayer::OnAddedToStack(moth_ui::LayerStack* stack) {
     auto& surfaceContext = m_window.GetSurfaceContext();
     m_font = surfaceContext.FontFromFile("assets/font.ttf", 24);
 
-    m_spriteDatabase = SpriteDatabase::Load("sprite_database.json", surfaceContext);
-    m_projectileDatabase = ProjectileDatabase::Load("projectile_database.json", *m_spriteDatabase);
-    m_weaponDatabase = WeaponDatabase::Load("weapon_database.json", *m_spriteDatabase);
-    m_enemyDatabase = EnemyDatabase::Load("enemy_database.json", *m_spriteDatabase);
+    m_databases = std::make_unique<Databases>("data", surfaceContext);
 
     CreatePlayer();
 
-    m_enemySpawner = m_registry.create();
-    auto& enemySpawnerPosition = m_registry.emplace<ComponentPosition>(m_enemySpawner);
-    enemySpawnerPosition.m_position.x = static_cast<float>(m_window.GetWidth()) / 2.0f;
-    enemySpawnerPosition.m_position.y = -10;
-    auto& enemySpawner = m_registry.emplace<ComponentEnemySpawner>(m_enemySpawner);
-    enemySpawner.m_active = true;
-    enemySpawner.m_maxCooldown = 9000;
-    enemySpawner.m_maxBurstDelay = 500;
-    enemySpawner.m_maxBurst = 5;
-    enemySpawner.m_enemyName = "basic_enemy";
+    auto const* spawnerData = m_databases->GetSpawnerDatabase().GetSpawnerData("basic_spawner");
+    if (spawnerData != nullptr) {
+        m_enemySpawner = m_registry.create();
+
+        auto& enemySpawner = m_registry.emplace<ComponentEnemySpawner>(m_enemySpawner);
+        enemySpawner.m_active = true;
+        enemySpawner.m_count = spawnerData->count;
+        enemySpawner.m_maxCooldown = spawnerData->cooldown;
+        enemySpawner.m_maxGroupCooldown = spawnerData->group_delay;
+        enemySpawner.m_maxGroupCount = spawnerData->group_count;
+        enemySpawner.m_enemyName = spawnerData->enemy_name;
+        enemySpawner.m_behaviourName = spawnerData->behaviour_name;
+        enemySpawner.m_behaviourParameters = spawnerData->behaviour_parameters;
+
+        auto& enemySpawnerPosition = m_registry.emplace<ComponentPosition>(m_enemySpawner);
+        enemySpawnerPosition.m_position.x = static_cast<float>(m_window.GetWidth()) / 2.0f;
+        enemySpawnerPosition.m_position.y = -10;
+    }
 
     m_behaviourSystem = std::make_unique<SystemBehaviour>();
 }
@@ -92,12 +97,6 @@ bool GameLayer::OnWindowResize(canyon::EventWindowSize const& event) {
     if (auto* enemySpawnerPosition = m_registry.try_get<ComponentPosition>(m_enemySpawner)) {
         enemySpawnerPosition->m_position.x = static_cast<float>(m_window.GetWidth()) / 2.0f;
         enemySpawnerPosition->m_position.y = -10;
-    }
-    if (auto* enemySpawner = m_registry.try_get<ComponentEnemySpawner>(m_enemySpawner)) {
-        enemySpawner->m_spawnRegion.topLeft.x = 0;
-        enemySpawner->m_spawnRegion.topLeft.y = -60;
-        enemySpawner->m_spawnRegion.bottomRight.x = event.GetWidth();
-        enemySpawner->m_spawnRegion.bottomRight.y = 0;
     }
     return false;
 }
@@ -146,7 +145,7 @@ void GameLayer::CreatePlayer() {
 
     auto& drawable = m_registry.emplace<ComponentDrawable>(m_player);
 
-    auto const* playerSprite = m_spriteDatabase->GetSpriteData("player_ship");
+    auto const* playerSprite = m_databases->GetSpriteDatabase().GetSpriteData("player_ship");
     if (playerSprite != nullptr) {
         drawable.m_spriteData = *playerSprite;
     }

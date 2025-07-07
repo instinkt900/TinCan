@@ -3,7 +3,6 @@
 #include "sprite_database.h"
 #include <canyon/platform/window.h>
 #include <nlohmann/json_fwd.hpp>
-#include <variant>
 
 struct EnemyData {
     std::string name;
@@ -12,8 +11,6 @@ struct EnemyData {
     float radius;
     uint32_t lifetime;
     std::string weapon_name;
-    std::string behaviour_name;
-    std::map<std::string, std::variant<std::string, int32_t, float>> behaviour_parameters;
 
     bool Load(nlohmann::json const& json);
 };

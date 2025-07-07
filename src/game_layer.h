@@ -1,7 +1,9 @@
 #pragma once
 
+#include "databases.h"
 #include "enemy_database.h"
 #include "projectile_database.h"
+#include "spawner_database.h"
 #include "sprite_database.h"
 #include "system_behaviour.h"
 #include "system_projectile.h"
@@ -49,10 +51,8 @@ private:
     entt::registry m_registry;
     entt::entity m_player;
     entt::entity m_enemySpawner;
-    std::unique_ptr<SpriteDatabase> m_spriteDatabase;
-    std::unique_ptr<ProjectileDatabase> m_projectileDatabase;
-    std::unique_ptr<WeaponDatabase> m_weaponDatabase;
-    std::unique_ptr<EnemyDatabase> m_enemyDatabase;
+
+    std::unique_ptr<Databases> m_databases;
 
     std::unique_ptr<SystemBehaviour> m_behaviourSystem;
 };
