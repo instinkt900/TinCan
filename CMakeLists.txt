@@ -22,13 +22,13 @@ set(SOURCES ${SOURCES}
 	src/system_shield.cpp
 	src/system_player_visuals.cpp
 	src/collision_utils.cpp
-	src/projectile_database.cpp
-	src/sprite_database.cpp
-	src/enemy_database.cpp
-	src/weapon_database.cpp
+	src/gamedata_projectile.cpp
+	src/gamedata_sprite.cpp
+	src/gamedata_enemy.cpp
+	src/gamedata_weapon.cpp
 	src/system_behaviour.cpp
-	src/databases.cpp
-	src/spawner_database.cpp
+	src/gamedata.cpp
+	src/gamedata_spawner.cpp
 )
 
 find_package(canyon REQUIRED)

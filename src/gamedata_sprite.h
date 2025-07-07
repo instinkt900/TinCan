@@ -6,6 +6,8 @@
 #include <moth_ui/utils/vector.h>
 #include <nlohmann/json_fwd.hpp>
 
+class Gamedata;
+
 struct SpriteImage {
     std::shared_ptr<canyon::graphics::IImage> image;
     moth_ui::FloatVec2 scale;
@@ -22,18 +24,6 @@ struct SpriteData {
     std::string name;
     std::map<std::string, SpriteImage> images;
 
-    bool Load(nlohmann::json& json, canyon::graphics::SurfaceContext& surfaceContext);
+    bool Load(nlohmann::json& json, Gamedata const& gamedata, canyon::graphics::SurfaceContext& surfaceContext);
 };
 
-class SpriteDatabase {
-public:
-    static std::unique_ptr<SpriteDatabase> Load(std::filesystem::path const& path,
-                                                canyon::graphics::SurfaceContext& surfaceContext);
-
-    SpriteData const* GetSpriteData(std::string const& name) const;
-
-private:
-    SpriteDatabase() = default;
-
-    std::map<std::string, SpriteData> m_database;
-};

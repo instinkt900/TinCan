@@ -1,13 +1,8 @@
 #pragma once
 
-#include "databases.h"
-#include "enemy_database.h"
-#include "projectile_database.h"
-#include "spawner_database.h"
-#include "sprite_database.h"
+#include "gamedata.h"
 #include "system_behaviour.h"
 #include "system_projectile.h"
-#include "weapon_database.h"
 #include <canyon/events/event_window.h>
 #include <canyon/graphics/igraphics.h>
 #include <moth_ui/events/event_key.h>
@@ -52,7 +47,7 @@ private:
     entt::entity m_player;
     entt::entity m_enemySpawner;
 
-    std::unique_ptr<Databases> m_databases;
+    std::unique_ptr<Gamedata> m_gamedata;
 
     std::unique_ptr<SystemBehaviour> m_behaviourSystem;
 };

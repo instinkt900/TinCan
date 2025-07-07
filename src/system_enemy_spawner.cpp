@@ -9,7 +9,17 @@
 #include <entt/entt.hpp>
 #include <spdlog/spdlog.h>
 
-void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks, Databases& databases) {
+void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks, Gamedata& databases) {
+    auto const* enemyDatabase = databases.GetEnemyDatabase();
+    if (enemyDatabase == nullptr) {
+        return;
+    }
+
+    auto const* weaponDatabase = databases.GetWeaponDatabase();
+    if (weaponDatabase == nullptr) {
+        return;
+    }
+
     auto view = registry.view<ComponentEnemySpawner, ComponentPosition>();
 
     for (auto [entity, spawner, spawnerPosition] : view.each()) {
@@ -43,7 +53,7 @@ void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks, Databa
                 auto& lifetime = registry.emplace<ComponentLifetime>(enemy);
                 auto& behaviour = registry.emplace<ComponentBehaviour>(enemy);
 
-                auto const* enemyData = databases.GetEnemyDatabase().GetEnemyData(spawner.m_enemyName);
+                auto const* enemyData = enemyDatabase->Get(spawner.m_enemyName);
 
                 entityData.m_team = Team::ENEMY;
                 entityData.m_color = EnergyColor::WHITE;
@@ -56,14 +66,11 @@ void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks, Databa
                     lt.m_msLeft = 0;
                 };
 
-                auto const* sprite = databases.GetSpriteDatabase().GetSpriteData(enemyData->sprite_name);
-                if (sprite != nullptr) {
-                    drawable.m_spriteData = *sprite;
-                }
+                drawable.m_spriteData = enemyData->sprite;
 
                 pos.m_position = spawnerPosition.m_position;
 
-                auto const* weaponData = databases.GetWeaponDatabase().GetWeaponData(enemyData->weapon_name);
+                auto const* weaponData = weaponDatabase->Get(enemyData->weapon_name);
                 if (weaponData != nullptr) {
                     weapon.m_projectileName = weaponData->projectile_name;
                     weapon.m_playerTracking = weaponData->player_tracking;

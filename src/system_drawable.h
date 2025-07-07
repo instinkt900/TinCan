@@ -1,6 +1,6 @@
 #pragma once
 
-#include "sprite_database.h"
+#include "gamedata_sprite.h"
 #include <canyon/graphics/igraphics.h>
 #include <entt/entity/fwd.hpp>
 #include <moth_ui/utils/vector.h>

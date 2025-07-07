@@ -1,6 +1,6 @@
 #pragma once
 
-#include "projectile_database.h"
+#include "gamedata.h"
 #include <entt/entity/fwd.hpp>
 #include <canyon/graphics/surface_context.h>
 #include <moth_ui/utils/vector.h>
@@ -16,5 +16,5 @@ struct ComponentWeapon {
 
 class SystemWeapon {
 public:
-    static void Update(entt::registry& registry, uint32_t ticks, ProjectileDatabase const& projectileDatabase);
+    static void Update(entt::registry& registry, uint32_t ticks, Gamedata const& databases);
 };

@@ -33,12 +33,12 @@ bool GameLayer::OnEvent(moth_ui::Event const& event) {
 
 void GameLayer::Update(uint32_t ticks) {
     SystemLifetime::Update(m_registry, ticks);
-    SystemEnemySpawner::Update(m_registry, ticks, *m_databases);
+    SystemEnemySpawner::Update(m_registry, ticks, *m_gamedata);
     if (m_behaviourSystem != nullptr) {
         m_behaviourSystem->Update(m_registry, ticks);
     }
     SystemMovement::Update(m_registry, ticks);
-    SystemWeapon::Update(m_registry, ticks, m_databases->GetProjectileDatabase());
+    SystemWeapon::Update(m_registry, ticks, *m_gamedata);
     SystemShield::Update(m_registry, ticks);
     SystemProjectile::Update(m_registry, ticks);
     SystemPlayerVisuals::Update(m_registry, ticks);
@@ -63,11 +63,11 @@ void GameLayer::OnAddedToStack(moth_ui::LayerStack* stack) {
     auto& surfaceContext = m_window.GetSurfaceContext();
     m_font = surfaceContext.FontFromFile("assets/font.ttf", 24);
 
-    m_databases = std::make_unique<Databases>("data", surfaceContext);
+    m_gamedata = std::make_unique<Gamedata>("data", surfaceContext);
 
     CreatePlayer();
 
-    auto const* spawnerData = m_databases->GetSpawnerDatabase().GetSpawnerData("basic_spawner");
+    auto const* spawnerData = m_gamedata->GetSpawnerDatabase()->Get("basic_spawner");
     if (spawnerData != nullptr) {
         m_enemySpawner = m_registry.create();
 
@@ -145,7 +145,7 @@ void GameLayer::CreatePlayer() {
 
     auto& drawable = m_registry.emplace<ComponentDrawable>(m_player);
 
-    auto const* playerSprite = m_databases->GetSpriteDatabase().GetSpriteData("player_ship");
+    auto const* playerSprite = m_gamedata->GetSpriteDatabase()->Get("player_ship");
     if (playerSprite != nullptr) {
         drawable.m_spriteData = *playerSprite;
     }

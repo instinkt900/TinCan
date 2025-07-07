@@ -6,8 +6,12 @@
 #include <moth_ui/utils/vector_utils.h>
 #include <spdlog/spdlog.h>
 
-void SystemWeapon::Update(entt::registry& registry, uint32_t ticks,
-                          ProjectileDatabase const& projectileDatabase) {
+void SystemWeapon::Update(entt::registry& registry, uint32_t ticks, Gamedata const& databases) {
+    auto const* projectileDatabase = databases.GetProjectileDatabase();
+    if (projectileDatabase == nullptr) {
+        return;
+    }
+
     ComponentPosition* playerPosition = nullptr;
     auto playerView = registry.view<ComponentPosition, PlayerTag>();
     if (playerView.begin() != playerView.end()) {
@@ -28,7 +32,7 @@ void SystemWeapon::Update(entt::registry& registry, uint32_t ticks,
                 direction = moth_ui::Normalized(delta);
             }
 
-            auto const* projectileData = projectileDatabase.GetProjectileData(weapon.m_projectileName);
+            auto const* projectileData = projectileDatabase->Get(weapon.m_projectileName);
             if (projectileData != nullptr) {
 
                 auto projectile = registry.create();
