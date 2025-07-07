@@ -1,6 +1,7 @@
 #include "system_behaviour.h"
 #include "system_lifetime.h"
 #include "system_movement.h"
+#include <cassert>
 #include <entt/entt.hpp>
 #include <moth_ui/utils/vector_utils.h>
 #include <spdlog/spdlog.h>
@@ -33,8 +34,8 @@ void BehaviourWave(entt::registry& registry, entt::entity entity, ComponentBehav
     if (cacheData == nullptr) {
         cacheData = &registry.emplace<ComponentCurveCache>(entity);
 
-        float const MaxT = 5000.0f;
-        float const TStep = 20.0f;
+        float const MaxT = 1500.0f;
+        float const TStep = 50.0f;
 
         CurveSample lastSample;
         for (float t = 0; t < MaxT; t += TStep) {
@@ -54,19 +55,27 @@ void BehaviourWave(entt::registry& registry, entt::entity entity, ComponentBehav
         cacheData->total_length = lastSample.total_distance;
     }
 
-    float const totalDistance = speed * (static_cast<float>(lifetime.m_msAlive) / 1000.0f);
-    auto const it = std::lower_bound(cacheData->samples.begin(), cacheData->samples.end(), totalDistance,
-                               [](auto const& it, auto const& value) { return it.total_distance <= value; });
-    size_t const index = std::distance(cacheData->samples.begin(), it);
+    auto const distanceTravelled = speed * (static_cast<float>(lifetime.m_msAlive) / 1000.0f);
+    size_t index = 0;
+    for (size_t i = 1; i < cacheData->samples.size(); ++i) {
+        if (distanceTravelled < cacheData->samples[i].total_distance) {
+            break;
+        }
+        index = i;
+    }
+    auto const& pastNode = cacheData->samples[index];
 
     position.m_lastPosition = position.m_position;
-    position.m_position = behaviour.m_offset + cacheData->samples[index].position;
+    position.m_position = behaviour.m_offset + pastNode.position;
 
-    float const remainder = cacheData->samples[index].total_distance - totalDistance;
-    if (remainder > 0) {
-        float const factor = remainder / (cacheData->samples[index].segment_length);
-        auto const delta = cacheData->samples[index].position - cacheData->samples[index+1].position;
-        position.m_position += delta * factor;
+    if (index < (cacheData->samples.size() - 1)) {
+        auto const& nextNode = cacheData->samples[index + 1];
+        float const remainder = distanceTravelled - pastNode.total_distance;
+        if (remainder > 0) {
+            float const factor = remainder / nextNode.segment_length;
+            auto const delta = nextNode.position - pastNode.position;
+            position.m_position += delta * factor;
+        }
     }
 }
 
