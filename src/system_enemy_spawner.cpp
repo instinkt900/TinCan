@@ -103,9 +103,9 @@ void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks, Gameda
     }
 }
 
-entt::entity SystemEnemySpawner::CreateSpawner(entt::registry& registry, Gamedata const& gamedata,
-                                               moth_ui::FloatVec2 const& position) {
-    auto const* spawnerData = gamedata.GetSpawnerDatabase()->Get("basic_spawner");
+entt::entity SystemEnemySpawner::CreateSpawner(entt::registry& registry, std::string const& name,
+                                               Gamedata const& gamedata, moth_ui::FloatVec2 const& position) {
+    auto const* spawnerData = gamedata.GetSpawnerDatabase()->Get(name);
     if (spawnerData == nullptr) {
         spdlog::error("Unable to access spawner data");
         return entt::null;

@@ -1,6 +1,5 @@
-[
-    {
-        "name": "player_ship",
+{
+    "player_ship": {
         "images": {
             "ship": {
                 "image": "assets/player_ship.png",
@@ -22,8 +21,7 @@
             }
         }
     },
-    {
-        "name": "enemy_ship",
+    "enemy_ship": {
         "images": {
             "ship": {
                 "image": "assets/enemy_ship.png",
@@ -36,8 +34,7 @@
             }
         }
     },
-    {
-        "name": "player_projectile_light",
+    "player_projectile_light": {
         "images": {
             "ship": {
                 "image": "assets/player_bullet.png",
@@ -50,8 +47,7 @@
             }
         }
     },
-    {
-        "name": "player_projectile_dark",
+    "player_projectile_dark": {
         "images": {
             "ship": {
                 "image": "assets/player_bullet.png",
@@ -64,8 +60,7 @@
             }
         }
     },
-    {
-        "name": "enemy_projectile_light",
+    "enemy_projectile_light": {
         "images": {
             "ship": {
                 "image": "assets/enemy_bullet.png",
@@ -78,8 +73,7 @@
             }
         }
     },
-    {
-        "name": "enemy_projectile_dark",
+    "enemy_projectile_dark": {
         "images": {
             "ship": {
                 "image": "assets/enemy_bullet.png",
@@ -92,5 +86,5 @@
             }
         }
     }
-]
+}
 

@@ -1,19 +1,17 @@
-[
-    {
-        "name": "player_bullet",
+{
+    "player_bullet": {
         "radius": 5,
         "damage": 10,
         "speed": 1300.0,
         "white_sprite": "player_projectile_light",
         "black_sprite": "player_projectile_dark"
     },
-    {
-        "name": "basic_bullet",
+    "basic_bullet": {
         "radius": 8,
         "damage": 10,
         "speed": 300.0,
         "white_sprite": "enemy_projectile_light",
         "black_sprite": "enemy_projectile_dark"
     }
-]
+}
 

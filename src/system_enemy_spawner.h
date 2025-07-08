@@ -23,6 +23,6 @@ class SystemEnemySpawner {
 public:
     static void Update(entt::registry& registry, uint32_t ticks, Gamedata const& gamedata);
 
-    static entt::entity CreateSpawner(entt::registry& registry, Gamedata const& gamedata,
-                                      moth_ui::FloatVec2 const& position);
+    static entt::entity CreateSpawner(entt::registry& registry, std::string const& name,
+                                      Gamedata const& gamedata, moth_ui::FloatVec2 const& position);
 };

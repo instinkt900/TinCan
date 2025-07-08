@@ -1,0 +1,11 @@
+{
+    "events": [
+        {
+            "time": 3.0,
+            "type": "Spawn",
+            "location": { "x": 640, "y": -10 },
+            "name": "basic_spawner"
+        }
+    ]
+}
+

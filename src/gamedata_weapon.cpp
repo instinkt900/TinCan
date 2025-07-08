@@ -2,16 +2,9 @@
 #include <nlohmann/json.hpp>
 #include <moth_ui/utils/vector_serialization.h>
 
-bool WeaponData::Load(nlohmann::json const& json, Gamedata const& gamedata, canyon::graphics::SurfaceContext& surfaceContext) {
-    json["name"].get_to(name);
-    json["cooldown"].get_to(cooldown);
-    json["player_tracking"].get_to(player_tracking);
-    json["projectile_name"].get_to(projectile_name);
-    for (auto const& barrelJson: json["barrels"]) {
-        auto& barrel = barrels.emplace_back();
-        barrelJson["offset"].get_to(barrel.offset);
-        barrelJson["group"].get_to(barrel.group);
-    }
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(BarrelData, offset, group);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(WeaponData, cooldown, player_tracking, projectile_name, barrels);
 
-    return true;
+WeaponData WeaponData::Deserialize(nlohmann::json const& json, SerializeContext const& gamedata) {
+    return json.get<WeaponData>();
 }

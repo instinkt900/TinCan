@@ -1,6 +1,5 @@
-[
-    {
-        "name": "basic_spawner",
+{
+    "basic_spawner": {
         "enemy_name": "basic_enemy",
         "behaviour_name": "wave",
         "behaviour_parameters": {
@@ -13,4 +12,4 @@
         "group_count": 5,
         "group_delay": 300
     }
-]
+}

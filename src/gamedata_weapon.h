@@ -1,12 +1,7 @@
 #pragma once
 
-#include <canyon/graphics/surface_context.h>
+#include "gamedata_database.h"
 #include <moth_ui/utils/vector.h>
-#include <nlohmann/json_fwd.hpp>
-#include <string>
-#include <vector>
-
-class Gamedata;
 
 struct BarrelData {
     moth_ui::IntVec2 offset;
@@ -14,12 +9,11 @@ struct BarrelData {
 };
 
 struct WeaponData {
-    std::string name;
     int32_t cooldown;
     bool player_tracking;
     std::string projectile_name;
     std::vector<BarrelData> barrels;
 
-    bool Load(nlohmann::json const& json, Gamedata const& gamedata, canyon::graphics::SurfaceContext& surfaceContext);
+    static WeaponData Deserialize(nlohmann::json const& json, SerializeContext const& gamedata);
 };
 

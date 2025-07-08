@@ -30,6 +30,8 @@ set(SOURCES ${SOURCES}
 	src/gamedata.cpp
 	src/gamedata_spawner.cpp
 	src/system_group.cpp
+	src/gamedata_level.cpp
+	src/system_level.cpp
 )
 
 find_package(canyon REQUIRED)

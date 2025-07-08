@@ -1,6 +1,7 @@
 #include "game_layer.h"
 #include "system_health.h"
 #include "system_input.h"
+#include "system_level.h"
 #include "system_movement.h"
 #include "system_drawable.h"
 #include "system_player_visuals.h"
@@ -34,6 +35,7 @@ bool GameLayer::OnEvent(moth_ui::Event const& event) {
 }
 
 void GameLayer::Update(uint32_t ticks) {
+    SystemLevel::Update(m_registry, ticks, *m_gamedata);
     SystemLifetime::Update(m_registry, ticks);
     SystemEnemySpawner::Update(m_registry, ticks, *m_gamedata);
     if (m_behaviourSystem != nullptr) {
@@ -67,13 +69,10 @@ void GameLayer::OnAddedToStack(moth_ui::LayerStack* stack) {
     m_font = surfaceContext.FontFromFile("assets/font.ttf", 24);
 
     m_gamedata = std::make_unique<Gamedata>("data", surfaceContext);
-
-    CreatePlayer();
-
-    SystemEnemySpawner::CreateSpawner(m_registry, *m_gamedata,
-                                      { static_cast<float>(m_window.GetWidth()) / 2.0f, -10.0f });
-
     m_behaviourSystem = std::make_unique<SystemBehaviour>();
+
+    SystemLevel::InitLevel(m_registry, "test", *m_gamedata);
+    CreatePlayer();
 }
 
 

@@ -3,21 +3,20 @@
 #include <nlohmann/json.hpp>
 #include "gamedata.h"
 
-bool EnemyData::Load(nlohmann::json const& json, Gamedata const& gamedata, canyon::graphics::SurfaceContext& surfaceContext) {
-    auto const* spriteDatabase = gamedata.GetSpriteDatabase();
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(EnemyData, health, radius, lifetime, weapon_name);
+
+EnemyData EnemyData::Deserialize(nlohmann::json const& json, SerializeContext const& context) {
+    EnemyData data = json.get<EnemyData>();
+
+    auto const* spriteDatabase = context.gamedata.GetSpriteDatabase();
     if (spriteDatabase == nullptr) {
-        return false;
+        throw std::runtime_error("Unable to read sprite database.");
     }
 
     auto const* spriteData = spriteDatabase->Get(json["sprite_name"]);
     if (spriteData != nullptr) {
-        sprite = *spriteData;
+        data.sprite = *spriteData;
     }
 
-    json["name"].get_to(name);
-    json["health"].get_to(health);
-    json["radius"].get_to(radius);
-    json["lifetime"].get_to(lifetime);
-    json["weapon_name"].get_to(weapon_name);
-    return true;
+    return data;
 }

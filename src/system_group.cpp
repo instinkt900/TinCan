@@ -9,7 +9,6 @@ void SystemGroup::Update(entt::registry& registry, uint32_t ticks) {
     for (auto [entity, group] : view.each()) {
         if (group.m_memberCount <= 0) {
             // TODO: do something?
-            spdlog::info("Group gone: {}", static_cast<int>(group.m_condition));
 
             registry.emplace<DeadTag>(entity);
         }
@@ -17,7 +16,6 @@ void SystemGroup::Update(entt::registry& registry, uint32_t ticks) {
 }
 
 entt::entity SystemGroup::CreateGroup(entt::registry& registry) {
-    spdlog::info("New group");
     auto entity = registry.create();
     auto& group = registry.emplace<ComponentGroup>(entity);
     group.m_memberCount = 0;

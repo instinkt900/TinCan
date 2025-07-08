@@ -4,30 +4,26 @@
 #include <spdlog/spdlog.h>
 #include <canyon/utils/vector_serialization.h>
 
-bool SpriteImage::Load(nlohmann::json& json, canyon::graphics::SurfaceContext& surfaceContext) {
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SpriteImage, scale, offset, rotation, blend_mode, color);
+
+SpriteImage SpriteImage::Deserialize(nlohmann::json const& json, SerializeContext const& context) {
+    SpriteImage data = json.get<SpriteImage>();
+
     std::filesystem::path imagePath;
     json["image"].get_to(imagePath);
-    image = surfaceContext.ImageFromFile(imagePath);
-    if (image == nullptr) {
+    data.image = context.surfaceContext.ImageFromFile(imagePath);
+    if (data.image == nullptr) {
         spdlog::error("Failed loading image at {}", imagePath.string());
-        return false;
+        throw std::runtime_error("Failed loading image " + imagePath.string());
     }
-    json["scale"].get_to(scale);
-    json["offset"].get_to(offset);
-    json["rotation"].get_to(rotation);
-    json["blend_mode"].get_to(blend_mode);
-    json["color"].get_to(color);
-    return true;
+
+    return data;
 }
 
-bool SpriteData::Load(nlohmann::json& json, Gamedata const& gamedata, canyon::graphics::SurfaceContext& surfaceContext) {
-    json["name"].get_to(name);
-    for (auto const& [imageName, imageJson]: json["images"].items()) {
-        SpriteImage image;
-        if (image.Load(imageJson, surfaceContext)) {
-            images.insert(std::make_pair(imageName, image));
-        }
+SpriteData SpriteData::Deserialize(nlohmann::json const& json, SerializeContext const& context) {
+    SpriteData data;
+    for (auto const& [imageName, imageJson] : json["images"].items()) {
+        data.images.insert(std::make_pair(imageName, SpriteImage::Deserialize(imageJson, context)));
     }
-    return true;
+    return data;
 }
-

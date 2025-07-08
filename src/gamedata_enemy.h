@@ -2,17 +2,15 @@
 
 #include "gamedata_sprite.h"
 #include <string>
-
-class Gamedata;
+#include <nlohmann/json.hpp>
 
 struct EnemyData {
-    std::string name;
     SpriteData sprite;
     float health;
     float radius;
     uint32_t lifetime;
     std::string weapon_name;
 
-    bool Load(nlohmann::json const& json, Gamedata const& gamedata, canyon::graphics::SurfaceContext& surfaceContext);
+    static EnemyData Deserialize(nlohmann::json const& json, SerializeContext const& context);
 };
 

@@ -1,13 +1,10 @@
 #pragma once
 
+#include "gamedata_database.h"
 #include "system_behaviour.h"
-#include <canyon/graphics/surface_context.h>
 #include <nlohmann/json_fwd.hpp>
 
-class Gamedata;
-
 struct SpawnerData {
-    std::string name;
     std::string enemy_name;
     std::string behaviour_name;
     BehaviourParameterList behaviour_parameters;
@@ -16,5 +13,5 @@ struct SpawnerData {
     int32_t group_count;
     int32_t group_delay;
 
-    bool Load(nlohmann::json const& json, Gamedata const& gamedata, canyon::graphics::SurfaceContext& surfaceContext);
+    static SpawnerData Deserialize(nlohmann::json const& json, SerializeContext const& context);
 };

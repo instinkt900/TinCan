@@ -8,10 +8,14 @@
 
 class Gamedata;
 
+struct SerializeContext {
+    Gamedata const& gamedata;
+    canyon::graphics::SurfaceContext& surfaceContext;
+};
+
 template <typename T> class Database {
 public:
-    static std::unique_ptr<Database<T>> Load(std::filesystem::path const& path, Gamedata const& databases,
-                                             canyon::graphics::SurfaceContext& surfaceContext) {
+    static std::unique_ptr<Database<T>> Load(std::filesystem::path const& path, SerializeContext const& context) {
         if (!std::filesystem::exists(path)) {
             spdlog::error("Database does not exist at {}", path.string());
             return nullptr;
@@ -32,12 +36,14 @@ public:
             return nullptr;
         }
 
+        if (!json.is_object()) {
+            spdlog::error("Malformed database at {}. Root is not an object.", path.string());
+            return nullptr;
+        }
+
         std::unique_ptr<Database<T>> db = std::unique_ptr<Database<T>>(new Database<T>());
-        for (auto entryJson : json) {
-            T data;
-            if (data.Load(entryJson, databases, surfaceContext)) {
-                db->m_database.insert(std::make_pair(data.name, data));
-            }
+        for (auto [entryName, entryJson]: json.items()) {
+            db->m_database.insert(std::make_pair(entryName, T::Deserialize(entryJson, context)));
         }
 
         spdlog::info("Loaded database: {}", path.string());
@@ -55,7 +61,6 @@ public:
 
 private:
     Database() = default;
-
     std::map<std::string, T> m_database;
 };
 
