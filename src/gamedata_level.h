@@ -5,9 +5,10 @@
 #include <nlohmann/json_fwd.hpp>
 #include <vector>
 
-enum LevelEventType {
+enum class LevelEventType {
     Unknown,
-    Spawn
+    Spawn,
+    CreateSpawner,
 };
 
 struct LevelEvent {

@@ -4,13 +4,13 @@
 #include <entt/entity/fwd.hpp>
 #include <moth_ui/utils/vector.h>
 
-enum Team {
+enum class Team {
     NONE = 0,
     PLAYER = 1,
     ENEMY = 2,
 };
 
-enum EnergyColor {
+enum class EnergyColor {
     WHITE,
     BLACK,
 };

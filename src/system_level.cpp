@@ -36,6 +36,12 @@ void SystemLevel::InitLevel(entt::registry& registry, std::string const& levelNa
 }
 
 void HandleLevelEventSpawn(LevelEvent const& event, entt::registry& registry, Gamedata const& gamedata) {
+    BehaviourParameterList params;
+    params["speed"] = 200.0f;
+    SystemEnemySpawner::CreateEnemy(registry, event.name, gamedata, event.location, "straight", params);
+}
+
+void HandleLevelEventCreateSpawner(LevelEvent const& event, entt::registry& registry, Gamedata const& gamedata) {
     SystemEnemySpawner::CreateSpawner(registry, event.name, gamedata, event.location);
 }
 
@@ -43,6 +49,9 @@ void HandleLevelEvent(LevelEvent const& event, entt::registry& registry, Gamedat
     switch (event.type) {
     case LevelEventType::Spawn:
         HandleLevelEventSpawn(event, registry, gamedata);
+        break;
+    case LevelEventType::CreateSpawner:
+        HandleLevelEventCreateSpawner(event, registry, gamedata);
         break;
     default:
         break;

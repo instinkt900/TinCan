@@ -2,7 +2,7 @@
 
 #include <entt/entity/fwd.hpp>
 
-enum GroupEndCondition {
+enum class GroupEndCondition {
     None,
     Killed,
     Escaped,

@@ -1,17 +1,9 @@
 #include "gamedata_level.h"
 #include <magic_enum.hpp>
 #include <moth_ui/utils/vector_serialization.h>
+#include "utils.h"
 
-inline void to_json(nlohmann::json& j, LevelEventType const& type) { j = magic_enum::enum_name(type); }
-
-inline void from_json(const nlohmann::json& j, LevelEventType& type) {
-    if (auto val = magic_enum::enum_cast<LevelEventType>(j.get<std::string>()); val.has_value()) {
-        type = val.value();
-    } else {
-        throw std::runtime_error("Invalid enum string: " + j.get<std::string>());
-    }
-}
-
+MAGIC_SERIALIZE_ENUM(LevelEventType);
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LevelEvent, time, type, location, name);
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LevelData, events);
 

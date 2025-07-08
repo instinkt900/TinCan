@@ -4,7 +4,19 @@
             "time": 3.0,
             "type": "Spawn",
             "location": { "x": 640, "y": -10 },
-            "name": "basic_spawner"
+            "name": "basic_enemy"
+        },
+        {
+            "time": 4.0,
+            "type": "Spawn",
+            "location": { "x": 320, "y": -10 },
+            "name": "basic_enemy"
+        },
+        {
+            "time": 5.0,
+            "type": "Spawn",
+            "location": { "x": 640, "y": -10 },
+            "name": "basic_enemy"
         }
     ]
 }

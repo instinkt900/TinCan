@@ -4,6 +4,12 @@
 #include "system_behaviour.h"
 #include <nlohmann/json_fwd.hpp>
 
+enum class SpawnerType {
+    Unknown,
+    Basic,
+    Staggered,
+};
+
 struct SpawnerData {
     std::string enemy_name;
     std::string behaviour_name;
@@ -12,6 +18,8 @@ struct SpawnerData {
     int32_t cooldown;
     int32_t group_count;
     int32_t group_delay;
+    SpawnerType type;
+    float distance;
 
     static SpawnerData Deserialize(nlohmann::json const& json, SerializeContext const& context);
 };
