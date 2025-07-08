@@ -8,6 +8,7 @@
 #include "system_movement.h"
 #include "system_drawable.h"
 #include "system_weapon.h"
+#include "tags.h"
 #include <entt/entt.hpp>
 #include <spdlog/spdlog.h>
 

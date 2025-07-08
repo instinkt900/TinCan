@@ -4,6 +4,7 @@
 #include "system_health.h"
 #include "system_lifetime.h"
 #include "system_movement.h"
+#include "tags.h"
 #include <entt/entt.hpp>
 #include <moth_ui/utils/vector_utils.h>
 #include <spdlog/spdlog.h>

@@ -2,6 +2,7 @@
 #include "game_layer.h"
 #include "system_drawable.h"
 #include "system_movement.h"
+#include "tags.h"
 #include <entt/entt.hpp>
 #include <moth_ui/utils/vector_utils.h>
 #include <spdlog/spdlog.h>

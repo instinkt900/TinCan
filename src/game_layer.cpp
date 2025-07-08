@@ -10,6 +10,7 @@
 #include "system_lifetime.h"
 #include "system_enemy_spawner.h"
 #include "system_group.h"
+#include "tags.h"
 #include <canyon/events/event_window.h>
 #include <canyon/platform/window.h>
 #include <cmath>
