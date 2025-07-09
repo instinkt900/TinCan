@@ -96,6 +96,7 @@ entt::entity SystemEnemySpawner::CreateEnemy(entt::registry& registry, std::stri
     auto& weapon = registry.emplace<ComponentWeapon>(enemy);
     auto& lifetime = registry.emplace<ComponentLifetime>(enemy);
     auto& behaviour = registry.emplace<ComponentBehaviour>(enemy);
+    registry.emplace<TargetTag>(enemy);
 
     auto const* enemyData = enemyDatabase->Get(name);
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "gamedata.h"
 #include <entt/entity/entity.hpp>
 #include <entt/entity/fwd.hpp>
 #include <moth_ui/utils/vector.h>
@@ -23,5 +24,5 @@ struct ComponentProjectile {
 
 class SystemProjectile {
 public:
-    static void Update(entt::registry& registry, uint32_t ticks);
+    static void Update(entt::registry& registry, uint32_t ticks, Gamedata const& gamedata);
 };

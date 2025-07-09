@@ -4,7 +4,8 @@
             "time": 3.0,
             "type": "Spawn",
             "location": { "x": 640, "y": -10 },
-            "name": "basic_enemy"
+            "name": "basic_enemy",
+            "drop": "drop_01"
         },
         {
             "time": 4.0,

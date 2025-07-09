@@ -2,6 +2,8 @@
 
 #include "system_projectile.h"
 #include <canyon/graphics/color.h>
+#include <optional>
+#include <nlohmann/json.hpp>
 
 inline canyon::graphics::Color GetEnergyColor(EnergyColor const& color) {
     return color == EnergyColor::WHITE ? canyon::graphics::BasicColors::Blue
@@ -17,3 +19,25 @@ inline void from_json(const nlohmann::json& j, EnumType& type) {                
         throw std::runtime_error("Invalid enum string: " + j.get<std::string>());                   \
     }                                                                                               \
 }
+
+namespace nlohmann {
+    template<typename T>
+    struct adl_serializer<std::optional<T>> {
+        static void to_json(json& j, const std::optional<T>& opt) {
+            if (opt.has_value()) {
+                j = *opt;
+            } else {
+                j = nullptr;
+            }
+        }
+
+        static void from_json(const json& j, std::optional<T>& opt) {
+            if (j.is_null()) {
+                opt = std::nullopt;
+            } else {
+                opt = j.get<T>();
+            }
+        }
+    };
+}
+

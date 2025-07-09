@@ -9,5 +9,6 @@ Gamedata::Gamedata(std::filesystem::path const& rootPath, canyon::graphics::Surf
     m_enemyDatabase = Database<EnemyData>::Load(rootPath / "enemy_database.json", context);
     m_spawnerDatabase = Database<SpawnerData>::Load(rootPath / "spawner_database.json", context);
     m_levelDatabase = Database<LevelData>::Load(rootPath / "level_database.json", context);
+    m_dropDatabase = Database<DropData>::Load(rootPath / "drop_database.json", context);
 }
 

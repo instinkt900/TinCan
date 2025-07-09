@@ -4,6 +4,7 @@
 #include "system_level.h"
 #include "system_movement.h"
 #include "system_drawable.h"
+#include "system_pickup.h"
 #include "system_player_visuals.h"
 #include "system_shield.h"
 #include "system_weapon.h"
@@ -45,7 +46,8 @@ void GameLayer::Update(uint32_t ticks) {
     SystemMovement::Update(m_registry, ticks);
     SystemWeapon::Update(m_registry, ticks, *m_gamedata);
     SystemShield::Update(m_registry, ticks);
-    SystemProjectile::Update(m_registry, ticks);
+    SystemProjectile::Update(m_registry, ticks, *m_gamedata);
+    SystemPickup::Update(m_registry, ticks);
     SystemPlayerVisuals::Update(m_registry, ticks);
     SystemGroup::Update(m_registry, ticks);
 }
@@ -146,4 +148,6 @@ void GameLayer::CreatePlayer() {
     weapon.m_maxCooldown = 500;
     weapon.m_angle = M_PI;
     weapon.m_projectileName = "player_bullet";
+
+    m_registry.emplace<TargetTag>(m_player);
 }

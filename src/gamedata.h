@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gamedata_database.h"
+#include "gamedata_drop.h"
 #include "gamedata_enemy.h"
 #include "gamedata_level.h"
 #include "gamedata_projectile.h"
@@ -18,6 +19,7 @@ public:
     Database<EnemyData> const* GetEnemyDatabase() const { return m_enemyDatabase.get(); }
     Database<SpawnerData> const* GetSpawnerDatabase() const { return m_spawnerDatabase.get(); }
     Database<LevelData> const* GetLevelDatabase() const { return m_levelDatabase.get(); }
+    Database<DropData> const* GetDropDatabase() const { return m_dropDatabase.get(); }
 
 private:
     std::unique_ptr<Database<SpriteData>> m_spriteDatabase;
@@ -26,4 +28,5 @@ private:
     std::unique_ptr<Database<EnemyData>> m_enemyDatabase;
     std::unique_ptr<Database<SpawnerData>> m_spawnerDatabase;
     std::unique_ptr<Database<LevelData>> m_levelDatabase;
+    std::unique_ptr<Database<DropData>> m_dropDatabase;
 };

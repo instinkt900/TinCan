@@ -1,5 +1,6 @@
 #include "system_level.h"
 #include <entt/entt.hpp>
+#include "game_layer.h"
 #include "gamedata.h"
 #include "system_enemy_spawner.h"
 
@@ -38,7 +39,11 @@ void SystemLevel::InitLevel(entt::registry& registry, std::string const& levelNa
 void HandleLevelEventSpawn(LevelEvent const& event, entt::registry& registry, Gamedata const& gamedata) {
     BehaviourParameterList params;
     params["speed"] = 200.0f;
-    SystemEnemySpawner::CreateEnemy(registry, event.name, gamedata, event.location, "straight", params);
+    auto newEnemy = SystemEnemySpawner::CreateEnemy(registry, event.name, gamedata, event.location, "straight", params);
+    if (event.drop.has_value()) {
+        auto& drop = registry.emplace<ComponentDrop>(newEnemy);
+        drop.m_dropName = event.drop.value();
+    }
 }
 
 void HandleLevelEventCreateSpawner(LevelEvent const& event, entt::registry& registry, Gamedata const& gamedata) {

@@ -11,7 +11,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SpawnerData, enemy_name, behaviour_name, coun
 SpawnerData SpawnerData::Deserialize(nlohmann::json const& json, SerializeContext const& context) {
     SpawnerData data = json.get<SpawnerData>();
 
-    auto parameterList = json.value("behaviour_parameters", nlohmann::json::object());
+    auto parameterList = json.value("behaviour_parameters", nlohmann::json());
     if (!parameterList.is_null()) {
         if (!parameterList.is_object()) {
             spdlog::error("Malformed behavious parameter list");

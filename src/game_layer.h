@@ -15,6 +15,10 @@ struct ComponentEntity {
     float m_radius;
 };
 
+struct ComponentDrop {
+    std::string m_dropName;
+};
+
 class GameLayer : public moth_ui::Layer {
 public:
     GameLayer(canyon::platform::Window& window, moth_ui::Context& context, canyon::graphics::IGraphics& graphics);

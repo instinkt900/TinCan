@@ -32,12 +32,15 @@ set(SOURCES ${SOURCES}
 	src/system_group.cpp
 	src/gamedata_level.cpp
 	src/system_level.cpp
+	src/gamedata_drop.cpp
+	src/system_pickup.cpp
 )
 
 find_package(canyon REQUIRED)
 find_package(EnTT REQUIRED)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 target_link_libraries(${PROJECT_NAME} canyon::canyon)

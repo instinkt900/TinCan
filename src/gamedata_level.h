@@ -2,7 +2,8 @@
 
 #include "gamedata_database.h"
 #include <moth_ui/utils/vector.h>
-#include <nlohmann/json_fwd.hpp>
+#include <nlohmann/json.hpp>
+#include <optional>
 #include <vector>
 
 enum class LevelEventType {
@@ -16,6 +17,7 @@ struct LevelEvent {
     LevelEventType type;
     moth_ui::FloatVec2 location;
     std::string name;
+    std::optional<std::string> drop;
 };
 
 struct LevelData {

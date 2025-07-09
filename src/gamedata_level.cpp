@@ -2,10 +2,23 @@
 #include <magic_enum.hpp>
 #include <moth_ui/utils/vector_serialization.h>
 #include "utils.h"
+#include <nlohmann/json.hpp>
 
 MAGIC_SERIALIZE_ENUM(LevelEventType);
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LevelEvent, time, type, location, name);
+// NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LevelEvent, time, type, location, name);
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LevelData, events);
+
+void from_json(nlohmann::json const& j, LevelEvent& levelEvent) {
+    j["time"].get_to(levelEvent.time);
+    j["type"].get_to(levelEvent.type);
+    j["location"].get_to(levelEvent.location);
+    j["name"].get_to(levelEvent.name);
+
+    auto const drop = j.value("drop", nlohmann::json());
+    if (!drop.is_null()) {
+        drop.get_to(levelEvent.drop);
+    }
+}
 
 LevelData LevelData::Deserialize(nlohmann::json const& json, SerializeContext const& context) {
     // leveldata comes in as a string reference to an external file
