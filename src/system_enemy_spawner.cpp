@@ -13,16 +13,6 @@
 #include <spdlog/spdlog.h>
 
 void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks, Gamedata const& gamedata) {
-    auto const* enemyDatabase = gamedata.GetEnemyDatabase();
-    if (enemyDatabase == nullptr) {
-        return;
-    }
-
-    auto const* weaponDatabase = gamedata.GetWeaponDatabase();
-    if (weaponDatabase == nullptr) {
-        return;
-    }
-
     auto view = registry.view<ComponentEnemySpawner, ComponentPosition>();
 
     for (auto [entity, spawner, spawnerPosition] : view.each()) {
@@ -78,16 +68,6 @@ entt::entity SystemEnemySpawner::CreateEnemy(entt::registry& registry, std::stri
                                              Gamedata const& gamedata, moth_ui::FloatVec2 const& position,
                                              std::string const& behaviourName,
                                              BehaviourParameterList const& behaviourParameters) {
-    auto const* enemyDatabase = gamedata.GetEnemyDatabase();
-    if (enemyDatabase == nullptr) {
-        return entt::null;
-    }
-
-    auto const* weaponDatabase = gamedata.GetWeaponDatabase();
-    if (weaponDatabase == nullptr) {
-        return entt::null;
-    }
-
     auto enemy = registry.create();
     auto& entityData = registry.emplace<ComponentEntity>(enemy);
     auto& health = registry.emplace<ComponentHealth>(enemy);
@@ -97,7 +77,7 @@ entt::entity SystemEnemySpawner::CreateEnemy(entt::registry& registry, std::stri
     auto& behaviour = registry.emplace<ComponentBehaviour>(enemy);
     registry.emplace<TargetTag>(enemy);
 
-    auto const* enemyData = enemyDatabase->Get(name);
+    auto const* enemyData = gamedata.GetEnemyDatabase().Get(name);
 
     entityData.m_team = Team::ENEMY;
     entityData.m_color = EnergyColor::WHITE;
@@ -128,7 +108,7 @@ entt::entity SystemEnemySpawner::CreateEnemy(entt::registry& registry, std::stri
 
 entt::entity SystemEnemySpawner::CreateSpawner(entt::registry& registry, std::string const& name,
                                                Gamedata const& gamedata, moth_ui::FloatVec2 const& position) {
-    auto const* spawnerData = gamedata.GetSpawnerDatabase()->Get(name);
+    auto const* spawnerData = gamedata.GetSpawnerDatabase().Get(name);
     if (spawnerData == nullptr) {
         spdlog::error("Unable to access spawner data");
         return entt::null;

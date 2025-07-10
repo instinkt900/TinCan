@@ -15,16 +15,16 @@ struct SerializeContext {
 
 template <typename T> class Database {
 public:
-    static std::unique_ptr<Database<T>> Load(std::filesystem::path const& path, SerializeContext const& context) {
+    bool Load(std::filesystem::path const& path, SerializeContext const& context) {
         if (!std::filesystem::exists(path)) {
             spdlog::error("Database does not exist at {}", path.string());
-            return nullptr;
+            return false;
         }
 
         std::ifstream file(path);
         if (!file.is_open()) {
             spdlog::error("Unable to open the database at {}", path.string());
-            return nullptr;
+            return false;
         }
 
         nlohmann::json json;
@@ -33,21 +33,20 @@ public:
         } catch (std::exception& e) {
             spdlog::error("Failed to load database at {}", path.string());
             spdlog::error("{}", e.what());
-            return nullptr;
+            return false;
         }
 
         if (!json.is_object()) {
             spdlog::error("Malformed database at {}. Root is not an object.", path.string());
-            return nullptr;
+            return false;
         }
 
-        std::unique_ptr<Database<T>> db = std::unique_ptr<Database<T>>(new Database<T>());
         for (auto [entryName, entryJson]: json.items()) {
-            db->m_database.insert(std::make_pair(entryName, T::Deserialize(entryJson, context)));
+            m_database.insert(std::make_pair(entryName, T::Deserialize(entryJson, context)));
         }
 
         spdlog::info("Loaded database: {}", path.string());
-        return db;
+        return true;
     }
 
     T const* Get(std::string const& name) const {
@@ -60,7 +59,6 @@ public:
     }
 
 private:
-    Database() = default;
     std::map<std::string, T> m_database;
 };
 

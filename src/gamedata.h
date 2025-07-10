@@ -10,20 +10,26 @@
 
 class Gamedata {
 public:
-    Gamedata(std::filesystem::path const& rootPath, canyon::graphics::SurfaceContext& surfaceContext);
+    Gamedata() = default;
 
-    Database<SpriteData> const* GetSpriteDatabase() const { return m_spriteDatabase.get(); }
-    Database<ProjectileData> const* GetProjectileDatabase() const { return m_projectileDatabase.get(); }
-    Database<WeaponData> const* GetWeaponDatabase() const { return m_weaponDatabase.get(); }
-    Database<EnemyData> const* GetEnemyDatabase() const { return m_enemyDatabase.get(); }
-    Database<SpawnerData> const* GetSpawnerDatabase() const { return m_spawnerDatabase.get(); }
-    Database<LevelData> const* GetLevelDatabase() const { return m_levelDatabase.get(); }
+    Database<SpriteData>& GetSpriteDatabase() { return m_spriteDatabase; }
+    Database<ProjectileData>& GetProjectileDatabase() { return m_projectileDatabase; }
+    Database<WeaponData>& GetWeaponDatabase() { return m_weaponDatabase; }
+    Database<EnemyData>& GetEnemyDatabase() { return m_enemyDatabase; }
+    Database<SpawnerData>& GetSpawnerDatabase() { return m_spawnerDatabase; }
+    Database<LevelData>& GetLevelDatabase() { return m_levelDatabase; }
 
+    Database<SpriteData> const& GetSpriteDatabase() const { return m_spriteDatabase; }
+    Database<ProjectileData> const& GetProjectileDatabase() const { return m_projectileDatabase; }
+    Database<WeaponData> const& GetWeaponDatabase() const { return m_weaponDatabase; }
+    Database<EnemyData> const& GetEnemyDatabase() const { return m_enemyDatabase; }
+    Database<SpawnerData> const& GetSpawnerDatabase() const { return m_spawnerDatabase; }
+    Database<LevelData> const& GetLevelDatabase() const { return m_levelDatabase; }
 private:
-    std::unique_ptr<Database<SpriteData>> m_spriteDatabase;
-    std::unique_ptr<Database<ProjectileData>> m_projectileDatabase;
-    std::unique_ptr<Database<WeaponData>> m_weaponDatabase;
-    std::unique_ptr<Database<EnemyData>> m_enemyDatabase;
-    std::unique_ptr<Database<SpawnerData>> m_spawnerDatabase;
-    std::unique_ptr<Database<LevelData>> m_levelDatabase;
+    Database<SpriteData> m_spriteDatabase;
+    Database<ProjectileData> m_projectileDatabase;
+    Database<WeaponData> m_weaponDatabase;
+    Database<EnemyData> m_enemyDatabase;
+    Database<SpawnerData> m_spawnerDatabase;
+    Database<LevelData> m_levelDatabase;
 };

@@ -13,13 +13,7 @@ ComponentWeapon* SystemWeapon::InitWeapon(entt::registry& registry, entt::entity
         return nullptr;
     }
 
-    auto const* weaponDatabase = gamedata.GetWeaponDatabase();
-    if (weaponDatabase == nullptr) {
-        spdlog::error("SystemWeapon::InitWeapon - Unable to read weapon database.");
-        return nullptr;
-    }
-
-    auto const* weaponData = weaponDatabase->Get(name);
+    auto const* weaponData = gamedata.GetWeaponDatabase().Get(name);
     if (weaponData == nullptr) {
         spdlog::error("SystemWeapon::InitWeapon - Unable to get weapon {}", name);
         return nullptr;
@@ -50,11 +44,6 @@ ComponentWeapon* SystemWeapon::InitWeapon(entt::registry& registry, entt::entity
 }
 
 void SystemWeapon::Update(entt::registry& registry, uint32_t ticks, Gamedata const& gamedata) {
-    auto const* projectileDatabase = gamedata.GetProjectileDatabase();
-    if (projectileDatabase == nullptr) {
-        return;
-    }
-
     ComponentPosition* playerPosition = nullptr;
     auto playerView = registry.view<ComponentPosition, PlayerTag>();
     if (playerView.begin() != playerView.end()) {
@@ -68,7 +57,7 @@ void SystemWeapon::Update(entt::registry& registry, uint32_t ticks, Gamedata con
             weapon.m_cooldown -= static_cast<int32_t>(ticks);
         }
 
-        if (weapon.m_cooldown <= 0) {
+        if (weapon.m_cooldown <= 0 && weapon.m_active) {
             weapon.m_burst = weapon.m_maxBurst;
             weapon.m_cooldown += weapon.m_maxCooldown;
         }
@@ -95,7 +84,7 @@ void SystemWeapon::Update(entt::registry& registry, uint32_t ticks, Gamedata con
                         direction = moth_ui::Normalized(delta);
                     }
 
-                    auto const* projectileData = projectileDatabase->Get(weapon.m_projectileName);
+                    auto const* projectileData = gamedata.GetProjectileDatabase().Get(weapon.m_projectileName);
                     if (projectileData != nullptr) {
                         auto projectile = registry.create();
                         auto& projectileComp = registry.emplace<ComponentProjectile>(projectile);

@@ -6,7 +6,7 @@
             "location": { "x": 640, "y": -10 },
             "name": "basic_enemy",
             "drop_type": "Weapon",
-            "drop_name": "weapon_02"
+            "drop_name": "player_weapon_02"
         },
         {
             "time": 4.0,

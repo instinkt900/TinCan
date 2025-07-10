@@ -14,13 +14,7 @@ void SystemLevel::InitLevel(entt::registry& registry, std::string const& levelNa
         return;
     }
 
-    auto const* levelDb = gamedata.GetLevelDatabase();
-    if (levelDb == nullptr) {
-        spdlog::error("Unable to read level database.");
-        return;
-    }
-
-    auto const* levelData = levelDb->Get(levelName);
+    auto const* levelData = gamedata.GetLevelDatabase().Get(levelName);
     if (levelData == nullptr) {
         spdlog::error("Unable to find level entry {}", levelName);
         return;

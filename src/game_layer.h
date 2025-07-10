@@ -51,7 +51,7 @@ private:
     entt::entity m_player;
     entt::entity m_enemySpawner;
 
-    std::unique_ptr<Gamedata> m_gamedata;
+    Gamedata m_gamedata;
 
     std::unique_ptr<SystemBehaviour> m_behaviourSystem;
 };

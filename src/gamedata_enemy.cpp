@@ -8,12 +8,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(EnemyData, health, radius, lifetime, weapon_n
 EnemyData EnemyData::Deserialize(nlohmann::json const& json, SerializeContext const& context) {
     EnemyData data = json.get<EnemyData>();
 
-    auto const* spriteDatabase = context.gamedata.GetSpriteDatabase();
-    if (spriteDatabase == nullptr) {
-        throw std::runtime_error("Unable to read sprite database.");
-    }
-
-    auto const* spriteData = spriteDatabase->Get(json["sprite_name"]);
+    auto const* spriteData = context.gamedata.GetSpriteDatabase().Get(json["sprite_name"]);
     if (spriteData != nullptr) {
         data.sprite = *spriteData;
     }

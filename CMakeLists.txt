@@ -27,7 +27,6 @@ set(SOURCES ${SOURCES}
 	src/gamedata_enemy.cpp
 	src/gamedata_weapon.cpp
 	src/system_behaviour.cpp
-	src/gamedata.cpp
 	src/gamedata_spawner.cpp
 	src/system_group.cpp
 	src/gamedata_level.cpp

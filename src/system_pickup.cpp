@@ -30,14 +30,8 @@ std::string GetSpriteForPickupType(PickupType type) {
 
 entt::entity SystemPickup::CreatePickup(entt::registry& registry, moth_ui::FloatVec2 const& position,
                                         PickupType type, std::string const& name, Gamedata const& gamedata) {
-    auto const* spriteDatabase = gamedata.GetSpriteDatabase();
-    if (spriteDatabase == nullptr) {
-        spdlog::error("SystemPickup::CreatePickup - Unable to read sprite database");
-        return entt::null;
-    }
-
-    auto const* spriteData = spriteDatabase->Get(GetSpriteForPickupType(type));
-    if (spriteDatabase == nullptr) {
+    auto const* spriteData = gamedata.GetSpriteDatabase().Get(GetSpriteForPickupType(type));
+    if (spriteData == nullptr) {
         spdlog::error("SystemPickup::CreatePickup - Unable to get sprite for pickup type {}", type);
         return entt::null;
     }
@@ -67,13 +61,7 @@ entt::entity SystemPickup::CreatePickup(entt::registry& registry, moth_ui::Float
 }
 
 void PlayerPickupWeapon(ComponentPickup const& pickup, moth_ui::FloatVec2 const& position, entt::registry& registry, Gamedata const& gamedata) {
-    auto const* weaponDatabase = gamedata.GetWeaponDatabase();
-    if (weaponDatabase == nullptr) {
-        spdlog::error("PlayerPickupWeapon - Unable to read weapon database.");
-        return;
-    }
-
-    auto const* weaponData = weaponDatabase->Get(pickup.m_name);
+    auto const* weaponData = gamedata.GetWeaponDatabase().Get(pickup.m_name);
     if (weaponData == nullptr) {
         spdlog::error("PlayerPickupWeapon - Unable to find weapon data for {}", pickup.m_name);
         return;

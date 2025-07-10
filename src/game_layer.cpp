@@ -37,17 +37,17 @@ bool GameLayer::OnEvent(moth_ui::Event const& event) {
 }
 
 void GameLayer::Update(uint32_t ticks) {
-    SystemLevel::Update(m_registry, ticks, *m_gamedata);
+    SystemLevel::Update(m_registry, ticks, m_gamedata);
     SystemLifetime::Update(m_registry, ticks);
-    SystemEnemySpawner::Update(m_registry, ticks, *m_gamedata);
+    SystemEnemySpawner::Update(m_registry, ticks, m_gamedata);
     if (m_behaviourSystem != nullptr) {
         m_behaviourSystem->Update(m_registry, ticks);
     }
     SystemMovement::Update(m_registry, ticks);
-    SystemWeapon::Update(m_registry, ticks, *m_gamedata);
+    SystemWeapon::Update(m_registry, ticks, m_gamedata);
     SystemShield::Update(m_registry, ticks);
-    SystemProjectile::Update(m_registry, ticks, *m_gamedata);
-    SystemPickup::Update(m_registry, ticks, *m_gamedata);
+    SystemProjectile::Update(m_registry, ticks, m_gamedata);
+    SystemPickup::Update(m_registry, ticks, m_gamedata);
     SystemPlayerVisuals::Update(m_registry, ticks);
     SystemGroup::Update(m_registry, ticks);
 }
@@ -71,10 +71,18 @@ void GameLayer::OnAddedToStack(moth_ui::LayerStack* stack) {
     auto& surfaceContext = m_window.GetSurfaceContext();
     m_font = surfaceContext.FontFromFile("assets/font.ttf", 24);
 
-    m_gamedata = std::make_unique<Gamedata>("data", surfaceContext);
+    SerializeContext serializeContext{ m_gamedata, surfaceContext };
+    m_gamedata.GetSpriteDatabase().Load("data/sprite_database.json", serializeContext);
+    m_gamedata.GetEnemyDatabase().Load("data/enemy_database.json", serializeContext);
+    m_gamedata.GetWeaponDatabase().Load("data/weapon_database_player.json", serializeContext);
+    m_gamedata.GetWeaponDatabase().Load("data/weapon_database_enemy.json", serializeContext);
+    m_gamedata.GetProjectileDatabase().Load("data/projectile_database.json", serializeContext);
+    m_gamedata.GetSpawnerDatabase().Load("data/spawner_database.json", serializeContext);
+    m_gamedata.GetLevelDatabase().Load("data/level_database.json", serializeContext);
+
     m_behaviourSystem = std::make_unique<SystemBehaviour>();
 
-    SystemLevel::InitLevel(m_registry, "test", *m_gamedata);
+    SystemLevel::InitLevel(m_registry, "test", m_gamedata);
     CreatePlayer();
 }
 
@@ -132,7 +140,7 @@ void GameLayer::CreatePlayer() {
 
     auto& drawable = m_registry.emplace<ComponentDrawable>(m_player);
 
-    auto const* playerSprite = m_gamedata->GetSpriteDatabase()->Get("player_ship");
+    auto const* playerSprite = m_gamedata.GetSpriteDatabase().Get("player_ship");
     if (playerSprite != nullptr) {
         drawable.m_spriteData = *playerSprite;
     }
@@ -143,7 +151,7 @@ void GameLayer::CreatePlayer() {
     auto& power = m_registry.emplace<ComponentPower>(m_player);
     power.m_power = 0;
 
-    SystemWeapon::InitWeapon(m_registry, m_player, "player_weapon", *m_gamedata);
+    SystemWeapon::InitWeapon(m_registry, m_player, "player_weapon_01", m_gamedata);
 
     m_registry.emplace<TargetTag>(m_player);
 }
