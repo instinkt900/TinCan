@@ -47,7 +47,7 @@ void GameLayer::Update(uint32_t ticks) {
     SystemWeapon::Update(m_registry, ticks, *m_gamedata);
     SystemShield::Update(m_registry, ticks);
     SystemProjectile::Update(m_registry, ticks, *m_gamedata);
-    SystemPickup::Update(m_registry, ticks);
+    SystemPickup::Update(m_registry, ticks, *m_gamedata);
     SystemPlayerVisuals::Update(m_registry, ticks);
     SystemGroup::Update(m_registry, ticks);
 }
@@ -142,12 +142,14 @@ void GameLayer::CreatePlayer() {
     auto& power = m_registry.emplace<ComponentPower>(m_player);
     power.m_power = 0;
 
+    auto const* weaponData = m_gamedata->GetWeaponDatabase()->Get("player_weapon");
     auto& weapon = m_registry.emplace<ComponentWeapon>(m_player);
     weapon.m_active = false;
-    weapon.m_cooldown = 0;
-    weapon.m_maxCooldown = 500;
+    weapon.m_name = "player_weapon";
+    weapon.m_cooldown = weaponData->cooldown;
+    weapon.m_maxCooldown = weaponData->cooldown;
     weapon.m_angle = M_PI;
-    weapon.m_projectileName = "player_bullet";
+    weapon.m_projectileName =weaponData->projectile_name;
 
     m_registry.emplace<TargetTag>(m_player);
 }

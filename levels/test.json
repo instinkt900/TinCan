@@ -5,7 +5,8 @@
             "type": "Spawn",
             "location": { "x": 640, "y": -10 },
             "name": "basic_enemy",
-            "drop": "drop_01"
+            "drop_type": "Weapon",
+            "drop_name": "weapon_02"
         },
         {
             "time": 4.0,

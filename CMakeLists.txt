@@ -32,7 +32,6 @@ set(SOURCES ${SOURCES}
 	src/system_group.cpp
 	src/gamedata_level.cpp
 	src/system_level.cpp
-	src/gamedata_drop.cpp
 	src/system_pickup.cpp
 )
 

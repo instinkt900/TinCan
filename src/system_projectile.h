@@ -16,6 +16,11 @@ enum class EnergyColor {
     BLACK,
 };
 
+inline canyon::graphics::Color GetEnergyColor(EnergyColor const& color) {
+    return color == EnergyColor::WHITE ? canyon::graphics::BasicColors::Blue
+                                       : canyon::graphics::BasicColors::Red;
+}
+
 struct ComponentProjectile {
     entt::entity m_owner = entt::null;
     EnergyColor m_color = EnergyColor::WHITE;

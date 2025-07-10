@@ -1,16 +1,21 @@
 #include "collision_utils.h"
 #include <moth_ui/utils/vector_utils.h>
 
-float SweepTest(moth_ui::FloatVec2 const& stationary, moth_ui::FloatVec2 const& moving,
-                moth_ui::FloatVec2 const& velocity, float radius) {
-    auto const delta = moving - stationary;
+float SweepTest(moth_ui::FloatVec2 const& obj1Pos, moth_ui::FloatVec2 const& obj1LastPos, float obj1Radius,
+                moth_ui::FloatVec2 const& obj2Pos, moth_ui::FloatVec2 const& obj2LastPos, float obj2Radius) {
+    auto const vel1 = obj1Pos - obj2LastPos;
+    auto const vel2 = obj2Pos - obj2LastPos;
+    auto const relativeVel = vel2 - vel1;
+    auto const combinedRadius = obj1Radius + obj2Radius;
 
-    float const a = moth_ui::Dot(velocity, velocity);
-    float const b = 2.0f * moth_ui::Dot(delta, velocity);
-    float const c = moth_ui::Dot(delta, delta) - (radius * radius);
+    auto const delta = obj2LastPos - obj1Pos;
+
+    float const a = moth_ui::Dot(relativeVel, relativeVel);
+    float const b = 2.0f * moth_ui::Dot(delta, relativeVel);
+    float const c = moth_ui::Dot(delta, delta) - (combinedRadius * combinedRadius);
 
     if (a == 0.0f) {
-        if (moth_ui::DistanceSq(stationary, moving) <= (radius * radius)) {
+        if (moth_ui::DistanceSq(obj1Pos, obj2Pos) <= (combinedRadius * combinedRadius)) {
             return 0.0f;
         }
         return 1.0f;

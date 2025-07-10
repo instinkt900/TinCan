@@ -7,6 +7,7 @@
 
 struct ComponentWeapon {
     bool m_active = false;
+    std::string m_name;
     int32_t m_cooldown = 0;
     int32_t m_maxCooldown = 1000;
     bool m_playerTracking = false;

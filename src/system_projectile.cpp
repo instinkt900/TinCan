@@ -26,11 +26,7 @@ namespace {
 
     bool CollisionTest(ComponentPosition const& pos1, ComponentPosition const& pos2, float radius1,
                        float radius2) {
-        auto const entity1Vel = pos1.m_position - pos1.m_lastPosition;
-        auto const entity2Vel = pos2.m_position - pos2.m_lastPosition;
-        auto const relativeVel = entity2Vel - entity1Vel;
-        auto const combinedRadius = radius1 + radius2;
-        auto const t = SweepTest(pos1.m_position, pos2.m_lastPosition, relativeVel, combinedRadius);
+        auto const t = SweepTest(pos1.m_position, pos1.m_lastPosition, radius1, pos2.m_position, pos2.m_lastPosition, radius2);
         return t < 1.0f;
     }
 
@@ -51,7 +47,7 @@ namespace {
                             registry.emplace<DeadTag>(target.entity);
 
                             if (auto const* dropComponent = registry.try_get<ComponentDrop>(target.entity)) {
-                                SystemPickup::CreatePickup(registry, target.position.m_position, dropComponent->m_dropName, gamedata);
+                                SystemPickup::CreatePickup(registry, target.position.m_position, dropComponent->m_type, dropComponent->m_name, gamedata);
                             }
                         }
                     }

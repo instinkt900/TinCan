@@ -1,6 +1,6 @@
 {
     "player_weapon": {
-        "cooldown": 300,
+        "cooldown": 500,
         "player_tracking": false,
         "projectile_name": "player_bullet",
         "barrels": [
@@ -17,6 +17,21 @@
         "barrels": [
             {
                 "offset": { "x": 0, "y": 0, "z": 0, "w": 0 },
+                "group": 0
+            }
+        ]
+    },
+    "weapon_02": {
+        "cooldown": 100,
+        "player_tracking": false,
+        "projectile_name": "player_bullet",
+        "barrels": [
+            {
+                "offset": { "x": -5, "y": 0, "z": 0, "w": 0 },
+                "group": 0
+            },
+            {
+                "offset": { "x": 5, "y": 0, "z": 0, "w": 0 },
                 "group": 0
             }
         ]

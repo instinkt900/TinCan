@@ -17,12 +17,9 @@ void SystemShield::Update(entt::registry& registry, uint32_t ticks) {
             if (projectileData.m_color == shieldEntityData.m_color &&
                 projectileEntityData.m_team != shieldEntityData.m_team) {
 
-                auto const entity1Vel = shieldPosition.m_position - shieldPosition.m_lastPosition;
-                auto const entity2Vel = projectilePosition.m_position - projectilePosition.m_lastPosition;
-                auto const relativeVel = entity2Vel - entity1Vel;
-                auto const combinedRadius = shieldData.m_radius + projectileEntityData.m_radius;
-                auto const t = SweepTest(shieldPosition.m_position, projectilePosition.m_lastPosition,
-                                         relativeVel, combinedRadius);
+                auto const t = SweepTest(shieldPosition.m_position, shieldPosition.m_lastPosition,
+                                         shieldEntityData.m_radius, projectilePosition.m_position,
+                                         projectilePosition.m_lastPosition, projectileEntityData.m_radius);
                 if (t < 1.0f) {
                     // projectile collided with shield
 

@@ -2,6 +2,7 @@
 
 #include "gamedata.h"
 #include "system_behaviour.h"
+#include "system_pickup.h"
 #include "system_projectile.h"
 #include <canyon/events/event_window.h>
 #include <canyon/graphics/igraphics.h>
@@ -16,7 +17,8 @@ struct ComponentEntity {
 };
 
 struct ComponentDrop {
-    std::string m_dropName;
+    PickupType m_type;
+    std::string m_name;
 };
 
 class GameLayer : public moth_ui::Layer {

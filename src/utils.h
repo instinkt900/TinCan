@@ -1,14 +1,9 @@
 #pragma once
 
-#include "system_projectile.h"
 #include <canyon/graphics/color.h>
 #include <optional>
 #include <nlohmann/json.hpp>
-
-inline canyon::graphics::Color GetEnergyColor(EnergyColor const& color) {
-    return color == EnergyColor::WHITE ? canyon::graphics::BasicColors::Blue
-                                       : canyon::graphics::BasicColors::Red;
-}
+#include <magic_enum.hpp>
 
 #define MAGIC_SERIALIZE_ENUM(EnumType)                                                              \
 inline void to_json(nlohmann::json& j, EnumType const& type) { j = magic_enum::enum_name(type); }   \

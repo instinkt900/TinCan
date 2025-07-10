@@ -40,9 +40,10 @@ void HandleLevelEventSpawn(LevelEvent const& event, entt::registry& registry, Ga
     BehaviourParameterList params;
     params["speed"] = 200.0f;
     auto newEnemy = SystemEnemySpawner::CreateEnemy(registry, event.name, gamedata, event.location, "straight", params);
-    if (event.drop.has_value()) {
+    if (event.drop_type.has_value() && event.drop_name.has_value()) {
         auto& drop = registry.emplace<ComponentDrop>(newEnemy);
-        drop.m_dropName = event.drop.value();
+        drop.m_type = event.drop_type.value();
+        drop.m_name = event.drop_name.value();
     }
 }
 

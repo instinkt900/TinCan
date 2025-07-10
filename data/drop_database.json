@@ -1,6 +1,8 @@
 {
     "drop_01": {
-        "sprite": "drop_01"
+        "sprite": "drop_01",
+        "type": "weapon",
+        "name": "weapon_02"
     }
 }
 

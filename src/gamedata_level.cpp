@@ -1,11 +1,8 @@
 #include "gamedata_level.h"
 #include <magic_enum.hpp>
 #include <moth_ui/utils/vector_serialization.h>
-#include "utils.h"
 #include <nlohmann/json.hpp>
 
-MAGIC_SERIALIZE_ENUM(LevelEventType);
-// NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LevelEvent, time, type, location, name);
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LevelData, events);
 
 void from_json(nlohmann::json const& j, LevelEvent& levelEvent) {
@@ -14,9 +11,14 @@ void from_json(nlohmann::json const& j, LevelEvent& levelEvent) {
     j["location"].get_to(levelEvent.location);
     j["name"].get_to(levelEvent.name);
 
-    auto const drop = j.value("drop", nlohmann::json());
-    if (!drop.is_null()) {
-        drop.get_to(levelEvent.drop);
+    auto const dropType = j.value("drop_type", nlohmann::json());
+    if (!dropType.is_null()) {
+        dropType.get_to(levelEvent.drop_type);
+    }
+
+    auto const dropName = j.value("drop_name", nlohmann::json());
+    if (!dropName.is_null()) {
+        dropName.get_to(levelEvent.drop_name);
     }
 }
 
