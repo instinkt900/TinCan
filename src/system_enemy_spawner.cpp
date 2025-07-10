@@ -93,7 +93,6 @@ entt::entity SystemEnemySpawner::CreateEnemy(entt::registry& registry, std::stri
     auto& health = registry.emplace<ComponentHealth>(enemy);
     auto& drawable = registry.emplace<ComponentDrawable>(enemy);
     auto& pos = registry.emplace<ComponentPosition>(enemy);
-    auto& weapon = registry.emplace<ComponentWeapon>(enemy);
     auto& lifetime = registry.emplace<ComponentLifetime>(enemy);
     auto& behaviour = registry.emplace<ComponentBehaviour>(enemy);
     registry.emplace<TargetTag>(enemy);
@@ -103,6 +102,7 @@ entt::entity SystemEnemySpawner::CreateEnemy(entt::registry& registry, std::stri
     entityData.m_team = Team::ENEMY;
     entityData.m_color = EnergyColor::WHITE;
     entityData.m_radius = enemyData->radius;
+    entityData.m_angle = M_PI; // TODO: read from data? spawner? behaviour?
 
     health.m_currentHealth = enemyData->health;
     health.m_maxHealth = enemyData->health;
@@ -111,14 +111,9 @@ entt::entity SystemEnemySpawner::CreateEnemy(entt::registry& registry, std::stri
 
     pos.m_position = position;
 
-    auto const* weaponData = weaponDatabase->Get(enemyData->weapon_name);
-    if (weaponData != nullptr) {
-        weapon.m_projectileName = weaponData->projectile_name;
-        weapon.m_playerTracking = weaponData->player_tracking;
-        weapon.m_maxCooldown = weaponData->cooldown;
-        weapon.m_cooldown = weapon.m_maxCooldown;
-        weapon.m_angle = entityData.m_team == Team::PLAYER ? 0 : M_PI;
-        weapon.m_active = true;
+    auto* weapon = SystemWeapon::InitWeapon(registry, enemy, enemyData->weapon_name, gamedata);
+    if (weapon != nullptr) {
+        weapon->m_active = true;
     }
 
     lifetime.m_msAlive = 0;

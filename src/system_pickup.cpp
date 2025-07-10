@@ -94,14 +94,7 @@ void PlayerPickupWeapon(ComponentPickup const& pickup, moth_ui::FloatVec2 const&
     }
 
     // replace the current weapon
-    auto& newWeapon = registry.emplace_or_replace<ComponentWeapon>(playerEntity);
-    newWeapon.m_active = false;
-    newWeapon.m_name = pickup.m_name;
-    newWeapon.m_cooldown = weaponData->cooldown;
-    newWeapon.m_maxCooldown = weaponData->cooldown;
-    newWeapon.m_playerTracking = weaponData->player_tracking;
-    newWeapon.m_angle = M_PI;
-    newWeapon.m_projectileName = weaponData->projectile_name;
+    SystemWeapon::InitWeapon(registry, playerEntity, pickup.m_name, gamedata);
 }
 
 void PlayerPickup(ComponentPickup const& pickup, moth_ui::FloatVec2 const& position, entt::registry& registry, Gamedata const& gamedata) {

@@ -14,6 +14,7 @@ struct ComponentEntity {
     Team m_team;
     EnergyColor m_color;
     float m_radius;
+    float m_angle;
 };
 
 struct ComponentDrop {

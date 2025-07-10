@@ -2,9 +2,14 @@
 #include <nlohmann/json.hpp>
 #include <moth_ui/utils/vector_serialization.h>
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(BarrelData, offset, group);
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(WeaponData, cooldown, player_tracking, projectile_name, barrels);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(BarrelData, offset, group, angle);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(WeaponData, cooldown, burst, burst_delay, player_tracking, projectile_name,
+                                   barrels);
 
 WeaponData WeaponData::Deserialize(nlohmann::json const& json, SerializeContext const& gamedata) {
-    return json.get<WeaponData>();
+    auto weaponData = json.get<WeaponData>();
+    for (auto& barrel : weaponData.barrels) {
+        barrel.angle = barrel.angle / 180.f * static_cast<float>(M_PI);
+    }
+    return weaponData;
 }

@@ -116,6 +116,7 @@ void GameLayer::CreatePlayer() {
     entityData.m_team = Team::PLAYER;
     entityData.m_color = EnergyColor::WHITE;
     entityData.m_radius = 5.0f;
+    entityData.m_angle = 0;
 
     auto& playerHealth = m_registry.emplace<ComponentHealth>(m_player);
     playerHealth.m_maxHealth = 100;
@@ -142,14 +143,7 @@ void GameLayer::CreatePlayer() {
     auto& power = m_registry.emplace<ComponentPower>(m_player);
     power.m_power = 0;
 
-    auto const* weaponData = m_gamedata->GetWeaponDatabase()->Get("player_weapon");
-    auto& weapon = m_registry.emplace<ComponentWeapon>(m_player);
-    weapon.m_active = false;
-    weapon.m_name = "player_weapon";
-    weapon.m_cooldown = weaponData->cooldown;
-    weapon.m_maxCooldown = weaponData->cooldown;
-    weapon.m_angle = M_PI;
-    weapon.m_projectileName =weaponData->projectile_name;
+    SystemWeapon::InitWeapon(m_registry, m_player, "player_weapon", *m_gamedata);
 
     m_registry.emplace<TargetTag>(m_player);
 }
