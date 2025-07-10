@@ -1,6 +1,7 @@
 #include "system_weapon.h"
 #include "game_layer.h"
 #include "system_drawable.h"
+#include "system_lifetime.h"
 #include "system_movement.h"
 #include "tags.h"
 #include <entt/entt.hpp>

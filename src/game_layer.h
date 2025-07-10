@@ -1,8 +1,6 @@
 #pragma once
 
 #include "gamedata.h"
-#include "system_behaviour.h"
-#include "system_pickup.h"
 #include "system_projectile.h"
 #include <canyon/events/event_window.h>
 #include <canyon/graphics/igraphics.h>
@@ -48,10 +46,8 @@ private:
     canyon::graphics::IGraphics& m_graphics;
     std::unique_ptr<canyon::graphics::IFont> m_font;
     entt::registry m_registry;
-    entt::entity m_player;
-    entt::entity m_enemySpawner;
+    entt::entity m_player = entt::null;
+    entt::entity m_enemySpawner = entt::null;
 
     Gamedata m_gamedata;
-
-    std::unique_ptr<SystemBehaviour> m_behaviourSystem;
 };

@@ -79,17 +79,19 @@ void BehaviourWave(entt::registry& registry, entt::entity entity, ComponentBehav
     }
 }
 
-SystemBehaviour::SystemBehaviour() {
-    m_behaviours["straight"] = BehaviourStraight;
-    m_behaviours["wave"] = BehaviourWave;
-}
+using BehaviourFunc = void (*)(entt::registry&, entt::entity, ComponentBehaviour&, ComponentPosition&,
+                               ComponentLifetime&);
+
+std::map<std::string, BehaviourFunc> const Funcs{ { "straight", BehaviourStraight },
+                                                  { "wave", BehaviourWave } };
+
 
 void SystemBehaviour::Update(entt::registry& registry, uint32_t ticks) {
     auto view = registry.view<ComponentBehaviour, ComponentPosition, ComponentLifetime>();
 
     for (auto [entity, behaviour, position, lifetime] : view.each()) {
-        auto entry = m_behaviours.find(behaviour.m_behaviourName);
-        if (entry == m_behaviours.end()) {
+        auto entry = Funcs.find(behaviour.m_behaviourName);
+        if (entry == Funcs.end()) {
             spdlog::error("Unknown behaviour name {}", behaviour.m_behaviourName);
             continue;
         }

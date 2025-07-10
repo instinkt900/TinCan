@@ -40,9 +40,7 @@ void GameLayer::Update(uint32_t ticks) {
     SystemLevel::Update(m_registry, ticks, m_gamedata);
     SystemLifetime::Update(m_registry, ticks);
     SystemEnemySpawner::Update(m_registry, ticks, m_gamedata);
-    if (m_behaviourSystem != nullptr) {
-        m_behaviourSystem->Update(m_registry, ticks);
-    }
+    SystemBehaviour::Update(m_registry, ticks);
     SystemMovement::Update(m_registry, ticks);
     SystemWeapon::Update(m_registry, ticks, m_gamedata);
     SystemShield::Update(m_registry, ticks);
@@ -79,8 +77,6 @@ void GameLayer::OnAddedToStack(moth_ui::LayerStack* stack) {
     m_gamedata.GetProjectileDatabase().Load("data/projectile_database.json", serializeContext);
     m_gamedata.GetSpawnerDatabase().Load("data/spawner_database.json", serializeContext);
     m_gamedata.GetLevelDatabase().Load("data/level_database.json", serializeContext);
-
-    m_behaviourSystem = std::make_unique<SystemBehaviour>();
 
     SystemLevel::InitLevel(m_registry, "test", m_gamedata);
     CreatePlayer();

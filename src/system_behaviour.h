@@ -1,7 +1,5 @@
 #pragma once
 
-#include "system_lifetime.h"
-#include "system_movement.h"
 #include <entt/entity/fwd.hpp>
 #include <map>
 #include <moth_ui/utils/vector.h>
@@ -29,10 +27,5 @@ struct ComponentBehaviour {
 
 class SystemBehaviour {
 public:
-    SystemBehaviour();
-    void Update(entt::registry& registry, uint32_t ticks);
-
-private:
-    using BehaviourFunc = void(*)(entt::registry&, entt::entity, ComponentBehaviour&, ComponentPosition&, ComponentLifetime&);
-    std::map<std::string, BehaviourFunc> m_behaviours;
+    static void Update(entt::registry& registry, uint32_t ticks);
 };
