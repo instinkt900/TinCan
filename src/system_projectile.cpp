@@ -1,8 +1,7 @@
 #include "system_projectile.h"
 #include "collision_utils.h"
-#include "game_layer.h"
+#include "component_drop.h"
 #include "system_health.h"
-#include "system_lifetime.h"
 #include "system_movement.h"
 #include "system_pickup.h"
 #include "tags.h"
@@ -47,7 +46,7 @@ namespace {
                             registry.emplace<DeadTag>(target.entity);
 
                             if (auto const* dropComponent = registry.try_get<ComponentDrop>(target.entity)) {
-                                SystemPickup::CreatePickup(registry, target.position.m_position, dropComponent->m_type, dropComponent->m_name, gamedata);
+                                SystemPickup::CreatePickup(registry, target.position.m_position, dropComponent->m_name, gamedata);
                             }
                         }
                     }

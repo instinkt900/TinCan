@@ -1,6 +1,6 @@
 #include "system_level.h"
 #include <entt/entt.hpp>
-#include "game_layer.h"
+#include "component_drop.h"
 #include "gamedata.h"
 #include "system_enemy_spawner.h"
 
@@ -34,9 +34,8 @@ void HandleLevelEventSpawn(LevelEvent const& event, entt::registry& registry, Ga
     BehaviourParameterList params;
     params["speed"] = 200.0f;
     auto newEnemy = SystemEnemySpawner::CreateEnemy(registry, event.name, gamedata, event.location, "straight", params);
-    if (event.drop_type.has_value() && event.drop_name.has_value()) {
+    if (event.drop_name.has_value()) {
         auto& drop = registry.emplace<ComponentDrop>(newEnemy);
-        drop.m_type = event.drop_type.value();
         drop.m_name = event.drop_name.value();
     }
 }
@@ -47,10 +46,10 @@ void HandleLevelEventCreateSpawner(LevelEvent const& event, entt::registry& regi
 
 void HandleLevelEvent(LevelEvent const& event, entt::registry& registry, Gamedata const& gamedata) {
     switch (event.type) {
-    case LevelEventType::Spawn:
+    case LevelEventType::SpawnEnemy:
         HandleLevelEventSpawn(event, registry, gamedata);
         break;
-    case LevelEventType::CreateSpawner:
+    case LevelEventType::CreateEnemySpawner:
         HandleLevelEventCreateSpawner(event, registry, gamedata);
         break;
     default:

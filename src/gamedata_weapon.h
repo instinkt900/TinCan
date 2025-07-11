@@ -15,6 +15,7 @@ struct WeaponData {
     int32_t burst_delay;
     bool player_tracking;
     std::string projectile_name;
+    std::optional<std::string> pickup_name;
     std::vector<BarrelData> barrels;
 
     static WeaponData Deserialize(nlohmann::json const& json, SerializeContext const& gamedata);

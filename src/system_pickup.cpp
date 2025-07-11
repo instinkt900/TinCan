@@ -1,6 +1,7 @@
 #include "system_pickup.h"
 #include "collision_utils.h"
-#include "game_layer.h"
+#include "component_entity.h"
+#include "component_passives.h"
 #include "system_drawable.h"
 #include "system_movement.h"
 #include "system_weapon.h"
@@ -8,32 +9,22 @@
 #include <entt/entt.hpp>
 #include <magic_enum.hpp>
 #include <spdlog/spdlog.h>
+#include "gamedata.h"
 
 float const PickupRadius = 30.0f;
 moth_ui::FloatVec2 const PickupVelocity{ 0.0f, 100.0f };
 
-template<>
-struct fmt::formatter<PickupType> : fmt::formatter<std::string>
-{
-    auto format(PickupType type, format_context &ctx) const -> decltype(ctx.out())
-    {
+template <> struct fmt::formatter<PickupType> : fmt::formatter<std::string> {
+    static auto format(PickupType type, format_context& ctx)  -> decltype(ctx.out()) {
         return fmt::format_to(ctx.out(), "{}", magic_enum::enum_name(type));
     }
 };
 
-std::string GetSpriteForPickupType(PickupType type) {
-    switch (type) {
-    default:
-    case PickupType::Weapon:
-        return "drop_01";
-    }
-}
-
 entt::entity SystemPickup::CreatePickup(entt::registry& registry, moth_ui::FloatVec2 const& position,
-                                        PickupType type, std::string const& name, Gamedata const& gamedata) {
-    auto const* spriteData = gamedata.GetSpriteDatabase().Get(GetSpriteForPickupType(type));
-    if (spriteData == nullptr) {
-        spdlog::error("SystemPickup::CreatePickup - Unable to get sprite for pickup type {}", type);
+                                        std::string const& name, Gamedata const& gamedata) {
+    auto const* pickupData = gamedata.GetPickupDatabase().Get(name);
+    if (pickupData == nullptr) {
+        spdlog::error("SystemPickup::CreatePickup - Unable to find pickup name {}.", name);
         return entt::null;
     }
 
@@ -53,43 +44,72 @@ entt::entity SystemPickup::CreatePickup(entt::registry& registry, moth_ui::Float
 
     vel.m_velocity = PickupVelocity;
 
-    sprite.m_spriteData = *spriteData;
+    sprite.m_spriteData = pickupData->sprite;
 
-    pickup.m_type = type;
     pickup.m_name = name;
 
     return entity;
 }
 
-void PlayerPickupWeapon(ComponentPickup const& pickup, moth_ui::FloatVec2 const& position, entt::registry& registry, Gamedata const& gamedata) {
-    auto const* weaponData = gamedata.GetWeaponDatabase().Get(pickup.m_name);
-    if (weaponData == nullptr) {
-        spdlog::error("PlayerPickupWeapon - Unable to find weapon data for {}", pickup.m_name);
-        return;
-    }
-
-    // spawn the current weapon as a pickup
+void PlayerPickupWeapon(PickupData const& pickup, moth_ui::FloatVec2 const& position,
+                        entt::registry& registry, Gamedata const& gamedata) {
+    // spawn the current weapon as a pickup if it has one defined
     entt::entity playerEntity = entt::null;
     ComponentWeapon* currentWeapon = nullptr;
     auto view = registry.view<ComponentWeapon, PlayerTag>();
-    for (auto [entity, weapon]: view.each()) {
+    for (auto [entity, weapon] : view.each()) {
         playerEntity = entity;
         currentWeapon = &weapon;
     }
-    if (currentWeapon != nullptr) {
+    if (currentWeapon != nullptr && currentWeapon->m_pickupName.has_value()) {
         auto const side = rand() % 2 == 1 ? 1.0f : -1.0f;
         moth_ui::FloatVec2 const offset = { 100.0f * side, -20.0f };
-        SystemPickup::CreatePickup(registry, position + offset, pickup.m_type, currentWeapon->m_name, gamedata);
+        SystemPickup::CreatePickup(registry, position + offset, currentWeapon->m_pickupName.value(), gamedata);
     }
 
     // replace the current weapon
-    SystemWeapon::InitWeapon(registry, playerEntity, pickup.m_name, gamedata);
+    SystemWeapon::InitWeapon(registry, playerEntity, pickup.name, gamedata);
 }
 
-void PlayerPickup(ComponentPickup const& pickup, moth_ui::FloatVec2 const& position, entt::registry& registry, Gamedata const& gamedata) {
-    switch (pickup.m_type) {
+void PlayerPickupPassive(PickupData const& pickup, moth_ui::FloatVec2 const& position,
+                         entt::registry& registry, Gamedata const& gamedata) {
+    auto const passiveTypeOpt = magic_enum::enum_cast<PassiveType>(pickup.name);
+    if (!passiveTypeOpt.has_value()) {
+        spdlog::error("PlayerPickupPassive - Unknown passive name {}", pickup.name);
+        return;
+    }
+
+    ComponentPassives* playerPassives = nullptr;
+    auto view = registry.view<ComponentPassives, PlayerTag>();
+    for (auto [entity, passives]: view.each()) {
+        playerPassives = &passives;
+    }
+
+    if (playerPassives == nullptr) {
+        spdlog::warn("PlayerPickupPassive - Cannot find player passives component.");
+        return;
+    }
+
+    auto const passiveType = passiveTypeOpt.value();
+    auto const currentBonus = PassiveValue(*playerPassives, passiveType);
+    auto const newBonus = PassiveAccumulate(passiveType, currentBonus, pickup.value);
+    playerPassives->m_value[passiveType] = newBonus;
+}
+
+void PlayerPickup(ComponentPickup const& pickup, moth_ui::FloatVec2 const& position, entt::registry& registry,
+                  Gamedata const& gamedata) {
+    auto const* pickupData = gamedata.GetPickupDatabase().Get(pickup.m_name);
+    if (pickupData == nullptr) {
+        spdlog::error("PlayerPickup - Unable to find pickup name {}.", pickup.m_name);
+        return;
+    }
+
+    switch (pickupData->type) {
     case PickupType::Weapon:
-        PlayerPickupWeapon(pickup, position, registry, gamedata);
+        PlayerPickupWeapon(*pickupData, position, registry, gamedata);
+        break;
+    case PickupType::Passive:
+        PlayerPickupPassive(*pickupData, position, registry, gamedata);
         break;
     }
 }

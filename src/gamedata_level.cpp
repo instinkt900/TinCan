@@ -11,11 +11,6 @@ void from_json(nlohmann::json const& j, LevelEvent& levelEvent) {
     j["location"].get_to(levelEvent.location);
     j["name"].get_to(levelEvent.name);
 
-    auto const dropType = j.value("drop_type", nlohmann::json());
-    if (!dropType.is_null()) {
-        dropType.get_to(levelEvent.drop_type);
-    }
-
     auto const dropName = j.value("drop_name", nlohmann::json());
     if (!dropName.is_null()) {
         dropName.get_to(levelEvent.drop_name);

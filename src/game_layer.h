@@ -1,24 +1,11 @@
 #pragma once
 
 #include "gamedata.h"
-#include "system_projectile.h"
 #include <canyon/events/event_window.h>
 #include <canyon/graphics/igraphics.h>
 #include <moth_ui/events/event_key.h>
 #include <moth_ui/layers/layer.h>
 #include <entt/entt.hpp>
-
-struct ComponentEntity {
-    Team m_team;
-    EnergyColor m_color;
-    float m_radius;
-    float m_angle;
-};
-
-struct ComponentDrop {
-    PickupType m_type;
-    std::string m_name;
-};
 
 class GameLayer : public moth_ui::Layer {
 public:

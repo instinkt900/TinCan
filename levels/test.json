@@ -2,23 +2,23 @@
     "events": [
         {
             "time": 3.0,
-            "type": "Spawn",
+            "type": "SpawnEnemy",
             "location": { "x": 640, "y": -10 },
             "name": "basic_enemy",
-            "drop_type": "Weapon",
-            "drop_name": "player_weapon_02"
+            "drop_name": "weapon_drop_01"
         },
         {
             "time": 4.0,
-            "type": "Spawn",
+            "type": "SpawnEnemy",
             "location": { "x": 320, "y": -10 },
             "name": "basic_enemy"
         },
         {
             "time": 5.0,
-            "type": "Spawn",
+            "type": "SpawnEnemy",
             "location": { "x": 640, "y": -10 },
-            "name": "basic_enemy"
+            "name": "basic_enemy",
+            "drop_name": "weapon_cooldown_01"
         }
     ]
 }

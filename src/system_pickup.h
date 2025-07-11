@@ -5,13 +5,12 @@
 #include <moth_ui/utils/vector.h>
 
 struct ComponentPickup {
-    PickupType m_type;
     std::string m_name;
 };
 
 class SystemPickup {
 public:
     static entt::entity CreatePickup(entt::registry& registry, moth_ui::FloatVec2 const& position,
-                                     PickupType type, std::string const& name, Gamedata const& gamedata);
+                                     std::string const& name, Gamedata const& gamedata);
     static void Update(entt::registry& registry, uint32_t ticks, Gamedata const& gamedata);
 };

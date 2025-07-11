@@ -1,10 +1,9 @@
 #include "system_player_visuals.h"
-#include "game_layer.h"
+#include "component_entity.h"
 #include "system_drawable.h"
 #include "system_shield.h"
 #include "system_weapon.h"
 #include <entt/entt.hpp>
-#include "utils.h"
 
 void SystemPlayerVisuals::Update(entt::registry& registry, uint32_t ticks) {
     auto view = registry.view<ComponentEntity, ComponentDrawable, ComponentShield, ComponentWeapon>();

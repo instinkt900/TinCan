@@ -1,8 +1,9 @@
 #include "system_shield.h"
 #include "collision_utils.h"
-#include "game_layer.h"
+#include "component_entity.h"
 #include "system_lifetime.h"
 #include "system_movement.h"
+#include "system_projectile.h"
 #include <entt/entt.hpp>
 
 void SystemShield::Update(entt::registry& registry, uint32_t ticks) {

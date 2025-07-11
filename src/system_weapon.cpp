@@ -1,8 +1,10 @@
 #include "system_weapon.h"
-#include "game_layer.h"
+#include "component_entity.h"
+#include "component_passives.h"
 #include "system_drawable.h"
 #include "system_lifetime.h"
 #include "system_movement.h"
+#include "system_projectile.h"
 #include "tags.h"
 #include <entt/entt.hpp>
 #include <moth_ui/utils/vector_utils.h>
@@ -22,7 +24,7 @@ ComponentWeapon* SystemWeapon::InitWeapon(entt::registry& registry, entt::entity
 
     auto& weapon = registry.get_or_emplace<ComponentWeapon>(entity);
     weapon.m_active = false;
-    weapon.m_name = name;
+    weapon.m_pickupName = weaponData->pickup_name;
     weapon.m_cooldown = weaponData->cooldown;
     weapon.m_maxCooldown = weaponData->cooldown;
     weapon.m_burst = weaponData->burst;
@@ -44,6 +46,22 @@ ComponentWeapon* SystemWeapon::InitWeapon(entt::registry& registry, entt::entity
     return &weapon;
 }
 
+struct Passives {
+    float cooldownMult = 1.0f;
+    float burstCooldownMult = 1.0f;
+    float damageMult = 1.0f;
+    float burstAdd = 0.0f;
+};
+
+void CollectPassives(entt::registry& registry, entt::entity entity, Passives& passives) {
+    if (auto const* component = registry.try_get<ComponentPassives>(entity)) {
+        passives.cooldownMult = PassiveValue(*component, PassiveType::WeaponCooldown);
+        passives.burstCooldownMult = PassiveValue(*component, PassiveType::WeaponCooldownBurst);
+        passives.damageMult = PassiveValue(*component, PassiveType::WeaponDamage);
+        passives.burstAdd = PassiveValue(*component, PassiveType::WeaponBurst);
+    }
+}
+
 void SystemWeapon::Update(entt::registry& registry, uint32_t ticks, Gamedata const& gamedata) {
     ComponentPosition* playerPosition = nullptr;
     auto playerView = registry.view<ComponentPosition, PlayerTag>();
@@ -54,13 +72,21 @@ void SystemWeapon::Update(entt::registry& registry, uint32_t ticks, Gamedata con
 
     auto view = registry.view<ComponentWeapon, ComponentEntity, ComponentPosition>();
     for (auto [entity, weapon, entityData, position] : view.each()) {
+
+        Passives passives;
+        CollectPassives(registry, entity, passives);
+
+        float const weaponCooldown = static_cast<float>(weapon.m_maxCooldown) * passives.cooldownMult;
+        float const burstCooldown = static_cast<float>(weapon.m_maxBurstCooldown) * passives.burstCooldownMult;
+        float const burstCount = static_cast<float>(weapon.m_maxBurst) + passives.burstAdd;
+
         if (weapon.m_cooldown > 0) {
             weapon.m_cooldown -= static_cast<int32_t>(ticks);
         }
 
         if (weapon.m_cooldown <= 0 && weapon.m_active) {
-            weapon.m_burst = weapon.m_maxBurst;
-            weapon.m_cooldown += weapon.m_maxCooldown;
+            weapon.m_burst = static_cast<int32_t>(burstCount);
+            weapon.m_cooldown += static_cast<int32_t>(weaponCooldown);
         }
 
         if (weapon.m_burst > 0) {
@@ -70,7 +96,7 @@ void SystemWeapon::Update(entt::registry& registry, uint32_t ticks, Gamedata con
 
             if (weapon.m_burstCooldown <= 0 && (weapon.m_active || weapon.m_burst < weapon.m_maxBurst)) {
                 weapon.m_burst -= 1;
-                weapon.m_burstCooldown += weapon.m_maxBurstCooldown;
+                weapon.m_burstCooldown += static_cast<int32_t>(burstCooldown);
 
                 auto const barrelGroupId = weapon.m_barrelGroupIds[weapon.m_barrelGroupIndex];
                 auto const& barrelGroup = weapon.m_barrelGroups[barrelGroupId];

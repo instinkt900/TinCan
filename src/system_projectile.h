@@ -1,25 +1,10 @@
 #pragma once
 
+#include "component_entity.h"
 #include "gamedata.h"
 #include <entt/entity/entity.hpp>
 #include <entt/entity/fwd.hpp>
 #include <moth_ui/utils/vector.h>
-
-enum class Team {
-    NONE = 0,
-    PLAYER = 1,
-    ENEMY = 2,
-};
-
-enum class EnergyColor {
-    WHITE,
-    BLACK,
-};
-
-inline canyon::graphics::Color GetEnergyColor(EnergyColor const& color) {
-    return color == EnergyColor::WHITE ? canyon::graphics::BasicColors::Blue
-                                       : canyon::graphics::BasicColors::Red;
-}
 
 struct ComponentProjectile {
     entt::entity m_owner = entt::null;

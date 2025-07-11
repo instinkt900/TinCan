@@ -14,7 +14,7 @@
         ]
     },
     "player_weapon_02": {
-        "cooldown": 200,
+        "cooldown": 400,
         "burst": 1,
         "burst_delay": 0,
         "player_tracking": false,

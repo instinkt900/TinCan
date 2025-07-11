@@ -8,8 +8,8 @@
 
 struct CurveSample {
     moth_ui::FloatVec2 position;
-    float segment_length;
-    float total_distance;
+    float segment_length = 0;
+    float total_distance = 0;
 };
 
 struct ComponentCurveCache {

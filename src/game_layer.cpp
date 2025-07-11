@@ -1,4 +1,5 @@
 #include "game_layer.h"
+#include "component_passives.h"
 #include "system_health.h"
 #include "system_input.h"
 #include "system_level.h"
@@ -6,6 +7,7 @@
 #include "system_drawable.h"
 #include "system_pickup.h"
 #include "system_player_visuals.h"
+#include "system_projectile.h"
 #include "system_shield.h"
 #include "system_weapon.h"
 #include "system_lifetime.h"
@@ -77,6 +79,7 @@ void GameLayer::OnAddedToStack(moth_ui::LayerStack* stack) {
     m_gamedata.GetProjectileDatabase().Load("data/projectile_database.json", serializeContext);
     m_gamedata.GetSpawnerDatabase().Load("data/spawner_database.json", serializeContext);
     m_gamedata.GetLevelDatabase().Load("data/level_database.json", serializeContext);
+    m_gamedata.GetPickupDatabase().Load("data/pickup_database.json", serializeContext);
 
     SystemLevel::InitLevel(m_registry, "test", m_gamedata);
     CreatePlayer();
@@ -146,6 +149,8 @@ void GameLayer::CreatePlayer() {
 
     auto& power = m_registry.emplace<ComponentPower>(m_player);
     power.m_power = 0;
+
+    m_registry.emplace<ComponentPassives>(m_player);
 
     SystemWeapon::InitWeapon(m_registry, m_player, "player_weapon_01", m_gamedata);
 
