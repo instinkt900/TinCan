@@ -34,6 +34,8 @@ inline float PassiveAccumulate(PassiveType type, float current, float value) {
     switch (type) {
         case PassiveType::WeaponCooldown:
             return current * (1.0f - value);
+        case PassiveType::WeaponBurst:
+            return current + value;
         default:
             return current * value;
     }

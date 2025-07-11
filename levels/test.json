@@ -5,7 +5,7 @@
             "type": "SpawnEnemy",
             "location": { "x": 640, "y": -10 },
             "name": "basic_enemy",
-            "drop_name": "weapon_drop_01"
+            "drop_name": "weapon_burst_01"
         },
         {
             "time": 4.0,

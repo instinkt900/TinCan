@@ -8,7 +8,13 @@
         "sprite": "drop_01",
         "type": "Passive",
         "name": "WeaponCooldown",
-        "value": 0.55
+        "value": 0.30
+    },
+    "weapon_burst_01": {
+        "sprite": "drop_01",
+        "type": "Passive",
+        "name": "WeaponBurst",
+        "value": 1 
     }
 }
 

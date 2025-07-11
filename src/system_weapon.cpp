@@ -76,9 +76,10 @@ void SystemWeapon::Update(entt::registry& registry, uint32_t ticks, Gamedata con
         Passives passives;
         CollectPassives(registry, entity, passives);
 
-        float const weaponCooldown = static_cast<float>(weapon.m_maxCooldown) * passives.cooldownMult;
-        float const burstCooldown = static_cast<float>(weapon.m_maxBurstCooldown) * passives.burstCooldownMult;
-        float const burstCount = static_cast<float>(weapon.m_maxBurst) + passives.burstAdd;
+        auto const weaponCooldown = static_cast<float>(weapon.m_maxCooldown) * passives.cooldownMult;
+        auto const burstCooldown =
+            std::max(50.0f, static_cast<float>(weapon.m_maxBurstCooldown) * passives.burstCooldownMult);
+        auto const burstCount = weapon.m_maxBurst + static_cast<int32_t>(passives.burstAdd);
 
         if (weapon.m_cooldown > 0) {
             weapon.m_cooldown -= static_cast<int32_t>(ticks);
@@ -94,7 +95,7 @@ void SystemWeapon::Update(entt::registry& registry, uint32_t ticks, Gamedata con
                 weapon.m_burstCooldown -= static_cast<int32_t>(ticks);
             }
 
-            if (weapon.m_burstCooldown <= 0 && (weapon.m_active || weapon.m_burst < weapon.m_maxBurst)) {
+            if (weapon.m_burstCooldown <= 0 && (weapon.m_active || weapon.m_burst < burstCount)) {
                 weapon.m_burst -= 1;
                 weapon.m_burstCooldown += static_cast<int32_t>(burstCooldown);
 
@@ -104,14 +105,16 @@ void SystemWeapon::Update(entt::registry& registry, uint32_t ticks, Gamedata con
                     (weapon.m_barrelGroupIndex + 1) % static_cast<int32_t>(weapon.m_barrelGroupIds.size());
                 for (auto const& barrel : barrelGroup) {
                     auto direction = moth_ui::Rotate2D({ 0, 1.0f }, barrel.m_angle + entityData.m_angle);
-                    auto offset = moth_ui::Rotate2D({barrel.m_offset.x, -barrel.m_offset.y }, entityData.m_angle);
+                    auto offset =
+                        moth_ui::Rotate2D({ barrel.m_offset.x, -barrel.m_offset.y }, entityData.m_angle);
 
                     if (weapon.m_playerTracking && (playerPosition != nullptr)) {
                         auto delta = position.m_position - playerPosition->m_position;
                         direction = moth_ui::Normalized(delta);
                     }
 
-                    auto const* projectileData = gamedata.GetProjectileDatabase().Get(weapon.m_projectileName);
+                    auto const* projectileData =
+                        gamedata.GetProjectileDatabase().Get(weapon.m_projectileName);
                     if (projectileData != nullptr) {
                         auto projectile = registry.create();
                         auto& projectileComp = registry.emplace<ComponentProjectile>(projectile);
