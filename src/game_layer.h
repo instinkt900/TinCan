@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gamedata.h"
+#include "game_world.h"
 #include <canyon/events/event_window.h>
 #include <canyon/graphics/igraphics.h>
 #include <moth_ui/events/event_key.h>
@@ -9,8 +9,9 @@
 
 class GameLayer : public moth_ui::Layer {
 public:
-    GameLayer(canyon::platform::Window& window, moth_ui::Context& context, canyon::graphics::IGraphics& graphics);
-    ~GameLayer() override;
+    GameLayer(canyon::platform::Window& window, moth_ui::Context& context,
+              canyon::graphics::IGraphics& graphics);
+    ~GameLayer() override = default;
 
     GameLayer(const GameLayer&) = delete;
     GameLayer(GameLayer&&) = delete;
@@ -22,6 +23,7 @@ public:
     void Draw() override;
     void OnAddedToStack(moth_ui::LayerStack* stack) override;
 
+
 private:
     bool OnKeyEvent(moth_ui::EventKey const& event);
     bool OnWindowResize(canyon::EventWindowSize const& event);
@@ -31,10 +33,6 @@ private:
 
     canyon::platform::Window& m_window;
     canyon::graphics::IGraphics& m_graphics;
+    std::unique_ptr<GameWorld> m_gameWorld;
     std::unique_ptr<canyon::graphics::IFont> m_font;
-    entt::registry m_registry;
-    entt::entity m_player = entt::null;
-    entt::entity m_enemySpawner = entt::null;
-
-    Gamedata m_gamedata;
 };

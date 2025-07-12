@@ -33,6 +33,7 @@ set(SOURCES ${SOURCES}
 	src/system_level.cpp
 	src/system_pickup.cpp
 	src/gamedata_pickup.cpp
+	src/game_world.cpp
 )
 
 find_package(canyon REQUIRED)
