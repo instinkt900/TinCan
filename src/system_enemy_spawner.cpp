@@ -54,7 +54,7 @@ void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks, Gameda
 
                 if (spawner.m_maxGroupCount > 1) {
                     if (spawner.m_currentGroupEntity == entt::null) {
-                        spawner.m_currentGroupEntity = SystemGroup::CreateGroup(registry);
+                        spawner.m_currentGroupEntity = SystemGroup::CreateGroup(registry, spawner.m_groupDrop);
                     }
                     SystemGroup::AddMember(registry, spawner.m_currentGroupEntity, enemy);
                 }
@@ -112,20 +112,27 @@ entt::entity SystemEnemySpawner::CreateSpawner(entt::registry& registry, std::st
         spdlog::error("Unable to access spawner data");
         return entt::null;
     }
+
+    return CreateSpawner(registry, *spawnerData, gamedata, position);
+}
+
+entt::entity SystemEnemySpawner::CreateSpawner(entt::registry& registry, SpawnerData const& data,
+                                               Gamedata const& gamedata, moth_ui::FloatVec2 const& position) {
     auto enemySpawner = registry.create();
 
     auto& spawner = registry.emplace<ComponentEnemySpawner>(enemySpawner);
     spawner.m_active = true;
-    spawner.m_type = spawnerData->type;
-    spawner.m_distance = spawnerData->distance;
-    spawner.m_count = spawnerData->count;
-    spawner.m_maxCooldown = spawnerData->cooldown;
-    spawner.m_maxGroupCooldown = spawnerData->group_delay;
-    spawner.m_maxGroupCount = spawnerData->group_count;
-    spawner.m_enemyName = spawnerData->enemy_name;
-    spawner.m_behaviourName = spawnerData->behaviour_name;
-    spawner.m_behaviourParameters = spawnerData->behaviour_parameters;
+    spawner.m_type = data.type;
+    spawner.m_distance = data.distance;
+    spawner.m_count = data.count;
+    spawner.m_maxCooldown = data.cooldown;
+    spawner.m_maxGroupCooldown = data.group_delay;
+    spawner.m_maxGroupCount = data.group_count;
+    spawner.m_enemyName = data.enemy_name;
+    spawner.m_behaviourName = data.behaviour_name;
+    spawner.m_behaviourParameters = data.behaviour_parameters;
     spawner.m_currentGroupEntity = entt::null;
+    spawner.m_groupDrop = data.drop;
 
     auto& spawnerPos = registry.emplace<ComponentPosition>(enemySpawner);
     spawnerPos.m_position = position;

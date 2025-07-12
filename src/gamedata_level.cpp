@@ -5,19 +5,37 @@
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LevelData, events);
 
+SerializeContext const* LevelData::CurrentContext = nullptr;
+
 void from_json(nlohmann::json const& j, LevelEvent& levelEvent) {
     j["time"].get_to(levelEvent.time);
-    j["type"].get_to(levelEvent.type);
     j["location"].get_to(levelEvent.location);
-    j["name"].get_to(levelEvent.name);
+
+    auto const eventType = j.value("type", nlohmann::json());
+    if (!eventType.is_null()) {
+        levelEvent.type = eventType;
+    }
+
+    auto const eventName = j.value("name", nlohmann::json());
+    if (!eventName.is_null()) {
+        levelEvent.name = eventName;
+    }
 
     auto const dropName = j.value("drop_name", nlohmann::json());
     if (!dropName.is_null()) {
         dropName.get_to(levelEvent.drop_name);
     }
+
+    auto const spawner = j.value("spawner", nlohmann::json());
+    if (!spawner.is_null()) {
+        assert(LevelData::CurrentContext != nullptr);
+        levelEvent.spawner = SpawnerData::Deserialize(spawner, *LevelData::CurrentContext);
+    }
 }
 
 LevelData LevelData::Deserialize(nlohmann::json const& json, SerializeContext const& context) {
+    CurrentContext = &context;
+
     // leveldata comes in as a string reference to an external file
     if (!json.is_string()) {
         spdlog::error("Invalid level data entry type.");

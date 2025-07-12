@@ -49,7 +49,7 @@ void GameLayer::Update(uint32_t ticks) {
     SystemProjectile::Update(m_registry, ticks, m_gamedata);
     SystemPickup::Update(m_registry, ticks, m_gamedata);
     SystemPlayerVisuals::Update(m_registry, ticks);
-    SystemGroup::Update(m_registry, ticks);
+    SystemGroup::Update(m_registry, ticks, m_gamedata);
 }
 
 void GameLayer::Draw() {
@@ -73,6 +73,7 @@ void GameLayer::OnAddedToStack(moth_ui::LayerStack* stack) {
 
     SerializeContext serializeContext{ m_gamedata, surfaceContext };
     m_gamedata.GetSpriteDatabase().Load("data/sprite_database.json", serializeContext);
+    m_gamedata.GetSpriteDatabase().Load("data/sprite_database_enemy.json", serializeContext);
     m_gamedata.GetEnemyDatabase().Load("data/enemy_database.json", serializeContext);
     m_gamedata.GetWeaponDatabase().Load("data/weapon_database_player.json", serializeContext);
     m_gamedata.GetWeaponDatabase().Load("data/weapon_database_enemy.json", serializeContext);

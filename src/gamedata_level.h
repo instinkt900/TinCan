@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gamedata_database.h"
+#include "gamedata_spawner.h"
 #include "utils.h"
 #include <moth_ui/utils/vector.h>
 #include <nlohmann/json.hpp>
@@ -15,16 +16,18 @@ enum class LevelEventType {
 MAGIC_SERIALIZE_ENUM(LevelEventType)
 
 struct LevelEvent {
-    float time;
-    LevelEventType type;
+    float time = 0;
     moth_ui::FloatVec2 location;
-    std::string name;
+    std::optional<LevelEventType> type;
+    std::optional<std::string> name;
     std::optional<std::string> drop_name;
+    std::optional<SpawnerData> spawner;
 };
 
 struct LevelData {
     std::vector<LevelEvent> events;
 
+    static SerializeContext const* CurrentContext;
     static LevelData Deserialize(nlohmann::json const& json, SerializeContext const& context);
 };
 

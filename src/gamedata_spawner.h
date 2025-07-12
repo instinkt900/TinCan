@@ -20,6 +20,7 @@ struct SpawnerData {
     int32_t group_delay;
     SpawnerType type;
     float distance;
+    std::optional<std::string> drop;
 
     static SpawnerData Deserialize(nlohmann::json const& json, SerializeContext const& context);
 };

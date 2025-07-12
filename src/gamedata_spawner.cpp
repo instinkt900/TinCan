@@ -11,6 +11,11 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SpawnerData, enemy_name, behaviour_name, coun
 SpawnerData SpawnerData::Deserialize(nlohmann::json const& json, SerializeContext const& context) {
     SpawnerData data = json.get<SpawnerData>();
 
+    auto const dropJson = json.value("drop_name", nlohmann::json());
+    if (!dropJson.is_null()) {
+        data.drop = dropJson;
+    }
+
     auto parameterList = json.value("behaviour_parameters", nlohmann::json());
     if (!parameterList.is_null()) {
         if (!parameterList.is_object()) {

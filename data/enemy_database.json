@@ -1,6 +1,13 @@
 {
-    "basic_enemy": {
-        "sprite_name": "enemy_ship",
+    "enemy_01": {
+        "sprite_name": "alien1",
+        "health": 30,
+        "radius": 40,
+        "lifetime": 9000,
+        "weapon_name": "enemy_weapon"
+    },
+    "enemy_02": {
+        "sprite_name": "alien25",
         "health": 30,
         "radius": 40,
         "lifetime": 9000,

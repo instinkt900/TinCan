@@ -10,7 +10,7 @@ void UpdateLifetimes(entt::registry& registry, uint32_t ticks, std::set<entt::en
         if (lifetime.m_msLeft <= ticks) {
             deadEntities.insert(entity);
             if (auto const* groupId = registry.try_get<ComponentGroupId>(entity)) {
-                SystemGroup::RemoveMember(registry, groupId->m_group, GroupEndCondition::Escaped);
+                SystemGroup::RemoveMember(registry, groupId->m_group, entity, GroupEndCondition::Escaped);
             }
         } else {
             lifetime.m_msLeft -= ticks;
@@ -24,7 +24,7 @@ void UpdateDead(entt::registry& registry, std::set<entt::entity>& deadEntities) 
     for (auto [entity] : view.each()) {
         deadEntities.insert(entity);
         if (auto const* groupId = registry.try_get<ComponentGroupId>(entity)) {
-            SystemGroup::RemoveMember(registry, groupId->m_group, GroupEndCondition::Killed);
+            SystemGroup::RemoveMember(registry, groupId->m_group, entity, GroupEndCondition::Killed);
         }
     }
 }

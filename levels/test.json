@@ -2,23 +2,28 @@
     "events": [
         {
             "time": 3.0,
-            "type": "SpawnEnemy",
             "location": { "x": 640, "y": -10 },
-            "name": "basic_enemy",
-            "drop_name": "weapon_burst_01"
-        },
-        {
-            "time": 4.0,
-            "type": "SpawnEnemy",
-            "location": { "x": 320, "y": -10 },
-            "name": "basic_enemy"
+            "spawner": {
+                "enemy_name": "enemy_01",
+                "behaviour_name": "straight",
+                "behaviour_parameters": {
+                    "speed": 100.0
+                },
+                "count": 1,
+                "cooldown": 0,
+                "group_count": 3,
+                "group_delay": 600,
+                "type": "Basic",
+                "distance": 0,
+                "drop_name": "weapon_drop_01"
+            }
         },
         {
             "time": 5.0,
             "type": "SpawnEnemy",
             "location": { "x": 640, "y": -10 },
-            "name": "basic_enemy",
-            "drop_name": "weapon_cooldown_01"
+            "name": "enemy_02",
+            "drop_name": "weapon_drop_01"
         }
     ]
 }

@@ -33,27 +33,33 @@ void SystemLevel::InitLevel(entt::registry& registry, std::string const& levelNa
 void HandleLevelEventSpawn(LevelEvent const& event, entt::registry& registry, Gamedata const& gamedata) {
     BehaviourParameterList params;
     params["speed"] = 200.0f;
-    auto newEnemy = SystemEnemySpawner::CreateEnemy(registry, event.name, gamedata, event.location, "straight", params);
+    auto newEnemy =
+        SystemEnemySpawner::CreateEnemy(registry, event.name.value(), gamedata, event.location, "straight", params);
     if (event.drop_name.has_value()) {
         auto& drop = registry.emplace<ComponentDrop>(newEnemy);
         drop.m_name = event.drop_name.value();
     }
 }
 
-void HandleLevelEventCreateSpawner(LevelEvent const& event, entt::registry& registry, Gamedata const& gamedata) {
-    SystemEnemySpawner::CreateSpawner(registry, event.name, gamedata, event.location);
+void HandleLevelEventCreateSpawner(LevelEvent const& event, entt::registry& registry,
+                                   Gamedata const& gamedata) {
+    SystemEnemySpawner::CreateSpawner(registry, event.name.value(), gamedata, event.location);
 }
 
 void HandleLevelEvent(LevelEvent const& event, entt::registry& registry, Gamedata const& gamedata) {
-    switch (event.type) {
-    case LevelEventType::SpawnEnemy:
-        HandleLevelEventSpawn(event, registry, gamedata);
-        break;
-    case LevelEventType::CreateEnemySpawner:
-        HandleLevelEventCreateSpawner(event, registry, gamedata);
-        break;
-    default:
-        break;
+    if (event.spawner.has_value()) {
+        SystemEnemySpawner::CreateSpawner(registry, event.spawner.value(), gamedata, event.location);
+    } else {
+        switch (event.type.value()) {
+        case LevelEventType::SpawnEnemy:
+            HandleLevelEventSpawn(event, registry, gamedata);
+            break;
+        case LevelEventType::CreateEnemySpawner:
+            HandleLevelEventCreateSpawner(event, registry, gamedata);
+            break;
+        default:
+            break;
+        }
     }
 }
 

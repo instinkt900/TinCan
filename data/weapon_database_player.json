@@ -14,6 +14,7 @@
         ]
     },
     "player_weapon_02": {
+        "pickup_name": "weapon_drop_01",
         "cooldown": 400,
         "burst": 1,
         "burst_delay": 0,
