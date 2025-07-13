@@ -1,15 +1,15 @@
 #pragma once
 
 #include <entt/entity/fwd.hpp>
-#include <moth_ui/utils/vector.h>
+#include <canyon/utils/vector.h>
 
 struct ComponentPosition {
-    moth_ui::FloatVec2 m_position;
-    moth_ui::FloatVec2 m_lastPosition;
+    canyon::FloatVec2 m_position;
+    canyon::FloatVec2 m_lastPosition;
 };
 
 struct ComponentVelocity {
-    moth_ui::FloatVec2 m_velocity;
+    canyon::FloatVec2 m_velocity;
 };
 
 class SystemMovement {

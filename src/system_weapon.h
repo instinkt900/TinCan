@@ -3,10 +3,10 @@
 #include "gamedata.h"
 #include <entt/entity/fwd.hpp>
 #include <canyon/graphics/surface_context.h>
-#include <moth_ui/utils/vector.h>
+#include <canyon/utils/vector.h>
 
 struct Barrel {
-    moth_ui::FloatVec2 m_offset;
+    canyon::FloatVec2 m_offset;
     float m_angle = 0;
 };
 

@@ -2,12 +2,12 @@
 
 #include <entt/entity/fwd.hpp>
 #include <map>
-#include <moth_ui/utils/vector.h>
+#include <canyon/utils/vector.h>
 #include <variant>
 #include <vector>
 
 struct CurveSample {
-    moth_ui::FloatVec2 position;
+    canyon::FloatVec2 position;
     float segment_length = 0;
     float total_distance = 0;
 };
@@ -21,7 +21,7 @@ using BehaviourParameterList = std::map<std::string, std::variant<std::string, i
 
 struct ComponentBehaviour {
     std::string m_behaviourName;
-    moth_ui::FloatVec2 m_offset;
+    canyon::FloatVec2 m_offset;
     BehaviourParameterList m_parameters;
 };
 

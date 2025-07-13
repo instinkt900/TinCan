@@ -1,8 +1,6 @@
 #include "gamedata_sprite.h"
 #include <nlohmann/json.hpp>
-#include <moth_ui/utils/vector_serialization.h>
 #include <spdlog/spdlog.h>
-#include <canyon/utils/vector_serialization.h>
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SpriteImage, scale, offset, rotation, blend_mode, color);
 

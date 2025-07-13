@@ -64,7 +64,7 @@ void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks, Gameda
 }
 
 entt::entity SystemEnemySpawner::CreateEnemy(entt::registry& registry, std::string const& name,
-                                             Gamedata const& gamedata, moth_ui::FloatVec2 const& position,
+                                             Gamedata const& gamedata, canyon::FloatVec2 const& position,
                                              std::string const& behaviourName,
                                              BehaviourParameterList const& behaviourParameters) {
     auto enemy = registry.create();
@@ -106,7 +106,7 @@ entt::entity SystemEnemySpawner::CreateEnemy(entt::registry& registry, std::stri
 }
 
 entt::entity SystemEnemySpawner::CreateSpawner(entt::registry& registry, std::string const& name,
-                                               Gamedata const& gamedata, moth_ui::FloatVec2 const& position) {
+                                               Gamedata const& gamedata, canyon::FloatVec2 const& position) {
     auto const* spawnerData = gamedata.GetSpawnerDatabase().Get(name);
     if (spawnerData == nullptr) {
         spdlog::error("Unable to access spawner data");
@@ -117,7 +117,7 @@ entt::entity SystemEnemySpawner::CreateSpawner(entt::registry& registry, std::st
 }
 
 entt::entity SystemEnemySpawner::CreateSpawner(entt::registry& registry, SpawnerData const& data,
-                                               Gamedata const& gamedata, moth_ui::FloatVec2 const& position) {
+                                               Gamedata const& gamedata, canyon::FloatVec2 const& position) {
     auto enemySpawner = registry.create();
 
     auto& spawner = registry.emplace<ComponentEnemySpawner>(enemySpawner);

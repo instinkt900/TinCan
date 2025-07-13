@@ -1,6 +1,5 @@
 #include "gamedata_level.h"
 #include <magic_enum.hpp>
-#include <moth_ui/utils/vector_serialization.h>
 #include <nlohmann/json.hpp>
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LevelData, events);

@@ -12,7 +12,7 @@
 #include "gamedata.h"
 
 float const PickupRadius = 30.0f;
-moth_ui::FloatVec2 const PickupVelocity{ 0.0f, 100.0f };
+canyon::FloatVec2 const PickupVelocity{ 0.0f, 100.0f };
 
 template <> struct fmt::formatter<PickupType> : fmt::formatter<std::string> {
     static auto format(PickupType type, format_context& ctx)  -> decltype(ctx.out()) {
@@ -20,7 +20,7 @@ template <> struct fmt::formatter<PickupType> : fmt::formatter<std::string> {
     }
 };
 
-entt::entity SystemPickup::CreatePickup(entt::registry& registry, moth_ui::FloatVec2 const& position,
+entt::entity SystemPickup::CreatePickup(entt::registry& registry, canyon::FloatVec2 const& position,
                                         std::string const& name, Gamedata const& gamedata) {
     auto const* pickupData = gamedata.GetPickupDatabase().Get(name);
     if (pickupData == nullptr) {
@@ -51,7 +51,7 @@ entt::entity SystemPickup::CreatePickup(entt::registry& registry, moth_ui::Float
     return entity;
 }
 
-void PlayerPickupWeapon(PickupData const& pickup, moth_ui::FloatVec2 const& position,
+void PlayerPickupWeapon(PickupData const& pickup, canyon::FloatVec2 const& position,
                         entt::registry& registry, Gamedata const& gamedata) {
     // spawn the current weapon as a pickup if it has one defined
     entt::entity playerEntity = entt::null;
@@ -63,7 +63,7 @@ void PlayerPickupWeapon(PickupData const& pickup, moth_ui::FloatVec2 const& posi
     }
     if (currentWeapon != nullptr && currentWeapon->m_pickupName.has_value()) {
         auto const side = rand() % 2 == 1 ? 1.0f : -1.0f;
-        moth_ui::FloatVec2 const offset = { 100.0f * side, -20.0f };
+        canyon::FloatVec2 const offset = { 100.0f * side, -20.0f };
         SystemPickup::CreatePickup(registry, position + offset, currentWeapon->m_pickupName.value(), gamedata);
     }
 
@@ -71,7 +71,7 @@ void PlayerPickupWeapon(PickupData const& pickup, moth_ui::FloatVec2 const& posi
     SystemWeapon::InitWeapon(registry, playerEntity, pickup.name, gamedata);
 }
 
-void PlayerPickupPassive(PickupData const& pickup, moth_ui::FloatVec2 const& position,
+void PlayerPickupPassive(PickupData const& pickup, canyon::FloatVec2 const& position,
                          entt::registry& registry, Gamedata const& gamedata) {
     auto const passiveTypeOpt = magic_enum::enum_cast<PassiveType>(pickup.name);
     if (!passiveTypeOpt.has_value()) {
@@ -96,7 +96,7 @@ void PlayerPickupPassive(PickupData const& pickup, moth_ui::FloatVec2 const& pos
     playerPassives->m_value[passiveType] = newBonus;
 }
 
-void PlayerPickup(ComponentPickup const& pickup, moth_ui::FloatVec2 const& position, entt::registry& registry,
+void PlayerPickup(ComponentPickup const& pickup, canyon::FloatVec2 const& position, entt::registry& registry,
                   Gamedata const& gamedata) {
     auto const* pickupData = gamedata.GetPickupDatabase().Get(pickup.m_name);
     if (pickupData == nullptr) {

@@ -1,10 +1,10 @@
 #pragma once
 
 #include "gamedata_database.h"
-#include <moth_ui/utils/vector.h>
+#include <canyon/utils/vector.h>
 
 struct BarrelData {
-    moth_ui::FloatVec2 offset;
+    canyon::FloatVec2 offset;
     int32_t group = 0;
     float angle = 0;
 };

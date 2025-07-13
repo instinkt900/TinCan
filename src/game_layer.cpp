@@ -24,16 +24,23 @@ bool GameLayer::OnEvent(moth_ui::Event const& event) {
     return handled;
 }
 
-void GameLayer::Update(uint32_t ticks) {
-    m_gameWorld->Update(ticks);
-}
+void GameLayer::Update(uint32_t ticks) { m_gameWorld->Update(ticks); }
 
 void GameLayer::Draw() {
+    // background fill
+    m_graphics.SetBlendMode(canyon::graphics::BlendMode::Replace);
+    m_graphics.SetColor(canyon::graphics::BasicColors::Blue);
+    m_graphics.DrawFillRectF(canyon::MakeRect(0.0f, 0.0f, static_cast<float>(m_window.GetWidth()),
+                                              static_cast<float>(m_window.GetHeight())));
+
+    // let the world draw
     m_gameWorld->Draw();
 
+    // draw the game world
+    m_graphics.SetColor(canyon::graphics::BasicColors::White);
+    m_graphics.SetBlendMode(canyon::graphics::BlendMode::Replace);
     auto& worldImage = m_gameWorld->GetWorldImage();
-    auto const worldRect =
-        canyon::FloatVec2{ worldImage.GetWidth(), worldImage.GetHeight() };
+    auto const worldRect = canyon::FloatVec2{ worldImage.GetWidth(), worldImage.GetHeight() };
     auto const windowRect = canyon::FloatVec2{ m_window.GetWidth(), m_window.GetHeight() };
     auto const worldScaling = windowRect / worldRect;
     auto const scaling = std::min(worldScaling.x, worldScaling.y);
@@ -43,13 +50,13 @@ void GameLayer::Draw() {
                                            static_cast<canyon::IntVec2>(destPos + destSize) };
     m_graphics.DrawImage(worldImage, destRect, nullptr);
 
+    // draw the ui
     auto const playerHealth = m_gameWorld->GetPlayerHealth();
     m_graphics.SetColor(canyon::graphics::BasicColors::White);
     m_graphics.SetBlendMode(canyon::graphics::BlendMode::Alpha);
-    m_graphics.DrawText(fmt::format("Player health: {}", playerHealth), *m_font,
-                        canyon::graphics::TextHorizAlignment::Left,
-                        canyon::graphics::TextVertAlignment::Middle,
-                        canyon::MakeRect(0, 0, m_window.GetWidth(), 80));
+    m_graphics.DrawText(
+        fmt::format("Player health: {}", playerHealth), *m_font, canyon::graphics::TextHorizAlignment::Left,
+        canyon::graphics::TextVertAlignment::Middle, canyon::MakeRect(0, 0, m_window.GetWidth(), 80));
 }
 
 void GameLayer::OnAddedToStack(moth_ui::LayerStack* stack) {
@@ -86,4 +93,3 @@ bool GameLayer::OnKeyEvent(moth_ui::EventKey const& event) {
 
     return false;
 }
-

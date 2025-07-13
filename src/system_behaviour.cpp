@@ -19,7 +19,7 @@ void BehaviourStraight(entt::registry& registry, entt::entity entity, ComponentB
                        ComponentPosition& position, ComponentLifetime& lifetime) {
     float const speed = GetParameter(behaviour.m_parameters, "speed", 100.0f);
     float const t = static_cast<float>(lifetime.m_msAlive) / 1000.0f;
-    auto const newPosition = behaviour.m_offset + moth_ui::FloatVec2{ 0, t * speed };
+    auto const newPosition = behaviour.m_offset + canyon::FloatVec2{ 0, t * speed };
     position.m_lastPosition = position.m_position;
     position.m_position = newPosition;
 }

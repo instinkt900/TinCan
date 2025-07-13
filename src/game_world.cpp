@@ -13,6 +13,7 @@
 #include "system_projectile.h"
 #include "system_shield.h"
 #include "system_weapon.h"
+#include "system_world_bounds.h"
 #include "tags.h"
 
 canyon::IntVec2 const GameWorld::WorldSize{ 720, 1280 };
@@ -56,10 +57,14 @@ void GameWorld::Update(uint32_t ticks) {
     SystemPickup::Update(m_registry, ticks, m_gamedata);
     SystemPlayerVisuals::Update(m_registry, ticks);
     SystemGroup::Update(m_registry, ticks, m_gamedata);
+    SystemWorldBounds::Update(
+        m_registry, ticks, canyon::FloatRect{ { 0.0f, 0.0f }, static_cast<canyon::FloatVec2>(WorldSize) });
 }
 
 void GameWorld::Draw() {
     m_graphics.SetTarget(m_worldSurface.get());
+    m_graphics.SetBlendMode(canyon::graphics::BlendMode::Replace);
+    m_graphics.SetColor(canyon::graphics::BasicColors::White);
     SystemDrawable::Update(m_registry, m_graphics);
     m_graphics.SetTarget(nullptr);
 }
@@ -116,4 +121,5 @@ void GameWorld::CreatePlayer() {
     SystemWeapon::InitWeapon(m_registry, m_player, "player_weapon_01", m_gamedata);
 
     m_registry.emplace<TargetTag>(m_player);
+    m_registry.emplace<BoundedTag>(m_player);
 }

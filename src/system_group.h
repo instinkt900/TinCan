@@ -2,7 +2,7 @@
 
 #include "gamedata.h"
 #include <entt/entity/fwd.hpp>
-#include <moth_ui/utils/vector.h>
+#include <canyon/utils/vector.h>
 #include <optional>
 
 enum class GroupEndCondition {
@@ -15,7 +15,7 @@ enum class GroupEndCondition {
 struct ComponentGroup {
     int32_t m_memberCount = 0;
     GroupEndCondition m_condition = GroupEndCondition::None;
-    moth_ui::FloatVec2 m_position;
+    canyon::FloatVec2 m_position;
     std::optional<std::string> m_drop;
 };
 

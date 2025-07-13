@@ -4,7 +4,7 @@
 #include "gamedata.h"
 #include <entt/entity/entity.hpp>
 #include <entt/entity/fwd.hpp>
-#include <moth_ui/utils/vector.h>
+#include <canyon/utils/vector.h>
 
 struct ComponentProjectile {
     entt::entity m_owner = entt::null;

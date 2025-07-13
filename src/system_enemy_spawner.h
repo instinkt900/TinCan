@@ -27,11 +27,11 @@ public:
     static void Update(entt::registry& registry, uint32_t ticks, Gamedata const& gamedata);
 
     static entt::entity CreateEnemy(entt::registry& registry, std::string const& name,
-                                    Gamedata const& gamedata, moth_ui::FloatVec2 const& position,
+                                    Gamedata const& gamedata, canyon::FloatVec2 const& position,
                                     std::string const& behaviourName,
                                     BehaviourParameterList const& behaviourParameters);
     static entt::entity CreateSpawner(entt::registry& registry, std::string const& name,
-                                      Gamedata const& gamedata, moth_ui::FloatVec2 const& position);
+                                      Gamedata const& gamedata, canyon::FloatVec2 const& position);
     static entt::entity CreateSpawner(entt::registry& registry, SpawnerData const& data,
-                                      Gamedata const& gamedata, moth_ui::FloatVec2 const& position);
+                                      Gamedata const& gamedata, canyon::FloatVec2 const& position);
 };
