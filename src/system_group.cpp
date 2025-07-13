@@ -4,8 +4,11 @@
 #include "tags.h"
 #include <entt/entt.hpp>
 #include <spdlog/spdlog.h>
+#include "game_world.h"
 
-void SystemGroup::Update(entt::registry& registry, uint32_t ticks, Gamedata const& gamedata) {
+void SystemGroup::Update(GameWorld& world, uint32_t ticks) {
+    auto& registry = world.GetRegistry();
+    auto const& gamedata = world.GetGameData();
     auto view = registry.view<ComponentGroup>();
 
     for (auto [entity, group] : view.each()) {

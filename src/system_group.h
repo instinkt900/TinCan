@@ -25,7 +25,7 @@ struct ComponentGroupId {
 
 class SystemGroup {
 public:
-    static void Update(entt::registry& registry, uint32_t ticks, Gamedata const& gamedata);
+    static void Update(GameWorld& world, uint32_t ticks);
     static entt::entity CreateGroup(entt::registry& registry, std::optional<std::string> drop);
     static void AddMember(entt::registry& registry, entt::entity group, entt::entity member);
     static void RemoveMember(entt::registry& registry, entt::entity group, entt::entity member, GroupEndCondition condition);

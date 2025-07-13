@@ -10,6 +10,7 @@
 #include <magic_enum.hpp>
 #include <spdlog/spdlog.h>
 #include "gamedata.h"
+#include "game_world.h"
 
 float const PickupRadius = 30.0f;
 canyon::FloatVec2 const PickupVelocity{ 0.0f, 100.0f };
@@ -21,7 +22,7 @@ template <> struct fmt::formatter<PickupType> : fmt::formatter<std::string> {
 };
 
 entt::entity SystemPickup::CreatePickup(entt::registry& registry, canyon::FloatVec2 const& position,
-                                        std::string const& name, Gamedata const& gamedata) {
+                                        std::string const& name, GameData const& gamedata) {
     auto const* pickupData = gamedata.GetPickupDatabase().Get(name);
     if (pickupData == nullptr) {
         spdlog::error("SystemPickup::CreatePickup - Unable to find pickup name {}.", name);
@@ -52,7 +53,7 @@ entt::entity SystemPickup::CreatePickup(entt::registry& registry, canyon::FloatV
 }
 
 void PlayerPickupWeapon(PickupData const& pickup, canyon::FloatVec2 const& position,
-                        entt::registry& registry, Gamedata const& gamedata) {
+                        entt::registry& registry, GameData const& gamedata) {
     // spawn the current weapon as a pickup if it has one defined
     entt::entity playerEntity = entt::null;
     ComponentWeapon* currentWeapon = nullptr;
@@ -72,7 +73,7 @@ void PlayerPickupWeapon(PickupData const& pickup, canyon::FloatVec2 const& posit
 }
 
 void PlayerPickupPassive(PickupData const& pickup, canyon::FloatVec2 const& position,
-                         entt::registry& registry, Gamedata const& gamedata) {
+                         entt::registry& registry, GameData const& gamedata) {
     auto const passiveTypeOpt = magic_enum::enum_cast<PassiveType>(pickup.name);
     if (!passiveTypeOpt.has_value()) {
         spdlog::error("PlayerPickupPassive - Unknown passive name {}", pickup.name);
@@ -97,7 +98,7 @@ void PlayerPickupPassive(PickupData const& pickup, canyon::FloatVec2 const& posi
 }
 
 void PlayerPickup(ComponentPickup const& pickup, canyon::FloatVec2 const& position, entt::registry& registry,
-                  Gamedata const& gamedata) {
+                  GameData const& gamedata) {
     auto const* pickupData = gamedata.GetPickupDatabase().Get(pickup.m_name);
     if (pickupData == nullptr) {
         spdlog::error("PlayerPickup - Unable to find pickup name {}.", pickup.m_name);
@@ -114,8 +115,11 @@ void PlayerPickup(ComponentPickup const& pickup, canyon::FloatVec2 const& positi
     }
 }
 
-void SystemPickup::Update(entt::registry& registry, uint32_t ticks, Gamedata const& gamedata) {
+void SystemPickup::Update(GameWorld& world, uint32_t ticks) {
     // check for pickup collision
+
+    auto& registry = world.GetRegistry();
+    auto const& gamedata = world.GetGameData();
 
     ComponentEntity const* playerEntity = nullptr;
     ComponentPosition const* playerPosition = nullptr;

@@ -1,13 +1,14 @@
 #include "system_projectile.h"
 #include "collision_utils.h"
 #include "component_drop.h"
-#include "system_health.h"
+#include "component_health.h"
 #include "system_movement.h"
 #include "system_pickup.h"
 #include "tags.h"
 #include <entt/entt.hpp>
 #include <moth_ui/utils/vector_utils.h>
 #include <spdlog/spdlog.h>
+#include "game_world.h"
 
 namespace {
     struct Projectile {
@@ -29,7 +30,7 @@ namespace {
         return t < 1.0f;
     }
 
-    void ProcessTarget(entt::registry& registry, Projectile& projectile, Target& target, Gamedata const& gamedata) {
+    void ProcessTarget(entt::registry& registry, Projectile& projectile, Target& target, GameData const& gamedata) {
         if (projectile.entityDetails.m_team != target.entityDetails.m_team) {
             if (CollisionTest(projectile.position, target.position, projectile.entityDetails.m_radius,
                               target.entityDetails.m_radius)) {
@@ -55,7 +56,7 @@ namespace {
         }
     }
 
-    void ProcessProjectile(entt::registry& registry, Projectile& projectile, Gamedata const& gamedata) {
+    void ProcessProjectile(entt::registry& registry, Projectile& projectile, GameData const& gamedata) {
         auto view = registry.view<ComponentEntity, ComponentPosition, TargetTag>();
         for (auto [entity, entityDetails, position] : view.each()) {
             if (projectile.entity == entity) {
@@ -68,7 +69,9 @@ namespace {
     }
 }
 
-void SystemProjectile::Update(entt::registry& registry, uint32_t ticks, Gamedata const& gamedata) {
+void SystemProjectile::Update(GameWorld& world, uint32_t ticks) {
+    auto& registry = world.GetRegistry();
+    auto const& gamedata = world.GetGameData();
     auto view = registry.view<ComponentEntity, ComponentProjectile, ComponentPosition>();
     for (auto [entity, entityDetails, projectileDetails, position] : view.each()) {
         Projectile projectile{ entity, entityDetails, projectileDetails, position };

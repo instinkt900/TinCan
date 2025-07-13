@@ -9,9 +9,10 @@
 #include <entt/entt.hpp>
 #include <moth_ui/utils/vector_utils.h>
 #include <spdlog/spdlog.h>
+#include "game_world.h"
 
 ComponentWeapon* SystemWeapon::InitWeapon(entt::registry& registry, entt::entity entity,
-                                          std::string const& name, Gamedata const& gamedata) {
+                                          std::string const& name, GameData const& gamedata) {
     if (name == "") {
         return nullptr;
     }
@@ -62,7 +63,9 @@ void CollectPassives(entt::registry& registry, entt::entity entity, Passives& pa
     }
 }
 
-void SystemWeapon::Update(entt::registry& registry, uint32_t ticks, Gamedata const& gamedata) {
+void SystemWeapon::Update(GameWorld& world, uint32_t ticks) {
+    auto& registry = world.GetRegistry();
+    auto const& gamedata = world.GetGameData();
     ComponentPosition* playerPosition = nullptr;
     auto playerView = registry.view<ComponentPosition, PlayerTag>();
     if (playerView.begin() != playerView.end()) {

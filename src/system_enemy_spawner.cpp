@@ -2,7 +2,7 @@
 #include "component_entity.h"
 #include "system_behaviour.h"
 #include "system_group.h"
-#include "system_health.h"
+#include "component_health.h"
 #include "system_lifetime.h"
 #include "system_movement.h"
 #include "system_drawable.h"
@@ -10,8 +10,11 @@
 #include "tags.h"
 #include <entt/entt.hpp>
 #include <spdlog/spdlog.h>
+#include "game_world.h"
 
-void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks, Gamedata const& gamedata) {
+void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
+    auto& registry = world.GetRegistry();
+    auto const& gamedata = world.GetGameData();
     auto view = registry.view<ComponentEnemySpawner, ComponentPosition>();
 
     for (auto [entity, spawner, spawnerPosition] : view.each()) {
@@ -64,7 +67,7 @@ void SystemEnemySpawner::Update(entt::registry& registry, uint32_t ticks, Gameda
 }
 
 entt::entity SystemEnemySpawner::CreateEnemy(entt::registry& registry, std::string const& name,
-                                             Gamedata const& gamedata, canyon::FloatVec2 const& position,
+                                             GameData const& gamedata, canyon::FloatVec2 const& position,
                                              std::string const& behaviourName,
                                              BehaviourParameterList const& behaviourParameters) {
     auto enemy = registry.create();
@@ -106,7 +109,7 @@ entt::entity SystemEnemySpawner::CreateEnemy(entt::registry& registry, std::stri
 }
 
 entt::entity SystemEnemySpawner::CreateSpawner(entt::registry& registry, std::string const& name,
-                                               Gamedata const& gamedata, canyon::FloatVec2 const& position) {
+                                               GameData const& gamedata, canyon::FloatVec2 const& position) {
     auto const* spawnerData = gamedata.GetSpawnerDatabase().Get(name);
     if (spawnerData == nullptr) {
         spdlog::error("Unable to access spawner data");
@@ -117,7 +120,7 @@ entt::entity SystemEnemySpawner::CreateSpawner(entt::registry& registry, std::st
 }
 
 entt::entity SystemEnemySpawner::CreateSpawner(entt::registry& registry, SpawnerData const& data,
-                                               Gamedata const& gamedata, canyon::FloatVec2 const& position) {
+                                               GameData const& gamedata, canyon::FloatVec2 const& position) {
     auto enemySpawner = registry.create();
 
     auto& spawner = registry.emplace<ComponentEnemySpawner>(enemySpawner);

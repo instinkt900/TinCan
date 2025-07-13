@@ -2,6 +2,7 @@
 #include "system_behaviour.h"
 #include "system_movement.h"
 #include <entt/entt.hpp>
+#include "game_world.h"
 
 struct DrawImage {
     SpriteImage const* m_image = nullptr;
@@ -27,7 +28,8 @@ void DrawDebugs(entt::registry& registry, canyon::graphics::IGraphics& graphics)
     // DrawDebugCurves(registry, graphics);
 }
 
-void SystemDrawable::Update(entt::registry& registry, canyon::graphics::IGraphics& graphics) {
+void SystemDrawable::Update(GameWorld& world, canyon::graphics::IGraphics& graphics) {
+    auto& registry = world.GetRegistry();
     auto view = registry.view<ComponentDrawable, ComponentPosition>();
 
     std::vector<DrawImage> m_opaqueDraws;

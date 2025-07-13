@@ -1,8 +1,10 @@
 #include "system_movement.h"
 #include "system_input.h"
 #include <entt/entt.hpp>
+#include "game_world.h"
 
-void SystemMovement::Update(entt::registry& registry, uint32_t ticks) {
+void SystemMovement::Update(GameWorld& world, uint32_t ticks) {
+    auto& registry = world.GetRegistry();
     auto view = registry.view<ComponentPosition, ComponentVelocity>();
 
     float const dt = static_cast<float>(ticks) / 1000.0f;

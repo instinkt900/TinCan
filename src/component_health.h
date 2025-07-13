@@ -1,7 +1,6 @@
 #pragma once
 
 #include <entt/entity/entity.hpp>
-#include <entt/entity/fwd.hpp>
 
 struct ComponentHealth {
     float m_currentHealth = 100;

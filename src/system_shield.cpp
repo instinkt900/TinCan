@@ -5,8 +5,10 @@
 #include "system_movement.h"
 #include "system_projectile.h"
 #include <entt/entt.hpp>
+#include "game_world.h"
 
-void SystemShield::Update(entt::registry& registry, uint32_t ticks) {
+void SystemShield::Update(GameWorld& world, uint32_t ticks) {
+    auto& registry = world.GetRegistry();
     auto view = registry.view<ComponentShield, ComponentEntity, ComponentPosition, ComponentVelocity>();
 
     for (auto [shieldEntity, shieldData, shieldEntityData, shieldPosition, shieldVelocity] : view.each()) {

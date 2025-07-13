@@ -2,8 +2,8 @@
 
 #include "gamedata_sprite.h"
 #include <canyon/graphics/igraphics.h>
-#include <entt/entity/fwd.hpp>
-#include <canyon/utils/vector.h>
+
+class GameWorld;
 
 struct ComponentDrawable {
     SpriteData m_spriteData;
@@ -11,5 +11,5 @@ struct ComponentDrawable {
 
 class SystemDrawable {
 public:
-    static void Update(entt::registry& registry, canyon::graphics::IGraphics& graphics);
+    static void Update(GameWorld& world, canyon::graphics::IGraphics& graphics);
 };

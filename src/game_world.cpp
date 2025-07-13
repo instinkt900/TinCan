@@ -3,7 +3,7 @@
 #include "system_drawable.h"
 #include "system_enemy_spawner.h"
 #include "system_group.h"
-#include "system_health.h"
+#include "component_health.h"
 #include "system_input.h"
 #include "system_level.h"
 #include "system_lifetime.h"
@@ -46,26 +46,25 @@ bool GameWorld::OnEvent(moth_ui::Event const& event) {
 }
 
 void GameWorld::Update(uint32_t ticks) {
-    SystemLevel::Update(m_registry, ticks, m_gamedata);
-    SystemLifetime::Update(m_registry, ticks);
-    SystemEnemySpawner::Update(m_registry, ticks, m_gamedata);
-    SystemBehaviour::Update(m_registry, ticks);
-    SystemMovement::Update(m_registry, ticks);
-    SystemWeapon::Update(m_registry, ticks, m_gamedata);
-    SystemShield::Update(m_registry, ticks);
-    SystemProjectile::Update(m_registry, ticks, m_gamedata);
-    SystemPickup::Update(m_registry, ticks, m_gamedata);
-    SystemPlayerVisuals::Update(m_registry, ticks);
-    SystemGroup::Update(m_registry, ticks, m_gamedata);
-    SystemWorldBounds::Update(
-        m_registry, ticks, canyon::FloatRect{ { 0.0f, 0.0f }, static_cast<canyon::FloatVec2>(WorldSize) });
+    SystemLevel::Update(*this, ticks);
+    SystemLifetime::Update(*this, ticks);
+    SystemEnemySpawner::Update(*this, ticks);
+    SystemBehaviour::Update(*this, ticks);
+    SystemMovement::Update(*this, ticks);
+    SystemWeapon::Update(*this, ticks);
+    SystemShield::Update(*this, ticks);
+    SystemProjectile::Update(*this, ticks);
+    SystemPickup::Update(*this, ticks);
+    SystemPlayerVisuals::Update(*this, ticks);
+    SystemGroup::Update(*this, ticks);
+    SystemWorldBounds::Update(*this, ticks);
 }
 
 void GameWorld::Draw() {
     m_graphics.SetTarget(m_worldSurface.get());
     m_graphics.SetBlendMode(canyon::graphics::BlendMode::Replace);
     m_graphics.SetColor(canyon::graphics::BasicColors::White);
-    SystemDrawable::Update(m_registry, m_graphics);
+    SystemDrawable::Update(*this, m_graphics);
     m_graphics.SetTarget(nullptr);
 }
 
@@ -121,5 +120,9 @@ void GameWorld::CreatePlayer() {
     SystemWeapon::InitWeapon(m_registry, m_player, "player_weapon_01", m_gamedata);
 
     m_registry.emplace<TargetTag>(m_player);
-    m_registry.emplace<BoundedTag>(m_player);
+
+    auto& bounds = m_registry.emplace<ComponentBounds>(m_player);
+    bounds.m_behaviour = BoundsBehaviour::Limit;
+    bounds.m_bounds =
+        canyon::MakeRect(0.0f, 0.0f, static_cast<float>(WorldSize.x), static_cast<float>(WorldSize.y));
 }

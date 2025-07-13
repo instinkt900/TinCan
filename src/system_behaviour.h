@@ -1,10 +1,9 @@
 #pragma once
 
-#include <entt/entity/fwd.hpp>
-#include <map>
 #include <canyon/utils/vector.h>
 #include <variant>
-#include <vector>
+
+class GameWorld;
 
 struct CurveSample {
     canyon::FloatVec2 position;
@@ -27,5 +26,5 @@ struct ComponentBehaviour {
 
 class SystemBehaviour {
 public:
-    static void Update(entt::registry& registry, uint32_t ticks);
+    static void Update(GameWorld& world, uint32_t ticks);
 };

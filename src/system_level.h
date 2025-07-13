@@ -12,6 +12,6 @@ struct ComponentLevel {
 
 class SystemLevel {
     public:
-        static void InitLevel(entt::registry& registry, std::string const& levelName, Gamedata const& gamedata);
-        static void Update(entt::registry& registry, uint32_t ticks, Gamedata const& gamedata);
+        static void InitLevel(entt::registry& registry, std::string const& levelName, GameData const& gamedata);
+        static void Update(GameWorld& world, uint32_t ticks);
 };

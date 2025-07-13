@@ -12,5 +12,3 @@ struct TargetTag{};
 // Marks the entity as dead and that the lifetime system should remove it.
 struct DeadTag{};
 
-// Marks the entity as bounded by the visible world bounds.
-struct BoundedTag{};

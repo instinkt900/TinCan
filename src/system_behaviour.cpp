@@ -1,10 +1,7 @@
 #include "system_behaviour.h"
+#include "game_world.h"
 #include "system_lifetime.h"
 #include "system_movement.h"
-#include <cassert>
-#include <entt/entt.hpp>
-#include <moth_ui/utils/vector_utils.h>
-#include <spdlog/spdlog.h>
 
 template <typename T>
 T GetParameter(BehaviourParameterList const& parameterList, std::string const& name, T const defaultValue) {
@@ -47,7 +44,7 @@ void BehaviourWave(entt::registry& registry, entt::entity entity, ComponentBehav
                 sample.segment_length = 0;
                 sample.total_distance = 0;
             } else {
-                sample.segment_length = moth_ui::Distance(sample.position, lastSample.position);
+                sample.segment_length = canyon::Distance(sample.position, lastSample.position);
                 sample.total_distance = lastSample.total_distance + sample.segment_length;
             }
             lastSample = sample;
@@ -86,7 +83,8 @@ std::map<std::string, BehaviourFunc> const Funcs{ { "straight", BehaviourStraigh
                                                   { "wave", BehaviourWave } };
 
 
-void SystemBehaviour::Update(entt::registry& registry, uint32_t ticks) {
+void SystemBehaviour::Update(GameWorld& world, uint32_t ticks) {
+    auto& registry = world.GetRegistry();
     auto view = registry.view<ComponentBehaviour, ComponentPosition, ComponentLifetime>();
 
     for (auto [entity, behaviour, position, lifetime] : view.each()) {

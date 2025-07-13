@@ -1,10 +1,11 @@
 #pragma once
 
 #include "component_entity.h"
-#include "gamedata.h"
 #include <entt/entity/entity.hpp>
 #include <entt/entity/fwd.hpp>
 #include <canyon/utils/vector.h>
+
+class GameWorld;
 
 struct ComponentProjectile {
     entt::entity m_owner = entt::null;
@@ -14,5 +15,5 @@ struct ComponentProjectile {
 
 class SystemProjectile {
 public:
-    static void Update(entt::registry& registry, uint32_t ticks, Gamedata const& gamedata);
+    static void Update(GameWorld& world, uint32_t ticks);
 };

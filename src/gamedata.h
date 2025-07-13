@@ -9,9 +9,9 @@
 #include "gamedata_sprite.h"
 #include "gamedata_weapon.h"
 
-class Gamedata {
+class GameData {
 public:
-    Gamedata() = default;
+    GameData() = default;
 
     Database<SpriteData>& GetSpriteDatabase() { return m_spriteDatabase; }
     Database<ProjectileData>& GetProjectileDatabase() { return m_projectileDatabase; }

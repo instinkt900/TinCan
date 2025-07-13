@@ -11,6 +11,6 @@ struct ComponentPickup {
 class SystemPickup {
 public:
     static entt::entity CreatePickup(entt::registry& registry, canyon::FloatVec2 const& position,
-                                     std::string const& name, Gamedata const& gamedata);
-    static void Update(entt::registry& registry, uint32_t ticks, Gamedata const& gamedata);
+                                     std::string const& name, GameData const& gamedata);
+    static void Update(GameWorld& world, uint32_t ticks);
 };

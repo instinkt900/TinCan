@@ -3,6 +3,7 @@
 #include "tags.h"
 #include <entt/entt.hpp>
 #include <spdlog/spdlog.h>
+#include "game_world.h"
 
 void UpdateLifetimes(entt::registry& registry, uint32_t ticks, std::set<entt::entity>& deadEntities) {
     auto view = registry.view<ComponentLifetime>();
@@ -29,7 +30,8 @@ void UpdateDead(entt::registry& registry, std::set<entt::entity>& deadEntities) 
     }
 }
 
-void SystemLifetime::Update(entt::registry& registry, uint32_t ticks) {
+void SystemLifetime::Update(GameWorld& world, uint32_t ticks) {
+    auto& registry = world.GetRegistry();
     std::set<entt::entity> deadEntities;
 
     UpdateLifetimes(registry, ticks, deadEntities);

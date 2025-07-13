@@ -10,6 +10,11 @@ public:
     GameWorld(canyon::platform::Window& window, canyon::graphics::IGraphics& graphics);
     ~GameWorld() override = default;
 
+    GameData const& GetGameData() const { return m_gamedata; }
+    entt::registry& GetRegistry() { return m_registry; }
+    entt::registry const& GetRegistry() const { return m_registry; }
+    entt::entity GetPlayerEntity() const { return m_player; }
+
     bool OnEvent(moth_ui::Event const& event) override;
     void Update(uint32_t ticks);
     void Draw();
@@ -30,11 +35,10 @@ private:
     canyon::platform::Window& m_window;
     canyon::graphics::IGraphics& m_graphics;
     std::unique_ptr<canyon::graphics::ITarget> m_worldSurface;
+
+    GameData m_gamedata;
     entt::registry m_registry;
     entt::entity m_player = entt::null;
-    entt::entity m_enemySpawner = entt::null;
 
     static canyon::IntVec2 const WorldSize;
-
-    Gamedata m_gamedata;
 };

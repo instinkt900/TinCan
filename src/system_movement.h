@@ -3,6 +3,8 @@
 #include <entt/entity/fwd.hpp>
 #include <canyon/utils/vector.h>
 
+class GameWorld;
+
 struct ComponentPosition {
     canyon::FloatVec2 m_position;
     canyon::FloatVec2 m_lastPosition;
@@ -14,5 +16,5 @@ struct ComponentVelocity {
 
 class SystemMovement {
 public:
-    static void Update(entt::registry& registry, uint32_t ticks);
+    static void Update(GameWorld& world, uint32_t ticks);
 };

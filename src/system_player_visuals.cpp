@@ -4,8 +4,10 @@
 #include "system_shield.h"
 #include "system_weapon.h"
 #include <entt/entt.hpp>
+#include "game_world.h"
 
-void SystemPlayerVisuals::Update(entt::registry& registry, uint32_t ticks) {
+void SystemPlayerVisuals::Update(GameWorld& world, uint32_t ticks) {
+    auto& registry = world.GetRegistry();
     auto view = registry.view<ComponentEntity, ComponentDrawable, ComponentShield, ComponentWeapon>();
     for (auto [entity, entityData, drawable, shield, weapon] : view.each()) {
         // TODO: this is unsafe access

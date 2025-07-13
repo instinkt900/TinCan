@@ -30,6 +30,6 @@ struct ComponentWeapon {
 
 class SystemWeapon {
 public:
-    static ComponentWeapon* InitWeapon(entt::registry& registry, entt::entity entity, std::string const& name, Gamedata const& gamedata);
-    static void Update(entt::registry& registry, uint32_t ticks, Gamedata const& gamedata);
+    static ComponentWeapon* InitWeapon(entt::registry& registry, entt::entity entity, std::string const& name, GameData const& gamedata);
+    static void Update(GameWorld& world, uint32_t ticks);
 };

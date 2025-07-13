@@ -6,10 +6,10 @@
 #include <spdlog/spdlog.h>
 #include <fstream>
 
-class Gamedata;
+class GameData;
 
 struct SerializeContext {
-    Gamedata const& gamedata;
+    GameData const& gamedata;
     canyon::graphics::SurfaceContext& surfaceContext;
 };
 

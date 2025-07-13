@@ -2,6 +2,8 @@
 
 #include <entt/entity/fwd.hpp>
 
+class GameWorld;
+
 struct ComponentPower {
     int32_t m_power;
 };
@@ -12,6 +14,6 @@ struct ComponentShield {
 
 class SystemShield {
     public:
-        static void Update(entt::registry& registry, uint32_t ticks);
+        static void Update(GameWorld& world, uint32_t ticks);
 };
 

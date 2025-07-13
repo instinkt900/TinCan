@@ -3,9 +3,10 @@
 #include "component_drop.h"
 #include "gamedata.h"
 #include "system_enemy_spawner.h"
+#include "game_world.h"
 
 void SystemLevel::InitLevel(entt::registry& registry, std::string const& levelName,
-                            Gamedata const& gamedata) {
+                            GameData const& gamedata) {
     //
 
     auto view = registry.view<ComponentLevel>();
@@ -30,7 +31,7 @@ void SystemLevel::InitLevel(entt::registry& registry, std::string const& levelNa
               [](auto const& eventA, auto const& eventB) { return eventA.time < eventB.time; });
 }
 
-void HandleLevelEventSpawn(LevelEvent const& event, entt::registry& registry, Gamedata const& gamedata) {
+void HandleLevelEventSpawn(LevelEvent const& event, entt::registry& registry, GameData const& gamedata) {
     BehaviourParameterList params;
     params["speed"] = 200.0f;
     auto newEnemy =
@@ -42,11 +43,11 @@ void HandleLevelEventSpawn(LevelEvent const& event, entt::registry& registry, Ga
 }
 
 void HandleLevelEventCreateSpawner(LevelEvent const& event, entt::registry& registry,
-                                   Gamedata const& gamedata) {
+                                   GameData const& gamedata) {
     SystemEnemySpawner::CreateSpawner(registry, event.name.value(), gamedata, event.location);
 }
 
-void HandleLevelEvent(LevelEvent const& event, entt::registry& registry, Gamedata const& gamedata) {
+void HandleLevelEvent(LevelEvent const& event, entt::registry& registry, GameData const& gamedata) {
     if (event.spawner.has_value()) {
         SystemEnemySpawner::CreateSpawner(registry, event.spawner.value(), gamedata, event.location);
     } else {
@@ -63,8 +64,9 @@ void HandleLevelEvent(LevelEvent const& event, entt::registry& registry, Gamedat
     }
 }
 
-void SystemLevel::Update(entt::registry& registry, uint32_t ticks, Gamedata const& gamedata) {
-    //
+void SystemLevel::Update(GameWorld& world, uint32_t ticks) {
+    auto& registry = world.GetRegistry();
+    auto const& gamedata = world.GetGameData();
     auto view = registry.view<ComponentLevel>();
     if (view.size() > 1) {
         spdlog::warn("More than one level component found.");
