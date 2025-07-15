@@ -11,6 +11,8 @@
 #include "game_world.h"
 
 namespace {
+     float const OffColorMult = 2.0f;
+
     struct Projectile {
         entt::entity entity;
         ComponentEntity& entityDetails;
@@ -41,8 +43,12 @@ namespace {
 
                 // apply damage
                 if (auto* entityHealth = registry.try_get<ComponentHealth>(target.entity)) {
+                    auto damage = projectile.projectileDetails.m_damage;
+                    if (projectile.projectileDetails.m_color != target.entityDetails.m_color) {
+                        damage *= OffColorMult;
+                    }
                     if (entityHealth->m_currentHealth > 0) {
-                        entityHealth->m_currentHealth -= projectile.projectileDetails.m_damage;
+                        entityHealth->m_currentHealth -= damage;
                         if (entityHealth->m_currentHealth <= 0) {
                             registry.emplace<DeadTag>(target.entity);
 
@@ -57,7 +63,7 @@ namespace {
     }
 
     void ProcessProjectile(entt::registry& registry, Projectile& projectile, GameData const& gamedata) {
-        auto view = registry.view<ComponentEntity, ComponentPosition, TargetTag>();
+        auto view = registry.view<ComponentEntity, ComponentPosition, TargetTag>(entt::exclude<DeadTag>);
         for (auto [entity, entityDetails, position] : view.each()) {
             if (projectile.entity == entity) {
                 // shouldnt happen but here for safety
@@ -72,7 +78,7 @@ namespace {
 void SystemProjectile::Update(GameWorld& world, uint32_t ticks) {
     auto& registry = world.GetRegistry();
     auto const& gamedata = world.GetGameData();
-    auto view = registry.view<ComponentEntity, ComponentProjectile, ComponentPosition>();
+    auto view = registry.view<ComponentEntity, ComponentProjectile, ComponentPosition>(entt::exclude<DeadTag>);
     for (auto [entity, entityDetails, projectileDetails, position] : view.each()) {
         Projectile projectile{ entity, entityDetails, projectileDetails, position };
         ProcessProjectile(registry, projectile, gamedata);

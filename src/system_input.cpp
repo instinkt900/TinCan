@@ -18,7 +18,7 @@ void SystemInput::OnKey(entt::registry& registry, moth_ui::EventKey const& event
         if (auto* entityData = registry.try_get<ComponentEntity>(entity)) {
             if (!input.m_lastState[moth_ui::Key::X] && input.m_state[moth_ui::Key::X]) {
                 entityData->m_color =
-                    entityData->m_color == EnergyColor::WHITE ? EnergyColor::BLACK : EnergyColor::WHITE;
+                    entityData->m_color == EnergyColor::Blue ? EnergyColor::Red : EnergyColor::Blue;
             }
         }
     }

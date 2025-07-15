@@ -9,7 +9,7 @@ class GameWorld;
 
 struct ComponentProjectile {
     entt::entity m_owner = entt::null;
-    EnergyColor m_color = EnergyColor::WHITE;
+    EnergyColor m_color = EnergyColor::Blue;
     float m_damage = 1;
 };
 

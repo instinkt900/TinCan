@@ -1,5 +1,5 @@
 {
-    "alien1": {
+    "alien1_red": {
         "images": {
             "ship": {
                 "image": "assets/sprites/alien1.png",
@@ -7,7 +7,20 @@
                 "offset": { "x": 0, "y": 0 },
                 "rotation": 0,
                 "blend_mode": 1,
-                "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
+                "color": { "x": 1, "y": 0.6, "z": 0.6, "w": 1 },
+                "zOrder": 0
+            }
+        }
+    },
+    "alien1_blue": {
+        "images": {
+            "ship": {
+                "image": "assets/sprites/alien1.png",
+                "scale": { "x": 3, "y": 3 },
+                "offset": { "x": 0, "y": 0 },
+                "rotation": 0,
+                "blend_mode": 1,
+                "color": { "x": 0.6, "y": 0.6, "z": 1, "w": 1 },
                 "zOrder": 0
             }
         }
@@ -311,7 +324,7 @@
             }
         }
     },
-    "alien25": {
+    "alien25_red": {
         "images": {
             "ship": {
                 "image": "assets/sprites/alien25.png",
@@ -319,7 +332,20 @@
                 "offset": { "x": 0, "y": 0 },
                 "rotation": 0,
                 "blend_mode": 1,
-                "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
+                "color": { "x": 1, "y": 0.6, "z": 0.6, "w": 1 },
+                "zOrder": 0
+            }
+        }
+    },
+    "alien25_blue": {
+        "images": {
+            "ship": {
+                "image": "assets/sprites/alien25.png",
+                "scale": { "x": 3, "y": 3 },
+                "offset": { "x": 0, "y": 0 },
+                "rotation": 0,
+                "blend_mode": 1,
+                "color": { "x": 0.6, "y": 0.6, "z": 1, "w": 1 },
                 "zOrder": 0
             }
         }

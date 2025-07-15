@@ -2,9 +2,9 @@
     "events": [
         {
             "time": 3.0,
-            "location": { "x": 640, "y": -10 },
+            "location": { "x": 240, "y": -10 },
             "spawner": {
-                "enemy_name": "enemy_01",
+                "enemy_name": "enemy_01_red",
                 "behaviour_name": "straight",
                 "behaviour_parameters": {
                     "speed": 100.0
@@ -13,16 +13,32 @@
                 "cooldown": 0,
                 "group_count": 3,
                 "group_delay": 600,
-                "type": "Basic",
-                "distance": 0,
-                "drop_name": "weapon_drop_01"
+                "type": "Stepped",
+                "distance": 60
             }
         },
         {
-            "time": 5.0,
+            "time": 7.0,
+            "location": { "x": 360, "y": -10 },
+            "spawner": {
+                "enemy_name": "enemy_01_blue",
+                "behaviour_name": "straight",
+                "behaviour_parameters": {
+                    "speed": 100.0
+                },
+                "count": 1,
+                "cooldown": 0,
+                "group_count": 3,
+                "group_delay": 600,
+                "type": "Stepped",
+                "distance": -60
+            }
+        },
+        {
+            "time": 10.0,
             "type": "SpawnEnemy",
-            "location": { "x": 640, "y": -10 },
-            "name": "enemy_02",
+            "location": { "x": 300, "y": -10 },
+            "name": "enemy_02_red",
             "drop_name": "weapon_drop_01"
         }
     ]

@@ -30,8 +30,6 @@ public:
                                     GameData const& gamedata, canyon::FloatVec2 const& position,
                                     std::string const& behaviourName,
                                     BehaviourParameterList const& behaviourParameters);
-    static entt::entity CreateSpawner(entt::registry& registry, std::string const& name,
-                                      GameData const& gamedata, canyon::FloatVec2 const& position);
     static entt::entity CreateSpawner(entt::registry& registry, SpawnerData const& data,
                                       GameData const& gamedata, canyon::FloatVec2 const& position);
 };

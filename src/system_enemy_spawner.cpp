@@ -47,9 +47,17 @@ void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
                 }
 
                 auto position = spawnerPosition.m_position;
-                if (spawner.m_type == SpawnerType::Staggered) {
+                switch (spawner.m_type) {
+                case SpawnerType::Staggered: {
                     auto const side = spawner.m_groupCount % 2;
                     position.x += spawner.m_distance * (side == 0 ? 1.0f : -1.0f);
+                } break;
+                case SpawnerType::Stepped: {
+                    position.x += spawner.m_distance *
+                                  static_cast<float>(spawner.m_maxGroupCount - (spawner.m_groupCount + 1));
+                } break;
+                default:
+                    break;
                 }
 
                 auto enemy = CreateEnemy(registry, spawner.m_enemyName, gamedata, position,
@@ -57,7 +65,8 @@ void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
 
                 if (spawner.m_maxGroupCount > 1) {
                     if (spawner.m_currentGroupEntity == entt::null) {
-                        spawner.m_currentGroupEntity = SystemGroup::CreateGroup(registry, spawner.m_groupDrop);
+                        spawner.m_currentGroupEntity =
+                            SystemGroup::CreateGroup(registry, spawner.m_groupDrop);
                     }
                     SystemGroup::AddMember(registry, spawner.m_currentGroupEntity, enemy);
                 }
@@ -82,7 +91,7 @@ entt::entity SystemEnemySpawner::CreateEnemy(entt::registry& registry, std::stri
     auto const* enemyData = gamedata.GetEnemyDatabase().Get(name);
 
     entityData.m_team = Team::ENEMY;
-    entityData.m_color = EnergyColor::WHITE;
+    entityData.m_color = enemyData->color;
     entityData.m_radius = enemyData->radius;
     entityData.m_angle = M_PI; // TODO: read from data? spawner? behaviour?
 
@@ -106,17 +115,6 @@ entt::entity SystemEnemySpawner::CreateEnemy(entt::registry& registry, std::stri
     behaviour.m_offset = pos.m_position;
 
     return enemy;
-}
-
-entt::entity SystemEnemySpawner::CreateSpawner(entt::registry& registry, std::string const& name,
-                                               GameData const& gamedata, canyon::FloatVec2 const& position) {
-    auto const* spawnerData = gamedata.GetSpawnerDatabase().Get(name);
-    if (spawnerData == nullptr) {
-        spdlog::error("Unable to access spawner data");
-        return entt::null;
-    }
-
-    return CreateSpawner(registry, *spawnerData, gamedata, position);
 }
 
 entt::entity SystemEnemySpawner::CreateSpawner(entt::registry& registry, SpawnerData const& data,

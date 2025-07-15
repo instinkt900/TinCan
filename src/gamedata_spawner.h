@@ -8,6 +8,7 @@ enum class SpawnerType {
     Unknown,
     Basic,
     Staggered,
+    Stepped,
 };
 
 struct SpawnerData {

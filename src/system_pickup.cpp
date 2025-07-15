@@ -37,7 +37,7 @@ entt::entity SystemPickup::CreatePickup(entt::registry& registry, canyon::FloatV
     auto& pickup = registry.emplace<ComponentPickup>(entity);
 
     entityDetails.m_team = Team::NONE;
-    entityDetails.m_color = EnergyColor::WHITE;
+    entityDetails.m_color = EnergyColor::Blue;
     entityDetails.m_radius = PickupRadius;
 
     pos.m_lastPosition = position;

@@ -1,13 +1,31 @@
 {
-    "enemy_01": {
-        "sprite_name": "alien1",
+    "enemy_01_red": {
+        "sprite_name": "alien1_red",
+        "color": "Red",
         "health": 30,
         "radius": 40,
         "lifetime": 9000,
         "weapon_name": "enemy_weapon"
     },
-    "enemy_02": {
-        "sprite_name": "alien25",
+    "enemy_01_blue": {
+        "sprite_name": "alien1_blue",
+        "color": "Blue",
+        "health": 30,
+        "radius": 40,
+        "lifetime": 9000,
+        "weapon_name": "enemy_weapon"
+    },
+    "enemy_02_red": {
+        "sprite_name": "alien25_red",
+        "color": "Red",
+        "health": 30,
+        "radius": 40,
+        "lifetime": 9000,
+        "weapon_name": "enemy_weapon"
+    },
+    "enemy_02_blue": {
+        "sprite_name": "alien25_blue",
+        "color": "Blue",
         "health": 30,
         "radius": 40,
         "lifetime": 9000,

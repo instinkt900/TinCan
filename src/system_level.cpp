@@ -44,7 +44,13 @@ void HandleLevelEventSpawn(LevelEvent const& event, entt::registry& registry, Ga
 
 void HandleLevelEventCreateSpawner(LevelEvent const& event, entt::registry& registry,
                                    GameData const& gamedata) {
-    SystemEnemySpawner::CreateSpawner(registry, event.name.value(), gamedata, event.location);
+    auto const* spawnerData = gamedata.GetSpawnerDatabase().Get(event.name.value());
+    if (spawnerData == nullptr) {
+        spdlog::error("Unable to access spawner data");
+        return;
+    }
+
+    SystemEnemySpawner::CreateSpawner(registry, *spawnerData, gamedata, event.location);
 }
 
 void HandleLevelEvent(LevelEvent const& event, entt::registry& registry, GameData const& gamedata) {

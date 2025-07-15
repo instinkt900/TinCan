@@ -6,30 +6,29 @@
 #include "system_projectile.h"
 #include <entt/entt.hpp>
 #include "game_world.h"
+#include "tags.h"
 
 void SystemShield::Update(GameWorld& world, uint32_t ticks) {
     auto& registry = world.GetRegistry();
-    auto view = registry.view<ComponentShield, ComponentEntity, ComponentPosition, ComponentVelocity>();
+    auto view = registry.view<ComponentShield, ComponentEntity, ComponentPosition>();
 
-    for (auto [shieldEntity, shieldData, shieldEntityData, shieldPosition, shieldVelocity] : view.each()) {
-        auto projectileView =
-            registry.view<ComponentProjectile, ComponentEntity, ComponentPosition, ComponentVelocity>();
+    for (auto [shieldEntity, shieldData, shieldEntityData, shieldPosition] : view.each()) {
+        auto projectileView = registry.view<ComponentProjectile, ComponentEntity, ComponentPosition>();
 
-        for (auto [projectileEntity, projectileData, projectileEntityData, projectilePosition,
-                   projectileVelocity] : projectileView.each()) {
+        for (auto [projectileEntity, projectileData, projectileEntityData, projectilePosition] :
+             projectileView.each()) {
             if (projectileData.m_color == shieldEntityData.m_color &&
                 projectileEntityData.m_team != shieldEntityData.m_team) {
 
                 auto const t = SweepTest(shieldPosition.m_position, shieldPosition.m_lastPosition,
-                                         shieldEntityData.m_radius, projectilePosition.m_position,
+                                         shieldData.m_radius, projectilePosition.m_position,
                                          projectilePosition.m_lastPosition, projectileEntityData.m_radius);
                 if (t < 1.0f) {
                     // projectile collided with shield
+                    spdlog::info("projectile hit shield");
 
                     // destroy projectile
-                    if (auto* projectileLifetime = registry.try_get<ComponentLifetime>(projectileEntity)) {
-                        projectileLifetime->m_msLeft = 0;
-                    }
+                    registry.get_or_emplace<DeadTag>(projectileEntity);
 
                     // apply power
                     if (auto* ownerPower = registry.try_get<ComponentPower>(shieldEntity)) {

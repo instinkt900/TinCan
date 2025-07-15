@@ -137,7 +137,7 @@ void SystemWeapon::Update(GameWorld& world, uint32_t ticks) {
                         projectileVel.m_velocity =
                             direction * -projectileData->speed; // -speed because we want -y as up
 
-                        auto const& sprite = entityData.m_color == EnergyColor::WHITE
+                        auto const& sprite = entityData.m_color == EnergyColor::Blue
                                                  ? projectileData->white_sprite
                                                  : projectileData->black_sprite;
                         projectileDrawable.m_spriteData = sprite;

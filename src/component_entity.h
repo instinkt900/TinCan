@@ -1,5 +1,6 @@
 #pragma once
 
+#include "utils.h"
 #include <canyon/graphics/color.h>
 
 enum class Team {
@@ -9,12 +10,14 @@ enum class Team {
 };
 
 enum class EnergyColor {
-    WHITE,
-    BLACK,
+    Blue,
+    Red,
 };
 
+MAGIC_SERIALIZE_ENUM(EnergyColor);
+
 inline canyon::graphics::Color GetEnergyColor(EnergyColor const& color) {
-    return color == EnergyColor::WHITE ? canyon::graphics::BasicColors::Blue
+    return color == EnergyColor::Blue ? canyon::graphics::BasicColors::Blue
                                        : canyon::graphics::BasicColors::Red;
 }
 

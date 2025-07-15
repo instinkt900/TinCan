@@ -16,7 +16,7 @@
 #include "system_world_bounds.h"
 #include "tags.h"
 
-canyon::IntVec2 const GameWorld::WorldSize{ 720, 1280 };
+canyon::IntVec2 const GameWorld::WorldSize{ 600, 800 };
 
 GameWorld::GameWorld(canyon::platform::Window& window, canyon::graphics::IGraphics& graphics)
     : m_window(window)
@@ -86,7 +86,7 @@ void GameWorld::CreatePlayer() {
 
     auto& entityData = m_registry.emplace<ComponentEntity>(m_player);
     entityData.m_team = Team::PLAYER;
-    entityData.m_color = EnergyColor::WHITE;
+    entityData.m_color = EnergyColor::Blue;
     entityData.m_radius = 5.0f;
     entityData.m_angle = 0;
 
@@ -110,7 +110,7 @@ void GameWorld::CreatePlayer() {
     }
 
     auto& shield = m_registry.emplace<ComponentShield>(m_player);
-    shield.m_radius = 56;
+    shield.m_radius = 39;
 
     auto& power = m_registry.emplace<ComponentPower>(m_player);
     power.m_power = 0;
