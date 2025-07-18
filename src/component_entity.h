@@ -2,6 +2,7 @@
 
 #include "utils.h"
 #include <canyon/graphics/color.h>
+#include <canyon/utils/vector.h>
 
 enum class Team {
     NONE = 0,
@@ -26,5 +27,8 @@ struct ComponentEntity {
     EnergyColor m_color;
     float m_radius;
     float m_angle;
+
+    // cached values from the movement system
+    canyon::FloatVec2 m_heading; // the direction we are facing
 };
 

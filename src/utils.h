@@ -1,6 +1,8 @@
 #pragma once
 
+#include <canyon/utils/vector.h>
 #include <canyon/graphics/color.h>
+#include <fmt/format.h>
 #include <optional>
 #include <nlohmann/json.hpp>
 #include <magic_enum.hpp>
@@ -14,6 +16,15 @@ inline void from_json(const nlohmann::json& j, EnumType& type) {                
         throw std::runtime_error("Invalid enum string: " + j.get<std::string>());                   \
     }                                                                                               \
 }
+
+template<typename T, int Dim>
+struct fmt::formatter<canyon::Vector<T, Dim>> : fmt::formatter<std::string>
+{
+    auto format(canyon::Vector<T, Dim> vec, format_context &ctx) const -> decltype(ctx.out())
+    {
+        return fmt::format_to(ctx.out(), "({}, {})", vec.x, vec.y);
+    }
+};
 
 namespace nlohmann {
     template<typename T>

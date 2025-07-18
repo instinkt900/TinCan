@@ -1,9 +1,10 @@
 #pragma once
 
-#include "gamedata.h"
 #include <entt/entity/fwd.hpp>
 #include <canyon/utils/vector.h>
 #include <optional>
+
+class GameWorld;
 
 enum class GroupEndCondition {
     None,

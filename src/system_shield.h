@@ -5,7 +5,7 @@
 class GameWorld;
 
 struct ComponentPower {
-    int32_t m_power;
+    float m_power;
 };
 
 struct ComponentShield {
@@ -13,7 +13,6 @@ struct ComponentShield {
 };
 
 class SystemShield {
-    public:
-        static void Update(GameWorld& world, uint32_t ticks);
+public:
+    static void Update(GameWorld& world, uint32_t ticks);
 };
-

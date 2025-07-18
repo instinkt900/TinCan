@@ -48,15 +48,19 @@ void GameLayer::Draw() {
     auto const destPos = (windowRect - destSize) / 2;
     auto const destRect = canyon::IntRect{ static_cast<canyon::IntVec2>(destPos),
                                            static_cast<canyon::IntVec2>(destPos + destSize) };
-    m_graphics.DrawImage(worldImage, destRect, nullptr);
+    m_graphics.DrawImage(worldImage, destRect, nullptr, 0);
 
     // draw the ui
     auto const playerHealth = m_gameWorld->GetPlayerHealth();
+    auto const playerPower = m_gameWorld->GetPlayerPower();
     m_graphics.SetColor(canyon::graphics::BasicColors::White);
     m_graphics.SetBlendMode(canyon::graphics::BlendMode::Alpha);
     m_graphics.DrawText(
         fmt::format("Player health: {}", playerHealth), *m_font, canyon::graphics::TextHorizAlignment::Left,
         canyon::graphics::TextVertAlignment::Middle, canyon::MakeRect(0, 0, m_window.GetWidth(), 80));
+    m_graphics.DrawText(
+        fmt::format("Player power: {}", playerPower), *m_font, canyon::graphics::TextHorizAlignment::Left,
+        canyon::graphics::TextVertAlignment::Middle, canyon::MakeRect(0, 0, m_window.GetWidth(), 120));
 }
 
 void GameLayer::OnAddedToStack(moth_ui::LayerStack* stack) {

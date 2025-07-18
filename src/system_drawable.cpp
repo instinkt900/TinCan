@@ -7,6 +7,7 @@
 struct DrawImage {
     SpriteImage const* m_image = nullptr;
     canyon::IntVec2 m_position;
+    float m_angle = 0;
 };
 
 void DrawDebugCurves(entt::registry& registry, canyon::graphics::IGraphics& graphics) {
@@ -25,7 +26,7 @@ void DrawDebugCurves(entt::registry& registry, canyon::graphics::IGraphics& grap
 
 void DrawDebugs(entt::registry& registry, canyon::graphics::IGraphics& graphics) {
     // TODO: canyon line drawing is a bit broken
-    // DrawDebugCurves(registry, graphics);
+    DrawDebugCurves(registry, graphics);
 }
 
 void SystemDrawable::Update(GameWorld& world, canyon::graphics::IGraphics& graphics) {
@@ -36,12 +37,16 @@ void SystemDrawable::Update(GameWorld& world, canyon::graphics::IGraphics& graph
     std::vector<DrawImage> m_blendedDraws;
 
     for (auto [entity, drawable, pos] : view.each()) {
+        float angle = 0;
+        if (auto const* details = registry.try_get<ComponentEntity>(entity)) {
+            angle = details->m_angle;
+        }
         for (auto& [imageName, spriteImage] : drawable.m_spriteData.images) {
             auto position = static_cast<canyon::IntVec2>(pos.m_position);
             if (spriteImage.blend_mode == canyon::graphics::BlendMode::Replace) {
-                m_opaqueDraws.push_back({ &spriteImage, position });
+                m_opaqueDraws.push_back({ &spriteImage, position, angle });
             } else {
-                m_blendedDraws.push_back({ &spriteImage, position });
+                m_blendedDraws.push_back({ &spriteImage, position, angle });
             }
         }
     }
@@ -61,7 +66,7 @@ void SystemDrawable::Update(GameWorld& world, canyon::graphics::IGraphics& graph
         canyon::IntVec2 halfSize = scaledSize / 2;
         auto destRect = canyon::MakeRect(draw.m_position.x - halfSize.x, draw.m_position.y - halfSize.y,
                                          scaledSize.x, scaledSize.y);
-        graphics.DrawImage(*draw.m_image->image, static_cast<canyon::IntRect>(destRect), nullptr);
+        graphics.DrawImage(*draw.m_image->image, static_cast<canyon::IntRect>(destRect), nullptr, draw.m_angle);
     }
 
     for (auto& draw : m_blendedDraws) {
@@ -73,7 +78,7 @@ void SystemDrawable::Update(GameWorld& world, canyon::graphics::IGraphics& graph
         canyon::IntVec2 halfSize = scaledSize / 2;
         auto destRect = canyon::MakeRect(draw.m_position.x - halfSize.x, draw.m_position.y - halfSize.y,
                                          scaledSize.x, scaledSize.y);
-        graphics.DrawImage(*draw.m_image->image, static_cast<canyon::IntRect>(destRect), nullptr);
+        graphics.DrawImage(*draw.m_image->image, static_cast<canyon::IntRect>(destRect), nullptr, draw.m_angle);
     }
 
     DrawDebugs(registry, graphics);

@@ -1,5 +1,6 @@
 #include "gamedata_weapon.h"
 #include <nlohmann/json.hpp>
+#include <canyon/utils/math_utils.h>
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(BarrelData, offset, group, angle);
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(WeaponData, cooldown, burst, burst_delay, player_tracking, projectile_name,
@@ -13,7 +14,7 @@ WeaponData WeaponData::Deserialize(nlohmann::json const& json, SerializeContext 
     }
 
     for (auto& barrel : weaponData.barrels) {
-        barrel.angle = barrel.angle / 180.f * static_cast<float>(M_PI);
+        barrel.angle = canyon::Radians(barrel.angle);
     }
     return weaponData;
 }

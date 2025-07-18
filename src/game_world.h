@@ -14,6 +14,7 @@ public:
     entt::registry& GetRegistry() { return m_registry; }
     entt::registry const& GetRegistry() const { return m_registry; }
     entt::entity GetPlayerEntity() const { return m_player; }
+    canyon::IntVec2 const& GetWorldSize() const { return WorldSize; }
 
     bool OnEvent(moth_ui::Event const& event) override;
     void Update(uint32_t ticks);
@@ -22,6 +23,7 @@ public:
     canyon::graphics::IImage& GetWorldImage() const { return *m_worldSurface->GetImage(); }
 
     float GetPlayerHealth() const;
+    float GetPlayerPower() const;
 
     GameWorld(const GameWorld&) = delete;
     GameWorld(GameWorld&&) = delete;

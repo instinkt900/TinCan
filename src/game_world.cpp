@@ -12,6 +12,7 @@
 #include "system_player_visuals.h"
 #include "system_projectile.h"
 #include "system_shield.h"
+#include "system_targeting.h"
 #include "system_weapon.h"
 #include "system_world_bounds.h"
 #include "tags.h"
@@ -50,6 +51,7 @@ void GameWorld::Update(uint32_t ticks) {
     SystemLifetime::Update(*this, ticks);
     SystemEnemySpawner::Update(*this, ticks);
     SystemBehaviour::Update(*this, ticks);
+    SystemTargeting::Update(*this, ticks);
     SystemMovement::Update(*this, ticks);
     SystemWeapon::Update(*this, ticks);
     SystemShield::Update(*this, ticks);
@@ -71,6 +73,13 @@ void GameWorld::Draw() {
 float GameWorld::GetPlayerHealth() const {
     if (auto const* playerHealth = m_registry.try_get<ComponentHealth>(m_player)) {
         return playerHealth->m_currentHealth;
+    }
+    return 0.0f;
+}
+
+float GameWorld::GetPlayerPower() const {
+    if (auto const* playerPower = m_registry.try_get<ComponentPower>(m_player)) {
+        return playerPower->m_power;
     }
     return 0.0f;
 }

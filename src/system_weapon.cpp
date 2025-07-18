@@ -5,11 +5,16 @@
 #include "system_lifetime.h"
 #include "system_movement.h"
 #include "system_projectile.h"
+#include "system_world_bounds.h"
 #include "tags.h"
 #include <entt/entt.hpp>
 #include <moth_ui/utils/vector_utils.h>
 #include <spdlog/spdlog.h>
 #include "game_world.h"
+
+namespace {
+    int const ProjectileBorder = 50;
+}
 
 ComponentWeapon* SystemWeapon::InitWeapon(entt::registry& registry, entt::entity entity,
                                           std::string const& name, GameData const& gamedata) {
@@ -98,7 +103,8 @@ void SystemWeapon::Update(GameWorld& world, uint32_t ticks) {
                 weapon.m_burstCooldown -= static_cast<int32_t>(ticks);
             }
 
-            if (weapon.m_burstCooldown <= 0 && (weapon.m_active || weapon.m_burst < burstCount)) {
+            while (weapon.m_burstCooldown <= 0 && weapon.m_burst > 0 &&
+                   (weapon.m_active || weapon.m_burst < burstCount)) {
                 weapon.m_burst -= 1;
                 weapon.m_burstCooldown += static_cast<int32_t>(burstCooldown);
 
@@ -107,8 +113,9 @@ void SystemWeapon::Update(GameWorld& world, uint32_t ticks) {
                 weapon.m_barrelGroupIndex =
                     (weapon.m_barrelGroupIndex + 1) % static_cast<int32_t>(weapon.m_barrelGroupIds.size());
                 for (auto const& barrel : barrelGroup) {
-                    auto direction = moth_ui::Rotate2D({ 0, 1.0f }, barrel.m_angle + entityData.m_angle);
-                    auto offset =
+                    auto const barrelAngle = entityData.m_angle + barrel.m_angle;
+                    auto direction = moth_ui::Rotate2D({ 0, 1.0f }, barrelAngle);
+                    auto const offset =
                         moth_ui::Rotate2D({ barrel.m_offset.x, -barrel.m_offset.y }, entityData.m_angle);
 
                     if (weapon.m_playerTracking && (playerPosition != nullptr)) {
@@ -119,29 +126,14 @@ void SystemWeapon::Update(GameWorld& world, uint32_t ticks) {
                     auto const* projectileData =
                         gamedata.GetProjectileDatabase().Get(weapon.m_projectileName);
                     if (projectileData != nullptr) {
-                        auto projectile = registry.create();
-                        auto& projectileComp = registry.emplace<ComponentProjectile>(projectile);
-                        auto& projectileEntityData = registry.emplace<ComponentEntity>(projectile);
-                        auto& projectilePos = registry.emplace<ComponentPosition>(projectile);
-                        auto& projectileVel = registry.emplace<ComponentVelocity>(projectile);
-                        auto& projectileDrawable = registry.emplace<ComponentDrawable>(projectile);
-                        auto& projectileLifetime = registry.emplace<ComponentLifetime>(projectile);
-
-                        projectileComp.m_owner = entity;
-                        projectileComp.m_color = entityData.m_color;
-                        projectileComp.m_damage = projectileData->damage;
-
-                        projectileEntityData.m_team = entityData.m_team;
-                        projectileEntityData.m_radius = projectileData->radius;
-                        projectilePos.m_position = position.m_position + offset;
-                        projectileVel.m_velocity =
-                            direction * -projectileData->speed; // -speed because we want -y as up
-
-                        auto const& sprite = entityData.m_color == EnergyColor::Blue
-                                                 ? projectileData->white_sprite
-                                                 : projectileData->black_sprite;
-                        projectileDrawable.m_spriteData = sprite;
-                        projectileLifetime.m_msLeft = 3000;
+                        auto const projectileEntity = SystemProjectile::CreateProjectile(
+                            registry, *projectileData, entity, position.m_position + offset, direction,
+                            barrelAngle);
+                        auto& projectileBounds = registry.emplace<ComponentBounds>(projectileEntity);
+                        projectileBounds.m_bounds = static_cast<canyon::FloatRect>(canyon::MakeRect(
+                            -ProjectileBorder, -ProjectileBorder, world.GetWorldSize().x + ProjectileBorder,
+                            world.GetWorldSize().y + ProjectileBorder));
+                        projectileBounds.m_behaviour = BoundsBehaviour::Kill;
                     }
                 }
             }
