@@ -3,7 +3,7 @@
         "weapon_drop_01": {
             "sprite": "drop_01",
             "type": "Weapon",
-            "name": "player_weapon_02"
+            "name": "player_weapon_homing_01"
         },
         "weapon_cooldown_01": {
             "sprite": "drop_01",
