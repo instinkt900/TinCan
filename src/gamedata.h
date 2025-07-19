@@ -9,9 +9,22 @@
 #include "gamedata_sprite.h"
 #include "gamedata_weapon.h"
 
+enum class GameDataCategory {
+    Sprites,
+    Projectiles,
+    Weapons,
+    Enemies,
+    Spawners,
+    Levels,
+    Pickups,
+};
+
 class GameData {
 public:
     GameData() = default;
+
+    void LoadDirectory(std::filesystem::path const& directory, SerializeContext const& context);
+    bool Load(std::filesystem::path const& path, SerializeContext const& context);
 
     Database<SpriteData>& GetSpriteDatabase() { return m_spriteDatabase; }
     Database<ProjectileData>& GetProjectileDatabase() { return m_projectileDatabase; }
@@ -28,6 +41,7 @@ public:
     Database<SpawnerData> const& GetSpawnerDatabase() const { return m_spawnerDatabase; }
     Database<LevelData> const& GetLevelDatabase() const { return m_levelDatabase; }
     Database<PickupData> const& GetPickupDatabase() const { return m_pickupDatabase; }
+
 private:
     Database<SpriteData> m_spriteDatabase;
     Database<ProjectileData> m_projectileDatabase;

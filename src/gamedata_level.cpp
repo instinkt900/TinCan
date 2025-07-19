@@ -1,6 +1,7 @@
 #include "gamedata_level.h"
 #include <magic_enum.hpp>
 #include <nlohmann/json.hpp>
+#include <fstream>
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LevelData, events);
 

@@ -25,15 +25,7 @@ GameWorld::GameWorld(canyon::platform::Window& window, canyon::graphics::IGraphi
     m_worldSurface = m_graphics.CreateTarget(WorldSize.x, WorldSize.y);
 
     SerializeContext serializeContext{ m_gamedata, m_window.GetSurfaceContext() };
-    m_gamedata.GetSpriteDatabase().Load("data/sprite_database.json", serializeContext);
-    m_gamedata.GetSpriteDatabase().Load("data/sprite_database_enemy.json", serializeContext);
-    m_gamedata.GetEnemyDatabase().Load("data/enemy_database.json", serializeContext);
-    m_gamedata.GetWeaponDatabase().Load("data/weapon_database_player.json", serializeContext);
-    m_gamedata.GetWeaponDatabase().Load("data/weapon_database_enemy.json", serializeContext);
-    m_gamedata.GetProjectileDatabase().Load("data/projectile_database.json", serializeContext);
-    m_gamedata.GetSpawnerDatabase().Load("data/spawner_database.json", serializeContext);
-    m_gamedata.GetLevelDatabase().Load("data/level_database.json", serializeContext);
-    m_gamedata.GetPickupDatabase().Load("data/pickup_database.json", serializeContext);
+    m_gamedata.LoadDirectory("data", serializeContext);
 
     SystemLevel::InitLevel(m_registry, "test", m_gamedata);
     CreatePlayer();

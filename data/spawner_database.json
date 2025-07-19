@@ -1,43 +1,45 @@
 {
-    "basic_spawner": {
-        "enemy_name": "basic_enemy",
-        "behaviour": "Straight",
-        "behaviour_parameters": {
-            "speed": 200.0
+    "Spawners": {
+        "basic_spawner": {
+            "enemy_name": "basic_enemy",
+            "behaviour": "Straight",
+            "behaviour_parameters": {
+                "speed": 200.0
+            },
+            "count": 1,
+            "cooldown": 0,
+            "group_count": 1,
+            "group_delay": 0,
+            "type": "Basic",
+            "distance": 0
         },
-        "count": 1,
-        "cooldown": 0,
-        "group_count": 1,
-        "group_delay": 0,
-        "type": "Basic",
-        "distance": 0
-    },
-    "staggered_spawner": {
-        "enemy_name": "basic_enemy",
-        "behaviour": "Straight",
-        "behaviour_parameters": {
-            "speed": 200.0
+        "staggered_spawner": {
+            "enemy_name": "basic_enemy",
+            "behaviour": "Straight",
+            "behaviour_parameters": {
+                "speed": 200.0
+            },
+            "count": 1,
+            "cooldown": 0,
+            "group_count": 5,
+            "group_delay": 300,
+            "type": "Staggered",
+            "distance": 30
         },
-        "count": 1,
-        "cooldown": 0,
-        "group_count": 5,
-        "group_delay": 300,
-        "type": "Staggered",
-        "distance": 30
-    },
-    "wave_spawner": {
-        "enemy_name": "basic_enemy",
-        "behaviour": "Wave",
-        "behaviour_parameters": {
-            "speed": 200.0,
-            "frequency": 10.0,
-            "amplitude": 100.0
-        },
-        "count": 3,
-        "cooldown": 5000,
-        "group_count": 5,
-        "group_delay": 300,
-        "type": "Basic",
-        "distance": 0
+        "wave_spawner": {
+            "enemy_name": "basic_enemy",
+            "behaviour": "Wave",
+            "behaviour_parameters": {
+                "speed": 200.0,
+                "frequency": 10.0,
+                "amplitude": 100.0
+            },
+            "count": 3,
+            "cooldown": 5000,
+            "group_count": 5,
+            "group_delay": 300,
+            "type": "Basic",
+            "distance": 0
+        }
     }
 }

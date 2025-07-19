@@ -5,9 +5,11 @@
             "location": { "x": 240, "y": -10 },
             "spawner": {
                 "enemy_name": "enemy_01_red",
-                "behaviour": "Straight",
+                "behaviour": "Wave",
                 "behaviour_parameters": {
-                    "speed": 100.0
+                    "speed": 100.0,
+                    "frequency": 10.0,
+                    "amplitude": 100.0
                 },
                 "count": 1,
                 "cooldown": 0,
@@ -22,9 +24,11 @@
             "location": { "x": 360, "y": -10 },
             "spawner": {
                 "enemy_name": "enemy_01_blue",
-                "behaviour": "Straight",
+                "behaviour": "Wave",
                 "behaviour_parameters": {
-                    "speed": 100.0
+                    "speed": 100.0,
+                    "frequency": 10.0,
+                    "amplitude": 100.0
                 },
                 "count": 1,
                 "cooldown": 0,
@@ -43,4 +47,3 @@
         }
     ]
 }
-

@@ -1,20 +1,21 @@
 {
-    "weapon_drop_01": {
-        "sprite": "drop_01",
-        "type": "Weapon",
-        "name": "player_weapon_02"
-    },
-    "weapon_cooldown_01": {
-        "sprite": "drop_01",
-        "type": "Passive",
-        "name": "WeaponCooldown",
-        "value": 0.30
-    },
-    "weapon_burst_01": {
-        "sprite": "drop_01",
-        "type": "Passive",
-        "name": "WeaponBurst",
-        "value": 1 
+    "Pickups": {
+        "weapon_drop_01": {
+            "sprite": "drop_01",
+            "type": "Weapon",
+            "name": "player_weapon_02"
+        },
+        "weapon_cooldown_01": {
+            "sprite": "drop_01",
+            "type": "Passive",
+            "name": "WeaponCooldown",
+            "value": 0.3
+        },
+        "weapon_burst_01": {
+            "sprite": "drop_01",
+            "type": "Passive",
+            "name": "WeaponBurst",
+            "value": 1
+        }
     }
 }
-

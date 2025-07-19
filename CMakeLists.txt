@@ -36,6 +36,7 @@ set(SOURCES ${SOURCES}
 	src/game_world.cpp
 	src/system_world_bounds.cpp
 	src/system_targeting.cpp
+	src/gamedata.cpp
 )
 
 find_package(canyon REQUIRED)
