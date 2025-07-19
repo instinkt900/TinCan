@@ -4,6 +4,8 @@
 #include <entt/entity/fwd.hpp>
 #include <vector>
 
+class GameWorld;
+
 struct ComponentLevel {
     std::vector<LevelEvent> m_events;
     uint32_t m_currentTime = 0;

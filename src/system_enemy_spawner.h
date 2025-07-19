@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gamedata.h"
+#include "gamedata_spawner.h"
 #include "system_behaviour.h"
 #include <entt/entity/entity.hpp>
 
@@ -18,7 +19,7 @@ struct ComponentEnemySpawner {
     std::optional<std::string> m_groupDrop;
     entt::entity m_currentGroupEntity = entt::null;
     std::string m_enemyName;
-    std::string m_behaviourName;
+    EnemyBehaviour m_behaviour;
     BehaviourParameterList m_behaviourParameters;
 };
 
@@ -28,7 +29,7 @@ public:
 
     static entt::entity CreateEnemy(entt::registry& registry, std::string const& name,
                                     GameData const& gamedata, canyon::FloatVec2 const& position,
-                                    std::string const& behaviourName,
+                                    EnemyBehaviour behaviourType,
                                     BehaviourParameterList const& behaviourParameters);
     static entt::entity CreateSpawner(entt::registry& registry, SpawnerData const& data,
                                       GameData const& gamedata, canyon::FloatVec2 const& position);

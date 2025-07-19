@@ -5,7 +5,7 @@
             "location": { "x": 240, "y": -10 },
             "spawner": {
                 "enemy_name": "enemy_01_red",
-                "behaviour_name": "straight",
+                "behaviour": "Straight",
                 "behaviour_parameters": {
                     "speed": 100.0
                 },
@@ -22,7 +22,7 @@
             "location": { "x": 360, "y": -10 },
             "spawner": {
                 "enemy_name": "enemy_01_blue",
-                "behaviour_name": "straight",
+                "behaviour": "Straight",
                 "behaviour_parameters": {
                     "speed": 100.0
                 },

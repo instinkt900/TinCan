@@ -79,8 +79,8 @@ void BehaviourWave(entt::registry& registry, entt::entity entity, ComponentBehav
 using BehaviourFunc = void (*)(entt::registry&, entt::entity, ComponentBehaviour&, ComponentPosition&,
                                ComponentLifetime&);
 
-std::map<std::string, BehaviourFunc> const Funcs{ { "straight", BehaviourStraight },
-                                                  { "wave", BehaviourWave } };
+std::map<EnemyBehaviour, BehaviourFunc> const Funcs{ { EnemyBehaviour::Straight, BehaviourStraight },
+                                                     { EnemyBehaviour::Wave, BehaviourWave } };
 
 
 void SystemBehaviour::Update(GameWorld& world, uint32_t ticks) {
@@ -88,9 +88,9 @@ void SystemBehaviour::Update(GameWorld& world, uint32_t ticks) {
     auto view = registry.view<ComponentBehaviour, ComponentPosition, ComponentLifetime>();
 
     for (auto [entity, behaviour, position, lifetime] : view.each()) {
-        auto entry = Funcs.find(behaviour.m_behaviourName);
+        auto entry = Funcs.find(behaviour.m_behaviour);
         if (entry == Funcs.end()) {
-            spdlog::error("Unknown behaviour name {}", behaviour.m_behaviourName);
+            spdlog::error("Unknown behaviour {}", magic_enum::enum_name(behaviour.m_behaviour));
             continue;
         }
         entry->second(registry, entity, behaviour, position, lifetime);

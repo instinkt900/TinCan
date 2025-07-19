@@ -61,7 +61,7 @@ void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
                 }
 
                 auto enemy = CreateEnemy(registry, spawner.m_enemyName, gamedata, position,
-                                         spawner.m_behaviourName, spawner.m_behaviourParameters);
+                                         spawner.m_behaviour, spawner.m_behaviourParameters);
 
                 if (spawner.m_maxGroupCount > 1) {
                     if (spawner.m_currentGroupEntity == entt::null) {
@@ -77,7 +77,7 @@ void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
 
 entt::entity SystemEnemySpawner::CreateEnemy(entt::registry& registry, std::string const& name,
                                              GameData const& gamedata, canyon::FloatVec2 const& position,
-                                             std::string const& behaviourName,
+                                             EnemyBehaviour behaviourType,
                                              BehaviourParameterList const& behaviourParameters) {
     auto enemy = registry.create();
     auto& entityData = registry.emplace<ComponentEntity>(enemy);
@@ -110,7 +110,7 @@ entt::entity SystemEnemySpawner::CreateEnemy(entt::registry& registry, std::stri
     lifetime.m_msAlive = 0;
     lifetime.m_msLeft = enemyData->lifetime;
 
-    behaviour.m_behaviourName = behaviourName;
+    behaviour.m_behaviour = behaviourType;
     behaviour.m_parameters = behaviourParameters;
     behaviour.m_offset = pos.m_position;
 
@@ -130,7 +130,7 @@ entt::entity SystemEnemySpawner::CreateSpawner(entt::registry& registry, Spawner
     spawner.m_maxGroupCooldown = data.group_delay;
     spawner.m_maxGroupCount = data.group_count;
     spawner.m_enemyName = data.enemy_name;
-    spawner.m_behaviourName = data.behaviour_name;
+    spawner.m_behaviour = data.behaviour;
     spawner.m_behaviourParameters = data.behaviour_parameters;
     spawner.m_currentGroupEntity = entt::null;
     spawner.m_groupDrop = data.drop;

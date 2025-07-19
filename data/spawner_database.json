@@ -1,7 +1,7 @@
 {
     "basic_spawner": {
         "enemy_name": "basic_enemy",
-        "behaviour_name": "straight",
+        "behaviour": "Straight",
         "behaviour_parameters": {
             "speed": 200.0
         },
@@ -14,7 +14,7 @@
     },
     "staggered_spawner": {
         "enemy_name": "basic_enemy",
-        "behaviour_name": "straight",
+        "behaviour": "Straight",
         "behaviour_parameters": {
             "speed": 200.0
         },
@@ -27,7 +27,7 @@
     },
     "wave_spawner": {
         "enemy_name": "basic_enemy",
-        "behaviour_name": "wave",
+        "behaviour": "Wave",
         "behaviour_parameters": {
             "speed": 200.0,
             "frequency": 10.0,

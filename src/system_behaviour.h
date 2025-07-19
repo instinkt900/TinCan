@@ -1,7 +1,7 @@
 #pragma once
 
+#include "gamedata_spawner.h"
 #include <canyon/utils/vector.h>
-#include <variant>
 
 class GameWorld;
 
@@ -16,10 +16,9 @@ struct ComponentCurveCache {
     float total_length;
 };
 
-using BehaviourParameterList = std::map<std::string, std::variant<std::string, int32_t, float>>;
 
 struct ComponentBehaviour {
-    std::string m_behaviourName;
+    EnemyBehaviour m_behaviour;
     canyon::FloatVec2 m_offset;
     BehaviourParameterList m_parameters;
 };

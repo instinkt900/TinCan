@@ -1,8 +1,8 @@
 #pragma once
 
 #include "gamedata_database.h"
-#include "system_behaviour.h"
 #include <nlohmann/json_fwd.hpp>
+#include <variant>
 
 enum class SpawnerType {
     Unknown,
@@ -11,9 +11,17 @@ enum class SpawnerType {
     Stepped,
 };
 
+enum class EnemyBehaviour {
+    Unknown = -1,
+    Straight,
+    Wave,
+};
+
+using BehaviourParameterList = std::map<std::string, std::variant<std::string, int32_t, float>>;
+
 struct SpawnerData {
     std::string enemy_name;
-    std::string behaviour_name;
+    EnemyBehaviour behaviour;
     BehaviourParameterList behaviour_parameters;
     int32_t count;
     int32_t cooldown;

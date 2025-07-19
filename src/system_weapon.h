@@ -5,6 +5,8 @@
 #include <canyon/graphics/surface_context.h>
 #include <canyon/utils/vector.h>
 
+class GameWorld;
+
 struct Barrel {
     canyon::FloatVec2 m_offset;
     float m_angle = 0;

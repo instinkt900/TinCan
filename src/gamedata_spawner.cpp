@@ -5,7 +5,9 @@
 #include <magic_enum.hpp>
 
 MAGIC_SERIALIZE_ENUM(SpawnerType);
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SpawnerData, enemy_name, behaviour_name, count, cooldown, group_count,
+MAGIC_SERIALIZE_ENUM(EnemyBehaviour);
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SpawnerData, enemy_name, behaviour, count, cooldown, group_count,
                                    group_delay, type, distance);
 
 SpawnerData SpawnerData::Deserialize(nlohmann::json const& json, SerializeContext const& context) {

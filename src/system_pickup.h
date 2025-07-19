@@ -4,6 +4,8 @@
 #include <entt/entity/fwd.hpp>
 #include <canyon/utils/vector.h>
 
+class GameWorld;
+
 struct ComponentPickup {
     std::string m_name;
 };
