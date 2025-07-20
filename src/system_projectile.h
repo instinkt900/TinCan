@@ -18,6 +18,6 @@ class SystemProjectile {
 public:
     static entt::entity CreateProjectile(entt::registry& registry, ProjectileData const& data,
                                          entt::entity source, canyon::FloatVec2 const& position,
-                                         canyon::FloatVec2 const& direction, float rotation);
+                                         canyon::FloatVec2 const& direction, float rotation, float damage);
     static void Update(GameWorld& world, uint32_t ticks);
 };

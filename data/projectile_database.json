@@ -2,14 +2,12 @@
     "projectiles": {
         "player_basic_bullet": {
             "radius": 5,
-            "damage": 10,
-            "speed": 600.0,
+            "speed": 1000.0,
             "white_sprite": "player_projectile_light",
             "black_sprite": "player_projectile_dark"
         },
         "player_homing_bullet": {
             "radius": 5,
-            "damage": 10,
             "speed": 400.0,
             "white_sprite": "player_projectile_light",
             "black_sprite": "player_projectile_dark",
@@ -22,7 +20,6 @@
         },
         "enemy_basic_bullet": {
             "radius": 8,
-            "damage": 10,
             "speed": 200.0,
             "white_sprite": "enemy_projectile_light",
             "black_sprite": "enemy_projectile_dark"

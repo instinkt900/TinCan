@@ -4,7 +4,7 @@
 #include <canyon/utils/math_utils.h>
 #include "serialization_utils.h"
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ProjectileData, radius, damage, speed);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ProjectileData, radius, speed);
 
 ProjectileData ProjectileData::Deserialize(nlohmann::json const& json, SerializeContext const& context) {
     ProjectileData data = json.get<ProjectileData>();

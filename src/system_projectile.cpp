@@ -84,7 +84,7 @@ namespace {
 
 entt::entity SystemProjectile::CreateProjectile(entt::registry& registry, ProjectileData const& data,
                                                 entt::entity source, canyon::FloatVec2 const& position,
-                                                canyon::FloatVec2 const& direction, float rotation) {
+                                                canyon::FloatVec2 const& direction, float rotation, float damage) {
     auto const* sourceEntityData = registry.try_get<ComponentEntity>(source);
     if (sourceEntityData == nullptr) {
         return entt::null;
@@ -98,7 +98,7 @@ entt::entity SystemProjectile::CreateProjectile(entt::registry& registry, Projec
 
     projectileComp.m_source = source;
     projectileComp.m_color = sourceEntityData->m_color;
-    projectileComp.m_damage = data.damage;
+    projectileComp.m_damage = damage;
 
     projectileEntityData.m_team = sourceEntityData->m_team;
     projectileEntityData.m_radius = data.radius;

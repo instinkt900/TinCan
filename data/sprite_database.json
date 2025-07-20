@@ -39,7 +39,7 @@
             "images": {
                 "ship": {
                     "image": "assets/player_bullet.png",
-                    "scale": { "x": 1, "y": 1 },
+                    "scale": { "x": 0.8, "y": 0.8 },
                     "offset": { "x": 0, "y": 0 },
                     "rotation": 0,
                     "blend_mode": 1,
@@ -52,7 +52,7 @@
             "images": {
                 "ship": {
                     "image": "assets/player_bullet.png",
-                    "scale": { "x": 1, "y": 1 },
+                    "scale": { "x": 0.8, "y": 0.8 },
                     "offset": { "x": 0, "y": 0 },
                     "rotation": 0,
                     "blend_mode": 1,

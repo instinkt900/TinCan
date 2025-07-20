@@ -10,6 +10,7 @@ struct BarrelData {
 };
 
 struct WeaponData {
+    float damage = 0;
     int32_t cooldown;
     int32_t burst;
     int32_t burst_delay;

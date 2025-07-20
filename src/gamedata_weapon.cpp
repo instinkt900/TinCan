@@ -3,8 +3,8 @@
 #include <canyon/utils/math_utils.h>
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(BarrelData, offset, group, angle);
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(WeaponData, cooldown, burst, burst_delay, player_tracking, projectile_name,
-                                   barrels);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(WeaponData, damage, cooldown, burst, burst_delay, player_tracking,
+                                   projectile_name, barrels);
 
 WeaponData WeaponData::Deserialize(nlohmann::json const& json, SerializeContext const& gamedata) {
     auto weaponData = json.get<WeaponData>();

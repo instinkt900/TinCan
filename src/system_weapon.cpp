@@ -31,6 +31,7 @@ ComponentWeapon* SystemWeapon::InitWeapon(entt::registry& registry, entt::entity
     auto& weapon = registry.get_or_emplace<ComponentWeapon>(entity);
     weapon.m_active = false;
     weapon.m_pickupName = weaponData->pickup_name;
+    weapon.m_damage = weaponData->damage;
     weapon.m_cooldown = weaponData->cooldown;
     weapon.m_maxCooldown = weaponData->cooldown;
     weapon.m_burst = weaponData->burst;
@@ -88,6 +89,7 @@ void SystemWeapon::Update(GameWorld& world, uint32_t ticks) {
         auto const burstCooldown =
             std::max(50.0f, static_cast<float>(weapon.m_maxBurstCooldown) * passives.burstCooldownMult);
         auto const burstCount = weapon.m_maxBurst + static_cast<int32_t>(passives.burstAdd);
+        auto const damage = weapon.m_damage * passives.damageMult;
 
         if (weapon.m_cooldown > 0) {
             weapon.m_cooldown -= static_cast<int32_t>(ticks);
@@ -128,7 +130,7 @@ void SystemWeapon::Update(GameWorld& world, uint32_t ticks) {
                     if (projectileData != nullptr) {
                         auto const projectileEntity = SystemProjectile::CreateProjectile(
                             registry, *projectileData, entity, position.m_position + offset, direction,
-                            barrelAngle);
+                            barrelAngle, damage);
                         auto& projectileBounds = registry.emplace<ComponentBounds>(projectileEntity);
                         projectileBounds.m_bounds = static_cast<canyon::FloatRect>(canyon::MakeRect(
                             -ProjectileBorder, -ProjectileBorder, world.GetWorldSize().x + ProjectileBorder,

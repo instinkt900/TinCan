@@ -1,6 +1,7 @@
 {
     "weapons": {
         "enemy_weapon": {
+            "damage": 10,
             "cooldown": 3000,
             "burst": 1,
             "burst_delay": 200,

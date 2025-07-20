@@ -1,7 +1,8 @@
 {
     "weapons": {
         "player_weapon_01": {
-            "cooldown": 500,
+            "damage": 5,
+            "cooldown": 200,
             "burst": 1,
             "burst_delay": 0,
             "player_tracking": false,
@@ -16,6 +17,7 @@
         },
         "player_weapon_02": {
             "pickup_name": "weapon_drop_01",
+            "damage": 10,
             "cooldown": 400,
             "burst": 2,
             "burst_delay": 50,
@@ -35,6 +37,7 @@
             ]
         },
         "player_weapon_homing_01": {
+            "damage": 20,
             "cooldown": 500,
             "burst": 1,
             "burst_delay": 0,
