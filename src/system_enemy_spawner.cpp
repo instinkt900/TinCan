@@ -7,6 +7,7 @@
 #include "system_movement.h"
 #include "system_drawable.h"
 #include "system_weapon.h"
+#include "system_world_bounds.h"
 #include "tags.h"
 #include <entt/entt.hpp>
 #include <spdlog/spdlog.h>
@@ -63,6 +64,23 @@ void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
                 auto enemy = CreateEnemy(registry, spawner.m_enemyName, gamedata, position,
                                          spawner.m_behaviour, spawner.m_behaviourParameters);
 
+                if (spawner.m_killType == EnemyKillType::Time) {
+                    auto& lifetime = registry.emplace<ComponentLifetime>(enemy);
+                    lifetime.m_msLeft = spawner.m_lifetime.value();
+                } else if (spawner.m_killType == EnemyKillType::Bounds) {
+                    auto& bounds = registry.emplace<ComponentBounds>(enemy);
+                    canyon::FloatRect boundsRect{ { 0.0f, 0.0f },
+                                                  static_cast<canyon::FloatVec2>(world.GetWorldSize()) };
+                    if (spawner.m_boundsBorder.has_value()) {
+                        boundsRect.topLeft -=
+                            { spawner.m_boundsBorder.value(), spawner.m_boundsBorder.value() };
+                        boundsRect.bottomRight +=
+                            { spawner.m_boundsBorder.value(), spawner.m_boundsBorder.value() };
+                    }
+                    bounds.m_bounds = boundsRect;
+                    bounds.m_behaviour = BoundsBehaviour::Kill;
+                }
+
                 if (spawner.m_maxGroupCount > 1) {
                     if (spawner.m_currentGroupEntity == entt::null) {
                         spawner.m_currentGroupEntity =
@@ -84,7 +102,6 @@ entt::entity SystemEnemySpawner::CreateEnemy(entt::registry& registry, std::stri
     auto& health = registry.emplace<ComponentHealth>(enemy);
     auto& drawable = registry.emplace<ComponentDrawable>(enemy);
     auto& pos = registry.emplace<ComponentPosition>(enemy);
-    auto& lifetime = registry.emplace<ComponentLifetime>(enemy);
     auto& behaviour = registry.emplace<ComponentBehaviour>(enemy);
     registry.emplace<TargetTag>(enemy);
 
@@ -106,9 +123,6 @@ entt::entity SystemEnemySpawner::CreateEnemy(entt::registry& registry, std::stri
     if (weapon != nullptr) {
         weapon->m_active = true;
     }
-
-    lifetime.m_msAlive = 0;
-    lifetime.m_msLeft = enemyData->lifetime;
 
     behaviour.m_behaviour = behaviourType;
     behaviour.m_parameters = behaviourParameters;
@@ -135,6 +149,9 @@ entt::entity SystemEnemySpawner::CreateSpawner(entt::registry& registry, Spawner
     spawner.m_behaviourParameters = data.behaviour_parameters;
     spawner.m_currentGroupEntity = entt::null;
     spawner.m_groupDrop = data.drop;
+    spawner.m_killType = data.kill_type;
+    spawner.m_lifetime = data.lifetime;
+    spawner.m_boundsBorder = data.bounds_border;
 
     auto& spawnerPos = registry.emplace<ComponentPosition>(enemySpawner);
     spawnerPos.m_position = position;

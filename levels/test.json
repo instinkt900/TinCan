@@ -16,7 +16,9 @@
                 "group_count": 4,
                 "group_delay": 0,
                 "type": "Stepped",
-                "offset_step": { "x": 0, "y": -60 }
+                "offset_step": { "x": 0, "y": -60 },
+                "kill_type": "Bounds",
+                "bounds_border": 190
             }
         },
         {
@@ -33,9 +35,11 @@
                 "count": 1,
                 "cooldown": 0,
                 "group_count": 4,
-                "group_delay": 600,
-                "type": "Basic",
-                "offset_step": { "x": 0, "y": 0 }
+                "group_delay": 0,
+                "type": "Stepped",
+                "offset_step": { "x": 0, "y": -60 },
+                "kill_type": "Bounds",
+                "bounds_border": 190
             }
         },
         {
@@ -52,9 +56,11 @@
                 "count": 1,
                 "cooldown": 0,
                 "group_count": 2,
-                "group_delay": 1200,
-                "type": "Basic",
-                "offset_step": { "x": 0, "y": 0 }
+                "group_delay": 0,
+                "type": "Stepped",
+                "offset_step": { "x": 0, "y": -120 },
+                "kill_type": "Bounds",
+                "bounds_border": 190
             }
         },
         {
@@ -71,9 +77,11 @@
                 "count": 1,
                 "cooldown": 0,
                 "group_count": 2,
-                "group_delay": 1200,
-                "type": "Basic",
-                "offset_step": { "x": 0, "y": 0 }
+                "group_delay": 0,
+                "type": "Stepped",
+                "offset_step": { "x": 0, "y": -120 },
+                "kill_type": "Bounds",
+                "bounds_border": 190
             }
         }
     ]

@@ -3,7 +3,7 @@
 #include <nlohmann/json.hpp>
 #include "gamedata.h"
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(EnemyData, color, health, radius, lifetime, weapon_name);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(EnemyData, color, health, radius, weapon_name);
 
 EnemyData EnemyData::Deserialize(nlohmann::json const& json, SerializeContext const& context) {
     EnemyData data = json.get<EnemyData>();

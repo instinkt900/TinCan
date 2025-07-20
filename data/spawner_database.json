@@ -11,7 +11,8 @@
             "group_count": 1,
             "group_delay": 0,
             "type": "Basic",
-            "offset_step": { "x": 0, "y": 0 } 
+            "offset_step": { "x": 0, "y": 0 },
+            "kill_type": "Bounds"
         },
         "staggered_spawner": {
             "enemy_name": "basic_enemy",
@@ -24,7 +25,8 @@
             "group_count": 5,
             "group_delay": 300,
             "type": "Staggered",
-            "offset_step": { "x": 30, "y": 0 } 
+            "offset_step": { "x": 30, "y": 0 },
+            "kill_type": "Bounds"
         },
         "wave_spawner": {
             "enemy_name": "basic_enemy",
@@ -39,7 +41,8 @@
             "group_count": 5,
             "group_delay": 300,
             "type": "Basic",
-            "offset_step": { "x": 0, "y": 0 } 
+            "offset_step": { "x": 0, "y": 0 },
+            "kill_type": "Bounds"
         }
     }
 }

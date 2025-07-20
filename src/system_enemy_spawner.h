@@ -21,6 +21,9 @@ struct ComponentEnemySpawner {
     std::string m_enemyName;
     EnemyBehaviour m_behaviour;
     BehaviourParameterList m_behaviourParameters;
+    EnemyKillType m_killType;
+    std::optional<uint32_t> m_lifetime;
+    std::optional<float> m_boundsBorder;
 };
 
 class SystemEnemySpawner {

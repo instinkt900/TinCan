@@ -5,7 +5,6 @@
             "color": "Red",
             "health": 30,
             "radius": 40,
-            "lifetime": 9000,
             "weapon_name": "enemy_weapon"
         },
         "enemy_01_blue": {
@@ -13,7 +12,6 @@
             "color": "Blue",
             "health": 30,
             "radius": 40,
-            "lifetime": 9000,
             "weapon_name": "enemy_weapon"
         },
         "enemy_02_red": {
@@ -21,7 +19,6 @@
             "color": "Red",
             "health": 30,
             "radius": 40,
-            "lifetime": 9000,
             "weapon_name": "enemy_weapon"
         },
         "enemy_02_blue": {
@@ -29,7 +26,6 @@
             "color": "Blue",
             "health": 30,
             "radius": 40,
-            "lifetime": 9000,
             "weapon_name": "enemy_weapon"
         }
     }

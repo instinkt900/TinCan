@@ -50,7 +50,7 @@ void SystemLevel::Update(GameWorld& world, uint32_t ticks) {
         level.m_currentTime += ticks;
         float const seconds = static_cast<float>(level.m_currentTime) / 1000.0f;
 
-        while ((level.m_lastEvent < static_cast<int32_t>(level.m_events.size())) &&
+        while (((level.m_lastEvent + 1) < static_cast<int32_t>(level.m_events.size())) &&
                (level.m_events[level.m_lastEvent + 1].offset <= (seconds - level.m_lastEventSeconds))) {
             HandleLevelEvent(level.m_events[level.m_lastEvent + 1], world);
             level.m_lastEvent++;

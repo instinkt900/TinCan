@@ -19,6 +19,7 @@ struct ComponentCurveCache {
 
 struct ComponentBehaviour {
     EnemyBehaviour m_behaviour;
+    uint32_t m_ticks = 0;
     canyon::FloatVec2 m_offset;
     BehaviourParameterList m_parameters;
 };

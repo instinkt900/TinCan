@@ -13,16 +13,16 @@ T GetParameter(BehaviourParameterList const& parameterList, std::string const& n
 }
 
 void BehaviourStraight(entt::registry& registry, entt::entity entity, ComponentBehaviour& behaviour,
-                       ComponentPosition& position, ComponentLifetime& lifetime) {
+                       ComponentPosition& position) {
     float const speed = GetParameter(behaviour.m_parameters, "speed", 100.0f);
-    float const t = static_cast<float>(lifetime.m_msAlive) / 1000.0f;
+    float const t = static_cast<float>(behaviour.m_ticks) / 1000.0f;
     auto const newPosition = behaviour.m_offset + canyon::FloatVec2{ 0, t * speed };
     position.m_lastPosition = position.m_position;
     position.m_position = newPosition;
 }
 
 void BehaviourWave(entt::registry& registry, entt::entity entity, ComponentBehaviour& behaviour,
-                   ComponentPosition& position, ComponentLifetime& lifetime) {
+                   ComponentPosition& position) {
     float const freq = GetParameter(behaviour.m_parameters, "frequency", 1.0f);
     float const amp = GetParameter(behaviour.m_parameters, "amplitude", 1.0f);
     float const speed = GetParameter(behaviour.m_parameters, "speed", 100.0f);
@@ -52,7 +52,7 @@ void BehaviourWave(entt::registry& registry, entt::entity entity, ComponentBehav
         cacheData->total_length = lastSample.total_distance;
     }
 
-    auto const distanceTravelled = speed * (static_cast<float>(lifetime.m_msAlive) / 1000.0f);
+    auto const distanceTravelled = speed * (static_cast<float>(behaviour.m_ticks) / 1000.0f);
     size_t index = 0;
     for (size_t i = 1; i < cacheData->samples.size(); ++i) {
         if (distanceTravelled < cacheData->samples[i].total_distance) {
@@ -76,8 +76,7 @@ void BehaviourWave(entt::registry& registry, entt::entity entity, ComponentBehav
     }
 }
 
-using BehaviourFunc = void (*)(entt::registry&, entt::entity, ComponentBehaviour&, ComponentPosition&,
-                               ComponentLifetime&);
+using BehaviourFunc = void (*)(entt::registry&, entt::entity, ComponentBehaviour&, ComponentPosition&);
 
 std::map<EnemyBehaviour, BehaviourFunc> const Funcs{ { EnemyBehaviour::Straight, BehaviourStraight },
                                                      { EnemyBehaviour::Wave, BehaviourWave } };
@@ -85,14 +84,15 @@ std::map<EnemyBehaviour, BehaviourFunc> const Funcs{ { EnemyBehaviour::Straight,
 
 void SystemBehaviour::Update(GameWorld& world, uint32_t ticks) {
     auto& registry = world.GetRegistry();
-    auto view = registry.view<ComponentBehaviour, ComponentPosition, ComponentLifetime>();
+    auto view = registry.view<ComponentBehaviour, ComponentPosition>();
 
-    for (auto [entity, behaviour, position, lifetime] : view.each()) {
+    for (auto [entity, behaviour, position] : view.each()) {
+        behaviour.m_ticks += ticks;
         auto entry = Funcs.find(behaviour.m_behaviour);
         if (entry == Funcs.end()) {
             spdlog::error("Unknown behaviour {}", magic_enum::enum_name(behaviour.m_behaviour));
             continue;
         }
-        entry->second(registry, entity, behaviour, position, lifetime);
+        entry->second(registry, entity, behaviour, position);
     }
 }
