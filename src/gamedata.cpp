@@ -3,6 +3,12 @@
 
 MAGIC_SERIALIZE_ENUM(GameDataCategory);
 
+std::string ToLower(std::string str) {
+    std::transform(str.begin(), str.end(), str.begin(),
+        [](unsigned char c) { return std::tolower(c); });
+    return str;
+}
+
 void GameData::LoadDirectory(std::filesystem::path const& directory, SerializeContext const& context) {
     for (const auto& entry : std::filesystem::directory_iterator(directory)) {
         if (entry.is_regular_file() && entry.path().extension() == ".json") {
@@ -38,7 +44,7 @@ bool GameData::Load(std::filesystem::path const& path, SerializeContext const& c
     }
 
     magic_enum::enum_for_each<GameDataCategory>([&](GameDataCategory category) {
-        auto const categoryName = magic_enum::enum_name(category);
+        auto const categoryName = ToLower(std::string(magic_enum::enum_name(category)));
         auto const dbJson = json.value(categoryName, nlohmann::json());
         if (dbJson.is_null()) {
             return;

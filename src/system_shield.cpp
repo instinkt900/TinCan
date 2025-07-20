@@ -25,7 +25,6 @@ void SystemShield::Update(GameWorld& world, uint32_t ticks) {
                                          projectilePosition.m_lastPosition, projectileEntityData.m_radius);
                 if (t < 1.0f) {
                     // projectile collided with shield
-                    spdlog::info("projectile hit shield");
 
                     // destroy projectile
                     registry.get_or_emplace<DeadTag>(projectileEntity);

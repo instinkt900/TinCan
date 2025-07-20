@@ -9,7 +9,8 @@ class GameWorld;
 struct ComponentLevel {
     std::vector<LevelEvent> m_events;
     uint32_t m_currentTime = 0;
-    size_t m_currentEvent = -1;
+    int32_t m_lastEvent = -1;
+    float m_lastEventSeconds = 0;
 };
 
 class SystemLevel {

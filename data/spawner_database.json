@@ -1,5 +1,5 @@
 {
-    "Spawners": {
+    "spawners": {
         "basic_spawner": {
             "enemy_name": "basic_enemy",
             "behaviour": "Straight",

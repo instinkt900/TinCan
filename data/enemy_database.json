@@ -1,5 +1,5 @@
 {
-    "Enemies": {
+    "enemies": {
         "enemy_01_red": {
             "sprite_name": "alien1_red",
             "color": "Red",

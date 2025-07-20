@@ -1,11 +1,11 @@
 {
-    "Weapons": {
+    "weapons": {
         "enemy_weapon": {
             "cooldown": 3000,
             "burst": 1,
-            "burst_delay": 0,
+            "burst_delay": 200,
             "player_tracking": true,
-            "projectile_name": "basic_bullet",
+            "projectile_name": "enemy_basic_bullet",
             "barrels": [
                 {
                     "offset": { "x": 0, "y": 0, "z": 0, "w": 0 },

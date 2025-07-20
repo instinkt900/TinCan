@@ -1,5 +1,5 @@
 {
-    "Pickups": {
+    "pickups": {
         "weapon_drop_01": {
             "sprite": "drop_01",
             "type": "Weapon",

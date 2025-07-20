@@ -1,5 +1,5 @@
 {
-    "Weapons": {
+    "weapons": {
         "player_weapon_01": {
             "cooldown": 500,
             "burst": 1,

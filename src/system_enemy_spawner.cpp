@@ -126,6 +126,7 @@ entt::entity SystemEnemySpawner::CreateSpawner(entt::registry& registry, Spawner
     spawner.m_type = data.type;
     spawner.m_distance = data.distance;
     spawner.m_count = data.count;
+    spawner.m_cooldown = 0; // first spawn immediately
     spawner.m_maxCooldown = data.cooldown;
     spawner.m_maxGroupCooldown = data.group_delay;
     spawner.m_maxGroupCount = data.group_count;

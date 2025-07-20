@@ -1,5 +1,5 @@
 {
-    "Levels": {
+    "levels": {
         "test": "levels/test.json"
     }
 }

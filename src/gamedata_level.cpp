@@ -2,24 +2,15 @@
 #include <magic_enum.hpp>
 #include <nlohmann/json.hpp>
 #include <fstream>
+#include "utils.h"
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LevelData, events);
 
 SerializeContext const* LevelData::CurrentContext = nullptr;
 
 void from_json(nlohmann::json const& j, LevelEvent& levelEvent) {
-    j["time"].get_to(levelEvent.time);
+    j["offset"].get_to(levelEvent.offset);
     j["location"].get_to(levelEvent.location);
-
-    auto const eventType = j.value("type", nlohmann::json());
-    if (!eventType.is_null()) {
-        levelEvent.type = eventType;
-    }
-
-    auto const eventName = j.value("name", nlohmann::json());
-    if (!eventName.is_null()) {
-        levelEvent.name = eventName;
-    }
 
     auto const dropName = j.value("drop_name", nlohmann::json());
     if (!dropName.is_null()) {

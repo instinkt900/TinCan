@@ -1,5 +1,5 @@
 {
-    "Projectiles": {
+    "projectiles": {
         "player_basic_bullet": {
             "radius": 5,
             "damage": 10,
@@ -20,10 +20,10 @@
             "min_drag": 1.0,
             "max_drag": 4.0
         },
-        "basic_bullet": {
+        "enemy_basic_bullet": {
             "radius": 8,
             "damage": 10,
-            "speed": 300.0,
+            "speed": 200.0,
             "white_sprite": "enemy_projectile_light",
             "black_sprite": "enemy_projectile_dark"
         }
