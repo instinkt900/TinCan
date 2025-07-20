@@ -42,11 +42,12 @@ void SystemDrawable::Update(GameWorld& world, canyon::graphics::IGraphics& graph
             angle = details->m_angle;
         }
         for (auto& [imageName, spriteImage] : drawable.m_spriteData.images) {
+            auto const fullAngle = angle + spriteImage.rotation;
             auto position = static_cast<canyon::IntVec2>(pos.m_position);
             if (spriteImage.blend_mode == canyon::graphics::BlendMode::Replace) {
-                m_opaqueDraws.push_back({ &spriteImage, position, angle });
+                m_opaqueDraws.push_back({ &spriteImage, position, fullAngle });
             } else {
-                m_blendedDraws.push_back({ &spriteImage, position, angle });
+                m_blendedDraws.push_back({ &spriteImage, position, fullAngle });
             }
         }
     }

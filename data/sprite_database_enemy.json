@@ -6,7 +6,7 @@
                     "image": "assets/sprites/alien1.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 0.6, "z": 0.6, "w": 1 },
                     "zOrder": 0
@@ -19,7 +19,7 @@
                     "image": "assets/sprites/alien1.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 0.6, "y": 0.6, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -32,7 +32,7 @@
                     "image": "assets/sprites/alien2.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -45,7 +45,7 @@
                     "image": "assets/sprites/alien3.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -58,7 +58,7 @@
                     "image": "assets/sprites/alien4.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -71,7 +71,7 @@
                     "image": "assets/sprites/alien5.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -84,7 +84,7 @@
                     "image": "assets/sprites/alien6.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -97,7 +97,7 @@
                     "image": "assets/sprites/alien7.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -110,7 +110,7 @@
                     "image": "assets/sprites/alien8.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -123,7 +123,7 @@
                     "image": "assets/sprites/alien9.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -136,7 +136,7 @@
                     "image": "assets/sprites/alien10.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -149,7 +149,7 @@
                     "image": "assets/sprites/alien11.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -162,7 +162,7 @@
                     "image": "assets/sprites/alien12.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -175,7 +175,7 @@
                     "image": "assets/sprites/alien13.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -188,7 +188,7 @@
                     "image": "assets/sprites/alien14.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -201,7 +201,7 @@
                     "image": "assets/sprites/alien15.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -214,7 +214,7 @@
                     "image": "assets/sprites/alien16.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -227,7 +227,7 @@
                     "image": "assets/sprites/alien17.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -240,7 +240,7 @@
                     "image": "assets/sprites/alien18.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -253,7 +253,7 @@
                     "image": "assets/sprites/alien19.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -266,7 +266,7 @@
                     "image": "assets/sprites/alien20.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -279,7 +279,7 @@
                     "image": "assets/sprites/alien21.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -292,7 +292,7 @@
                     "image": "assets/sprites/alien22.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -305,7 +305,7 @@
                     "image": "assets/sprites/alien23.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -318,7 +318,7 @@
                     "image": "assets/sprites/alien24.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -331,7 +331,7 @@
                     "image": "assets/sprites/alien25.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 0.6, "z": 0.6, "w": 1 },
                     "zOrder": 0
@@ -344,7 +344,7 @@
                     "image": "assets/sprites/alien25.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 0.6, "y": 0.6, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -357,7 +357,7 @@
                     "image": "assets/sprites/alien26.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -370,7 +370,7 @@
                     "image": "assets/sprites/alien27.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
                     "zOrder": 0
@@ -383,7 +383,7 @@
                     "image": "assets/sprites/alien28.png",
                     "scale": { "x": 3, "y": 3 },
                     "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
+                    "rotation": 180,
                     "blend_mode": 1,
                     "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
                     "zOrder": 0
