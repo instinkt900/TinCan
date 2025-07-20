@@ -28,7 +28,7 @@ struct SpawnerData {
     int32_t group_count;
     int32_t group_delay;
     SpawnerType type;
-    float distance;
+    canyon::FloatVec2 offset_step;
     std::optional<std::string> drop;
 
     static SpawnerData Deserialize(nlohmann::json const& json, SerializeContext const& context);

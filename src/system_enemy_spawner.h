@@ -8,7 +8,7 @@
 struct ComponentEnemySpawner {
     bool m_active = false;
     SpawnerType m_type = SpawnerType::Unknown;
-    float m_distance = 0;
+    canyon::FloatVec2 m_offsetStep;
     int32_t m_count = 0;
     int32_t m_cooldown = 0;
     int32_t m_groupCount = 0;

@@ -13,7 +13,7 @@
 #include "game_world.h"
 
 namespace {
-    int const ProjectileBorder = 50;
+    int const ProjectileBorder = 200;
 }
 
 ComponentWeapon* SystemWeapon::InitWeapon(entt::registry& registry, entt::entity entity,

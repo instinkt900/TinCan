@@ -8,7 +8,7 @@ MAGIC_SERIALIZE_ENUM(SpawnerType);
 MAGIC_SERIALIZE_ENUM(EnemyBehaviour);
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SpawnerData, enemy_name, behaviour, count, cooldown, group_count,
-                                   group_delay, type, distance);
+                                   group_delay, type, offset_step);
 
 SpawnerData SpawnerData::Deserialize(nlohmann::json const& json, SerializeContext const& context) {
     SpawnerData data = json.get<SpawnerData>();

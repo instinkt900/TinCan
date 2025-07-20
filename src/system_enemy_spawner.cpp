@@ -38,7 +38,7 @@ void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
                 spawner.m_groupCooldown -= static_cast<int32_t>(ticks);
             }
 
-            if (spawner.m_groupCooldown <= 0) {
+            while (spawner.m_groupCount > 0 && spawner.m_groupCooldown <= 0) {
                 spawner.m_groupCount -= 1;
                 spawner.m_groupCooldown += spawner.m_maxGroupCooldown;
 
@@ -50,11 +50,11 @@ void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
                 switch (spawner.m_type) {
                 case SpawnerType::Staggered: {
                     auto const side = spawner.m_groupCount % 2;
-                    position.x += spawner.m_distance * (side == 0 ? 1.0f : -1.0f);
+                    position += spawner.m_offsetStep * (side == 0 ? 1.0f : -1.0f);
                 } break;
                 case SpawnerType::Stepped: {
-                    position.x += spawner.m_distance *
-                                  static_cast<float>(spawner.m_maxGroupCount - (spawner.m_groupCount + 1));
+                    position += spawner.m_offsetStep *
+                                static_cast<float>(spawner.m_maxGroupCount - (spawner.m_groupCount + 1));
                 } break;
                 default:
                     break;
@@ -124,7 +124,7 @@ entt::entity SystemEnemySpawner::CreateSpawner(entt::registry& registry, Spawner
     auto& spawner = registry.emplace<ComponentEnemySpawner>(enemySpawner);
     spawner.m_active = true;
     spawner.m_type = data.type;
-    spawner.m_distance = data.distance;
+    spawner.m_offsetStep = data.offset_step;
     spawner.m_count = data.count;
     spawner.m_cooldown = 0; // first spawn immediately
     spawner.m_maxCooldown = data.cooldown;

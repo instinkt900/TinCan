@@ -11,7 +11,7 @@
             "group_count": 1,
             "group_delay": 0,
             "type": "Basic",
-            "distance": 0
+            "offset_step": { "x": 0, "y": 0 } 
         },
         "staggered_spawner": {
             "enemy_name": "basic_enemy",
@@ -24,7 +24,7 @@
             "group_count": 5,
             "group_delay": 300,
             "type": "Staggered",
-            "distance": 30
+            "offset_step": { "x": 30, "y": 0 } 
         },
         "wave_spawner": {
             "enemy_name": "basic_enemy",
@@ -39,7 +39,7 @@
             "group_count": 5,
             "group_delay": 300,
             "type": "Basic",
-            "distance": 0
+            "offset_step": { "x": 0, "y": 0 } 
         }
     }
 }
