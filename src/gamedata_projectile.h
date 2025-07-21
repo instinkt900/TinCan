@@ -3,7 +3,7 @@
 #include "gamedata_sprite.h"
 #include "utils.h"
 
-enum Targeting {
+enum class Targeting {
     None,
     Nearest,
     Random,

@@ -56,6 +56,7 @@ namespace {
                     if (entityHealth->m_currentHealth > 0) {
                         entityHealth->m_currentHealth -= damage;
                         if (entityHealth->m_currentHealth <= 0) {
+                            SystemDrawable::StartCameraShake(registry, 0.5f, 500);
                             registry.emplace<DeadTag>(target.entity);
 
                             if (auto const* dropComponent = registry.try_get<ComponentDrop>(target.entity)) {

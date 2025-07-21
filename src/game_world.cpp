@@ -54,13 +54,14 @@ void GameWorld::Update(uint32_t ticks) {
     SystemPlayerVisuals::Update(*this, ticks);
     SystemGroup::Update(*this, ticks);
     SystemWorldBounds::Update(*this, ticks);
+    SystemDrawable::Update(*this, ticks);
 }
 
 void GameWorld::Draw() {
     m_graphics.SetTarget(m_worldSurface.get());
     m_graphics.SetBlendMode(canyon::graphics::BlendMode::Replace);
     m_graphics.SetColor(canyon::graphics::BasicColors::White);
-    SystemDrawable::Update(*this, m_graphics);
+    SystemDrawable::Draw(*this, m_graphics);
     m_graphics.SetTarget(nullptr);
 }
 

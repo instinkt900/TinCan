@@ -1,6 +1,7 @@
 #include "system_level.h"
 #include <entt/entt.hpp>
 #include "gamedata.h"
+#include "system_drawable.h"
 #include "system_enemy_spawner.h"
 #include "game_world.h"
 #include "system_pickup.h"
@@ -25,6 +26,8 @@ void SystemLevel::InitLevel(entt::registry& registry, std::string const& levelNa
     levelComp.m_lastEvent = -1;
     levelComp.m_currentTime = 0;
     levelComp.m_lastEventSeconds = 0;
+
+    registry.emplace<ComponentCamera>(levelEntity);
 }
 
 void HandleLevelEvent(LevelEvent const& event, GameWorld& world) {

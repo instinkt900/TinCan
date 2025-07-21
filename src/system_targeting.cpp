@@ -1,15 +1,8 @@
 #include "system_targeting.h"
 #include "system_movement.h"
 #include "tags.h"
-#include <random>
 
 namespace {
-    int RandomInt(int min, int max) {
-        static thread_local std::mt19937 rng(std::random_device{}());
-        std::uniform_int_distribution<int> dist(min, max);
-        return dist(rng);
-    }
-
     void UpdateTargetingNearest(entt::registry& registry, entt::entity entity,
                                 ComponentEntity const& entityDetails, ComponentTargeting& targeting) {
         // nothing to do if we already have a target and it's valid
@@ -63,7 +56,7 @@ namespace {
         // update the target to a random one if we have targets
         if (!possibleTargets.empty()) {
             auto const maxIndex = static_cast<int>(possibleTargets.size() - 1);
-            targeting.m_currentTarget = possibleTargets[RandomInt(0, maxIndex)];
+            targeting.m_currentTarget = possibleTargets[Random(0, maxIndex)];
         }
     }
 }
