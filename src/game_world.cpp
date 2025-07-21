@@ -16,6 +16,7 @@
 #include "system_weapon.h"
 #include "system_world_bounds.h"
 #include "tags.h"
+#include "system_power_weapon.h"
 
 canyon::IntVec2 const GameWorld::WorldSize{ 600, 800 };
 
@@ -46,6 +47,7 @@ void GameWorld::Update(uint32_t ticks) {
     SystemTargeting::Update(*this, ticks);
     SystemMovement::Update(*this, ticks);
     SystemWeapon::Update(*this, ticks);
+    SystemPowerWeapon::Update(*this, ticks);
     SystemShield::Update(*this, ticks);
     SystemProjectile::Update(*this, ticks);
     SystemPickup::Update(*this, ticks);
@@ -119,6 +121,7 @@ void GameWorld::CreatePlayer() {
     m_registry.emplace<ComponentPassives>(m_player);
 
     SystemWeapon::InitWeapon(m_registry, m_player, "player_weapon_01", m_gamedata);
+    SystemPowerWeapon::InitWeapon(m_registry, m_player, "dummy", m_gamedata);
 
     m_registry.emplace<TargetTag>(m_player);
 
