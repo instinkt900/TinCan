@@ -25,6 +25,13 @@ void SystemPowerWeapon::Update(GameWorld& world, uint32_t ticks) {
 
         weapon.m_activated = false;
 
+        // fetch the projectile data
+        auto const& gamedata = world.GetGameData();
+        auto const* projectileData = gamedata.GetProjectileDatabase().Get(weapon.m_projectileName);
+        if (projectileData == nullptr) {
+            spdlog::error("Unable to find power weapon's projectile {}", weapon.m_projectileName);
+        }
+
         // work out how many projectiles to fire
         auto const availablePower = power.m_power;
         auto const powerPerProjectile = weapon.m_powerPerProjectile;
@@ -44,13 +51,6 @@ void SystemPowerWeapon::Update(GameWorld& world, uint32_t ticks) {
         auto const anglePerProjectile = std::max(maxSeparation, canyon::Radians(360.0f) / projectileCount);
         auto const fullSpread = anglePerProjectile * projectileCount;
         auto const startAngle = -fullSpread / 2.0f;
-
-        auto const& gamedata = world.GetGameData();
-        auto const* projectileData = gamedata.GetProjectileDatabase().Get(weapon.m_projectileName);
-
-        if (projectileData == nullptr) {
-            spdlog::error("Unable to find power weapon's projectile {}", weapon.m_projectileName);
-        }
 
         for (uint32_t i = 0; i < static_cast<uint32_t>(projectileCount); ++i) {
             auto const angle = startAngle + (anglePerProjectile * static_cast<float>(i));
