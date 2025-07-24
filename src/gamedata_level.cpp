@@ -1,32 +1,7 @@
 #include "gamedata_level.h"
-#include <magic_enum.hpp>
-#include <nlohmann/json.hpp>
 #include <fstream>
-#include "utils.h"
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LevelData, events);
-
-SerializeContext const* LevelData::CurrentContext = nullptr;
-
-void from_json(nlohmann::json const& j, LevelEvent& levelEvent) {
-    j["offset"].get_to(levelEvent.offset);
-    j["location"].get_to(levelEvent.location);
-
-    auto const dropName = j.value("drop_name", nlohmann::json());
-    if (!dropName.is_null()) {
-        dropName.get_to(levelEvent.drop_name);
-    }
-
-    auto const spawner = j.value("spawner", nlohmann::json());
-    if (!spawner.is_null()) {
-        assert(LevelData::CurrentContext != nullptr);
-        levelEvent.spawner = SpawnerData::Deserialize(spawner, *LevelData::CurrentContext);
-    }
-}
-
-LevelData LevelData::Deserialize(nlohmann::json const& json, SerializeContext const& context) {
-    CurrentContext = &context;
-
+void from_json(nlohmann::json const& json, LevelData& data) {
     // leveldata comes in as a string reference to an external file
     if (!json.is_string()) {
         spdlog::error("Invalid level data entry type.");
@@ -55,5 +30,5 @@ LevelData LevelData::Deserialize(nlohmann::json const& json, SerializeContext co
         throw std::runtime_error("Failed to load level json at " + path.string());
     }
 
-    return levelJson.get<LevelData>();
+    levelJson["events"].get_to(data.events);
 }

@@ -13,6 +13,6 @@ struct ComponentPickup {
 class SystemPickup {
 public:
     static entt::entity CreatePickup(entt::registry& registry, canyon::FloatVec2 const& position,
-                                     std::string const& name, GameData const& gamedata);
+                                     PickupData const& pickupData, GameData const& gamedata);
     static void Update(GameWorld& world, uint32_t ticks);
 };

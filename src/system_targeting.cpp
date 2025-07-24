@@ -1,6 +1,8 @@
 #include "system_targeting.h"
+#include "component_entity.h"
 #include "system_movement.h"
 #include "tags.h"
+#include "utils.h"
 
 namespace {
     void UpdateTargetingNearest(entt::registry& registry, entt::entity entity,

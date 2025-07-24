@@ -2,6 +2,7 @@
 #include "game_world.h"
 #include "system_lifetime.h"
 #include "system_movement.h"
+#include <magic_enum.hpp>
 
 template <typename T>
 T GetParameter(BehaviourParameterList const& parameterList, std::string const& name, T const defaultValue) {

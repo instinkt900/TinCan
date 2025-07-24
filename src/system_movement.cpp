@@ -1,11 +1,11 @@
 #include "system_movement.h"
+#include "component_entity.h"
 #include "system_input.h"
 #include <entt/entt.hpp>
 #include "game_world.h"
 #include "system_targeting.h"
 #include "tags.h"
 #include <canyon/utils/math_utils.h>
-#include "utils.h"
 
 namespace {
     bool HasValidTarget(entt::registry& registry, ComponentTargeting const& targeting,

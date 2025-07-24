@@ -1,25 +1,18 @@
 #pragma once
 
-#include <canyon/graphics/surface_context.h>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
-class GameData;
-
-struct SerializeContext {
-    GameData const& gamedata;
-    canyon::graphics::SurfaceContext& surfaceContext;
-};
-
-template <typename T> class Database {
+template <typename T>
+class Database {
 public:
-    bool Load(nlohmann::json const& json, SerializeContext const& context) {
+    bool Load(nlohmann::json const& json) {
         if (!json.is_object()) {
             return false;
         }
 
         for (auto [entryName, entryJson]: json.items()) {
-            m_database.insert(std::make_pair(entryName, T::Deserialize(entryJson, context)));
+            m_database.insert(std::make_pair(entryName, entryJson.get<T>()));
         }
 
         return true;

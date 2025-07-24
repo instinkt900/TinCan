@@ -1,5 +1,6 @@
 # Visual Studio generated .clang-format file
-
+#
+AlwaysBreakTemplateDeclarations: Yes
 AccessModifierOffset: -4
 AlignAfterOpenBracket: Align
 AllowShortBlocksOnASingleLine: true

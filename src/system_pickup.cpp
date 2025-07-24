@@ -2,6 +2,7 @@
 #include "collision_utils.h"
 #include "component_entity.h"
 #include "component_passives.h"
+#include "gamedata_pickup.h"
 #include "system_drawable.h"
 #include "system_movement.h"
 #include "system_weapon.h"
@@ -22,13 +23,7 @@ template <> struct fmt::formatter<PickupType> : fmt::formatter<std::string> {
 };
 
 entt::entity SystemPickup::CreatePickup(entt::registry& registry, canyon::FloatVec2 const& position,
-                                        std::string const& name, GameData const& gamedata) {
-    auto const* pickupData = gamedata.GetPickupDatabase().Get(name);
-    if (pickupData == nullptr) {
-        spdlog::error("SystemPickup::CreatePickup - Unable to find pickup name {}.", name);
-        return entt::null;
-    }
-
+                                        PickupData const& pickupData, GameData const& gamedata) {
     auto entity = registry.create();
     auto& entityDetails = registry.emplace<ComponentEntity>(entity);
     auto& pos = registry.emplace<ComponentPosition>(entity);
@@ -45,9 +40,9 @@ entt::entity SystemPickup::CreatePickup(entt::registry& registry, canyon::FloatV
 
     vel.m_velocity = PickupVelocity;
 
-    sprite.m_spriteData = pickupData->sprite;
+    sprite.m_spriteData = *pickupData.sprite;
 
-    pickup.m_name = name;
+    pickup.m_name = pickupData.name;
 
     return entity;
 }
@@ -62,14 +57,19 @@ void PlayerPickupWeapon(PickupData const& pickup, canyon::FloatVec2 const& posit
         playerEntity = entity;
         currentWeapon = &weapon;
     }
-    if (currentWeapon != nullptr && currentWeapon->m_pickupName.has_value()) {
+    if (currentWeapon != nullptr && currentWeapon->m_pickup.has_value()) {
         auto const side = rand() % 2 == 1 ? 1.0f : -1.0f;
         canyon::FloatVec2 const offset = { 100.0f * side, -20.0f };
-        SystemPickup::CreatePickup(registry, position + offset, currentWeapon->m_pickupName.value(), gamedata);
+        SystemPickup::CreatePickup(registry, position + offset, currentWeapon->m_pickup.value(), gamedata);
     }
 
     // replace the current weapon
-    SystemWeapon::InitWeapon(registry, playerEntity, pickup.name, gamedata);
+    auto const* weaponData = gamedata.Get<WeaponData>(pickup.name);
+    if (weaponData == nullptr) {
+        spdlog::error("Unknown weapon {}", pickup.name);
+        return;
+    }
+    SystemWeapon::InitWeapon(registry, playerEntity, *weaponData, gamedata);
 }
 
 void PlayerPickupPassive(PickupData const& pickup, canyon::FloatVec2 const& position,
@@ -93,13 +93,13 @@ void PlayerPickupPassive(PickupData const& pickup, canyon::FloatVec2 const& posi
 
     auto const passiveType = passiveTypeOpt.value();
     auto const currentBonus = PassiveValue(*playerPassives, passiveType);
-    auto const newBonus = PassiveAccumulate(passiveType, currentBonus, pickup.value);
+    auto const newBonus = PassiveAccumulate(passiveType, currentBonus, pickup.value.value_or(0));
     playerPassives->m_value[passiveType] = newBonus;
 }
 
 void PlayerPickup(ComponentPickup const& pickup, canyon::FloatVec2 const& position, entt::registry& registry,
                   GameData const& gamedata) {
-    auto const* pickupData = gamedata.GetPickupDatabase().Get(pickup.m_name);
+    auto const* pickupData = gamedata.Get<PickupData>(pickup.m_name);
     if (pickupData == nullptr) {
         spdlog::error("PlayerPickup - Unable to find pickup name {}.", pickup.m_name);
         return;

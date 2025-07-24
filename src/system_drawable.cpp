@@ -1,9 +1,11 @@
 #include "system_drawable.h"
+#include "component_entity.h"
 #include "system_behaviour.h"
 #include "system_movement.h"
 #include <entt/entt.hpp>
 #include <canyon/utils/math_utils.h>
 #include "game_world.h"
+#include "utils.h"
 
 struct DrawImage {
     SpriteImage const* m_image = nullptr;

@@ -12,6 +12,31 @@
 #include <entt/entt.hpp>
 #include <spdlog/spdlog.h>
 #include "game_world.h"
+#include "gamedata_enemy.h"
+
+ComponentEnemySpawner::ComponentEnemySpawner(SpawnerData const& data)
+    : m_active(true)
+    , m_type(data.type)
+    , m_offsetStep(data.offset_step)
+    , m_count(data.count)
+    , m_maxCooldown(data.cooldown)
+    , m_maxGroupCount(data.group_count)
+    , m_maxGroupCooldown(data.group_delay)
+    , m_currentGroupEntity(entt::null)
+    , m_behaviour(data.behaviour)
+    , m_behaviourParameters(data.behaviour_parameters)
+    , m_killType(data.kill_type)
+    , m_lifetime(data.lifetime)
+    , m_boundsBorder(data.bounds_border) {
+    if (data.enemy == nullptr) {
+        spdlog::error("Spawner with bad enemy reference");
+    } else {
+        m_enemy = *data.enemy;
+    }
+    if (data.drop.has_value()) {
+        m_groupDrop = *data.drop;
+    }
+}
 
 void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
     auto& registry = world.GetRegistry();
@@ -61,8 +86,8 @@ void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
                     break;
                 }
 
-                auto enemy = CreateEnemy(registry, spawner.m_enemyName, gamedata, position,
-                                         spawner.m_behaviour, spawner.m_behaviourParameters);
+                auto enemy = CreateEnemy(registry, spawner.m_enemy, gamedata, position, spawner.m_behaviour,
+                                         spawner.m_behaviourParameters);
 
                 if (spawner.m_killType == EnemyKillType::Time) {
                     auto& lifetime = registry.emplace<ComponentLifetime>(enemy);
@@ -93,7 +118,7 @@ void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
     }
 }
 
-entt::entity SystemEnemySpawner::CreateEnemy(entt::registry& registry, std::string const& name,
+entt::entity SystemEnemySpawner::CreateEnemy(entt::registry& registry, EnemyData const& enemyData,
                                              GameData const& gamedata, canyon::FloatVec2 const& position,
                                              EnemyBehaviour behaviourType,
                                              BehaviourParameterList const& behaviourParameters) {
@@ -105,21 +130,24 @@ entt::entity SystemEnemySpawner::CreateEnemy(entt::registry& registry, std::stri
     auto& behaviour = registry.emplace<ComponentBehaviour>(enemy);
     registry.emplace<TargetTag>(enemy);
 
-    auto const* enemyData = gamedata.GetEnemyDatabase().Get(name);
-
     entityData.m_team = Team::ENEMY;
-    entityData.m_color = enemyData->color;
-    entityData.m_radius = enemyData->radius;
+    entityData.m_color = enemyData.color;
+    entityData.m_radius = enemyData.radius;
     entityData.m_angle = M_PI; // TODO: read from data? spawner? behaviour?
 
-    health.m_currentHealth = enemyData->health;
-    health.m_maxHealth = enemyData->health;
+    health.m_currentHealth = enemyData.health;
+    health.m_maxHealth = enemyData.health;
 
-    drawable.m_spriteData = enemyData->sprite;
+    SpriteData const* spriteData = enemyData.sprite;
+    if (spriteData == nullptr) {
+        spdlog::error("Unknown sprite for enemy.");
+        return entt::null;
+    }
+    drawable.m_spriteData = *spriteData;
 
     pos.m_position = position;
 
-    auto* weapon = SystemWeapon::InitWeapon(registry, enemy, enemyData->weapon_name, gamedata);
+    auto* weapon = SystemWeapon::InitWeapon(registry, enemy, *enemyData.weapon, gamedata);
     if (weapon != nullptr) {
         weapon->m_active = true;
     }
@@ -134,27 +162,8 @@ entt::entity SystemEnemySpawner::CreateEnemy(entt::registry& registry, std::stri
 entt::entity SystemEnemySpawner::CreateSpawner(entt::registry& registry, SpawnerData const& data,
                                                GameData const& gamedata, canyon::FloatVec2 const& position) {
     auto enemySpawner = registry.create();
-
-    auto& spawner = registry.emplace<ComponentEnemySpawner>(enemySpawner);
-    spawner.m_active = true;
-    spawner.m_type = data.type;
-    spawner.m_offsetStep = data.offset_step;
-    spawner.m_count = data.count;
-    spawner.m_cooldown = 0; // first spawn immediately
-    spawner.m_maxCooldown = data.cooldown;
-    spawner.m_maxGroupCooldown = data.group_delay;
-    spawner.m_maxGroupCount = data.group_count;
-    spawner.m_enemyName = data.enemy_name;
-    spawner.m_behaviour = data.behaviour;
-    spawner.m_behaviourParameters = data.behaviour_parameters;
-    spawner.m_currentGroupEntity = entt::null;
-    spawner.m_groupDrop = data.drop;
-    spawner.m_killType = data.kill_type;
-    spawner.m_lifetime = data.lifetime;
-    spawner.m_boundsBorder = data.bounds_border;
-
+    registry.emplace<ComponentEnemySpawner>(enemySpawner, data);
     auto& spawnerPos = registry.emplace<ComponentPosition>(enemySpawner);
     spawnerPos.m_position = position;
-
     return enemySpawner;
 }

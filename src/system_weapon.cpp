@@ -1,6 +1,7 @@
 #include "system_weapon.h"
 #include "component_entity.h"
 #include "component_passives.h"
+#include "gamedata_weapon.h"
 #include "system_drawable.h"
 #include "system_lifetime.h"
 #include "system_movement.h"
@@ -16,40 +17,32 @@ namespace {
     int const ProjectileBorder = 200;
 }
 
+ComponentWeapon::ComponentWeapon(WeaponData const& weapon)
+    : m_damage(weapon.damage)
+    , m_cooldown(weapon.cooldown)
+    , m_maxCooldown(weapon.cooldown)
+    , m_burst(weapon.burst)
+    , m_maxBurst(weapon.burst)
+    , m_burstCooldown(weapon.burst_delay)
+    , m_maxBurstCooldown(weapon.burst_delay)
+    , m_playerTracking(weapon.player_tracking)
+    , m_projectile(*weapon.projectile) {
+    if (weapon.pickup.has_value()) {
+        m_pickup = *weapon.pickup.value();
+    }
+    m_barrelGroups.clear();
+    m_barrelGroupIds.clear();
+    for (auto const& barrel : weapon.barrels) {
+        m_barrelGroups[barrel.group].push_back({ barrel.offset, barrel.angle });
+    }
+    for (auto const& [id, group] : m_barrelGroups) {
+        m_barrelGroupIds.push_back(id);
+    }
+}
+
 ComponentWeapon* SystemWeapon::InitWeapon(entt::registry& registry, entt::entity entity,
-                                          std::string const& name, GameData const& gamedata) {
-    if (name == "") {
-        return nullptr;
-    }
-
-    auto const* weaponData = gamedata.GetWeaponDatabase().Get(name);
-    if (weaponData == nullptr) {
-        spdlog::error("SystemWeapon::InitWeapon - Unable to get weapon {}", name);
-        return nullptr;
-    }
-
-    auto& weapon = registry.get_or_emplace<ComponentWeapon>(entity);
-    weapon.m_active = false;
-    weapon.m_pickupName = weaponData->pickup_name;
-    weapon.m_damage = weaponData->damage;
-    weapon.m_cooldown = weaponData->cooldown;
-    weapon.m_maxCooldown = weaponData->cooldown;
-    weapon.m_burst = weaponData->burst;
-    weapon.m_maxBurst = weaponData->burst;
-    weapon.m_burstCooldown = weaponData->burst_delay;
-    weapon.m_maxBurstCooldown = weaponData->burst_delay;
-    weapon.m_playerTracking = weaponData->player_tracking;
-    weapon.m_projectileName = weaponData->projectile_name;
-    weapon.m_barrelGroupIndex = 0;
-    weapon.m_barrelGroups.clear();
-    weapon.m_barrelGroupIds.clear();
-    for (auto const& barrel : weaponData->barrels) {
-        weapon.m_barrelGroups[barrel.group].push_back({ barrel.offset, barrel.angle });
-    }
-    for (auto const& [id, group] : weapon.m_barrelGroups) {
-        weapon.m_barrelGroupIds.push_back(id);
-    }
-
+                                          WeaponData const& weaponData, GameData const& gamedata) {
+    auto& weapon = registry.get_or_emplace<ComponentWeapon>(entity, weaponData);
     return &weapon;
 }
 
@@ -71,7 +64,6 @@ void CollectPassives(entt::registry& registry, entt::entity entity, Passives& pa
 
 void SystemWeapon::Update(GameWorld& world, uint32_t ticks) {
     auto& registry = world.GetRegistry();
-    auto const& gamedata = world.GetGameData();
     ComponentPosition* playerPosition = nullptr;
     auto playerView = registry.view<ComponentPosition, PlayerTag>();
     if (playerView.begin() != playerView.end()) {
@@ -125,8 +117,7 @@ void SystemWeapon::Update(GameWorld& world, uint32_t ticks) {
                         direction = moth_ui::Normalized(delta);
                     }
 
-                    auto const* projectileData =
-                        gamedata.GetProjectileDatabase().Get(weapon.m_projectileName);
+                    auto const* projectileData = &weapon.m_projectile;
                     if (projectileData != nullptr) {
                         auto const projectileEntity = SystemProjectile::CreateProjectile(
                             registry, *projectileData, entity, position.m_position + offset, direction,

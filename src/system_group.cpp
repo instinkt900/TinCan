@@ -5,6 +5,7 @@
 #include <entt/entt.hpp>
 #include <spdlog/spdlog.h>
 #include "game_world.h"
+#include "gamedata_pickup.h"
 
 void SystemGroup::Update(GameWorld& world, uint32_t ticks) {
     auto& registry = world.GetRegistry();
@@ -16,13 +17,13 @@ void SystemGroup::Update(GameWorld& world, uint32_t ticks) {
             registry.emplace<DeadTag>(entity);
 
             if (group.m_drop.has_value()) {
-                SystemPickup::CreatePickup(registry, group.m_position, group.m_drop.value(), gamedata);
+                SystemPickup::CreatePickup(registry, group.m_position, *group.m_drop.value(), gamedata);
             }
         }
     }
 }
 
-entt::entity SystemGroup::CreateGroup(entt::registry& registry, std::optional<std::string> drop) {
+entt::entity SystemGroup::CreateGroup(entt::registry& registry, std::optional<DataRef<PickupData>> drop) {
     auto entity = registry.create();
     auto& group = registry.emplace<ComponentGroup>(entity);
     group.m_memberCount = 0;

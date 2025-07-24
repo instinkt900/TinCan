@@ -14,7 +14,7 @@ void SystemLevel::InitLevel(entt::registry& registry, std::string const& levelNa
         return;
     }
 
-    auto const* levelData = gamedata.GetLevelDatabase().Get(levelName);
+    auto const* levelData = gamedata.Get<LevelData>(levelName);
     if (levelData == nullptr) {
         spdlog::error("Unable to find level entry {}", levelName);
         return;
@@ -35,10 +35,10 @@ void HandleLevelEvent(LevelEvent const& event, GameWorld& world) {
     auto const& gamedata = world.GetGameData();
     auto worldLocation = event.location * static_cast<canyon::FloatVec2>(world.GetWorldSize());
     if (event.spawner.has_value()) {
-        SystemEnemySpawner::CreateSpawner(registry, event.spawner.value(), world.GetGameData(),
+        SystemEnemySpawner::CreateSpawner(registry, *event.spawner.value(), world.GetGameData(),
                                           worldLocation);
-    } else if (event.drop_name.has_value()) {
-        SystemPickup::CreatePickup(registry, worldLocation, event.drop_name.value(), gamedata);
+    } else if (event.drop.has_value()) {
+        SystemPickup::CreatePickup(registry, worldLocation, *event.drop.value(), gamedata);
     }
 }
 

@@ -1,4 +1,5 @@
 #include "game_world.h"
+#include "component_entity.h"
 #include "component_passives.h"
 #include "system_drawable.h"
 #include "system_enemy_spawner.h"
@@ -108,7 +109,7 @@ void GameWorld::CreatePlayer() {
 
     auto& drawable = m_registry.emplace<ComponentDrawable>(m_player);
 
-    auto const* playerSprite = m_gamedata.GetSpriteDatabase().Get("player_ship");
+    auto const* playerSprite = m_gamedata.Get<SpriteData>("player_ship");
     if (playerSprite != nullptr) {
         drawable.m_spriteData = *playerSprite;
     }
@@ -121,7 +122,8 @@ void GameWorld::CreatePlayer() {
 
     m_registry.emplace<ComponentPassives>(m_player);
 
-    SystemWeapon::InitWeapon(m_registry, m_player, "player_weapon_01", m_gamedata);
+    auto const* weaponData = m_gamedata.Get<WeaponData>("player_weapon_01");
+    SystemWeapon::InitWeapon(m_registry, m_player, *weaponData, m_gamedata);
     SystemPowerWeapon::InitWeapon(m_registry, m_player, "dummy", m_gamedata);
 
     m_registry.emplace<TargetTag>(m_player);

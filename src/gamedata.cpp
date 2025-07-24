@@ -1,13 +1,25 @@
 #include "gamedata.h"
 #include <fstream>
+#include "utils_serialization.h"
+#include "gamedata_sprite.h"
+#include "gamedata_enemy.h"
+#include "gamedata_level.h"
+#include "gamedata_pickup.h"
+#include "gamedata_projectile.h"
+#include "gamedata_spawner.h"
+#include "gamedata_weapon.h"
 
 MAGIC_SERIALIZE_ENUM(GameDataCategory);
 
+SerializeContext const* GameData::s_currentContext = nullptr;
+
 std::string ToLower(std::string str) {
-    std::transform(str.begin(), str.end(), str.begin(),
-        [](unsigned char c) { return std::tolower(c); });
+    std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) { return std::tolower(c); });
     return str;
 }
+
+GameData::GameData() = default;
+GameData::~GameData() = default;
 
 void GameData::LoadDirectory(std::filesystem::path const& directory, SerializeContext const& context) {
     for (const auto& entry : std::filesystem::directory_iterator(directory)) {
@@ -43,36 +55,41 @@ bool GameData::Load(std::filesystem::path const& path, SerializeContext const& c
         return false;
     }
 
-    magic_enum::enum_for_each<GameDataCategory>([&](GameDataCategory category) {
-        auto const categoryName = ToLower(std::string(magic_enum::enum_name(category)));
-        auto const dbJson = json.value(categoryName, nlohmann::json());
-        if (dbJson.is_null()) {
-            return;
+    s_currentContext = &context;
+    for (auto [categoryName, categoryJson] : json.items()) {
+        auto const category =
+            magic_enum::enum_cast<GameDataCategory>(categoryName, magic_enum::case_insensitive);
+        if (!category.has_value()) {
+            spdlog::error("Unknown data category {}", categoryName);
+            continue;
         }
-        switch (category) {
+        switch (category.value()) {
         case GameDataCategory::Sprites:
-            GetSpriteDatabase().Load(dbJson, context);
+            m_spriteDatabase.Load(categoryJson);
             break;
         case GameDataCategory::Projectiles:
-            GetProjectileDatabase().Load(dbJson, context);
+            m_projectileDatabase.Load(categoryJson);
             break;
         case GameDataCategory::Weapons:
-            GetWeaponDatabase().Load(dbJson, context);
+            m_weaponDatabase.Load(categoryJson);
             break;
         case GameDataCategory::Enemies:
-            GetEnemyDatabase().Load(dbJson, context);
+            m_enemyDatabase.Load(categoryJson);
             break;
         case GameDataCategory::Spawners:
-            GetSpawnerDatabase().Load(dbJson, context);
+            m_spawnerDatabase.Load(categoryJson);
             break;
         case GameDataCategory::Levels:
-            GetLevelDatabase().Load(dbJson, context);
+            m_levelDatabase.Load(categoryJson);
             break;
         case GameDataCategory::Pickups:
-            GetPickupDatabase().Load(dbJson, context);
+            m_pickupDatabase.Load(categoryJson);
+            break;
+        default:
             break;
         }
-    });
+    }
+    s_currentContext = nullptr;
 
     spdlog::info("Loaded database: {}", path.string());
     return true;

@@ -9,6 +9,9 @@ Checks: >
   -readability-identifier-length,
   -cppcoreguidelines-avoid-const-or-ref-data-members,
   -cppcoreguidelines-pro-type-union-access,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -readability-magic-numbers,
+  -readability-function-cognitive-complexity,
   # misc-include-cleaner
 WarningsAsErrors: '*'
 HeaderFilterRegex: '.*'

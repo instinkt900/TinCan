@@ -1,32 +1,32 @@
 {
     "enemies": {
         "enemy_01_red": {
-            "sprite_name": "alien1_red",
+            "sprite": "alien1_red",
             "color": "Red",
             "health": 30,
             "radius": 40,
-            "weapon_name": "enemy_weapon"
+            "weapon": "enemy_weapon"
         },
         "enemy_01_blue": {
-            "sprite_name": "alien1_blue",
+            "sprite": "alien1_blue",
             "color": "Blue",
             "health": 30,
             "radius": 40,
-            "weapon_name": "enemy_weapon"
+            "weapon": "enemy_weapon"
         },
         "enemy_02_red": {
-            "sprite_name": "alien25_red",
+            "sprite": "alien25_red",
             "color": "Red",
             "health": 30,
             "radius": 40,
-            "weapon_name": "enemy_weapon"
+            "weapon": "enemy_weapon"
         },
         "enemy_02_blue": {
-            "sprite_name": "alien25_blue",
+            "sprite": "alien25_blue",
             "color": "Blue",
             "health": 30,
             "radius": 40,
-            "weapon_name": "enemy_weapon"
+            "weapon": "enemy_weapon"
         }
     }
 }

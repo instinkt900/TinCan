@@ -1,6 +1,7 @@
 #include "system_projectile.h"
 #include "collision_utils.h"
 #include "component_drop.h"
+#include "component_entity.h"
 #include "component_health.h"
 #include "gamedata_projectile.h"
 #include "system_drawable.h"
@@ -60,8 +61,13 @@ namespace {
                             registry.emplace<DeadTag>(target.entity);
 
                             if (auto const* dropComponent = registry.try_get<ComponentDrop>(target.entity)) {
+                                auto const* pickupData = gamedata.Get<PickupData>(dropComponent->m_name);
+                                if (pickupData == nullptr) {
+                                    spdlog::error("Unknown pickup {}", dropComponent->m_name);
+                                    return;
+                                }
                                 SystemPickup::CreatePickup(registry, target.position.m_position,
-                                                           dropComponent->m_name, gamedata);
+                                                           *pickupData, gamedata);
                             }
                         }
                     }
@@ -85,7 +91,8 @@ namespace {
 
 entt::entity SystemProjectile::CreateProjectile(entt::registry& registry, ProjectileData const& data,
                                                 entt::entity source, canyon::FloatVec2 const& position,
-                                                canyon::FloatVec2 const& direction, float rotation, float damage) {
+                                                canyon::FloatVec2 const& direction, float rotation,
+                                                float damage) {
     auto const* sourceEntityData = registry.try_get<ComponentEntity>(source);
     if (sourceEntityData == nullptr) {
         return entt::null;
@@ -109,16 +116,18 @@ entt::entity SystemProjectile::CreateProjectile(entt::registry& registry, Projec
 
     auto const& sprite =
         sourceEntityData->m_color == EnergyColor::Blue ? data.white_sprite : data.black_sprite;
-    projectileDrawable.m_spriteData = sprite;
+    projectileDrawable.m_spriteData = *sprite;
 
-    if (data.targeting.has_value() && data.targeting.value() != Targeting::None) {
-        auto& targeting = registry.emplace<ComponentTargeting>(projectile);
-        targeting.m_targeting = data.targeting.value();
-        targeting.m_maxTurnSpeed = data.turn_speed.value_or(0);
-        targeting.m_maxThrust = data.max_thrust.value_or(0);
-        targeting.m_maxSpeed = data.max_speed.value_or(0);
-        targeting.m_minDrag = data.min_drag.value_or(0);
-        targeting.m_maxDrag = data.max_drag.value_or(0);
+    if (data.homing_details.has_value()) {
+        if (data.homing_details->targeting != Targeting::None) {
+            auto& targeting = registry.emplace<ComponentTargeting>(projectile);
+            targeting.m_targeting = data.homing_details->targeting;
+            targeting.m_maxTurnSpeed = data.homing_details->turn_speed;
+            targeting.m_maxThrust = data.homing_details->max_thrust;
+            targeting.m_maxSpeed = data.homing_details->max_speed;
+            targeting.m_minDrag = data.homing_details->min_drag;
+            targeting.m_maxDrag = data.homing_details->max_drag;
+        }
     }
 
     return projectile;

@@ -27,7 +27,7 @@ void SystemPowerWeapon::Update(GameWorld& world, uint32_t ticks) {
 
         // fetch the projectile data
         auto const& gamedata = world.GetGameData();
-        auto const* projectileData = gamedata.GetProjectileDatabase().Get(weapon.m_projectileName);
+        auto const* projectileData = gamedata.Get<ProjectileData>(weapon.m_projectileName);
         if (projectileData == nullptr) {
             spdlog::error("Unable to find power weapon's projectile {}", weapon.m_projectileName);
         }

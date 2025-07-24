@@ -1,6 +1,6 @@
 #pragma once
 
-#include "component_entity.h"
+#include "gamedata_enemy.h"
 #include "gamedata_projectile.h"
 #include <entt/entity/entity.hpp>
 #include <entt/entity/fwd.hpp>

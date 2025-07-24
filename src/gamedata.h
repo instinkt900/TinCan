@@ -1,15 +1,12 @@
 #pragma once
 
+#include <canyon/graphics/surface_context.h>
+#include <filesystem>
 #include "gamedata_database.h"
-#include "gamedata_pickup.h"
-#include "gamedata_enemy.h"
-#include "gamedata_level.h"
-#include "gamedata_projectile.h"
-#include "gamedata_spawner.h"
-#include "gamedata_sprite.h"
-#include "gamedata_weapon.h"
+#include "gamedata_fwd.h"
 
 enum class GameDataCategory {
+    Unknown = -1,
     Sprites,
     Projectiles,
     Weapons,
@@ -19,28 +16,46 @@ enum class GameDataCategory {
     Pickups,
 };
 
+struct SerializeContext {
+    GameData const& gamedata;
+    canyon::graphics::SurfaceContext& surfaceContext;
+};
+
 class GameData {
 public:
-    GameData() = default;
+    GameData();
+    ~GameData();
 
     void LoadDirectory(std::filesystem::path const& directory, SerializeContext const& context);
     bool Load(std::filesystem::path const& path, SerializeContext const& context);
 
-    Database<SpriteData>& GetSpriteDatabase() { return m_spriteDatabase; }
-    Database<ProjectileData>& GetProjectileDatabase() { return m_projectileDatabase; }
-    Database<WeaponData>& GetWeaponDatabase() { return m_weaponDatabase; }
-    Database<EnemyData>& GetEnemyDatabase() { return m_enemyDatabase; }
-    Database<SpawnerData>& GetSpawnerDatabase() { return m_spawnerDatabase; }
-    Database<LevelData>& GetLevelDatabase() { return m_levelDatabase; }
-    Database<PickupData>& GetPickupDatabase() { return m_pickupDatabase; }
+    template<typename T>
+    T const* Get(std::string const& name) const {
+        if constexpr (T::Category == GameDataCategory::Sprites) {
+            return m_spriteDatabase.Get(name);
+        } else if constexpr (T::Category == GameDataCategory::Projectiles) {
+            return m_projectileDatabase.Get(name);
+        } else if constexpr (T::Category == GameDataCategory::Weapons) {
+            return m_weaponDatabase.Get(name);
+        } else if constexpr (T::Category == GameDataCategory::Enemies) {
+            return m_enemyDatabase.Get(name);
+        } else if constexpr (T::Category == GameDataCategory::Spawners) {
+            return m_spawnerDatabase.Get(name);
+        } else if constexpr (T::Category == GameDataCategory::Levels) {
+            return m_levelDatabase.Get(name);
+        } else if constexpr (T::Category == GameDataCategory::Pickups) {
+            return m_pickupDatabase.Get(name);
+        } else {
+            return nullptr;
+        }
+    }
 
-    Database<SpriteData> const& GetSpriteDatabase() const { return m_spriteDatabase; }
-    Database<ProjectileData> const& GetProjectileDatabase() const { return m_projectileDatabase; }
-    Database<WeaponData> const& GetWeaponDatabase() const { return m_weaponDatabase; }
-    Database<EnemyData> const& GetEnemyDatabase() const { return m_enemyDatabase; }
-    Database<SpawnerData> const& GetSpawnerDatabase() const { return m_spawnerDatabase; }
-    Database<LevelData> const& GetLevelDatabase() const { return m_levelDatabase; }
-    Database<PickupData> const& GetPickupDatabase() const { return m_pickupDatabase; }
+    GameData(const GameData&) = delete;
+    GameData(GameData&&) = delete;
+    GameData& operator=(const GameData&) = delete;
+    GameData& operator=(GameData&&) = delete;
+
+    static SerializeContext const* s_currentContext;
 
 private:
     Database<SpriteData> m_spriteDatabase;
@@ -51,3 +66,4 @@ private:
     Database<LevelData> m_levelDatabase;
     Database<PickupData> m_pickupDatabase;
 };
+
