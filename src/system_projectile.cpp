@@ -66,8 +66,8 @@ namespace {
                                     spdlog::error("Unknown pickup {}", dropComponent->m_name);
                                     return;
                                 }
-                                SystemPickup::CreatePickup(registry, target.position.m_position,
-                                                           *pickupData, gamedata);
+                                SystemPickup::CreatePickup(registry, target.position.m_position, *pickupData,
+                                                           gamedata);
                             }
                         }
                     }
@@ -102,7 +102,6 @@ entt::entity SystemProjectile::CreateProjectile(entt::registry& registry, Projec
     auto& projectileEntityData = registry.emplace<ComponentEntity>(projectile);
     auto& projectilePos = registry.emplace<ComponentPosition>(projectile);
     auto& projectileVel = registry.emplace<ComponentVelocity>(projectile);
-    auto& projectileDrawable = registry.emplace<ComponentDrawable>(projectile);
 
     projectileComp.m_source = source;
     projectileComp.m_color = sourceEntityData->m_color;
@@ -116,7 +115,7 @@ entt::entity SystemProjectile::CreateProjectile(entt::registry& registry, Projec
 
     auto const& sprite =
         sourceEntityData->m_color == EnergyColor::Blue ? data.white_sprite : data.black_sprite;
-    projectileDrawable.m_spriteData = *sprite;
+    registry.emplace<ComponentDrawable>(projectile, *sprite);
 
     if (data.homing_details.has_value()) {
         if (data.homing_details->targeting != Targeting::None) {

@@ -28,7 +28,7 @@ entt::entity SystemPickup::CreatePickup(entt::registry& registry, canyon::FloatV
     auto& entityDetails = registry.emplace<ComponentEntity>(entity);
     auto& pos = registry.emplace<ComponentPosition>(entity);
     auto& vel = registry.emplace<ComponentVelocity>(entity);
-    auto& sprite = registry.emplace<ComponentDrawable>(entity);
+    registry.emplace<ComponentDrawable>(entity, *pickupData.sprite);
     auto& pickup = registry.emplace<ComponentPickup>(entity);
 
     entityDetails.m_team = Team::NONE;
@@ -39,8 +39,6 @@ entt::entity SystemPickup::CreatePickup(entt::registry& registry, canyon::FloatV
     pos.m_position = position;
 
     vel.m_velocity = PickupVelocity;
-
-    sprite.m_spriteData = *pickupData.sprite;
 
     pickup.m_name = pickupData.name;
 

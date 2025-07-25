@@ -28,8 +28,27 @@ struct ComponentCamera {
     std::vector<CameraShake> m_shake;
 };
 
+struct DrawableSprite {
+    std::shared_ptr<canyon::graphics::IImage> m_image;
+    canyon::FloatVec2 m_scale;
+    canyon::IntVec2 m_offset;
+    float m_rotation;
+    canyon::graphics::BlendMode m_blendMode;
+    canyon::graphics::Color m_color;
+    int32_t m_zOrder;
+    std::vector<canyon::IntRect> m_cellRects;
+    int32_t m_cellIndex = 0;
+
+    float m_fps = 0;
+    float m_animationTime = 0;
+
+    explicit DrawableSprite(SpriteImage const& data);
+};
+
 struct ComponentDrawable {
-    SpriteData m_spriteData;
+    std::map<std::string, DrawableSprite> m_sprites;
+
+    explicit ComponentDrawable(SpriteData const& data);
 };
 
 class SystemDrawable {

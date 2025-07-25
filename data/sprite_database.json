@@ -3,7 +3,11 @@
         "player_ship": {
             "images": {
                 "ship": {
-                    "image": "assets/player_ship.png",
+                    "image": "assets/spritesheet_player.png",
+                    "sheet_data": {
+                        "cell_dimensions": { "x": 48, "y": 58 },
+                        "grid_dimensions": { "x": 3, "y": 5 }
+                    },
                     "scale": { "x": 1, "y": 1 },
                     "offset": { "x": 0, "y": 0 },
                     "rotation": 0,

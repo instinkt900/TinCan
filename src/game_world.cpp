@@ -1,6 +1,7 @@
 #include "game_world.h"
 #include "component_entity.h"
 #include "component_passives.h"
+#include "system_animation.h"
 #include "system_drawable.h"
 #include "system_enemy_spawner.h"
 #include "system_group.h"
@@ -55,6 +56,7 @@ void GameWorld::Update(uint32_t ticks) {
     SystemPlayerVisuals::Update(*this, ticks);
     SystemGroup::Update(*this, ticks);
     SystemWorldBounds::Update(*this, ticks);
+    SystemAnimation::Update(*this, ticks);
     SystemDrawable::Update(*this, ticks);
 }
 
@@ -107,11 +109,10 @@ void GameWorld::CreatePlayer() {
 
     m_registry.emplace<ComponentInput>(m_player);
 
-    auto& drawable = m_registry.emplace<ComponentDrawable>(m_player);
-
     auto const* playerSprite = m_gamedata.Get<SpriteData>("player_ship");
     if (playerSprite != nullptr) {
-        drawable.m_spriteData = *playerSprite;
+        auto& drawable = m_registry.emplace<ComponentDrawable>(m_player, *playerSprite);
+        drawable.m_sprites.at("ship").m_fps = 18;
     }
 
     auto& shield = m_registry.emplace<ComponentShield>(m_player);

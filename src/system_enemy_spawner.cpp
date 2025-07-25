@@ -125,7 +125,6 @@ entt::entity SystemEnemySpawner::CreateEnemy(entt::registry& registry, EnemyData
     auto enemy = registry.create();
     auto& entityData = registry.emplace<ComponentEntity>(enemy);
     auto& health = registry.emplace<ComponentHealth>(enemy);
-    auto& drawable = registry.emplace<ComponentDrawable>(enemy);
     auto& pos = registry.emplace<ComponentPosition>(enemy);
     auto& behaviour = registry.emplace<ComponentBehaviour>(enemy);
     registry.emplace<TargetTag>(enemy);
@@ -143,7 +142,7 @@ entt::entity SystemEnemySpawner::CreateEnemy(entt::registry& registry, EnemyData
         spdlog::error("Unknown sprite for enemy.");
         return entt::null;
     }
-    drawable.m_spriteData = *spriteData;
+    registry.emplace<ComponentDrawable>(enemy, *spriteData);
 
     pos.m_position = position;
 
