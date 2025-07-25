@@ -10,34 +10,27 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 
 set(SOURCES ${SOURCES}
-	src/main.cpp
+	src/collision_utils.cpp
+	src/gamedata.cpp
 	src/game_layer.cpp
-	src/system_input.cpp
-	src/system_movement.cpp
+	src/game_world.cpp
+	src/main.cpp
+	src/system_behaviour.cpp
 	src/system_drawable.cpp
-	src/system_weapon.cpp
-	src/system_lifetime.cpp
 	src/system_enemy_spawner.cpp
+	src/system_group.cpp
+	src/system_input.cpp
+	src/system_level.cpp
+	src/system_lifetime.cpp
+	src/system_movement.cpp
+	src/system_pickup.cpp
+	src/system_player_visuals.cpp
+	src/system_power_weapon.cpp
 	src/system_projectile.cpp
 	src/system_shield.cpp
-	src/system_player_visuals.cpp
-	src/collision_utils.cpp
-	src/gamedata_projectile.cpp
-	src/gamedata_sprite.cpp
-	src/gamedata_enemy.cpp
-	src/gamedata_weapon.cpp
-	src/system_behaviour.cpp
-	src/gamedata_spawner.cpp
-	src/system_group.cpp
-	src/gamedata_level.cpp
-	src/system_level.cpp
-	src/system_pickup.cpp
-	src/gamedata_pickup.cpp
-	src/game_world.cpp
-	src/system_world_bounds.cpp
 	src/system_targeting.cpp
-	src/gamedata.cpp
-	src/system_power_weapon.cpp
+	src/system_weapon.cpp
+	src/system_world_bounds.cpp
 )
 
 find_package(canyon REQUIRED)
