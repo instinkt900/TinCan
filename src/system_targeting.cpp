@@ -1,4 +1,5 @@
 #include "system_targeting.h"
+#include "component_body.h"
 #include "component_entity.h"
 #include "system_movement.h"
 #include "tags.h"
@@ -65,7 +66,7 @@ namespace {
 
 void SystemTargeting::Update(GameWorld& world, uint32_t ticks) {
     auto& registry = world.GetRegistry();
-    auto view = registry.view<ComponentTargeting, ComponentEntity>();
+    auto view = registry.view<ComponentTargeting, ComponentEntity>(entt::exclude<DeadTag>);
     for (auto [entity, targeting, entityDetails] : view.each()) {
         //
         switch (targeting.m_targeting) {

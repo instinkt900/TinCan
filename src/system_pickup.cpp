@@ -1,5 +1,6 @@
 #include "system_pickup.h"
 #include "collision_utils.h"
+#include "component_body.h"
 #include "component_entity.h"
 #include "component_passives.h"
 #include "gamedata_pickup.h"
@@ -26,17 +27,13 @@ entt::entity SystemPickup::CreatePickup(entt::registry& registry, canyon::FloatV
                                         PickupData const& pickupData, GameData const& gamedata) {
     auto entity = registry.create();
     auto& entityDetails = registry.emplace<ComponentEntity>(entity);
-    auto& pos = registry.emplace<ComponentPosition>(entity);
+    registry.emplace<ComponentBody>(entity, PickupRadius);
+    registry.emplace<ComponentPosition>(entity, position);
     auto& vel = registry.emplace<ComponentVelocity>(entity);
-    registry.emplace<ComponentDrawable>(entity, *pickupData.sprite);
+    registry.emplace<ComponentSprite>(entity, *pickupData.sprite);
     auto& pickup = registry.emplace<ComponentPickup>(entity);
 
-    entityDetails.m_team = Team::NONE;
-    entityDetails.m_color = EnergyColor::Blue;
-    entityDetails.m_radius = PickupRadius;
-
-    pos.m_lastPosition = position;
-    pos.m_position = position;
+    entityDetails.m_team = Team::None;
 
     vel.m_velocity = PickupVelocity;
 
@@ -119,13 +116,13 @@ void SystemPickup::Update(GameWorld& world, uint32_t ticks) {
     auto& registry = world.GetRegistry();
     auto const& gamedata = world.GetGameData();
 
-    ComponentEntity const* playerEntity = nullptr;
     ComponentPosition const* playerPosition = nullptr;
+    ComponentBody const* playerBody = nullptr;
     {
-        auto view = registry.view<PlayerTag, ComponentEntity, ComponentPosition>();
-        for (auto [entity, entityDetails, position] : view.each()) {
-            playerEntity = &entityDetails;
+        auto view = registry.view<PlayerTag, ComponentBody, ComponentPosition>();
+        for (auto [entity, body, position] : view.each()) {
             playerPosition = &position;
+            playerBody = &body;
         }
     }
 
@@ -133,11 +130,11 @@ void SystemPickup::Update(GameWorld& world, uint32_t ticks) {
         spdlog::error("Unable to locate player");
     }
 
-    auto view = registry.view<ComponentPickup, ComponentEntity, ComponentPosition>();
-    for (auto [entity, pickup, pickupEntity, position] : view.each()) {
+    auto view = registry.view<ComponentPickup, ComponentEntity, ComponentBody, ComponentPosition>();
+    for (auto [entity, pickup, pickupEntity, body, position] : view.each()) {
         auto const t =
-            SweepTest(playerPosition->m_position, playerPosition->m_lastPosition, playerEntity->m_radius,
-                      position.m_position, position.m_lastPosition, pickupEntity.m_radius);
+            SweepTest(playerPosition->m_position, playerPosition->m_lastPosition, playerBody->m_radius,
+                      position.m_position, position.m_lastPosition, body.m_radius);
 
         if (t < 1.0f) {
             // detroy the pickup.

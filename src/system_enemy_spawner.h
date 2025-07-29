@@ -32,10 +32,6 @@ class SystemEnemySpawner {
 public:
     static void Update(GameWorld& world, uint32_t ticks);
 
-    static entt::entity CreateEnemy(entt::registry& registry, EnemyData const& enemyData,
-                                    GameData const& gamedata, canyon::FloatVec2 const& position,
-                                    EnemyBehaviour behaviourType,
-                                    BehaviourParameterList const& behaviourParameters);
     static entt::entity CreateSpawner(entt::registry& registry, SpawnerData const& data,
                                       GameData const& gamedata, canyon::FloatVec2 const& position);
 };

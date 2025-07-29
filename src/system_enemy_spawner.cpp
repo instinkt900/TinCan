@@ -1,8 +1,9 @@
 #include "system_enemy_spawner.h"
+#include "component_body.h"
 #include "component_entity.h"
+#include "component_health.h"
 #include "system_behaviour.h"
 #include "system_group.h"
-#include "component_health.h"
 #include "system_lifetime.h"
 #include "system_movement.h"
 #include "system_drawable.h"
@@ -12,7 +13,51 @@
 #include <entt/entt.hpp>
 #include <spdlog/spdlog.h>
 #include "game_world.h"
-#include "gamedata_enemy.h"
+
+namespace {
+    entt::entity SpawnEnemy(entt::registry& registry, EnemyData const& data,
+                            canyon::FloatVec2 const& position, GameData const& gamedata) {
+        auto rootEntity = registry.create();
+
+        auto& entityDetails = registry.emplace<ComponentEntity>(rootEntity);
+        entityDetails.m_team = Team::Enemy;
+        entityDetails.m_affinity = data.affinity;
+
+        registry.emplace<ComponentPosition>(rootEntity, position);
+
+        for (auto const& [sectionName, section] : data.body) {
+            auto childEntity = registry.create();
+            registry.emplace<TargetTag>(childEntity);
+            auto& childDetails = registry.emplace<ComponentEntity>(childEntity);
+            childDetails.m_team = Team::Enemy;
+            childDetails.m_affinity = data.affinity;
+
+            registry.emplace<ComponentParenting>(childEntity, rootEntity,
+                                                 static_cast<canyon::FloatVec2>(section.offset));
+            registry.emplace<ComponentPosition>(childEntity,
+                                                position + static_cast<canyon::FloatVec2>(section.offset));
+            registry.emplace<ComponentBody>(childEntity, section.radius);
+            auto& sprite = registry.emplace<ComponentSprite>(childEntity, *section.sprite);
+            sprite.m_color = data.affinity == Affinity::Light ? canyon::graphics::BasicColors::Blue
+                                                              : canyon::graphics::BasicColors::Red;
+            if (section.health > 0) {
+                registry.emplace<ComponentHealth>(childEntity, section.health);
+            }
+
+            if (section.weapon.valid()) {
+                auto* weapon = SystemWeapon::InitWeapon(registry, childEntity, *section.weapon, gamedata);
+                if (weapon != nullptr) {
+                    weapon->m_active = true;
+                }
+            }
+
+            entityDetails.m_children.insert(childEntity);
+        }
+
+        return rootEntity;
+    }
+
+}
 
 ComponentEnemySpawner::ComponentEnemySpawner(SpawnerData const& data)
     : m_active(true)
@@ -86,8 +131,13 @@ void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
                     break;
                 }
 
-                auto enemy = CreateEnemy(registry, spawner.m_enemy, gamedata, position, spawner.m_behaviour,
-                                         spawner.m_behaviourParameters);
+                auto enemy = SpawnEnemy(registry, spawner.m_enemy, position, gamedata);
+                // registry.emplace<TargetTag>(enemy);
+
+                auto& behaviour = registry.emplace<ComponentBehaviour>(enemy);
+                behaviour.m_behaviour = spawner.m_behaviour;
+                behaviour.m_parameters = spawner.m_behaviourParameters;
+                behaviour.m_offset = position;
 
                 if (spawner.m_killType == EnemyKillType::Time) {
                     auto& lifetime = registry.emplace<ComponentLifetime>(enemy);
@@ -118,51 +168,10 @@ void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
     }
 }
 
-entt::entity SystemEnemySpawner::CreateEnemy(entt::registry& registry, EnemyData const& enemyData,
-                                             GameData const& gamedata, canyon::FloatVec2 const& position,
-                                             EnemyBehaviour behaviourType,
-                                             BehaviourParameterList const& behaviourParameters) {
-    auto enemy = registry.create();
-    auto& entityData = registry.emplace<ComponentEntity>(enemy);
-    auto& health = registry.emplace<ComponentHealth>(enemy);
-    auto& pos = registry.emplace<ComponentPosition>(enemy);
-    auto& behaviour = registry.emplace<ComponentBehaviour>(enemy);
-    registry.emplace<TargetTag>(enemy);
-
-    entityData.m_team = Team::ENEMY;
-    entityData.m_color = enemyData.color;
-    entityData.m_radius = enemyData.radius;
-    entityData.m_angle = M_PI; // TODO: read from data? spawner? behaviour?
-
-    health.m_currentHealth = enemyData.health;
-    health.m_maxHealth = enemyData.health;
-
-    SpriteData const* spriteData = enemyData.sprite;
-    if (spriteData == nullptr) {
-        spdlog::error("Unknown sprite for enemy.");
-        return entt::null;
-    }
-    registry.emplace<ComponentDrawable>(enemy, *spriteData);
-
-    pos.m_position = position;
-
-    auto* weapon = SystemWeapon::InitWeapon(registry, enemy, *enemyData.weapon, gamedata);
-    if (weapon != nullptr) {
-        weapon->m_active = true;
-    }
-
-    behaviour.m_behaviour = behaviourType;
-    behaviour.m_parameters = behaviourParameters;
-    behaviour.m_offset = pos.m_position;
-
-    return enemy;
-}
-
 entt::entity SystemEnemySpawner::CreateSpawner(entt::registry& registry, SpawnerData const& data,
                                                GameData const& gamedata, canyon::FloatVec2 const& position) {
     auto enemySpawner = registry.create();
     registry.emplace<ComponentEnemySpawner>(enemySpawner, data);
-    auto& spawnerPos = registry.emplace<ComponentPosition>(enemySpawner);
-    spawnerPos.m_position = position;
+    registry.emplace<ComponentPosition>(enemySpawner, position);
     return enemySpawner;
 }

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "gamedata_enemy.h"
 #include "gamedata_projectile.h"
 #include <entt/entity/entity.hpp>
 #include <entt/entity/fwd.hpp>
@@ -10,7 +9,6 @@ class GameWorld;
 
 struct ComponentProjectile {
     entt::entity m_source = entt::null;
-    EnergyColor m_color = EnergyColor::Blue;
     float m_damage = 1;
 };
 

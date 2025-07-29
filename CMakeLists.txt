@@ -24,7 +24,6 @@ set(SOURCES ${SOURCES}
 	src/system_lifetime.cpp
 	src/system_movement.cpp
 	src/system_pickup.cpp
-	src/system_player_visuals.cpp
 	src/system_power_weapon.cpp
 	src/system_projectile.cpp
 	src/system_shield.cpp

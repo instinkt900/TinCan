@@ -1,32 +1,48 @@
 {
     "enemies": {
         "enemy_01_red": {
-            "sprite": "alien1_red",
-            "color": "Red",
-            "health": 30,
-            "radius": 40,
-            "weapon": "enemy_weapon"
+            "body": {
+                "ship": {
+                    "sprite": "enemy_ship_01",
+                    "health": 30,
+                    "radius": 40,
+                    "weapon": "enemy_weapon"
+                }
+            },
+            "affinity": "Dark"
         },
         "enemy_01_blue": {
-            "sprite": "alien1_blue",
-            "color": "Blue",
-            "health": 30,
-            "radius": 40,
-            "weapon": "enemy_weapon"
+            "body": {
+                "ship": {
+                    "sprite": "enemy_ship_01",
+                    "health": 30,
+                    "radius": 40,
+                    "weapon": "enemy_weapon"
+                }
+            },
+            "affinity": "Light"
         },
         "enemy_02_red": {
-            "sprite": "alien25_red",
-            "color": "Red",
-            "health": 30,
-            "radius": 40,
-            "weapon": "enemy_weapon"
+            "body": {
+                "ship": {
+                    "sprite": "enemy_ship_02",
+                    "health": 30,
+                    "radius": 40,
+                    "weapon": "enemy_weapon"
+                }
+            },
+            "affinity": "Dark"
         },
         "enemy_02_blue": {
-            "sprite": "alien25_blue",
-            "color": "Blue",
-            "health": 30,
-            "radius": 40,
-            "weapon": "enemy_weapon"
+            "body": {
+                "ship": {
+                    "sprite": "enemy_ship_02",
+                    "health": 30,
+                    "radius": 40,
+                    "weapon": "enemy_weapon"
+                }
+            },
+            "affinity": "Light"
         }
     }
 }

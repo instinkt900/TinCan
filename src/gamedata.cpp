@@ -2,7 +2,6 @@
 #include <fstream>
 #include "utils_serialization.h"
 #include "gamedata_sprite.h"
-#include "gamedata_enemy.h"
 #include "gamedata_level.h"
 #include "gamedata_pickup.h"
 #include "gamedata_projectile.h"

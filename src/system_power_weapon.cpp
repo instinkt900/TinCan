@@ -48,13 +48,13 @@ void SystemPowerWeapon::Update(GameWorld& world, uint32_t ticks) {
 
         // work out the angle for the projectiles.
         auto const maxSeparation = canyon::Radians(10.0f);
-        auto const anglePerProjectile = std::max(maxSeparation, canyon::Radians(360.0f) / projectileCount);
-        auto const fullSpread = anglePerProjectile * projectileCount;
+        auto const anglePerProjectile = std::min(maxSeparation, canyon::Radians(360.0f) / projectileCount);
+        auto const fullSpread = anglePerProjectile * (projectileCount - 1);
         auto const startAngle = -fullSpread / 2.0f;
 
         for (uint32_t i = 0; i < static_cast<uint32_t>(projectileCount); ++i) {
             auto const angle = startAngle + (anglePerProjectile * static_cast<float>(i));
-            auto const direction = canyon::Rotate2D({ 0.0f, -1.0f }, angle);
+            auto const direction = canyon::Rotate2D({ 0.0f, 1.0f }, angle);
             SystemProjectile::CreateProjectile(registry, *projectileData, entity, position.m_position,
                                                direction, angle, weapon.m_damage);
         }

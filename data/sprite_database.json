@@ -1,108 +1,45 @@
 {
     "sprites": {
         "player_ship": {
-            "images": {
-                "ship": {
-                    "image": "assets/spritesheet_player.png",
-                    "sheet_data": {
-                        "cell_dimensions": { "x": 48, "y": 58 },
-                        "grid_dimensions": { "x": 3, "y": 5 }
-                    },
-                    "scale": { "x": 1, "y": 1 },
-                    "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
-                    "blend_mode": 1,
-                    "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
-                    "zOrder": 0
-                },
-                "shield": {
-                    "image": "assets/shield.png",
-                    "scale": { "x": 1.5, "y": 1.5 },
-                    "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
-                    "blend_mode": 1,
-                    "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
-                    "zOrder": 2
-                }
+            "image": "assets/spritesheet_player.png",
+            "blend_mode": "Alpha",
+            "sheet_data": {
+                "cell_dimensions": { "x": 48, "y": 58 },
+                "grid_dimensions": { "x": 3, "y": 5 }
             }
         },
-        "enemy_ship": {
-            "images": {
-                "ship": {
-                    "image": "assets/sprites/alien1.png",
-                    "scale": { "x": 3, "y": 3 },
-                    "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
-                    "blend_mode": 1,
-                    "color": { "x": 1, "y": 0.65, "z": 0.65, "w": 1 },
-                    "zOrder": 0
-                }
-            }
+        "player_shield": {
+            "image": "assets/shield.png",
+            "blend_mode": "Alpha",
+            "z_order": 5
+        },
+        "enemy_ship_01": {
+            "image": "assets/base_enemy.png",
+            "blend_mode": "Alpha"
+        },
+        "enemy_ship_02": {
+            "image": "assets/sprites/alien2.png",
+            "blend_mode": "Alpha"
         },
         "player_projectile_light": {
-            "images": {
-                "ship": {
-                    "image": "assets/player_bullet.png",
-                    "scale": { "x": 0.8, "y": 0.8 },
-                    "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
-                    "blend_mode": 1,
-                    "color": { "x": 0.7, "y": 0.7, "z": 1, "w": 1 },
-                    "zOrder": 1
-                }
-            }
+            "image": "assets/player_bullet.png",
+            "blend_mode": "Alpha"
         },
         "player_projectile_dark": {
-            "images": {
-                "ship": {
-                    "image": "assets/player_bullet.png",
-                    "scale": { "x": 0.8, "y": 0.8 },
-                    "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
-                    "blend_mode": 1,
-                    "color": { "x": 1, "y": 0.7, "z": 0.7, "w": 1 },
-                    "zOrder": 1
-                }
-            }
+            "image": "assets/player_bullet.png",
+            "blend_mode": "Alpha"
         },
         "enemy_projectile_light": {
-            "images": {
-                "ship": {
-                    "image": "assets/enemy_bullet.png",
-                    "scale": { "x": 1, "y": 1 },
-                    "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
-                    "blend_mode": 1,
-                    "color": { "x": 0.7, "y": 0.7, "z": 1, "w": 1 },
-                    "zOrder": 1
-                }
-            }
+            "image": "assets/enemy_bullet.png",
+            "blend_mode": "Alpha"
         },
         "enemy_projectile_dark": {
-            "images": {
-                "ship": {
-                    "image": "assets/enemy_bullet.png",
-                    "scale": { "x": 1, "y": 1 },
-                    "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
-                    "blend_mode": 1,
-                    "color": { "x": 1, "y": 0.7, "z": 0.7, "w": 1 },
-                    "zOrder": 1
-                }
-            }
+            "image": "assets/enemy_bullet.png",
+            "blend_mode": "Alpha"
         },
         "drop_01": {
-            "images": {
-                "root": {
-                    "image": "assets/pickup.png",
-                    "scale": { "x": 2, "y": 2 },
-                    "offset": { "x": 0, "y": 0 },
-                    "rotation": 0,
-                    "blend_mode": 1,
-                    "color": { "x": 1, "y": 1, "z": 1, "w": 1 },
-                    "zOrder": 1
-                }
-            }
+            "image": "assets/pickup.png",
+            "blend_mode": "Alpha"
         }
     }
 }

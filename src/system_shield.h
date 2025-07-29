@@ -9,7 +9,6 @@ struct ComponentPower {
 };
 
 struct ComponentShield {
-    float m_radius;
 };
 
 class SystemShield {

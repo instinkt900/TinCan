@@ -1,5 +1,6 @@
 #pragma once
 
+#include <canyon/graphics/blend_mode.h>
 #include <nlohmann/json.hpp>
 #include <magic_enum.hpp>
 
@@ -22,7 +23,7 @@
             throw;                                                                                           \
         }                                                                                                    \
     }
-#define DATA_OPTIONAL_DEFAULT(json, obj, name, default) json.value(#name, default).get_to(obj.name);
+#define DATA_OPTIONAL_DEFAULT(json, obj, name, default_) obj.name = json.value(#name, default_);
 #define DATA_OPTIONAL(json_, obj, name)                                                                      \
     {                                                                                                        \
         auto const v = json_.value(#name, nlohmann::json());                                                 \
@@ -47,6 +48,21 @@ namespace nlohmann {
                 opt = std::nullopt;
             } else {
                 opt = j.get<T>();
+            }
+        }
+    };
+
+    template<>
+    struct adl_serializer<canyon::graphics::BlendMode> {
+        static void to_json(json& j, canyon::graphics::BlendMode const& blendMode) {
+            j = magic_enum::enum_name(blendMode);
+        }
+
+        static void from_json(const json& j, canyon::graphics::BlendMode& blendMode) {
+            if (auto val = magic_enum::enum_cast<canyon::graphics::BlendMode>(j.get<std::string>()); val.has_value()) {
+                blendMode = val.value();
+            } else {
+                throw std::runtime_error("Invalid enum string: " + j.get<std::string>());
             }
         }
     };

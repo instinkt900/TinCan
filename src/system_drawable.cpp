@@ -7,14 +7,13 @@
 #include "game_world.h"
 #include "utils.h"
 
-DrawableSprite::DrawableSprite(SpriteImage const& data)
+ComponentSprite::ComponentSprite(SpriteData const& data)
     : m_image(data.image)
     , m_scale(data.scale)
-    , m_offset(data.offset)
-    , m_rotation(data.rotation)
     , m_blendMode(data.blend_mode)
     , m_color(data.color)
-    , m_zOrder(data.zOrder) {
+    , m_rotation(data.rotation)
+    , m_zOrder(data.z_order) {
     if (data.sheet_data.has_value()) {
         auto const& sheetData = data.sheet_data.value();
         for (int y = 0; y < sheetData.grid_dimensions.y; ++y) {
@@ -30,14 +29,8 @@ DrawableSprite::DrawableSprite(SpriteImage const& data)
     }
 }
 
-ComponentDrawable::ComponentDrawable(SpriteData const& data) {
-    for (auto const& [name, image] : data.images) {
-        m_sprites.insert(std::make_pair(name, DrawableSprite(image)));
-    }
-}
-
 struct DrawImage {
-    DrawableSprite const* m_image = nullptr;
+    ComponentSprite const* m_image = nullptr;
     canyon::IntRect m_sourceRect;
     canyon::IntVec2 m_position;
     float m_angle = 0;
@@ -123,9 +116,9 @@ void SystemDrawable::Draw(GameWorld& world, canyon::graphics::IGraphics& graphic
     auto& camera = cameraView.get<ComponentCamera>(*cameraView.begin());
     auto const cameraOffset = camera.m_offset + camera.m_shakeOffset;
 
-    auto view = registry.view<ComponentDrawable, ComponentPosition>();
+    auto view = registry.view<ComponentSprite, ComponentPosition>();
 
-    std::vector<DrawImage> m_opaqueDraws;
+    // std::vector<DrawImage> m_opaqueDraws;
     std::vector<DrawImage> m_blendedDraws;
 
     for (auto [entity, drawable, pos] : view.each()) {
@@ -133,35 +126,35 @@ void SystemDrawable::Draw(GameWorld& world, canyon::graphics::IGraphics& graphic
         if (auto const* details = registry.try_get<ComponentEntity>(entity)) {
             angle = details->m_angle;
         }
-        for (auto& [imageName, spriteImage] : drawable.m_sprites) {
-            auto const fullAngle = angle + spriteImage.m_rotation;
-            auto const sourceRect = spriteImage.m_cellRects[spriteImage.m_cellIndex];
-            auto position = static_cast<canyon::IntVec2>(pos.m_position + cameraOffset);
-            if (spriteImage.m_blendMode == canyon::graphics::BlendMode::Replace) {
-                m_opaqueDraws.push_back({ &spriteImage, sourceRect, position, fullAngle });
-            } else {
-                m_blendedDraws.push_back({ &spriteImage, sourceRect, position, fullAngle });
-            }
-        }
+        auto const fullAngle = angle + drawable.m_rotation;
+        auto const sourceRect = drawable.m_cellRects[drawable.m_cellIndex];
+        auto position = static_cast<canyon::IntVec2>(pos.m_position + cameraOffset);
+        // if (drawable.m_blendMode == canyon::graphics::BlendMode::Replace) {
+        //     m_opaqueDraws.push_back({ &drawable, sourceRect, position, fullAngle });
+        // } else {
+            m_blendedDraws.push_back({ &drawable, sourceRect, position, fullAngle });
+        // }
     }
 
-    std::sort(m_opaqueDraws.begin(), m_opaqueDraws.end(),
-              [](DrawImage const& a, DrawImage const& b) { return a.m_image->m_zOrder < b.m_image->m_zOrder; });
+    // std::sort(m_opaqueDraws.begin(), m_opaqueDraws.end(), [](DrawImage const& a, DrawImage const& b) {
+    //     return a.m_image->m_zOrder < b.m_image->m_zOrder;
+    // });
+    //
+    std::sort(m_blendedDraws.begin(), m_blendedDraws.end(), [](DrawImage const& a, DrawImage const& b) {
+        return a.m_image->m_zOrder < b.m_image->m_zOrder;
+    });
 
-    std::sort(m_blendedDraws.begin(), m_blendedDraws.end(),
-              [](DrawImage const& a, DrawImage const& b) { return a.m_image->m_zOrder < b.m_image->m_zOrder; });
-
-    graphics.SetBlendMode(canyon::graphics::BlendMode::Replace);
-    for (auto& draw : m_opaqueDraws) {
-        graphics.SetColor(draw.m_image->m_color);
-        auto const baseSize = static_cast<canyon::FloatVec2>(draw.m_sourceRect.dimensions());
-        auto const scaledSize = static_cast<canyon::IntVec2>(baseSize * draw.m_image->m_scale);
-        canyon::IntVec2 halfSize = scaledSize / 2;
-        auto destRect = canyon::MakeRect(draw.m_position.x - halfSize.x, draw.m_position.y - halfSize.y,
-                                         scaledSize.x, scaledSize.y);
-        graphics.DrawImage(*draw.m_image->m_image, static_cast<canyon::IntRect>(destRect), &draw.m_sourceRect,
-                           draw.m_angle);
-    }
+    // graphics.SetBlendMode(canyon::graphics::BlendMode::Replace);
+    // for (auto& draw : m_opaqueDraws) {
+    //     graphics.SetColor(draw.m_image->m_color);
+    //     auto const baseSize = static_cast<canyon::FloatVec2>(draw.m_sourceRect.dimensions());
+    //     auto const scaledSize = static_cast<canyon::IntVec2>(baseSize * draw.m_image->m_scale);
+    //     canyon::IntVec2 halfSize = scaledSize / 2;
+    //     auto destRect = canyon::MakeRect(draw.m_position.x - halfSize.x, draw.m_position.y - halfSize.y,
+    //                                      scaledSize.x, scaledSize.y);
+    //     graphics.DrawImage(*draw.m_image->m_image, static_cast<canyon::IntRect>(destRect), &draw.m_sourceRect,
+    //                        draw.m_angle);
+    // }
 
     for (auto& draw : m_blendedDraws) {
         graphics.SetBlendMode(draw.m_image->m_blendMode);

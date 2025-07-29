@@ -29,17 +29,14 @@ enum class EnemyKillType {
 };
 MAGIC_SERIALIZE_ENUM(EnemyKillType);
 
-// TODO: this should just be std::string/float. Prevents ambiguity between an abs float and an int
-using BehaviourParameterList = std::map<std::string, std::variant<std::string, int32_t, float>>;
+using BehaviourParameterList = std::map<std::string, std::variant<std::string, float>>;
 
 namespace nlohmann {
     template <>
-    struct adl_serializer<std::variant<std::string, int32_t, float>> {
-        static void from_json(const json& json, std::variant<std::string, int32_t, float>& data) {
+    struct adl_serializer<std::variant<std::string, float>> {
+        static void from_json(const json& json, std::variant<std::string, float>& data) {
             if (json.is_string()) {
                 data = json.get<std::string>();
-            } else if (json.is_number_integer()) {
-                data = json.get<std::int32_t>();
             } else if (json.is_number_float()) {
                 data = json.get<float>();
             }

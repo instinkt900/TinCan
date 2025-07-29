@@ -120,7 +120,7 @@ namespace {
         // update positions based on velocity
         auto const dt = static_cast<float>(ticks) / 1000.0f;
         auto& registry = world.GetRegistry();
-        auto view = registry.view<ComponentPosition, ComponentVelocity>(entt::exclude<DeadTag>);
+        auto view = registry.view<ComponentPosition, ComponentVelocity>(entt::exclude<DeadTag, ComponentParenting>);
         for (auto [entity, pos, vel] : view.each()) {
             auto velocity = vel.m_velocity;
             if (auto* input = registry.try_get<ComponentInput>(entity)) {
@@ -142,9 +142,27 @@ namespace {
             pos.m_position += velocity * dt;
         }
     }
+
+    void UpdateParenting(GameWorld& world, uint32_t ticks) {
+        auto& registry = world.GetRegistry();
+        auto view = registry.view<ComponentParenting, ComponentPosition>(entt::exclude<DeadTag>);
+        for (auto [entity, parenting, position] : view.each()) {
+            if (!registry.valid(parenting.m_parent)) {
+                // parent is gone. kill any children
+                registry.emplace<DeadTag>(entity);
+                continue;
+            }
+            auto const* parentPosition = registry.try_get<ComponentPosition>(parenting.m_parent);
+            if (parentPosition != nullptr) {
+                position.m_lastPosition = position.m_position;
+                position.m_position = parentPosition->m_position + parenting.m_offset;
+            }
+        }
+    }
 }
 
 void SystemMovement::Update(GameWorld& world, uint32_t ticks) {
     UpdateTargeting(world, ticks);
     UpdatePosition(world, ticks);
+    UpdateParenting(world, ticks);
 }

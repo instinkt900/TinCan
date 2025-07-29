@@ -1,6 +1,8 @@
 #include "game_world.h"
+#include "component_body.h"
 #include "component_entity.h"
 #include "component_passives.h"
+#include "gamedata_entity.h"
 #include "system_animation.h"
 #include "system_drawable.h"
 #include "system_enemy_spawner.h"
@@ -11,7 +13,6 @@
 #include "system_lifetime.h"
 #include "system_movement.h"
 #include "system_pickup.h"
-#include "system_player_visuals.h"
 #include "system_projectile.h"
 #include "system_shield.h"
 #include "system_targeting.h"
@@ -53,7 +54,6 @@ void GameWorld::Update(uint32_t ticks) {
     SystemShield::Update(*this, ticks);
     SystemProjectile::Update(*this, ticks);
     SystemPickup::Update(*this, ticks);
-    SystemPlayerVisuals::Update(*this, ticks);
     SystemGroup::Update(*this, ticks);
     SystemWorldBounds::Update(*this, ticks);
     SystemAnimation::Update(*this, ticks);
@@ -89,34 +89,23 @@ bool GameWorld::OnKeyEvent(moth_ui::EventKey const& event) {
 
 void GameWorld::CreatePlayer() {
     m_player = m_registry.create();
-    m_registry.emplace<PlayerTag>(m_player);
 
-    auto& entityData = m_registry.emplace<ComponentEntity>(m_player);
-    entityData.m_team = Team::PLAYER;
-    entityData.m_color = EnergyColor::Blue;
-    entityData.m_radius = 5.0f;
-    entityData.m_angle = 0;
+    auto& entityDetails = m_registry.emplace<ComponentEntity>(m_player);
+    entityDetails.m_team = Team::Player;
+    entityDetails.m_affinity = Affinity::Light;
 
-    auto& playerHealth = m_registry.emplace<ComponentHealth>(m_player);
-    playerHealth.m_maxHealth = 100;
-    playerHealth.m_currentHealth = 100;
+    auto const position = canyon::FloatVec2(WorldSize.x / 2, WorldSize.y - 160);
+    m_registry.emplace<ComponentPosition>(m_player, position);
+    m_registry.emplace<ComponentBody>(m_player, 5);
 
-    auto& position = m_registry.emplace<ComponentPosition>(m_player);
-    position.m_position = { WorldSize.x / 2, WorldSize.y - 160 };
+    auto const* spriteData = m_gamedata.Get<SpriteData>("player_ship");
+    m_registry.emplace<ComponentSprite>(m_player, *spriteData);
+    m_registry.emplace<ComponentHealth>(m_player, 100);
 
     auto& velocity = m_registry.emplace<ComponentVelocity>(m_player);
     velocity.m_velocity = { 0, 0 };
 
     m_registry.emplace<ComponentInput>(m_player);
-
-    auto const* playerSprite = m_gamedata.Get<SpriteData>("player_ship");
-    if (playerSprite != nullptr) {
-        auto& drawable = m_registry.emplace<ComponentDrawable>(m_player, *playerSprite);
-        drawable.m_sprites.at("ship").m_fps = 18;
-    }
-
-    auto& shield = m_registry.emplace<ComponentShield>(m_player);
-    shield.m_radius = 39;
 
     auto& power = m_registry.emplace<ComponentPower>(m_player);
     power.m_power = 0;
@@ -127,10 +116,21 @@ void GameWorld::CreatePlayer() {
     SystemWeapon::InitWeapon(m_registry, m_player, *weaponData, m_gamedata);
     SystemPowerWeapon::InitWeapon(m_registry, m_player, "dummy", m_gamedata);
 
+    m_registry.emplace<PlayerTag>(m_player);
     m_registry.emplace<TargetTag>(m_player);
 
     auto& bounds = m_registry.emplace<ComponentBounds>(m_player);
     bounds.m_behaviour = BoundsBehaviour::Limit;
     bounds.m_bounds =
         canyon::MakeRect(0.0f, 0.0f, static_cast<float>(WorldSize.x), static_cast<float>(WorldSize.y));
+
+    {
+        auto shield = m_registry.create();
+        m_registry.emplace<ComponentShield>(shield);
+        m_registry.emplace<ComponentPosition>(shield, position);
+        m_registry.emplace<ComponentBody>(shield, 45.0f);
+        m_registry.emplace<ComponentParenting>(shield, m_player);
+        auto const* spriteData = m_gamedata.Get<SpriteData>("player_shield");
+        m_registry.emplace<ComponentSprite>(shield, *spriteData);
+    }
 }
