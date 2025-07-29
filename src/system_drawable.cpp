@@ -7,7 +7,7 @@
 #include "game_world.h"
 #include "utils.h"
 
-ComponentSprite::ComponentSprite(SpriteData const& data)
+ComponentSprite::ComponentSprite(SpriteData const& data, Affinity affinity)
     : m_image(data.image)
     , m_scale(data.scale)
     , m_blendMode(data.blend_mode)
@@ -26,6 +26,11 @@ ComponentSprite::ComponentSprite(SpriteData const& data)
     } else {
         m_cellRects.emplace_back(canyon::IntVec2{ 0, 0 },
                                  canyon::IntVec2{ m_image->GetWidth(), m_image->GetHeight() });
+    }
+
+    if (affinity != Affinity::None) {
+        m_color = affinity == Affinity::Light ? canyon::graphics::BasicColors::Blue
+                                              : canyon::graphics::BasicColors::Red;
     }
 }
 
@@ -132,7 +137,7 @@ void SystemDrawable::Draw(GameWorld& world, canyon::graphics::IGraphics& graphic
         // if (drawable.m_blendMode == canyon::graphics::BlendMode::Replace) {
         //     m_opaqueDraws.push_back({ &drawable, sourceRect, position, fullAngle });
         // } else {
-            m_blendedDraws.push_back({ &drawable, sourceRect, position, fullAngle });
+        m_blendedDraws.push_back({ &drawable, sourceRect, position, fullAngle });
         // }
     }
 
@@ -152,7 +157,8 @@ void SystemDrawable::Draw(GameWorld& world, canyon::graphics::IGraphics& graphic
     //     canyon::IntVec2 halfSize = scaledSize / 2;
     //     auto destRect = canyon::MakeRect(draw.m_position.x - halfSize.x, draw.m_position.y - halfSize.y,
     //                                      scaledSize.x, scaledSize.y);
-    //     graphics.DrawImage(*draw.m_image->m_image, static_cast<canyon::IntRect>(destRect), &draw.m_sourceRect,
+    //     graphics.DrawImage(*draw.m_image->m_image, static_cast<canyon::IntRect>(destRect),
+    //     &draw.m_sourceRect,
     //                        draw.m_angle);
     // }
 

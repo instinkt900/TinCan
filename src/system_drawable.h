@@ -1,5 +1,6 @@
 #pragma once
 
+#include "gamedata_entity.h"
 #include "gamedata_sprite.h"
 #include <canyon/graphics/igraphics.h>
 #include <entt/entity/fwd.hpp>
@@ -42,7 +43,7 @@ struct ComponentSprite {
     float m_fps = 0;
     float m_animationTime = 0;
 
-    explicit ComponentSprite(SpriteData const& data);
+    explicit ComponentSprite(SpriteData const& data, Affinity affinity = Affinity::None);
 };
 
 class SystemDrawable {

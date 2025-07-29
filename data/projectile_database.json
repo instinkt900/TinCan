@@ -12,7 +12,7 @@
             "white_sprite": "player_projectile_light",
             "black_sprite": "player_projectile_dark",
             "homing_details": {
-                "targeting": "Nearest",
+                "targeting": "Random",
                 "turn_speed": 200,
                 "max_thrust": 1850,
                 "max_speed": 800,

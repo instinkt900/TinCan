@@ -16,6 +16,7 @@
 #include <moth_ui/utils/vector_utils.h>
 #include <spdlog/spdlog.h>
 #include "game_world.h"
+#include "utils_entity.h"
 
 namespace {
     float const ComplimentAffinityMult = 2.0f;
@@ -80,18 +81,6 @@ namespace {
         }
     }
 
-    ComponentEntity const* GetEntityDetails(entt::registry& registry, entt::entity entity) {
-        if (auto const* entityDetails = registry.try_get<ComponentEntity>(entity)) {
-            return entityDetails;
-        }
-
-        if (auto const* parenting = registry.try_get<ComponentParenting>(entity)) {
-            return GetEntityDetails(registry, parenting->m_parent);
-        }
-
-        return nullptr;
-    }
-
     void ProcessProjectile(entt::registry& registry, Projectile& projectile, GameData const& gamedata) {
         auto view = registry.view<ComponentBody, ComponentPosition, TargetTag>(entt::exclude<DeadTag>);
         for (auto [entity, body, position] : view.each()) {
@@ -110,23 +99,20 @@ entt::entity SystemProjectile::CreateProjectile(entt::registry& registry, Projec
                                                 entt::entity source, canyon::FloatVec2 const& position,
                                                 canyon::FloatVec2 const& direction, float rotation,
                                                 float damage) {
-    auto const* sourceEntityData = registry.try_get<ComponentEntity>(source);
+    auto const* sourceEntityData = GetEntityDetails(registry, source);
     if (sourceEntityData == nullptr) {
         return entt::null;
     }
     auto projectile = registry.create();
     auto& projectileComp = registry.emplace<ComponentProjectile>(projectile);
-    auto& projectileEntityData = registry.emplace<ComponentEntity>(projectile);
+    registry.emplace<ComponentEntity>(projectile, sourceEntityData->m_team, sourceEntityData->m_affinity,
+                                      rotation);
     registry.emplace<ComponentBody>(projectile, data.radius);
     registry.emplace<ComponentPosition>(projectile, position);
     auto& projectileVel = registry.emplace<ComponentVelocity>(projectile);
 
     projectileComp.m_source = source;
     projectileComp.m_damage = damage;
-
-    projectileEntityData.m_team = sourceEntityData->m_team;
-    projectileEntityData.m_affinity = sourceEntityData->m_affinity;
-    projectileEntityData.m_angle = rotation;
 
     projectileVel.m_velocity = direction * -data.speed; // -speed because we want -y as up
 

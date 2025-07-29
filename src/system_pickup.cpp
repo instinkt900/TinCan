@@ -26,14 +26,12 @@ template <> struct fmt::formatter<PickupType> : fmt::formatter<std::string> {
 entt::entity SystemPickup::CreatePickup(entt::registry& registry, canyon::FloatVec2 const& position,
                                         PickupData const& pickupData, GameData const& gamedata) {
     auto entity = registry.create();
-    auto& entityDetails = registry.emplace<ComponentEntity>(entity);
+    registry.emplace<ComponentEntity>(entity);
     registry.emplace<ComponentBody>(entity, PickupRadius);
     registry.emplace<ComponentPosition>(entity, position);
     auto& vel = registry.emplace<ComponentVelocity>(entity);
     registry.emplace<ComponentSprite>(entity, *pickupData.sprite);
     auto& pickup = registry.emplace<ComponentPickup>(entity);
-
-    entityDetails.m_team = Team::None;
 
     vel.m_velocity = PickupVelocity;
 

@@ -1,9 +1,10 @@
 #include "system_targeting.h"
-#include "component_body.h"
 #include "component_entity.h"
+#include "component_health.h"
 #include "system_movement.h"
 #include "tags.h"
 #include "utils.h"
+#include "utils_entity.h"
 
 namespace {
     void UpdateTargetingNearest(entt::registry& registry, entt::entity entity,
@@ -20,11 +21,15 @@ namespace {
         }
 
         // pull all targets and find the closest
-        auto view = registry.view<ComponentEntity, ComponentPosition, TargetTag>(entt::exclude<DeadTag>);
+        auto view = registry.view<ComponentHealth, ComponentPosition, TargetTag>(entt::exclude<DeadTag>);
         entt::entity closestEntity = entt::null;
         float closestDistance = std::numeric_limits<float>::max();
-        for (auto [targetEntity, targetDetails, targetPosition] : view.each()) {
-            if (entityDetails.m_team != targetDetails.m_team) {
+        for (auto [targetEntity, targetHealth, targetPosition] : view.each()) {
+            auto const* targetDetails = GetEntityDetails(registry, targetEntity);
+            if (targetDetails == nullptr) {
+                continue;
+            }
+            if (entityDetails.m_team != targetDetails->m_team) {
                 float const distance =
                     canyon::DistanceSq(entityPosition->m_position, targetPosition.m_position);
                 if (distance < closestDistance) {
@@ -48,10 +53,14 @@ namespace {
         }
 
         // pull all targets and pick a random one
-        auto view = registry.view<ComponentEntity, TargetTag>(entt::exclude<DeadTag>);
+        auto view = registry.view<ComponentHealth, TargetTag>(entt::exclude<DeadTag>);
         std::vector<entt::entity> possibleTargets;
-        for (auto [targetEntity, targetDetails] : view.each()) {
-            if (entityDetails.m_team != targetDetails.m_team) {
+        for (auto [targetEntity, targetHealth] : view.each()) {
+            auto const* targetDetails = GetEntityDetails(registry, targetEntity);
+            if (targetDetails == nullptr) {
+                continue;
+            }
+            if (entityDetails.m_team != targetDetails->m_team) {
                 possibleTargets.push_back(targetEntity);
             }
         }

@@ -39,6 +39,8 @@ ComponentWeapon InitWeapon(WeaponData const& data);
 
 class SystemWeapon {
 public:
-    static ComponentWeapon* InitWeapon(entt::registry& registry, entt::entity entity, WeaponData const& weaponData, GameData const& gamedata);
+    static ComponentWeapon* InitWeapon(entt::registry& registry, entt::entity entity,
+                                       WeaponData const& weaponData, GameData const& gamedata,
+                                       bool active = false);
     static void Update(GameWorld& world, uint32_t ticks);
 };

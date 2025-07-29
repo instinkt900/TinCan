@@ -12,6 +12,7 @@
 #include <moth_ui/utils/vector_utils.h>
 #include <spdlog/spdlog.h>
 #include "game_world.h"
+#include "utils_entity.h"
 
 namespace {
     int const ProjectileBorder = 200;
@@ -41,8 +42,10 @@ ComponentWeapon::ComponentWeapon(WeaponData const& weapon)
 }
 
 ComponentWeapon* SystemWeapon::InitWeapon(entt::registry& registry, entt::entity entity,
-                                          WeaponData const& weaponData, GameData const& gamedata) {
+                                          WeaponData const& weaponData, GameData const& gamedata,
+                                          bool active) {
     auto& weapon = registry.get_or_emplace<ComponentWeapon>(entity, weaponData);
+    weapon.m_active = active;
     return &weapon;
 }
 
@@ -71,8 +74,13 @@ void SystemWeapon::Update(GameWorld& world, uint32_t ticks) {
         playerPosition = registry.try_get<ComponentPosition>(playerEntity);
     }
 
-    auto view = registry.view<ComponentWeapon, ComponentEntity, ComponentPosition>();
-    for (auto [entity, weapon, entityData, position] : view.each()) {
+    auto view = registry.view<ComponentWeapon, ComponentPosition>();
+    for (auto [entity, weapon, position] : view.each()) {
+
+        auto const* entityDetails = GetEntityDetails(registry, entity);
+        if (entityDetails == nullptr) {
+            continue;
+        }
 
         Passives passives;
         CollectPassives(registry, entity, passives);
@@ -107,10 +115,10 @@ void SystemWeapon::Update(GameWorld& world, uint32_t ticks) {
                 weapon.m_barrelGroupIndex =
                     (weapon.m_barrelGroupIndex + 1) % static_cast<int32_t>(weapon.m_barrelGroupIds.size());
                 for (auto const& barrel : barrelGroup) {
-                    auto const barrelAngle = entityData.m_angle + barrel.m_angle;
+                    auto const barrelAngle = entityDetails->m_angle + barrel.m_angle;
                     auto direction = moth_ui::Rotate2D({ 0, 1.0f }, barrelAngle);
                     auto const offset =
-                        moth_ui::Rotate2D({ barrel.m_offset.x, -barrel.m_offset.y }, entityData.m_angle);
+                        moth_ui::Rotate2D({ barrel.m_offset.x, -barrel.m_offset.y }, entityDetails->m_angle);
 
                     if (weapon.m_playerTracking && (playerPosition != nullptr)) {
                         auto delta = position.m_position - playerPosition->m_position;

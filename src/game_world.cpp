@@ -90,9 +90,7 @@ bool GameWorld::OnKeyEvent(moth_ui::EventKey const& event) {
 void GameWorld::CreatePlayer() {
     m_player = m_registry.create();
 
-    auto& entityDetails = m_registry.emplace<ComponentEntity>(m_player);
-    entityDetails.m_team = Team::Player;
-    entityDetails.m_affinity = Affinity::Light;
+    m_registry.emplace<ComponentEntity>(m_player, Team::Player, Affinity::Light);
 
     auto const position = canyon::FloatVec2(WorldSize.x / 2, WorldSize.y - 160);
     m_registry.emplace<ComponentPosition>(m_player, position);

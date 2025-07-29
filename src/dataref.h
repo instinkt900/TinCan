@@ -19,7 +19,7 @@ public:
         return m_value;
     }
 
-    bool valid() const { return m_isRef ? (get() != nullptr) : true; }
+    bool valid() const { return m_init && (m_isRef ? (get() != nullptr) : true); }
 
     T* operator->() { return &editable(); }
     const T* operator->() const { return get(); }
@@ -39,6 +39,7 @@ public:
     }
 
     friend void from_json(nlohmann::json const& json, DataRef<T>& data) {
+        data.m_init = true;
         if (json.is_string()) {
             data.m_isRef = true;
             data.m_refName = json.get<std::string>();
@@ -49,6 +50,7 @@ public:
     }
 
 private:
+    bool m_init = false;
     bool m_isRef = false;
     GameData const* m_gamedata = nullptr;
     std::string m_refName;
