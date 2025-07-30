@@ -28,9 +28,20 @@ void UpdateDead(entt::registry& registry, std::set<entt::entity>& deadEntities) 
         deadEntities.insert(entity);
 
         // if a parent dies, kill all children too
-        if (auto* details = registry.try_get<ComponentEntity>(entity)) {
+        if (auto const* details = registry.try_get<ComponentEntity>(entity)) {
             for (auto child : details->m_children) {
                 deadEntities.insert(child);
+            }
+        }
+        // update any parent if a child dies
+        if (auto const* parenting = registry.try_get<ComponentParenting>(entity)) {
+            if (registry.valid(parenting->m_parent)) {
+                auto& parentDetails = registry.get<ComponentEntity>(parenting->m_parent);
+                parentDetails.m_children.erase(entity);
+                if (parentDetails.m_children.empty()) {
+                    // if no children are left, destroy the parent
+                    deadEntities.insert(parenting->m_parent);
+                }
             }
         }
     }
@@ -44,13 +55,6 @@ void SystemLifetime::Update(GameWorld& world, uint32_t ticks) {
     UpdateDead(registry, deadEntities);
 
     for (auto entity : deadEntities) {
-        // update any parent if a child dies
-        if (auto const* parenting = registry.try_get<ComponentParenting>(entity)) {
-            if (registry.valid(parenting->m_parent)) {
-                auto& parentDetails = registry.get<ComponentEntity>(parenting->m_parent);
-                parentDetails.m_children.erase(entity);
-            }
-        }
         // notify any groups of a dead member
         if (auto const* groupId = registry.try_get<ComponentGroupId>(entity)) {
             SystemGroup::RemoveMember(registry, groupId->m_group, entity, GroupEndCondition::Killed);
