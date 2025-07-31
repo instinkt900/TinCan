@@ -3,14 +3,14 @@
         "enemy_01_red": {
             "affinity": "Dark",
             "health": 30,
-            "radius": 40,
+            "radius": 20,
             "sprite": "enemy_ship_01",
             "weapon": "enemy_weapon"
         },
         "enemy_01_blue": {
             "affinity": "Light",
             "health": 30,
-            "radius": 40,
+            "radius": 20,
             "sprite": "enemy_ship_01",
             "weapon": "enemy_weapon"
         },

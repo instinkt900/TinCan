@@ -62,6 +62,8 @@ void GameWorld::Update(uint32_t ticks) {
 
 void GameWorld::Draw() {
     m_graphics.SetTarget(m_worldSurface.get());
+    m_graphics.SetColor(canyon::graphics::BasicColors::Black);
+    m_graphics.Clear();
     m_graphics.SetBlendMode(canyon::graphics::BlendMode::Replace);
     m_graphics.SetColor(canyon::graphics::BasicColors::White);
     SystemDrawable::Draw(*this, m_graphics);

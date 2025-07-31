@@ -1,7 +1,10 @@
 #pragma once
 
+#include "dataref.h"
 #include "gamedata.h"
 #include "gamedata_entity.h"
+#include "gamedata_sprite.h"
+#include "gamedata_weapon.h"
 
 struct EnemySection {
     DataRef<SpriteData> sprite;

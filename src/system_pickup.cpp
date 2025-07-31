@@ -4,6 +4,7 @@
 #include "component_entity.h"
 #include "component_passives.h"
 #include "gamedata_pickup.h"
+#include "gamedata_weapon.h"
 #include "system_drawable.h"
 #include "system_movement.h"
 #include "system_weapon.h"

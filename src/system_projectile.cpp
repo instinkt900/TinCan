@@ -5,6 +5,7 @@
 #include "component_entity.h"
 #include "component_health.h"
 #include "gamedata_projectile.h"
+#include "gamedata_pickup.h"
 #include "system_drawable.h"
 #include "system_lifetime.h"
 #include "system_movement.h"
@@ -75,6 +76,11 @@ namespace {
                                                            gamedata);
                             }
                         }
+                    }
+
+                    // flash damage indicator
+                    if (auto* sprite = registry.try_get<ComponentSprite>(target.entity)) {
+                        sprite->m_flashTime = 0.2f;
                     }
                 }
             }

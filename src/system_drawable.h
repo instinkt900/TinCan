@@ -43,6 +43,8 @@ struct ComponentSprite {
     float m_fps = 0;
     float m_animationTime = 0;
 
+    float m_flashTime = 0;
+
     explicit ComponentSprite(SpriteData const& data, Affinity affinity = Affinity::None);
 };
 

@@ -1,8 +1,6 @@
 #pragma once
 
-#include "dataref.h"
-#include "gamedata_sprite.h"
-#include "gamedata_weapon.h"
+#include "utils_serialization.h"
 
 enum class Team {
     None = -1,
