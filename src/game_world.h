@@ -32,6 +32,7 @@ public:
 
 private:
     bool OnKeyEvent(moth_ui::EventKey const& event);
+    void InitTestWorld();
     void CreatePlayer();
 
     canyon::platform::Window& m_window;
@@ -41,6 +42,8 @@ private:
     GameData m_gamedata;
     entt::registry m_registry;
     entt::entity m_player = entt::null;
+
+    bool m_paused = true;
 
     static canyon::IntVec2 const WorldSize;
 };

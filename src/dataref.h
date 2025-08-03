@@ -38,6 +38,15 @@ public:
         return &m_value;
     }
 
+    DataRef<T>& operator=(T const& other) {
+        m_init = true;
+        m_isRef = false;
+        m_gamedata = nullptr;
+        m_reference = nullptr;
+        m_value = other;
+        return *this;
+    }
+
     friend void from_json(nlohmann::json const& json, DataRef<T>& data) {
         data.m_init = true;
         if (json.is_string()) {

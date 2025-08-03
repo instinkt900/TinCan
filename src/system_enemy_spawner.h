@@ -34,4 +34,6 @@ public:
 
     static entt::entity CreateSpawner(entt::registry& registry, SpawnerData const& data,
                                       GameData const& gamedata, canyon::FloatVec2 const& position);
+    static entt::entity SpawnEnemy(entt::registry& registry, EnemyData const& data,
+                                   canyon::FloatVec2 const& position, GameData const& gamedata);
 };

@@ -115,7 +115,7 @@ void DrawDebugBodies(entt::registry& registry, canyon::graphics::IGraphics& grap
 void DrawDebugs(entt::registry& registry, canyon::graphics::IGraphics& graphics) {
     // TODO: canyon line drawing is a bit broken
     // DrawDebugCurves(registry, graphics);
-    DrawDebugBodies(registry, graphics);
+    // DrawDebugBodies(registry, graphics);
 }
 
 void SystemDrawable::Update(GameWorld& world, uint32_t ticks) {

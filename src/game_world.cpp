@@ -32,6 +32,7 @@ GameWorld::GameWorld(canyon::platform::Window& window, canyon::graphics::IGraphi
     m_gamedata.LoadDirectory("data", serializeContext);
 
     SystemLevel::InitLevel(m_registry, "test", m_gamedata);
+    // InitTestWorld();
     CreatePlayer();
 }
 
@@ -43,6 +44,9 @@ bool GameWorld::OnEvent(moth_ui::Event const& event) {
 }
 
 void GameWorld::Update(uint32_t ticks) {
+    if (m_paused) {
+        return;
+    }
     SystemLevel::Update(*this, ticks);
     SystemLifetime::Update(*this, ticks);
     SystemEnemySpawner::Update(*this, ticks);
@@ -85,8 +89,23 @@ float GameWorld::GetPlayerPower() const {
 }
 
 bool GameWorld::OnKeyEvent(moth_ui::EventKey const& event) {
+    if (event.GetAction() == moth_ui::KeyAction::Down && event.GetKey() == moth_ui::Key::P) {
+        m_paused = !m_paused;
+    }
     SystemInput::OnKey(m_registry, event);
     return false;
+}
+
+void GameWorld::InitTestWorld() {
+    auto cam = m_registry.create();
+    m_registry.emplace<ComponentCamera>(cam);
+
+    EnemyData enemyData;
+    enemyData.affinity = Affinity::Light;
+    enemyData.radius = 20;
+    enemyData.health = 9999;
+    enemyData.sprite = *m_gamedata.Get<SpriteData>("enemy_ship_01");
+    SystemEnemySpawner::SpawnEnemy(m_registry, enemyData, { WorldSize.x / 2, 150.f }, m_gamedata);
 }
 
 void GameWorld::CreatePlayer() {

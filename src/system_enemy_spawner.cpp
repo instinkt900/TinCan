@@ -14,56 +14,54 @@
 #include <spdlog/spdlog.h>
 #include "game_world.h"
 
-namespace {
-    entt::entity SpawnEnemy(entt::registry& registry, EnemyData const& data,
-                            canyon::FloatVec2 const& position, GameData const& gamedata) {
-        auto rootEntity = registry.create();
-        auto& rootDetails = registry.emplace<ComponentEntity>(rootEntity, Team::Enemy, data.affinity);
-        registry.emplace<ComponentPosition>(rootEntity, position);
+entt::entity SystemEnemySpawner::SpawnEnemy(entt::registry& registry, EnemyData const& data,
+                                            canyon::FloatVec2 const& position, GameData const& gamedata) {
+    auto rootEntity = registry.create();
+    auto& rootDetails = registry.emplace<ComponentEntity>(rootEntity, Team::Enemy, data.affinity);
+    registry.emplace<ComponentPosition>(rootEntity, position);
 
-        if (data.radius > 0.0f) {
-            registry.emplace<ComponentBody>(rootEntity, data.radius);
-        }
-
-        if (data.health > 0.0f) {
-            registry.emplace<ComponentHealth>(rootEntity, data.health);
-            registry.emplace<TargetTag>(rootEntity);
-        }
-
-        if (data.sprite.valid()) {
-            registry.emplace<ComponentSprite>(rootEntity, *data.sprite, data.affinity);
-        }
-
-        if (data.weapon.valid()) {
-            SystemWeapon::InitWeapon(registry, rootEntity, *data.weapon, gamedata, true);
-        }
-
-        for (auto const& [sectionName, section] : data.sections) {
-            auto childEntity = registry.create();
-            registry.emplace<TargetTag>(childEntity);
-            registry.emplace<ComponentParenting>(childEntity, rootEntity,
-                                                 static_cast<canyon::FloatVec2>(section.offset));
-            registry.emplace<ComponentPosition>(childEntity,
-                                                position + static_cast<canyon::FloatVec2>(section.offset));
-            if (section.radius > 0.0f) {
-                registry.emplace<ComponentBody>(childEntity, section.radius);
-            }
-            if (section.health > 0) {
-                registry.emplace<ComponentHealth>(childEntity, section.health);
-            }
-            if (section.sprite.valid()) {
-                registry.emplace<ComponentSprite>(childEntity, *section.sprite, data.affinity);
-            }
-
-            if (section.weapon.valid()) {
-                SystemWeapon::InitWeapon(registry, childEntity, *section.weapon, gamedata, true);
-            }
-
-            rootDetails.m_children.insert(childEntity);
-        }
-
-        return rootEntity;
+    if (data.radius > 0.0f) {
+        registry.emplace<ComponentBody>(rootEntity, data.radius);
     }
+
+    if (data.health > 0.0f) {
+        registry.emplace<ComponentHealth>(rootEntity, data.health);
+        registry.emplace<TargetTag>(rootEntity);
+    }
+
+    if (data.sprite.valid()) {
+        registry.emplace<ComponentSprite>(rootEntity, *data.sprite, data.affinity);
+    }
+
+    if (data.weapon.valid()) {
+        SystemWeapon::InitWeapon(registry, rootEntity, *data.weapon, gamedata, true);
+    }
+
+    for (auto const& [sectionName, section] : data.sections) {
+        auto childEntity = registry.create();
+        registry.emplace<TargetTag>(childEntity);
+        registry.emplace<ComponentParenting>(childEntity, rootEntity,
+                                             static_cast<canyon::FloatVec2>(section.offset));
+        registry.emplace<ComponentPosition>(childEntity,
+                                            position + static_cast<canyon::FloatVec2>(section.offset));
+        if (section.radius > 0.0f) {
+            registry.emplace<ComponentBody>(childEntity, section.radius);
+        }
+        if (section.health > 0) {
+            registry.emplace<ComponentHealth>(childEntity, section.health);
+        }
+        if (section.sprite.valid()) {
+            registry.emplace<ComponentSprite>(childEntity, *section.sprite, data.affinity);
+        }
+
+        if (section.weapon.valid()) {
+            SystemWeapon::InitWeapon(registry, childEntity, *section.weapon, gamedata, true);
+        }
+
+        rootDetails.m_children.insert(childEntity);
+    }
+
+    return rootEntity;
 }
 
 ComponentEnemySpawner::ComponentEnemySpawner(SpawnerData const& data)

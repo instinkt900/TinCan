@@ -2,43 +2,60 @@
 #include <moth_ui/utils/vector_utils.h>
 #include <vector>
 
+namespace {
+    bool collisionSweepMovingStatic(canyon::FloatVec2 const& circle1, canyon::FloatVec2 const& velocity,
+                                    float circle1r, canyon::FloatVec2 const& circle2, float circle2r,
+                                    float* out_t = nullptr) {
+        canyon::FloatVec2 rel = circle2 - circle1;
+        float combined_r = circle1r + circle2r;
+        float combined_r2 = combined_r * combined_r;
+
+        float a = Dot(velocity, velocity);
+        if (a == 0.0f) {
+            // Circle isn't moving; do a static overlap test
+            return Dot(rel, rel) <= combined_r2;
+        }
+
+        float b = 2.0f * Dot(velocity, rel);
+        float c = Dot(rel, rel) - combined_r2;
+
+        float disc = (b * b) - (4.0f * a * c);
+        if (disc < 0.0f) {
+            return false; // No intersection
+        }
+
+        float sqrt_disc = std::sqrt(disc);
+        float t1 = (-b - sqrt_disc) / (2.0f * a);
+        float t2 = (-b + sqrt_disc) / (2.0f * a);
+
+        // We only care about the first positive time of impact in [0, 1]
+        if (t1 >= 0.0f && t1 <= 1.0f) {
+            if (out_t != nullptr) {
+                *out_t = t1;
+            }
+            return true;
+        }
+        if (t2 >= 0.0f && t2 <= 1.0f) {
+            if (out_t != nullptr) {
+                *out_t = t2;
+            }
+            return true;
+        }
+
+        return false;
+    }
+}
+
 float SweepTest(canyon::FloatVec2 const& obj1Pos, canyon::FloatVec2 const& obj1LastPos, float obj1Radius,
                 canyon::FloatVec2 const& obj2Pos, canyon::FloatVec2 const& obj2LastPos, float obj2Radius) {
-    auto const vel1 = obj1Pos - obj2LastPos;
+    auto const vel1 = obj1Pos - obj1LastPos;
     auto const vel2 = obj2Pos - obj2LastPos;
     auto const relativeVel = vel2 - vel1;
-    auto const combinedRadius = obj1Radius + obj2Radius;
 
-    auto const delta = obj2LastPos - obj1Pos;
-
-    float const a = moth_ui::Dot(relativeVel, relativeVel);
-    float const b = 2.0f * moth_ui::Dot(delta, relativeVel);
-    float const c = moth_ui::Dot(delta, delta) - (combinedRadius * combinedRadius);
-
-    if (a == 0.0f) {
-        if (moth_ui::DistanceSq(obj1Pos, obj2Pos) <= (combinedRadius * combinedRadius)) {
-            return 0.0f;
-        }
-        return 1.0f;
+    float t = 0;
+    if (collisionSweepMovingStatic(obj1Pos, relativeVel, obj1Radius, obj2Pos, obj2Radius, &t)) {
+        return t;
     }
-
-    float const disc = (b * b) - (4 * a * c);
-    if (disc < 0.0f) {
-        return 1.0f;
-    }
-
-    float const sqrtDist = std::sqrt(disc);
-    float const t1 = (-b - sqrtDist) / (2.0f * a);
-    float const t2 = (-b + sqrtDist) / (2.0f * a);
-
-    if (t1 >= 0.0f && t1 <= 1.0f) {
-        return t1;
-    }
-
-    if (t2 >= 0.0f && t2 <= 1.0f) {
-        return t2;
-    }
-
     return 1.0f;
 }
 
