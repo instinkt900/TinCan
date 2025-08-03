@@ -6,27 +6,27 @@ namespace {
     bool collisionSweepMovingStatic(canyon::FloatVec2 const& circle1, canyon::FloatVec2 const& velocity,
                                     float circle1r, canyon::FloatVec2 const& circle2, float circle2r,
                                     float* out_t = nullptr) {
-        canyon::FloatVec2 rel = circle2 - circle1;
-        float combined_r = circle1r + circle2r;
-        float combined_r2 = combined_r * combined_r;
+        auto const rel = circle2 - circle1;
+        auto const combined_r = circle1r + circle2r;
+        auto const combined_r2 = combined_r * combined_r;
 
-        float a = Dot(velocity, velocity);
+        auto const a = Dot(velocity, velocity);
         if (a == 0.0f) {
             // Circle isn't moving; do a static overlap test
             return Dot(rel, rel) <= combined_r2;
         }
 
-        float b = 2.0f * Dot(velocity, rel);
-        float c = Dot(rel, rel) - combined_r2;
+        auto const b = 2.0f * Dot(velocity, rel);
+        auto const c = Dot(rel, rel) - combined_r2;
 
-        float disc = (b * b) - (4.0f * a * c);
+        auto const disc = (b * b) - (4.0f * a * c);
         if (disc < 0.0f) {
             return false; // No intersection
         }
 
-        float sqrt_disc = std::sqrt(disc);
-        float t1 = (-b - sqrt_disc) / (2.0f * a);
-        float t2 = (-b + sqrt_disc) / (2.0f * a);
+        auto const sqrt_disc = std::sqrt(disc);
+        auto const t1 = (-b - sqrt_disc) / (2.0f * a);
+        auto const t2 = (-b + sqrt_disc) / (2.0f * a);
 
         // We only care about the first positive time of impact in [0, 1]
         if (t1 >= 0.0f && t1 <= 1.0f) {
