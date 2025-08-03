@@ -10,7 +10,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 
 set(SOURCES ${SOURCES}
-	src/collision_utils.cpp
+	src/utils_collision.cpp
 	src/gamedata.cpp
 	src/game_layer.cpp
 	src/game_world.cpp
