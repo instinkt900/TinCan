@@ -4,8 +4,8 @@
             "image": "assets/spritesheet_player.png",
             "blend_mode": "Alpha",
             "sheet_data": {
-                "cell_dimensions": { "x": 48, "y": 58 },
-                "grid_dimensions": { "x": 3, "y": 5 }
+                "cell_dimensions": [ 48, 58 ],
+                "grid_dimensions": [ 3, 5 ]
             }
         },
         "player_shield": {

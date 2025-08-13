@@ -3,6 +3,7 @@
 #include "gamedata.h"
 #include "gamedata_spawner.h"
 #include "system_behaviour.h"
+#include "utils_paths.h"
 #include <entt/entity/entity.hpp>
 
 struct ComponentEnemySpawner {
@@ -24,6 +25,8 @@ struct ComponentEnemySpawner {
     EnemyKillType m_killType;
     std::optional<uint32_t> m_lifetime;
     std::optional<float> m_boundsBorder;
+    SplineDefinition m_spline;
+    uint32_t m_tickOffset;
 
     ComponentEnemySpawner(SpawnerData const& data);
 };

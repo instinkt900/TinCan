@@ -2,28 +2,31 @@
     "events": [
         {
             "offset": 3.0,
-            "location": { "x": 0.2, "y": 0.0 },
+            "location": [0.2, 0.0],
             "spawner": {
                 "enemy": "enemy_01_red",
-                "behaviour": "Straight",
+                "behaviour": "Spline",
                 "behaviour_parameters": {
-                    "speed": 100.0,
-                    "frequency": 10.0,
-                    "amplitude": 100.0
+                    "speed": 100.0
                 },
                 "count": 1,
                 "cooldown": 0,
-                "group_count": 4,
+                "group_count": 5,
                 "group_delay": 0,
                 "type": "Stepped",
-                "offset_step": { "x": 0, "y": -60 },
+                "offset_step": [0, 60],
+                "tick_offset": 600,
                 "kill_type": "Bounds",
-                "bounds_border": 190
+                "bounds_border": 190,
+                "spline": [
+                    [0.0, 0.0],
+                    [600.0, 800.0]
+                ]
             }
         },
         {
             "offset": 6.0,
-            "location": { "x": 0.8, "y": 0.0 },
+            "location": [0.8, 0.0],
             "spawner": {
                 "enemy": "enemy_01_blue",
                 "behaviour": "Straight",
@@ -37,14 +40,14 @@
                 "group_count": 4,
                 "group_delay": 0,
                 "type": "Stepped",
-                "offset_step": { "x": 0, "y": -60 },
+                "offset_step": [0, -60],
                 "kill_type": "Bounds",
                 "bounds_border": 190
             }
         },
         {
             "offset": 6.0,
-            "location": { "x": 0.5, "y": 0.0 },
+            "location": [0.5, 0.0],
             "spawner": {
                 "enemy": "enemy_01_red",
                 "behaviour": "Straight",
@@ -58,14 +61,14 @@
                 "group_count": 2,
                 "group_delay": 0,
                 "type": "Stepped",
-                "offset_step": { "x": 0, "y": -120 },
+                "offset_step": [0, -120],
                 "kill_type": "Bounds",
                 "bounds_border": 190
             }
         },
         {
             "offset": 0.6,
-            "location": { "x": 0.5, "y": 0.0 },
+            "location": [0.5, 0.0],
             "spawner": {
                 "enemy": "enemy_01_blue",
                 "behaviour": "Straight",
@@ -79,7 +82,7 @@
                 "group_count": 2,
                 "group_delay": 0,
                 "type": "Stepped",
-                "offset_step": { "x": 0, "y": -120 },
+                "offset_step": [0, -120],
                 "kill_type": "Bounds",
                 "bounds_border": 190
             }

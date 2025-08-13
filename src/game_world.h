@@ -43,7 +43,7 @@ private:
     entt::registry m_registry;
     entt::entity m_player = entt::null;
 
-    bool m_paused = true;
+    bool m_paused = false;
 
     static canyon::IntVec2 const WorldSize;
 };

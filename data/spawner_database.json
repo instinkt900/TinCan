@@ -2,7 +2,7 @@
     "spawners": {
         "basic_spawner": {
             "enemy": "basic_enemy",
-            "behaviour": "Straight",
+            "behaviour": "Spline",
             "behaviour_parameters": {
                 "speed": 200.0
             },
@@ -11,8 +11,16 @@
             "group_count": 1,
             "group_delay": 0,
             "type": "Basic",
-            "offset_step": { "x": 0, "y": 0 },
-            "kill_type": "Bounds"
+            "offset_step": [ 0, 0 ],
+            "kill_type": "Bounds",
+            "path": [
+                [0,0],
+                [100, 50],
+                [200, 100],
+                [100, 400],
+                [600, 500],
+                [1000, 1000]
+            ]
         },
         "staggered_spawner": {
             "enemy": "basic_enemy",
@@ -25,7 +33,7 @@
             "group_count": 5,
             "group_delay": 300,
             "type": "Staggered",
-            "offset_step": { "x": 30, "y": 0 },
+            "offset_step": [ 30, 0 ],
             "kill_type": "Bounds"
         },
         "wave_spawner": {
@@ -41,7 +49,7 @@
             "group_count": 5,
             "group_delay": 300,
             "type": "Basic",
-            "offset_step": { "x": 0, "y": 0 },
+            "offset_step": [ 0, 0 ],
             "kill_type": "Bounds"
         }
     }

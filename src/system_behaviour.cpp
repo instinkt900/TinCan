@@ -2,6 +2,7 @@
 #include "game_world.h"
 #include "system_lifetime.h"
 #include "system_movement.h"
+#include "utils_paths.h"
 #include <magic_enum.hpp>
 
 template <typename T>
@@ -64,7 +65,7 @@ void BehaviourWave(entt::registry& registry, entt::entity entity, ComponentBehav
     auto const& pastNode = cacheData->samples[index];
 
     position.m_lastPosition = position.m_position;
-    position.m_position = behaviour.m_offset + pastNode.position;
+    position.m_position = pastNode.position;
 
     if (index < (cacheData->samples.size() - 1)) {
         auto const& nextNode = cacheData->samples[index + 1];
@@ -77,10 +78,28 @@ void BehaviourWave(entt::registry& registry, entt::entity entity, ComponentBehav
     }
 }
 
+void BehaviourSpline(entt::registry& registry, entt::entity entity, ComponentBehaviour& behaviour,
+                   ComponentPosition& position) {
+
+    auto* cacheData = registry.try_get<ComponentSplineCache>(entity);
+    if (cacheData == nullptr) {
+        cacheData = &registry.emplace<ComponentSplineCache>(entity);
+        cacheData->m_lut = BuildArcLengthTable(behaviour.m_spline);
+    }
+
+    float const speed = GetParameter(behaviour.m_parameters, "speed", 100.0f);
+    auto const distanceTravelled = speed * (static_cast<float>(behaviour.m_ticks) / 1000.0f);
+    auto const sample = SamplePathByDistance(behaviour.m_spline, cacheData->m_lut, distanceTravelled);
+
+    position.m_lastPosition = position.m_position;
+    position.m_position = sample;
+}
+
 using BehaviourFunc = void (*)(entt::registry&, entt::entity, ComponentBehaviour&, ComponentPosition&);
 
 std::map<EnemyBehaviour, BehaviourFunc> const Funcs{ { EnemyBehaviour::Straight, BehaviourStraight },
-                                                     { EnemyBehaviour::Wave, BehaviourWave } };
+                                                     { EnemyBehaviour::Wave, BehaviourWave },
+                                                     { EnemyBehaviour::Spline, BehaviourSpline } };
 
 
 void SystemBehaviour::Update(GameWorld& world, uint32_t ticks) {

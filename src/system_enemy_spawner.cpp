@@ -77,7 +77,9 @@ ComponentEnemySpawner::ComponentEnemySpawner(SpawnerData const& data)
     , m_behaviourParameters(data.behaviour_parameters)
     , m_killType(data.kill_type)
     , m_lifetime(data.lifetime)
-    , m_boundsBorder(data.bounds_border) {
+    , m_boundsBorder(data.bounds_border)
+    , m_spline(data.spline)
+    , m_tickOffset(data.tick_offset) {
     if (data.enemy == nullptr) {
         spdlog::error("Spawner with bad enemy reference");
     } else {
@@ -142,6 +144,9 @@ void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
                 behaviour.m_behaviour = spawner.m_behaviour;
                 behaviour.m_parameters = spawner.m_behaviourParameters;
                 behaviour.m_offset = position;
+                behaviour.m_spline = spawner.m_spline;
+                behaviour.m_ticks =
+                    spawner.m_tickOffset * (spawner.m_maxGroupCount - (spawner.m_groupCount + 1));
 
                 if (spawner.m_killType == EnemyKillType::Time) {
                     auto& lifetime = registry.emplace<ComponentLifetime>(enemy);

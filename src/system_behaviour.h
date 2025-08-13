@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gamedata_spawner.h"
+#include "utils_paths.h"
 #include <canyon/utils/vector.h>
 
 class GameWorld;
@@ -22,7 +23,13 @@ struct ComponentBehaviour {
     uint32_t m_ticks = 0;
     canyon::FloatVec2 m_offset;
     BehaviourParameterList m_parameters;
+    SplineDefinition m_spline;
 };
+
+struct ComponentSplineCache {
+    ArcLengthLUT m_lut;
+};
+
 
 class SystemBehaviour {
 public:

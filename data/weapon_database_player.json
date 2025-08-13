@@ -9,7 +9,7 @@
             "projectile": "player_basic_bullet",
             "barrels": [
                 {
-                    "offset": { "x": 0, "y": 0 },
+                    "offset": [ 0, 0 ],
                     "group": 0,
                     "angle": 0
                 }
@@ -25,12 +25,12 @@
             "projectile": "player_basic_bullet",
             "barrels": [
                 {
-                    "offset": { "x": -5, "y": 0, "z": 0, "w": 0 },
+                    "offset": [ -5, 0, 0, 0 ],
                     "group": 0,
                     "angle": 0
                 },
                 {
-                    "offset": { "x": 5, "y": 0, "z": 0, "w": 0 },
+                    "offset": [ 5, 0, 0, 0 ],
                     "group": 0,
                     "angle": 0
                 }
@@ -45,12 +45,12 @@
             "projectile": "player_homing_bullet",
             "barrels": [
                 {
-                    "offset": { "x": 0, "y": 0 },
+                    "offset": [ 0, 0 ],
                     "group": 0,
                     "angle": 45
                 },
                 {
-                    "offset": { "x": 0, "y": 0 },
+                    "offset": [ 0, 0 ],
                     "group": 0,
                     "angle": -45
                 }

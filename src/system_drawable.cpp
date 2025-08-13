@@ -8,6 +8,7 @@
 #include "game_world.h"
 #include "tags.h"
 #include "utils.h"
+#include "utils_paths.h"
 
 ComponentSprite::ComponentSprite(SpriteData const& data, Affinity affinity)
     : m_image(data.image)
@@ -95,6 +96,24 @@ void DrawDebugCurves(entt::registry& registry, canyon::graphics::IGraphics& grap
     }
 }
 
+void DrawDebugSplines(entt::registry& registry, canyon::graphics::IGraphics& graphics) {
+    auto view = registry.view<ComponentBehaviour, ComponentSplineCache>();
+
+    auto const samples = 100;
+    auto const tStep = 1.0f / static_cast<float>(samples);
+    graphics.SetColor(canyon::graphics::FromARGB(0xFFFFFF00));
+    for (auto [entity, behaviour, spline] : view.each()) {
+        auto t = 0.0f;
+        auto lastSample = SampleCatmullRomPath(behaviour.m_spline, t);
+        for (auto i = 1; i <= samples; ++i) {
+            t = tStep * static_cast<float>(i);
+            auto const newSample = SampleCatmullRomPath(behaviour.m_spline, t);
+            graphics.DrawLineF(lastSample, newSample);
+            lastSample = newSample;
+        }
+    }
+}
+
 void DrawDebugBodies(entt::registry& registry, canyon::graphics::IGraphics& graphics) {
     auto view = registry.view<ComponentBody, ComponentPosition>();
 
@@ -116,6 +135,7 @@ void DrawDebugs(entt::registry& registry, canyon::graphics::IGraphics& graphics)
     // TODO: canyon line drawing is a bit broken
     // DrawDebugCurves(registry, graphics);
     // DrawDebugBodies(registry, graphics);
+    DrawDebugSplines(registry, graphics); 
 }
 
 void SystemDrawable::Update(GameWorld& world, uint32_t ticks) {
@@ -174,7 +194,8 @@ void SystemDrawable::Draw(GameWorld& world, canyon::graphics::IGraphics& graphic
             canyon::graphics::Color const flashColor{ 1.0, 1.0f, 1.0f, 1.0f };
             float const maxFlashTime = 0.2f;
             float const flashFactor = draw.m_image->m_flashTime / maxFlashTime;
-            color = (color + flashColor * canyon::Interp(0.0f, 1.0f, flashFactor, canyon::InterpType::Linear));
+            color =
+                (color + flashColor * canyon::Interp(0.0f, 1.0f, flashFactor, canyon::InterpType::Linear));
         }
         graphics.SetBlendMode(draw.m_image->m_blendMode);
         graphics.SetColor(color);

@@ -5,6 +5,7 @@
 #include <string>
 #include <variant>
 #include "gamedata_enemy.h"
+#include "utils_paths.h"
 #include "utils_serialization.h"
 
 enum class SpawnerType {
@@ -19,6 +20,7 @@ enum class EnemyBehaviour {
     Unknown = -1,
     Straight,
     Wave,
+    Spline,
 };
 MAGIC_SERIALIZE_ENUM(EnemyBehaviour);
 
@@ -60,6 +62,8 @@ struct SpawnerData {
     EnemyKillType kill_type;
     std::optional<uint32_t> lifetime;
     std::optional<float> bounds_border;
+    SplineDefinition spline;
+    uint32_t tick_offset = 0;
 };
 
 inline void from_json(nlohmann::json const& json, SpawnerData& data) {
@@ -76,5 +80,11 @@ inline void from_json(nlohmann::json const& json, SpawnerData& data) {
     DATA_REQUIRED(json, data, kill_type);
     DATA_OPTIONAL(json, data, lifetime);
     DATA_OPTIONAL(json, data, bounds_border);
-}
+    DATA_OPTIONAL(json, data, spline);
+    DATA_OPTIONAL(json, data, tick_offset);
 
+    if (!data.spline.empty()) {
+        data.spline.insert(data.spline.begin(), data.spline[0]);
+        data.spline.push_back(data.spline.back());
+    }
+}
