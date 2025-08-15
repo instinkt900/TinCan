@@ -9,7 +9,7 @@ class TinCan(ConanFile):
     exports_sources = "CMakeLists.txt", "src/*"
 
     def requirements(self):
-        self.requires("canyon/0.2.0")
+        self.requires("canyon/0.3.0")
         self.requires("entt/3.15.0")
 
     def build_requirements(self):
