@@ -19,7 +19,8 @@ namespace {
 }
 
 ComponentWeapon::ComponentWeapon(WeaponData const& weapon)
-    : m_damage(weapon.damage)
+    : m_pickup(weapon.pickup)
+    , m_damage(weapon.damage)
     , m_cooldown(weapon.cooldown)
     , m_maxCooldown(weapon.cooldown)
     , m_burst(weapon.burst)
@@ -28,9 +29,6 @@ ComponentWeapon::ComponentWeapon(WeaponData const& weapon)
     , m_maxBurstCooldown(weapon.burst_delay)
     , m_playerTracking(weapon.player_tracking)
     , m_projectile(*weapon.projectile) {
-    if (weapon.pickup.has_value()) {
-        m_pickup = *weapon.pickup.value();
-    }
     m_barrelGroups.clear();
     m_barrelGroupIds.clear();
     for (auto const& barrel : weapon.barrels) {

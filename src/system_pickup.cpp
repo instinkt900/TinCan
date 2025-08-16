@@ -51,10 +51,10 @@ void PlayerPickupWeapon(PickupData const& pickup, canyon::FloatVec2 const& posit
         playerEntity = entity;
         currentWeapon = &weapon;
     }
-    if (currentWeapon != nullptr && currentWeapon->m_pickup.has_value()) {
+    if (currentWeapon != nullptr && currentWeapon->m_pickup.valid()) {
         auto const side = rand() % 2 == 1 ? 1.0f : -1.0f;
         canyon::FloatVec2 const offset = { 100.0f * side, -20.0f };
-        SystemPickup::CreatePickup(registry, position + offset, currentWeapon->m_pickup.value(), gamedata);
+        SystemPickup::CreatePickup(registry, position + offset, *currentWeapon->m_pickup, gamedata);
     }
 
     // replace the current weapon

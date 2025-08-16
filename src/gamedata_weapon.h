@@ -25,7 +25,7 @@ struct WeaponData {
     int32_t burst_delay;
     bool player_tracking;
     DataRef<ProjectileData> projectile;
-    std::optional<DataRef<PickupData>> pickup;
+    DataRef<PickupData> pickup;
     std::vector<BarrelData> barrels;
 };
 

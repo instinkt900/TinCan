@@ -18,7 +18,7 @@ using BarrelGroup = std::vector<Barrel>;
 
 struct ComponentWeapon {
     bool m_active = false;
-    std::optional<PickupData> m_pickup; // if this weapon is dropped, this pickup is dropped
+    DataRef<PickupData> m_pickup; // if this weapon is dropped, this pickup is dropped
     float m_damage = 0;
     int32_t m_cooldown = 0;
     int32_t m_maxCooldown = 1000;
