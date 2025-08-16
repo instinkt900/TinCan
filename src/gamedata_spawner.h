@@ -13,6 +13,7 @@ enum class SpawnerType {
     Basic,
     Staggered,
     Stepped,
+    Formation,
 };
 MAGIC_SERIALIZE_ENUM(SpawnerType);
 
@@ -58,7 +59,8 @@ struct SpawnerData {
     int32_t group_count = 1;
     int32_t group_delay = 0;
     SpawnerType type = SpawnerType::Basic;
-    canyon::FloatVec2 offset_step = { 0, 0 };
+    canyon::FloatVec2 offset_step;
+    std::vector<canyon::FloatVec2> formation_positions;
     DataRef<PickupData> drop;
     EnemyKillType kill_type = EnemyKillType::Bounds;
     std::optional<uint32_t> lifetime = 0;
@@ -78,6 +80,7 @@ inline void from_json(nlohmann::json const& json, SpawnerData& data) {
     DATA_OPTIONAL(json, data, group_delay);
     DATA_OPTIONAL(json, data, type);
     DATA_OPTIONAL(json, data, offset_step);
+    DATA_OPTIONAL(json, data, formation_positions);
     DATA_OPTIONAL(json, data, drop);
     DATA_OPTIONAL(json, data, kill_type);
     DATA_OPTIONAL(json, data, lifetime);

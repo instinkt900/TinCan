@@ -4,54 +4,15 @@
             "offset": 3.0,
             "location": [0.5, 0.0],
             "spawner": {
-                "enemy": "enemy_01_red"
-            }
-        },
-        {
-            "offset": 0.5,
-            "location": [0.45, 0.0],
-            "spawner": {
                 "enemy": "enemy_01_red",
-                "group_count": 2,
-                "offset_step": [0.1, 0],
-                "type": "Stepped"
-            }
-        },
-        {
-            "offset": 0.5,
-            "location": [0.4, 0.0],
-            "spawner": {
-                "enemy": "enemy_01_red",
-                "group_count": 2,
-                "offset_step": [0.2, 0],
-                "type": "Stepped"
-            }
-        },
-        {
-            "offset": 3.0,
-            "location": [0.5, 0.0],
-            "spawner": {
-                "enemy": "enemy_01_blue"
-            }
-        },
-        {
-            "offset": 0.5,
-            "location": [0.45, 0.0],
-            "spawner": {
-                "enemy": "enemy_01_blue",
-                "group_count": 2,
-                "offset_step": [0.1, 0],
-                "type": "Stepped"
-            }
-        },
-        {
-            "offset": 0.5,
-            "location": [0.4, 0.0],
-            "spawner": {
-                "enemy": "enemy_01_blue",
-                "group_count": 2,
-                "offset_step": [0.2, 0],
-                "type": "Stepped"
+                "type": "Formation",
+                "group_count": 3,
+                "formation_positions": [
+                    [0.0, 0.0],
+                    [-0.1, -0.1],
+                    [0.1, -0.1]
+                ],
+                "bounds_border": 100
             }
         }
     ]

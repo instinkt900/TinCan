@@ -13,6 +13,7 @@
 #include <entt/entt.hpp>
 #include <spdlog/spdlog.h>
 #include "game_world.h"
+#include "utils_fmt.h"
 
 entt::entity SystemEnemySpawner::SpawnEnemy(entt::registry& registry, EnemyData const& data,
                                             canyon::FloatVec2 const& position, GameData const& gamedata) {
@@ -68,6 +69,7 @@ ComponentEnemySpawner::ComponentEnemySpawner(SpawnerData const& data)
     : m_active(true)
     , m_type(data.type)
     , m_offsetStep(data.offset_step)
+    , m_formationPositions(data.formation_positions)
     , m_speed(data.speed)
     , m_count(data.count)
     , m_maxCooldown(data.cooldown)
@@ -123,16 +125,21 @@ void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
                     registry.emplace<DeadTag>(entity);
                 }
 
+                auto const spawnIndex = spawner.m_maxGroupCount - (spawner.m_groupCount + 1);
+                auto const fWorldSize = static_cast<canyon::FloatVec2>(world.GetWorldSize());
                 auto position = spawnerPosition.m_position;
-                auto const offsetStep = spawner.m_offsetStep * static_cast<canyon::FloatVec2>(world.GetWorldSize());
                 switch (spawner.m_type) {
                 case SpawnerType::Staggered: {
+                    auto const offsetStep = spawner.m_offsetStep * fWorldSize;
                     auto const side = spawner.m_groupCount % 2;
                     position += offsetStep * (side == 0 ? 1.0f : -1.0f);
                 } break;
                 case SpawnerType::Stepped: {
-                    position +=
-                        offsetStep * static_cast<float>(spawner.m_maxGroupCount - (spawner.m_groupCount + 1));
+                    auto const offsetStep = spawner.m_offsetStep * fWorldSize;
+                    position += offsetStep * static_cast<float>(spawnIndex);
+                } break;
+                case SpawnerType::Formation: {
+                    position += spawner.m_formationPositions[spawnIndex] * fWorldSize;
                 } break;
                 default:
                     break;

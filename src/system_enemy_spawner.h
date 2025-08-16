@@ -10,6 +10,7 @@ struct ComponentEnemySpawner {
     bool m_active = false;
     SpawnerType m_type = SpawnerType::Unknown;
     canyon::FloatVec2 m_offsetStep;
+    std::vector<canyon::FloatVec2> m_formationPositions;
     float m_speed = 0;
     int32_t m_count = 0;
     int32_t m_cooldown = 0;
