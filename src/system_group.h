@@ -3,7 +3,6 @@
 #include "gamedata_pickup.h"
 #include <entt/entity/fwd.hpp>
 #include <canyon/utils/vector.h>
-#include <optional>
 
 class GameWorld;
 
@@ -18,7 +17,7 @@ struct ComponentGroup {
     int32_t m_memberCount = 0;
     GroupEndCondition m_condition = GroupEndCondition::None;
     canyon::FloatVec2 m_position;
-    std::optional<DataRef<PickupData>> m_drop;
+    DataRef<PickupData> m_drop;
 };
 
 struct ComponentGroupId {
@@ -28,7 +27,7 @@ struct ComponentGroupId {
 class SystemGroup {
 public:
     static void Update(GameWorld& world, uint32_t ticks);
-    static entt::entity CreateGroup(entt::registry& registry, std::optional<DataRef<PickupData>> drop);
+    static entt::entity CreateGroup(entt::registry& registry, DataRef<PickupData> drop);
     static void AddMember(entt::registry& registry, entt::entity group, entt::entity member);
     static void RemoveMember(entt::registry& registry, entt::entity group, entt::entity member, GroupEndCondition condition);
 };

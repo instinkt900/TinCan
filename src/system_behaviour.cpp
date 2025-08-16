@@ -5,18 +5,21 @@
 #include "utils_paths.h"
 #include <magic_enum.hpp>
 
-template <typename T>
-T GetParameter(BehaviourParameterList const& parameterList, std::string const& name, T const defaultValue) {
-    auto entry = parameterList.find(name);
-    if (entry == parameterList.end()) {
-        return defaultValue;
+namespace {
+    template <typename T>
+    T GetParameter(BehaviourParameterList const& parameterList, std::string const& name,
+                   T const defaultValue) {
+        auto entry = parameterList.find(name);
+        if (entry == parameterList.end()) {
+            return defaultValue;
+        }
+        return std::get<T>(entry->second);
     }
-    return std::get<T>(entry->second);
 }
 
 void BehaviourStraight(entt::registry& registry, entt::entity entity, ComponentBehaviour& behaviour,
                        ComponentPosition& position) {
-    float const speed = GetParameter(behaviour.m_parameters, "speed", 100.0f);
+    float const speed = behaviour.m_speed;
     float const t = static_cast<float>(behaviour.m_ticks) / 1000.0f;
     auto const newPosition = behaviour.m_offset + canyon::FloatVec2{ 0, t * speed };
     position.m_lastPosition = position.m_position;
@@ -27,7 +30,7 @@ void BehaviourWave(entt::registry& registry, entt::entity entity, ComponentBehav
                    ComponentPosition& position) {
     float const freq = GetParameter(behaviour.m_parameters, "frequency", 1.0f);
     float const amp = GetParameter(behaviour.m_parameters, "amplitude", 1.0f);
-    float const speed = GetParameter(behaviour.m_parameters, "speed", 100.0f);
+    float const speed = behaviour.m_speed;
 
     auto* cacheData = registry.try_get<ComponentCurveCache>(entity);
     if (cacheData == nullptr) {
@@ -79,7 +82,7 @@ void BehaviourWave(entt::registry& registry, entt::entity entity, ComponentBehav
 }
 
 void BehaviourSpline(entt::registry& registry, entt::entity entity, ComponentBehaviour& behaviour,
-                   ComponentPosition& position) {
+                     ComponentPosition& position) {
 
     auto* cacheData = registry.try_get<ComponentSplineCache>(entity);
     if (cacheData == nullptr) {
@@ -87,7 +90,7 @@ void BehaviourSpline(entt::registry& registry, entt::entity entity, ComponentBeh
         cacheData->m_lut = BuildArcLengthTable(behaviour.m_spline);
     }
 
-    float const speed = GetParameter(behaviour.m_parameters, "speed", 100.0f);
+    float const speed = behaviour.m_speed;
     auto const distanceTravelled = speed * (static_cast<float>(behaviour.m_ticks) / 1000.0f);
     auto const sample = SamplePathByDistance(behaviour.m_spline, cacheData->m_lut, distanceTravelled);
 

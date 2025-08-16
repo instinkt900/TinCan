@@ -68,10 +68,12 @@ ComponentEnemySpawner::ComponentEnemySpawner(SpawnerData const& data)
     : m_active(true)
     , m_type(data.type)
     , m_offsetStep(data.offset_step)
+    , m_speed(data.speed)
     , m_count(data.count)
     , m_maxCooldown(data.cooldown)
     , m_maxGroupCount(data.group_count)
     , m_maxGroupCooldown(data.group_delay)
+    , m_groupDrop(data.drop)
     , m_currentGroupEntity(entt::null)
     , m_behaviour(data.behaviour)
     , m_behaviourParameters(data.behaviour_parameters)
@@ -84,9 +86,6 @@ ComponentEnemySpawner::ComponentEnemySpawner(SpawnerData const& data)
         spdlog::error("Spawner with bad enemy reference");
     } else {
         m_enemy = *data.enemy;
-    }
-    if (data.drop.has_value()) {
-        m_groupDrop = *data.drop;
     }
 }
 
@@ -125,14 +124,15 @@ void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
                 }
 
                 auto position = spawnerPosition.m_position;
+                auto const offsetStep = spawner.m_offsetStep * static_cast<canyon::FloatVec2>(world.GetWorldSize());
                 switch (spawner.m_type) {
                 case SpawnerType::Staggered: {
                     auto const side = spawner.m_groupCount % 2;
-                    position += spawner.m_offsetStep * (side == 0 ? 1.0f : -1.0f);
+                    position += offsetStep * (side == 0 ? 1.0f : -1.0f);
                 } break;
                 case SpawnerType::Stepped: {
-                    position += spawner.m_offsetStep *
-                                static_cast<float>(spawner.m_maxGroupCount - (spawner.m_groupCount + 1));
+                    position +=
+                        offsetStep * static_cast<float>(spawner.m_maxGroupCount - (spawner.m_groupCount + 1));
                 } break;
                 default:
                     break;
@@ -141,6 +141,7 @@ void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
                 auto enemy = SpawnEnemy(registry, spawner.m_enemy, position, gamedata);
 
                 auto& behaviour = registry.emplace<ComponentBehaviour>(enemy);
+                behaviour.m_speed = spawner.m_speed;
                 behaviour.m_behaviour = spawner.m_behaviour;
                 behaviour.m_parameters = spawner.m_behaviourParameters;
                 behaviour.m_offset = position;

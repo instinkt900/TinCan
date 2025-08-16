@@ -16,14 +16,14 @@ void SystemGroup::Update(GameWorld& world, uint32_t ticks) {
         if (group.m_memberCount <= 0) {
             registry.emplace<DeadTag>(entity);
 
-            if (group.m_drop.has_value()) {
-                SystemPickup::CreatePickup(registry, group.m_position, *group.m_drop.value(), gamedata);
+            if (group.m_drop.valid()) {
+                SystemPickup::CreatePickup(registry, group.m_position, *group.m_drop, gamedata);
             }
         }
     }
 }
 
-entt::entity SystemGroup::CreateGroup(entt::registry& registry, std::optional<DataRef<PickupData>> drop) {
+entt::entity SystemGroup::CreateGroup(entt::registry& registry, DataRef<PickupData> drop) {
     auto entity = registry.create();
     auto& group = registry.emplace<ComponentGroup>(entity);
     group.m_memberCount = 0;

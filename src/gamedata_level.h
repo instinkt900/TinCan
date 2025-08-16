@@ -6,15 +6,14 @@
 #include <canyon/utils/vector.h>
 #include <nlohmann/detail/macro_scope.hpp>
 #include <nlohmann/json.hpp>
-#include <optional>
 #include <vector>
 #include <fstream>
 
 struct LevelEvent {
     float offset = 0;
     canyon::FloatVec2 location;
-    std::optional<DataRef<PickupData>> drop;
-    std::optional<DataRef<SpawnerData>> spawner;
+    DataRef<PickupData> drop;
+    DataRef<SpawnerData> spawner;
 };
 
 inline void from_json(nlohmann::json const& json, LevelEvent& data) {

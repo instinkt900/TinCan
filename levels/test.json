@@ -2,89 +2,56 @@
     "events": [
         {
             "offset": 3.0,
-            "location": [0.2, 0.0],
-            "spawner": {
-                "enemy": "enemy_01_red",
-                "behaviour": "Spline",
-                "behaviour_parameters": {
-                    "speed": 100.0
-                },
-                "count": 1,
-                "cooldown": 0,
-                "group_count": 5,
-                "group_delay": 0,
-                "type": "Stepped",
-                "offset_step": [0, 60],
-                "tick_offset": 600,
-                "kill_type": "Bounds",
-                "bounds_border": 190,
-                "spline": [
-                    [0.0, 0.0],
-                    [600.0, 800.0]
-                ]
-            }
-        },
-        {
-            "offset": 6.0,
-            "location": [0.8, 0.0],
-            "spawner": {
-                "enemy": "enemy_01_blue",
-                "behaviour": "Straight",
-                "behaviour_parameters": {
-                    "speed": 100.0,
-                    "frequency": 10.0,
-                    "amplitude": 100.0
-                },
-                "count": 1,
-                "cooldown": 0,
-                "group_count": 4,
-                "group_delay": 0,
-                "type": "Stepped",
-                "offset_step": [0, -60],
-                "kill_type": "Bounds",
-                "bounds_border": 190
-            }
-        },
-        {
-            "offset": 6.0,
             "location": [0.5, 0.0],
             "spawner": {
-                "enemy": "enemy_01_red",
-                "behaviour": "Straight",
-                "behaviour_parameters": {
-                    "speed": 100.0,
-                    "frequency": 10.0,
-                    "amplitude": 100.0
-                },
-                "count": 1,
-                "cooldown": 0,
-                "group_count": 2,
-                "group_delay": 0,
-                "type": "Stepped",
-                "offset_step": [0, -120],
-                "kill_type": "Bounds",
-                "bounds_border": 190
+                "enemy": "enemy_01_red"
             }
         },
         {
-            "offset": 0.6,
+            "offset": 0.5,
+            "location": [0.45, 0.0],
+            "spawner": {
+                "enemy": "enemy_01_red",
+                "group_count": 2,
+                "offset_step": [0.1, 0],
+                "type": "Stepped"
+            }
+        },
+        {
+            "offset": 0.5,
+            "location": [0.4, 0.0],
+            "spawner": {
+                "enemy": "enemy_01_red",
+                "group_count": 2,
+                "offset_step": [0.2, 0],
+                "type": "Stepped"
+            }
+        },
+        {
+            "offset": 3.0,
             "location": [0.5, 0.0],
             "spawner": {
+                "enemy": "enemy_01_blue"
+            }
+        },
+        {
+            "offset": 0.5,
+            "location": [0.45, 0.0],
+            "spawner": {
                 "enemy": "enemy_01_blue",
-                "behaviour": "Straight",
-                "behaviour_parameters": {
-                    "speed": 100.0,
-                    "frequency": 10.0,
-                    "amplitude": 100.0
-                },
-                "count": 1,
-                "cooldown": 0,
                 "group_count": 2,
-                "group_delay": 0,
-                "type": "Stepped",
-                "offset_step": [0, -120],
-                "kill_type": "Bounds",
-                "bounds_border": 190
+                "offset_step": [0.1, 0],
+                "type": "Stepped"
+            }
+        },
+        {
+            "offset": 0.5,
+            "location": [0.4, 0.0],
+            "spawner": {
+                "enemy": "enemy_01_blue",
+                "group_count": 2,
+                "offset_step": [0.2, 0],
+                "type": "Stepped"
             }
         }
     ]

@@ -25,12 +25,12 @@
             "projectile": "player_basic_bullet",
             "barrels": [
                 {
-                    "offset": [ -5, 0, 0, 0 ],
+                    "offset": [ -5, 0 ],
                     "group": 0,
                     "angle": 0
                 },
                 {
-                    "offset": [ 5, 0, 0, 0 ],
+                    "offset": [ 5, 0 ],
                     "group": 0,
                     "angle": 0
                 }
