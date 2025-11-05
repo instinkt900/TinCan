@@ -5,6 +5,7 @@
 
 struct ComponentSpline {
     std::string m_name;
+    bool m_visible = true;
     SplineDefinition m_spline;
 };
 

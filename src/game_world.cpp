@@ -71,7 +71,7 @@ void GameWorld::Draw() {
     m_graphics.Clear();
     m_graphics.SetBlendMode(canyon::graphics::BlendMode::Replace);
     m_graphics.SetColor(canyon::graphics::BasicColors::White);
-    // SystemSplineEditor::Draw(*this, m_graphics);
+    SystemSplineEditor::Draw(*this, m_graphics);
     SystemDrawable::Draw(*this, m_graphics);
     m_graphics.SetTarget(nullptr);
 }

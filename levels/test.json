@@ -14,6 +14,36 @@
                 ],
                 "bounds_border": 100
             }
+        },
+        {
+            "offset": 2.0,
+            "location": [0.25, 0.0],
+            "spawner": {
+                "enemy": "enemy_01_red",
+                "type": "Formation",
+                "group_count": 3,
+                "formation_positions": [
+                    [0.0, 0.0],
+                    [-0.1, -0.1],
+                    [0.1, -0.1]
+                ],
+                "bounds_border": 100
+            }
+        },
+        {
+            "offset": 0.0,
+            "location": [0.75, 0.0],
+            "spawner": {
+                "enemy": "enemy_01_red",
+                "type": "Formation",
+                "group_count": 3,
+                "formation_positions": [
+                    [0.0, 0.0],
+                    [-0.1, -0.1],
+                    [0.1, -0.1]
+                ],
+                "bounds_border": 100
+            }
         }
     ]
 }
