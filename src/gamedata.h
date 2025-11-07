@@ -14,6 +14,7 @@ enum class GameDataCategory {
     Spawners,
     Levels,
     Pickups,
+    Encounters,
 };
 
 struct SerializeContext {
@@ -28,6 +29,29 @@ public:
 
     void LoadDirectory(std::filesystem::path const& directory, SerializeContext const& context);
     bool Load(std::filesystem::path const& path, SerializeContext const& context);
+
+    template<typename T>
+    Database<T> const* Get() const {
+        if constexpr (T::Category == GameDataCategory::Sprites) {
+            return &m_spriteDatabase;
+        } else if constexpr (T::Category == GameDataCategory::Projectiles) {
+            return &m_projectileDatabase;
+        } else if constexpr (T::Category == GameDataCategory::Weapons) {
+            return &m_weaponDatabase;
+        } else if constexpr (T::Category == GameDataCategory::Enemies) {
+            return &m_enemyDatabase;
+        } else if constexpr (T::Category == GameDataCategory::Spawners) {
+            return &m_spawnerDatabase;
+        } else if constexpr (T::Category == GameDataCategory::Levels) {
+            return &m_levelDatabase;
+        } else if constexpr (T::Category == GameDataCategory::Pickups) {
+            return &m_pickupDatabase;
+        } else if constexpr (T::Category == GameDataCategory::Encounters) {
+            return &m_encounterDatabase;
+        } else {
+            return nullptr;
+        }
+    }
 
     template<typename T>
     T const* Get(std::string const& name) const {
@@ -45,6 +69,8 @@ public:
             return m_levelDatabase.Get(name);
         } else if constexpr (T::Category == GameDataCategory::Pickups) {
             return m_pickupDatabase.Get(name);
+        } else if constexpr (T::Category == GameDataCategory::Encounters) {
+            return m_encounterDatabase.Get(name);
         } else {
             return nullptr;
         }
@@ -65,5 +91,6 @@ private:
     Database<SpawnerData> m_spawnerDatabase;
     Database<LevelData> m_levelDatabase;
     Database<PickupData> m_pickupDatabase;
+    Database<EncounterData> m_encounterDatabase;
 };
 

@@ -8,3 +8,4 @@ struct WeaponData;
 struct PickupData;
 struct LevelData;
 struct SpawnerData;
+struct EncounterData;

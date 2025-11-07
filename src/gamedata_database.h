@@ -27,6 +27,19 @@ public:
         return &entry->second;
     }
 
+    std::vector<std::string> Keys() const {
+        std::vector<std::string> keys;
+        keys.reserve(m_database.size());
+
+        for (auto const& [key, value] : m_database) {
+            keys.push_back(key);
+        }
+
+        return keys;
+    }
+
+    size_t Size() const { return m_database.size(); }
+
 private:
     std::map<std::string, T> m_database;
 };

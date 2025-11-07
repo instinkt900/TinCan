@@ -13,7 +13,6 @@
 #include <entt/entt.hpp>
 #include <spdlog/spdlog.h>
 #include "game_world.h"
-#include "utils_fmt.h"
 
 entt::entity SystemEnemySpawner::SpawnEnemy(entt::registry& registry, EnemyData const& data,
                                             canyon::FloatVec2 const& position, GameData const& gamedata) {

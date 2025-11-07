@@ -7,6 +7,7 @@
 #include "gamedata_projectile.h"
 #include "gamedata_spawner.h"
 #include "gamedata_weapon.h"
+#include "gamedata_encounter.h"
 
 MAGIC_SERIALIZE_ENUM(GameDataCategory);
 
@@ -83,6 +84,9 @@ bool GameData::Load(std::filesystem::path const& path, SerializeContext const& c
             break;
         case GameDataCategory::Pickups:
             m_pickupDatabase.Load(categoryJson);
+            break;
+        case GameDataCategory::Encounters:
+            m_encounterDatabase.Load(categoryJson);
             break;
         default:
             break;

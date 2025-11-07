@@ -32,7 +32,7 @@ GameWorld::GameWorld(canyon::platform::Window& window, canyon::graphics::IGraphi
     SerializeContext serializeContext{ m_gamedata, m_window.GetSurfaceContext() };
     m_gamedata.LoadDirectory("data", serializeContext);
 
-    SystemLevel::InitLevel(m_registry, "test", m_gamedata);
+    SystemLevel::InitLevel(m_registry, 5, m_gamedata);
     // InitTestWorld();
     CreatePlayer();
 }
@@ -71,7 +71,7 @@ void GameWorld::Draw() {
     m_graphics.Clear();
     m_graphics.SetBlendMode(canyon::graphics::BlendMode::Replace);
     m_graphics.SetColor(canyon::graphics::BasicColors::White);
-    SystemSplineEditor::Draw(*this, m_graphics);
+    // SystemSplineEditor::Draw(*this, m_graphics);
     SystemDrawable::Draw(*this, m_graphics);
     m_graphics.SetTarget(nullptr);
 }
