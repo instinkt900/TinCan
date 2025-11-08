@@ -7,7 +7,18 @@
 #include "system_pickup.h"
 #include "utils.h"
 
-void SystemLevel::InitLevel(entt::registry& registry, uint32_t encounterCount, GameData const& gamedata) {
+void BuildLevelEncounters(ComponentLevel& levelComponent, LevelBuilderProperties const& properties, GameData const& gamedata) {
+    auto const& encounterDatabase = gamedata.Get<EncounterData>();
+    for (uint32_t i = 0; i < properties.encounterCount; ++i) {
+        auto keys = encounterDatabase->Keys();
+        auto randIdx = Random<size_t>(0, encounterDatabase->Size() - 1);
+        spdlog::info("Encounter {}", keys[randIdx]);
+        auto const* encounterData = encounterDatabase->Get(keys[randIdx]);
+        levelComponent.m_encounters.emplace_back(*encounterData);
+    }
+}
+
+void SystemLevel::InitLevel(entt::registry& registry, LevelBuilderProperties const& levelProperties, GameData const& gamedata) {
     auto view = registry.view<ComponentLevel>();
     if (!view.empty()) {
         spdlog::error("Level already exists.");
@@ -17,13 +28,7 @@ void SystemLevel::InitLevel(entt::registry& registry, uint32_t encounterCount, G
     auto levelEntity = registry.create();
     auto& levelComp = registry.emplace<ComponentLevel>(levelEntity);
 
-    auto const& encounterDatabase = gamedata.Get<EncounterData>();
-    for (uint32_t i = 0; i < encounterCount; ++i) {
-        auto keys = encounterDatabase->Keys();
-        auto randIdx = Random<size_t>(0, encounterDatabase->Size() - 1);
-        auto const* encounterData = encounterDatabase->Get(keys[randIdx]);
-        levelComp.m_encounters.emplace_back(*encounterData);
-    }
+    BuildLevelEncounters(levelComp, levelProperties, gamedata);
 
     levelComp.m_encounterIdx = 0;
     levelComp.m_currentTime = 0;

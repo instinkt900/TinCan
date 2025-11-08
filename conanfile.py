@@ -13,7 +13,7 @@ class TinCan(ConanFile):
         self.requires("entt/3.15.0")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.27.0]")
+        self.tool_requires("cmake/3.27.0")
 
     def layout(self):
         cmake_layout(self)

@@ -32,7 +32,7 @@ GameWorld::GameWorld(canyon::platform::Window& window, canyon::graphics::IGraphi
     SerializeContext serializeContext{ m_gamedata, m_window.GetSurfaceContext() };
     m_gamedata.LoadDirectory("data", serializeContext);
 
-    SystemLevel::InitLevel(m_registry, 5, m_gamedata);
+    SystemLevel::InitLevel(m_registry, { .encounterCount = 5 }, m_gamedata);
     // InitTestWorld();
     CreatePlayer();
 }

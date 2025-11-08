@@ -1,6 +1,23 @@
 {
     "encounters": {
-        "basic": {
+        "empty": {
+            "duration": 10,
+            "events": []
+        },
+        "basic_01": {
+            "duration": 10,
+            "events": [
+                {
+                    "offset": 1.0,
+                    "location": [0.5, 0.0],
+                    "spawner": {
+                        "enemy": "enemy_01_blue",
+                        "type": "Basic"
+                    }
+                }
+            ]
+        },
+        "big_formation": {
             "duration": 20,
             "events": [
                 {
