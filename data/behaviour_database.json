@@ -1,0 +1,26 @@
+{
+    "behaviours": {
+        "basic": {
+            "states": [
+                {
+                    "type": "Line",
+                    "velocity": [0, 100]
+                }
+            ]
+        },
+        "in_and_hold": {
+            "states": [
+                {
+                    "type": "Target",
+                    "target": "Point",
+                    "point": [0, 100],
+                    "duration": 2000
+                },
+                {
+                    "type": "Hold",
+                    "duration": 2000
+                }
+            ]
+        }
+    }
+}

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gamedata_spawner.h"
+#include "gamedata_behaviour.h"
 #include "utils_paths.h"
 #include <canyon/utils/vector.h>
 
@@ -17,20 +17,18 @@ struct ComponentCurveCache {
     float total_length;
 };
 
-
-struct ComponentBehaviour {
-    float m_speed = 0;
-    EnemyBehaviour m_behaviour;
-    uint32_t m_ticks = 0;
-    canyon::FloatVec2 m_offset;
-    BehaviourParameterList m_parameters;
-    SplineDefinition m_spline;
-};
-
 struct ComponentSplineCache {
+    canyon::FloatVec2 m_offset;
     ArcLengthLUT m_lut;
 };
 
+struct ComponentBehaviour {
+    BehaviourData m_data;
+    BehaviourStateData const* m_currentState = nullptr;
+    uint32_t m_stateIdx = 0;
+    uint32_t m_stateTime = 0;
+    bool m_init = false;
+};
 
 class SystemBehaviour {
 public:

@@ -10,6 +10,14 @@
 
 ### Tasks
 
+- Redo behaviour
+    - Series of clips. Similar to moth_ui animations
+    - Implement various clip types
+    - Create a behaviour editor.
+        - Can add clips
+        - Spawn enemy with behaviour
+        - Specify sprite/enemy to use
+
 - Create encounter database
     - Timeline
     - Enemy types

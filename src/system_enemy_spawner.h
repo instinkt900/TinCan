@@ -3,7 +3,6 @@
 #include "gamedata.h"
 #include "gamedata_spawner.h"
 #include "system_behaviour.h"
-#include "utils_paths.h"
 #include <entt/entity/entity.hpp>
 
 struct ComponentEnemySpawner {
@@ -11,7 +10,6 @@ struct ComponentEnemySpawner {
     SpawnerType m_type = SpawnerType::Unknown;
     canyon::FloatVec2 m_offsetStep;
     std::vector<canyon::FloatVec2> m_formationPositions;
-    float m_speed = 0;
     int32_t m_count = 0;
     int32_t m_cooldown = 0;
     int32_t m_groupCount = 0;
@@ -22,12 +20,10 @@ struct ComponentEnemySpawner {
     DataRef<PickupData> m_groupDrop;
     entt::entity m_currentGroupEntity = entt::null;
     EnemyData m_enemy;
-    EnemyBehaviour m_behaviour;
-    BehaviourParameterList m_behaviourParameters;
+    BehaviourData m_behaviour;
     EnemyKillType m_killType;
     std::optional<uint32_t> m_lifetime;
     std::optional<float> m_boundsBorder;
-    SplineDefinition m_spline;
     uint32_t m_tickOffset;
 
     ComponentEnemySpawner(SpawnerData const& data);

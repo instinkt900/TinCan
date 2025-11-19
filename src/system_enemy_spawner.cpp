@@ -19,6 +19,7 @@ entt::entity SystemEnemySpawner::SpawnEnemy(entt::registry& registry, EnemyData 
     auto rootEntity = registry.create();
     auto& rootDetails = registry.emplace<ComponentEntity>(rootEntity, Team::Enemy, data.affinity);
     registry.emplace<ComponentPosition>(rootEntity, position);
+    registry.emplace<ComponentVelocity>(rootEntity);
 
     if (data.radius > 0.0f) {
         registry.emplace<ComponentBody>(rootEntity, data.radius);
@@ -69,24 +70,25 @@ ComponentEnemySpawner::ComponentEnemySpawner(SpawnerData const& data)
     , m_type(data.type)
     , m_offsetStep(data.offset_step)
     , m_formationPositions(data.formation_positions)
-    , m_speed(data.speed)
     , m_count(data.count)
     , m_maxCooldown(data.cooldown)
     , m_maxGroupCount(data.group_count)
     , m_maxGroupCooldown(data.group_delay)
     , m_groupDrop(data.drop)
     , m_currentGroupEntity(entt::null)
-    , m_behaviour(data.behaviour)
-    , m_behaviourParameters(data.behaviour_parameters)
     , m_killType(data.kill_type)
     , m_lifetime(data.lifetime)
     , m_boundsBorder(data.bounds_border)
-    , m_spline(data.spline)
     , m_tickOffset(data.tick_offset) {
     if (data.enemy == nullptr) {
         spdlog::error("Spawner with bad enemy reference");
     } else {
         m_enemy = *data.enemy;
+    }
+    if (data.behaviour == nullptr) {
+        spdlog::error("Spawner with bad behaviour reference");
+    } else {
+        m_behaviour = *data.behaviour;
     }
 }
 
@@ -146,14 +148,7 @@ void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
 
                 auto enemy = SpawnEnemy(registry, spawner.m_enemy, position, gamedata);
 
-                auto& behaviour = registry.emplace<ComponentBehaviour>(enemy);
-                behaviour.m_speed = spawner.m_speed;
-                behaviour.m_behaviour = spawner.m_behaviour;
-                behaviour.m_parameters = spawner.m_behaviourParameters;
-                behaviour.m_offset = position;
-                behaviour.m_spline = spawner.m_spline;
-                behaviour.m_ticks =
-                    spawner.m_tickOffset * (spawner.m_maxGroupCount - (spawner.m_groupCount + 1));
+                registry.emplace<ComponentBehaviour>(enemy, spawner.m_behaviour);
 
                 if (spawner.m_killType == EnemyKillType::Time) {
                     auto& lifetime = registry.emplace<ComponentLifetime>(enemy);

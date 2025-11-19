@@ -5,6 +5,7 @@
 #include <string>
 #include <variant>
 #include "gamedata_enemy.h"
+#include "gamedata_behaviour.h"
 #include "utils_paths.h"
 #include "utils_serialization.h"
 
@@ -16,14 +17,6 @@ enum class SpawnerType {
     Formation,
 };
 MAGIC_SERIALIZE_ENUM(SpawnerType);
-
-enum class EnemyBehaviour {
-    Unknown = -1,
-    Straight,
-    Wave,
-    Spline,
-};
-MAGIC_SERIALIZE_ENUM(EnemyBehaviour);
 
 enum class EnemyKillType {
     Unknown = -1,
@@ -51,9 +44,7 @@ struct SpawnerData {
     static constexpr GameDataCategory Category = GameDataCategory::Spawners;
 
     DataRef<EnemyData> enemy;
-    EnemyBehaviour behaviour = EnemyBehaviour::Straight;
-    BehaviourParameterList behaviour_parameters;
-    float speed = 100;
+    DataRef<BehaviourData> behaviour;
     int32_t count = 1;
     int32_t cooldown = 0;
     int32_t group_count = 1;
@@ -72,8 +63,6 @@ struct SpawnerData {
 inline void from_json(nlohmann::json const& json, SpawnerData& data) {
     DATA_REQUIRED(json, data, enemy);
     DATA_OPTIONAL(json, data, behaviour);
-    DATA_OPTIONAL(json, data, behaviour_parameters);
-    DATA_OPTIONAL(json, data, speed);
     DATA_OPTIONAL(json, data, count);
     DATA_OPTIONAL(json, data, cooldown);
     DATA_OPTIONAL(json, data, group_count);

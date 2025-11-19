@@ -81,38 +81,38 @@ void UpdateCameraShake(ComponentCamera& camera, uint32_t ticks) {
     }
 }
 
-void DrawDebugCurves(entt::registry& registry, canyon::graphics::IGraphics& graphics) {
-    auto view = registry.view<ComponentBehaviour, ComponentCurveCache>();
-
-    for (auto [entity, behaviour, curve] : view.each()) {
-        graphics.SetColor(canyon::graphics::BasicColors::Red);
-        for (size_t i = 1; i < curve.samples.size(); ++i) {
-            auto const offs = canyon::FloatVec2{ behaviour.m_offset.x, behaviour.m_offset.y };
-            auto const p1 =
-                canyon::FloatVec2{ curve.samples[i - 1].position.x, curve.samples[i - 1].position.y };
-            auto const p2 = canyon::FloatVec2{ curve.samples[i].position.x, curve.samples[i].position.y };
-            graphics.DrawLineF(offs + p1, offs + p2);
-        }
-    }
-}
-
-void DrawDebugSplines(entt::registry& registry, canyon::graphics::IGraphics& graphics) {
-    auto view = registry.view<ComponentBehaviour, ComponentSplineCache>();
-
-    auto const samples = 100;
-    auto const tStep = 1.0f / static_cast<float>(samples);
-    graphics.SetColor(canyon::graphics::FromARGB(0xFFFFFF00));
-    for (auto [entity, behaviour, spline] : view.each()) {
-        auto t = 0.0f;
-        auto lastSample = SampleCatmullRomPath(behaviour.m_spline, t);
-        for (auto i = 1; i <= samples; ++i) {
-            t = tStep * static_cast<float>(i);
-            auto const newSample = SampleCatmullRomPath(behaviour.m_spline, t);
-            graphics.DrawLineF(lastSample, newSample);
-            lastSample = newSample;
-        }
-    }
-}
+// void DrawDebugCurves(entt::registry& registry, canyon::graphics::IGraphics& graphics) {
+//     auto view = registry.view<ComponentBehaviour, ComponentCurveCache>();
+//
+//     for (auto [entity, behaviour, curve] : view.each()) {
+//         graphics.SetColor(canyon::graphics::BasicColors::Red);
+//         for (size_t i = 1; i < curve.samples.size(); ++i) {
+//             auto const offs = canyon::FloatVec2{ behaviour.m_offset.x, behaviour.m_offset.y };
+//             auto const p1 =
+//                 canyon::FloatVec2{ curve.samples[i - 1].position.x, curve.samples[i - 1].position.y };
+//             auto const p2 = canyon::FloatVec2{ curve.samples[i].position.x, curve.samples[i].position.y };
+//             graphics.DrawLineF(offs + p1, offs + p2);
+//         }
+//     }
+// }
+//
+// void DrawDebugSplines(entt::registry& registry, canyon::graphics::IGraphics& graphics) {
+//     auto view = registry.view<ComponentBehaviour, ComponentSplineCache>();
+//
+//     auto const samples = 100;
+//     auto const tStep = 1.0f / static_cast<float>(samples);
+//     graphics.SetColor(canyon::graphics::FromARGB(0xFFFFFF00));
+//     for (auto [entity, behaviour, spline] : view.each()) {
+//         auto t = 0.0f;
+//         auto lastSample = SampleCatmullRomPath(behaviour.m_spline, t);
+//         for (auto i = 1; i <= samples; ++i) {
+//             t = tStep * static_cast<float>(i);
+//             auto const newSample = SampleCatmullRomPath(behaviour.m_spline, t);
+//             graphics.DrawLineF(lastSample, newSample);
+//             lastSample = newSample;
+//         }
+//     }
+// }
 
 void DrawDebugBodies(entt::registry& registry, canyon::graphics::IGraphics& graphics) {
     auto view = registry.view<ComponentBody, ComponentPosition>();
@@ -135,7 +135,7 @@ void DrawDebugs(entt::registry& registry, canyon::graphics::IGraphics& graphics)
     // TODO: canyon line drawing is a bit broken
     // DrawDebugCurves(registry, graphics);
     // DrawDebugBodies(registry, graphics);
-    DrawDebugSplines(registry, graphics); 
+    // DrawDebugSplines(registry, graphics); 
 }
 
 void SystemDrawable::Update(GameWorld& world, uint32_t ticks) {

@@ -15,6 +15,7 @@ enum class GameDataCategory {
     Levels,
     Pickups,
     Encounters,
+    Behaviours,
 };
 
 struct SerializeContext {
@@ -48,6 +49,8 @@ public:
             return &m_pickupDatabase;
         } else if constexpr (T::Category == GameDataCategory::Encounters) {
             return &m_encounterDatabase;
+        } else if constexpr (T::Category == GameDataCategory::Behaviours) {
+            return &m_behaviourDatabase;
         } else {
             return nullptr;
         }
@@ -71,6 +74,8 @@ public:
             return m_pickupDatabase.Get(name);
         } else if constexpr (T::Category == GameDataCategory::Encounters) {
             return m_encounterDatabase.Get(name);
+        } else if constexpr (T::Category == GameDataCategory::Behaviours) {
+            return m_behaviourDatabase.Get(name);
         } else {
             return nullptr;
         }
@@ -92,5 +97,6 @@ private:
     Database<LevelData> m_levelDatabase;
     Database<PickupData> m_pickupDatabase;
     Database<EncounterData> m_encounterDatabase;
+    Database<BehaviourData> m_behaviourDatabase;
 };
 
