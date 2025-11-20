@@ -15,7 +15,8 @@
 #include "game_world.h"
 
 entt::entity SystemEnemySpawner::SpawnEnemy(entt::registry& registry, EnemyData const& data,
-                                            canyon::FloatVec2 const& position, GameData const& gamedata) {
+                                            BehaviourData const& behaviour, canyon::FloatVec2 const& position,
+                                            GameData const& gamedata) {
     auto rootEntity = registry.create();
     auto& rootDetails = registry.emplace<ComponentEntity>(rootEntity, Team::Enemy, data.affinity);
     registry.emplace<ComponentPosition>(rootEntity, position);
@@ -61,6 +62,8 @@ entt::entity SystemEnemySpawner::SpawnEnemy(entt::registry& registry, EnemyData 
 
         rootDetails.m_children.insert(childEntity);
     }
+
+    registry.emplace<ComponentBehaviour>(rootEntity, behaviour);
 
     return rootEntity;
 }
@@ -146,9 +149,8 @@ void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
                     break;
                 }
 
-                auto enemy = SpawnEnemy(registry, spawner.m_enemy, position, gamedata);
+                auto enemy = SpawnEnemy(registry, spawner.m_enemy, spawner.m_behaviour, position, gamedata);
 
-                registry.emplace<ComponentBehaviour>(enemy, spawner.m_behaviour);
 
                 if (spawner.m_killType == EnemyKillType::Time) {
                     auto& lifetime = registry.emplace<ComponentLifetime>(enemy);

@@ -32,6 +32,7 @@ set(SOURCES ${SOURCES}
 	src/system_world_bounds.cpp
 	src/system_animation.cpp
 	src/system_spline_editor.cpp
+	src/system_behaviour_editor.cpp
 )
 
 find_package(canyon REQUIRED)

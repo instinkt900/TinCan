@@ -20,6 +20,7 @@ public:
     }
 
     bool valid() const { return m_init && (m_isRef ? (get() != nullptr) : true); }
+    std::string const& ref_name() const { return m_refName; }
 
     T* operator->() { return &editable(); }
     const T* operator->() const { return get(); }
@@ -41,10 +42,19 @@ public:
     DataRef<T>& operator=(T const& other) {
         m_init = true;
         m_isRef = false;
+        m_refName = "";
         m_gamedata = nullptr;
         m_reference = nullptr;
         m_value = other;
         return *this;
+    }
+
+    void load_ref(std::string const& name, GameData const& gamedata) {
+        m_init = true;
+        m_isRef = true;
+        m_refName = name;
+        m_gamedata = &gamedata;
+        m_reference = nullptr;
     }
 
     friend void from_json(nlohmann::json const& json, DataRef<T>& data) {

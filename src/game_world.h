@@ -32,7 +32,6 @@ public:
 
 private:
     bool OnKeyEvent(moth_ui::EventKey const& event);
-    void InitTestWorld();
     void CreatePlayer();
 
     canyon::platform::Window& m_window;

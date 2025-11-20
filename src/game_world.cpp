@@ -16,6 +16,7 @@
 #include "system_projectile.h"
 #include "system_shield.h"
 #include "system_spline_editor.h"
+#include "system_behaviour_editor.h"
 #include "system_targeting.h"
 #include "system_weapon.h"
 #include "system_world_bounds.h"
@@ -72,6 +73,7 @@ void GameWorld::Draw() {
     m_graphics.SetBlendMode(canyon::graphics::BlendMode::Replace);
     m_graphics.SetColor(canyon::graphics::BasicColors::White);
     // SystemSplineEditor::Draw(*this, m_graphics);
+    SystemBehaviourEditor::Draw(*this, m_graphics);
     SystemDrawable::Draw(*this, m_graphics);
     m_graphics.SetTarget(nullptr);
 }
@@ -96,18 +98,6 @@ bool GameWorld::OnKeyEvent(moth_ui::EventKey const& event) {
     }
     SystemInput::OnKey(m_registry, event);
     return false;
-}
-
-void GameWorld::InitTestWorld() {
-    auto cam = m_registry.create();
-    m_registry.emplace<ComponentCamera>(cam);
-
-    EnemyData enemyData;
-    enemyData.affinity = Affinity::Light;
-    enemyData.radius = 20;
-    enemyData.health = 9999;
-    enemyData.sprite = *m_gamedata.Get<SpriteData>("enemy_ship_01");
-    SystemEnemySpawner::SpawnEnemy(m_registry, enemyData, { WorldSize.x / 2, 150.f }, m_gamedata);
 }
 
 void GameWorld::CreatePlayer() {

@@ -31,7 +31,7 @@ namespace {
 
         nlohmann::json j = spline.m_spline;
         std::string s = j.dump();
-        ImGui::InputTextMultiline("json", const_cast<char*>(s.c_str()), s.size(), {},
+        ImGui::InputTextMultiline("json", s.data(), s.size(), {},
                                   ImGuiInputTextFlags_ReadOnly);
 
         ImGui::PopID();

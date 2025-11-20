@@ -3,10 +3,22 @@
         "constant": {
             "states": [
                 {
+                    "type": "Line",
+                    "velocity": [0, 100],
+                    "duration": 2000
+                },
+                {
+                    "type": "Wave",
+                    "frequency": 200,
+                    "amplitude": 200,
+                    "speed": 100,
+                    "duration": 4000
+                },
+                {
                     "type": "Spline",
                     "speed": 150,
-                    "points": [[0,0],[100,100],[-100,200],[100,300],[-100,400],[100,500]],
-                    "duration": 8000
+                    "points": [[0,0],[100,0],[100,100],[-100,100],[-100,0],[0,0]],
+                    "duration": 3000
                 },
                 {
                     "type": "Line",
@@ -16,10 +28,6 @@
         }
     },
     "encounters": {
-        "empty": {
-            "duration": 10,
-            "events": []
-        },
         "basic_01": {
             "duration": 10,
             "events": [
