@@ -9,7 +9,7 @@ class TinCan(ConanFile):
     exports_sources = "CMakeLists.txt", "src/*"
 
     def requirements(self):
-        self.requires("moth_graphics/0.6.0")
+        self.requires("moth_graphics/0.7.0")
         self.requires("entt/3.15.0")
 
     def build_requirements(self):
