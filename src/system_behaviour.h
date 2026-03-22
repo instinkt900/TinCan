@@ -2,12 +2,12 @@
 
 #include "gamedata_behaviour.h"
 #include "utils_paths.h"
-#include <canyon/utils/vector.h>
+#include <moth_graphics/utils/vector.h>
 
 class GameWorld;
 
 struct CurveSample {
-    canyon::FloatVec2 position;
+    moth_graphics::FloatVec2 position;
     float segment_length = 0;
     float total_distance = 0;
 };
@@ -18,7 +18,7 @@ struct ComponentCurveCache {
 };
 
 struct ComponentSplineCache {
-    canyon::FloatVec2 m_offset;
+    moth_graphics::FloatVec2 m_offset;
     ArcLengthLUT m_lut;
 };
 

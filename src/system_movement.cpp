@@ -5,11 +5,11 @@
 #include "game_world.h"
 #include "system_targeting.h"
 #include "tags.h"
-#include <canyon/utils/math_utils.h>
+#include <moth_graphics/utils/math_utils.h>
 
 namespace {
     bool HasValidTarget(entt::registry& registry, ComponentTargeting const& targeting,
-                        ComponentPosition const& position, canyon::FloatVec2& outToTarget) {
+                        ComponentPosition const& position, moth_graphics::FloatVec2& outToTarget) {
         if (targeting.m_currentTarget == entt::null || !registry.valid(targeting.m_currentTarget)) {
             return false;
         }
@@ -18,7 +18,7 @@ namespace {
             return false;
         }
         auto const toTarget = targetPosition->m_position - position.m_position;
-        if (canyon::LengthSq(toTarget) <= 0 || canyon::LengthSq(toTarget) <= 0) {
+        if (moth_graphics::LengthSq(toTarget) <= 0 || moth_graphics::LengthSq(toTarget) <= 0) {
             return false;
         }
 
@@ -33,7 +33,7 @@ namespace {
     //     ComponentEntity>(
     //         entt::exclude<DeadTag>);
     //     for (auto [entity, targeting, velocity, position, details] : view.each()) {
-    //         canyon::FloatVec2 toTarget;
+    //         moth_graphics::FloatVec2 toTarget;
     //         bool const targetValid = HasValidTarget(registry, targeting, position, toTarget);
     //
     //         auto const maxTurnSpeed = targeting.m_maxTurnSpeed;
@@ -42,31 +42,31 @@ namespace {
     //         auto const minDrag = targeting.m_minDrag;
     //         auto const maxDrag = targeting.m_maxDrag;
     //
-    //         auto const heading = canyon::Rotate2D({ 0.0f, -1.0f }, details.m_angle);
+    //         auto const heading = moth_graphics::Rotate2D({ 0.0f, -1.0f }, details.m_angle);
     //
-    //         canyon::FloatVec2 bearing;
+    //         moth_graphics::FloatVec2 bearing;
     //         if (targetValid) {
-    //             bearing = canyon::Normalized(toTarget);
-    //             auto const angle = canyon::Angle(heading, bearing);
+    //             bearing = moth_graphics::Normalized(toTarget);
+    //             auto const angle = moth_graphics::Angle(heading, bearing);
     //             auto const steering = std::clamp(angle, -maxTurnSpeed * dt, maxTurnSpeed * dt);
     //             details.m_angle += steering;
     //         }
     //
     //         float forwardThrust = maxThrust;
     //         if (targetValid) {
-    //             auto const targetAlignment = canyon::Dot(heading, bearing);
+    //             auto const targetAlignment = moth_graphics::Dot(heading, bearing);
     //             forwardThrust = std::abs(targetAlignment) * maxThrust;
     //         }
     //         auto const acceleration = heading * forwardThrust;
     //         velocity.m_velocity += acceleration * dt;
     //
-    //         auto const course = canyon::Normalized(velocity.m_velocity);
-    //         auto const alignment = std::max(0.0f, canyon::Dot(heading, course));
-    //         auto const dragAmount = canyon::Lerp(minDrag, maxDrag, 1.0f - alignment);
+    //         auto const course = moth_graphics::Normalized(velocity.m_velocity);
+    //         auto const alignment = std::max(0.0f, moth_graphics::Dot(heading, course));
+    //         auto const dragAmount = moth_graphics::Lerp(minDrag, maxDrag, 1.0f - alignment);
     //         auto const drag = velocity.m_velocity * dragAmount;
     //         velocity.m_velocity -= drag * dt;
     //
-    //         auto const speed = canyon::Length(velocity.m_velocity);
+    //         auto const speed = moth_graphics::Length(velocity.m_velocity);
     //         if (speed >= maxSpeed) {
     //             velocity.m_velocity = (velocity.m_velocity / speed) * maxSpeed;
     //         }
@@ -79,7 +79,7 @@ namespace {
         auto view = registry.view<ComponentTargeting, ComponentVelocity, ComponentPosition, ComponentEntity>(
             entt::exclude<DeadTag>);
         for (auto [entity, targeting, velocity, position, details] : view.each()) {
-            canyon::FloatVec2 toTarget;
+            moth_graphics::FloatVec2 toTarget;
             bool const targetValid = HasValidTarget(registry, targeting, position, toTarget);
 
             // auto const maxTurnSpeed = static_cast<float>(M_PI) * 0.5f; // targeting.m_maxTurnSpeed;
@@ -89,27 +89,27 @@ namespace {
             // auto const minDrag = targeting.m_minDrag;
             // auto const maxDrag = targeting.m_maxDrag;
 
-            auto const heading = canyon::Rotate2D({ 0.0f, -1.0f }, details.m_angle);
+            auto const heading = moth_graphics::Rotate2D({ 0.0f, -1.0f }, details.m_angle);
 
             if (targetValid) {
-                auto const bearing = canyon::Normalized(toTarget);
-                auto const angle = canyon::Angle(heading, bearing);
-                auto const alignment = 1.0f - ((canyon::Dot(heading, bearing) + 1.0f) / 2.0f);
-                auto const distance = 1.0f - std::min(1.0f, canyon::Length(toTarget) / 100.0f);
-                auto const turnSpeed = canyon::Lerp(1.0f, 9.0f, std::max(alignment, distance)) * (angle > 0 ? 1.0f : -1.0f);
+                auto const bearing = moth_graphics::Normalized(toTarget);
+                auto const angle = moth_graphics::Angle(heading, bearing);
+                auto const alignment = 1.0f - ((moth_graphics::Dot(heading, bearing) + 1.0f) / 2.0f);
+                auto const distance = 1.0f - std::min(1.0f, moth_graphics::Length(toTarget) / 100.0f);
+                auto const turnSpeed = moth_graphics::Lerp(1.0f, 9.0f, std::max(alignment, distance)) * (angle > 0 ? 1.0f : -1.0f);
                 details.m_angle += turnSpeed * dt;
 
-                auto const speed = canyon::Length(velocity.m_velocity);
-                velocity.m_velocity = canyon::Rotate2D({ 0.0f, -1.0f }, details.m_angle) * speed;
+                auto const speed = moth_graphics::Length(velocity.m_velocity);
+                velocity.m_velocity = moth_graphics::Rotate2D({ 0.0f, -1.0f }, details.m_angle) * speed;
             }
 
-            // auto const course = canyon::Normalized(velocity.m_velocity);
-            // auto const alignment = std::max(0.0f, canyon::Dot(heading, course));
-            // auto const dragAmount = canyon::Lerp(minDrag, maxDrag, 1.0f - alignment);
+            // auto const course = moth_graphics::Normalized(velocity.m_velocity);
+            // auto const alignment = std::max(0.0f, moth_graphics::Dot(heading, course));
+            // auto const dragAmount = moth_graphics::Lerp(minDrag, maxDrag, 1.0f - alignment);
             // auto const drag = velocity.m_velocity * dragAmount;
             // velocity.m_velocity -= drag * dt;
 
-            // auto const speed = canyon::Length(velocity.m_velocity);
+            // auto const speed = moth_graphics::Length(velocity.m_velocity);
             // if (speed >= maxSpeed) {
             //     velocity.m_velocity = (velocity.m_velocity / speed) * maxSpeed;
             // }

@@ -15,7 +15,7 @@
 #include "game_world.h"
 
 entt::entity SystemEnemySpawner::SpawnEnemy(entt::registry& registry, EnemyData const& data,
-                                            BehaviourData const& behaviour, canyon::FloatVec2 const& position,
+                                            BehaviourData const& behaviour, moth_graphics::FloatVec2 const& position,
                                             GameData const& gamedata) {
     auto rootEntity = registry.create();
     auto& rootDetails = registry.emplace<ComponentEntity>(rootEntity, Team::Enemy, data.affinity);
@@ -43,9 +43,9 @@ entt::entity SystemEnemySpawner::SpawnEnemy(entt::registry& registry, EnemyData 
         auto childEntity = registry.create();
         registry.emplace<TargetTag>(childEntity);
         registry.emplace<ComponentParenting>(childEntity, rootEntity,
-                                             static_cast<canyon::FloatVec2>(section.offset));
+                                             static_cast<moth_graphics::FloatVec2>(section.offset));
         registry.emplace<ComponentPosition>(childEntity,
-                                            position + static_cast<canyon::FloatVec2>(section.offset));
+                                            position + static_cast<moth_graphics::FloatVec2>(section.offset));
         if (section.radius > 0.0f) {
             registry.emplace<ComponentBody>(childEntity, section.radius);
         }
@@ -130,7 +130,7 @@ void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
                 }
 
                 auto const spawnIndex = spawner.m_maxGroupCount - (spawner.m_groupCount + 1);
-                auto const fWorldSize = static_cast<canyon::FloatVec2>(world.GetWorldSize());
+                auto const fWorldSize = static_cast<moth_graphics::FloatVec2>(world.GetWorldSize());
                 auto position = spawnerPosition.m_position;
                 switch (spawner.m_type) {
                 case SpawnerType::Staggered: {
@@ -157,8 +157,8 @@ void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
                     lifetime.m_msLeft = spawner.m_lifetime.value();
                 } else if (spawner.m_killType == EnemyKillType::Bounds) {
                     auto& bounds = registry.emplace<ComponentBounds>(enemy);
-                    canyon::FloatRect boundsRect{ { 0.0f, 0.0f },
-                                                  static_cast<canyon::FloatVec2>(world.GetWorldSize()) };
+                    moth_graphics::FloatRect boundsRect{ { 0.0f, 0.0f },
+                                                  static_cast<moth_graphics::FloatVec2>(world.GetWorldSize()) };
                     if (spawner.m_boundsBorder.has_value()) {
                         boundsRect.topLeft -=
                             { spawner.m_boundsBorder.value(), spawner.m_boundsBorder.value() };
@@ -182,7 +182,7 @@ void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
 }
 
 entt::entity SystemEnemySpawner::CreateSpawner(entt::registry& registry, SpawnerData const& data,
-                                               GameData const& gamedata, canyon::FloatVec2 const& position) {
+                                               GameData const& gamedata, moth_graphics::FloatVec2 const& position) {
     auto enemySpawner = registry.create();
     registry.emplace<ComponentEnemySpawner>(enemySpawner, data);
     registry.emplace<ComponentPosition>(enemySpawner, position);

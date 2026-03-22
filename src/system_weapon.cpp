@@ -129,7 +129,7 @@ void SystemWeapon::Update(GameWorld& world, uint32_t ticks) {
                             registry, *projectileData, entity, position.m_position + offset, direction,
                             barrelAngle, damage);
                         auto& projectileBounds = registry.emplace<ComponentBounds>(projectileEntity);
-                        projectileBounds.m_bounds = static_cast<canyon::FloatRect>(canyon::MakeRect(
+                        projectileBounds.m_bounds = static_cast<moth_graphics::FloatRect>(moth_graphics::MakeRect(
                             -ProjectileBorder, -ProjectileBorder, world.GetWorldSize().x + ProjectileBorder,
                             world.GetWorldSize().y + ProjectileBorder));
                         projectileBounds.m_behaviour = BoundsBehaviour::Kill;

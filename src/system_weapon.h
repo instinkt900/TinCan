@@ -4,13 +4,13 @@
 #include "gamedata_projectile.h"
 #include "gamedata_pickup.h"
 #include <entt/entity/fwd.hpp>
-#include <canyon/graphics/surface_context.h>
-#include <canyon/utils/vector.h>
+#include <moth_graphics/graphics/surface_context.h>
+#include <moth_graphics/utils/vector.h>
 
 class GameWorld;
 
 struct Barrel {
-    canyon::FloatVec2 m_offset;
+    moth_graphics::FloatVec2 m_offset;
     float m_angle = 0;
 };
 

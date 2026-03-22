@@ -21,7 +21,7 @@
 //                        ComponentPosition& position) {
 //     float const speed = behaviour.m_speed;
 //     float const t = static_cast<float>(behaviour.m_ticks) / 1000.0f;
-//     auto const newPosition = behaviour.m_offset + canyon::FloatVec2{ 0, t * speed };
+//     auto const newPosition = behaviour.m_offset + moth_graphics::FloatVec2{ 0, t * speed };
 //     position.m_lastPosition = position.m_position;
 //     position.m_position = newPosition;
 // }
@@ -49,7 +49,7 @@
 //                 sample.segment_length = 0;
 //                 sample.total_distance = 0;
 //             } else {
-//                 sample.segment_length = canyon::Distance(sample.position, lastSample.position);
+//                 sample.segment_length = moth_graphics::Distance(sample.position, lastSample.position);
 //                 sample.total_distance = lastSample.total_distance + sample.segment_length;
 //             }
 //             lastSample = sample;
@@ -137,7 +137,7 @@ public:
     void Init(BehaviourTarget const& target) override { Update(target, 0); }
 
     void Update(BehaviourTarget const& target, uint32_t ticks) override {
-        canyon::FloatVec2 targetPos;
+        moth_graphics::FloatVec2 targetPos;
         if (target.behaviourComponent.m_currentState->target == TargetType::Point) {
             targetPos = target.behaviourComponent.m_currentState->point;
         } else if (target.behaviourComponent.m_currentState->target == TargetType::Player) {
@@ -147,7 +147,7 @@ public:
             }
         }
         target.velocityComponent.m_velocity =
-            canyon::Normalized(targetPos - target.positionComponent.m_position) *
+            moth_graphics::Normalized(targetPos - target.positionComponent.m_position) *
             target.behaviourComponent.m_currentState->speed;
     }
 };
@@ -180,7 +180,7 @@ public:
                     sample.segment_length = 0;
                     sample.total_distance = 0;
                 } else {
-                    sample.segment_length = canyon::Distance(sample.position, lastSample.position);
+                    sample.segment_length = moth_graphics::Distance(sample.position, lastSample.position);
                     sample.total_distance = lastSample.total_distance + sample.segment_length;
                 }
                 lastSample = sample;

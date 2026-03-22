@@ -1,6 +1,6 @@
 #pragma once
 
-#include <canyon/graphics/blend_mode.h>
+#include <moth_graphics/graphics/blend_mode.h>
 #include <nlohmann/json.hpp>
 #include <magic_enum.hpp>
 
@@ -53,13 +53,13 @@ namespace nlohmann {
     };
 
     template<>
-    struct adl_serializer<canyon::graphics::BlendMode> {
-        static void to_json(json& j, canyon::graphics::BlendMode const& blendMode) {
+    struct adl_serializer<moth_graphics::graphics::BlendMode> {
+        static void to_json(json& j, moth_graphics::graphics::BlendMode const& blendMode) {
             j = magic_enum::enum_name(blendMode);
         }
 
-        static void from_json(const json& j, canyon::graphics::BlendMode& blendMode) {
-            if (auto val = magic_enum::enum_cast<canyon::graphics::BlendMode>(j.get<std::string>()); val.has_value()) {
+        static void from_json(const json& j, moth_graphics::graphics::BlendMode& blendMode) {
+            if (auto val = magic_enum::enum_cast<moth_graphics::graphics::BlendMode>(j.get<std::string>()); val.has_value()) {
                 blendMode = val.value();
             } else {
                 throw std::runtime_error("Invalid enum string: " + j.get<std::string>());

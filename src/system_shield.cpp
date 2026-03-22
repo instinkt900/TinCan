@@ -28,8 +28,8 @@ void SystemShield::Update(GameWorld& world, uint32_t ticks) {
         // update the visuals
         if (auto* shieldSprite = registry.try_get<ComponentSprite>(shieldEntity)) {
             shieldSprite->m_color = (shieldDetails->m_affinity == Affinity::Light)
-                                        ? canyon::graphics::BasicColors::Blue
-                                        : canyon::graphics::BasicColors::Red;
+                                        ? moth_graphics::graphics::BasicColors::Blue
+                                        : moth_graphics::graphics::BasicColors::Red;
 
             float const imageWidth = static_cast<float>(shieldSprite->m_image->GetWidth());
             float const imageHeight = static_cast<float>(shieldSprite->m_image->GetHeight());

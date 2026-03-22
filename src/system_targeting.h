@@ -18,7 +18,7 @@ struct ComponentTargeting {
 
     // cached values from the movement system
     bool m_targetValid = false;  // if the current target is set and alive
-    canyon::FloatVec2 m_bearing; // the direction to our current target
+    moth_graphics::FloatVec2 m_bearing; // the direction to our current target
 };
 
 class SystemTargeting {

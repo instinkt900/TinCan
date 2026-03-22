@@ -9,7 +9,7 @@ namespace {
         ImGui::Checkbox("Visible", &spline.m_visible);
 
         int insertAfter = -1;
-        canyon::FloatVec2 newVal;
+        moth_graphics::FloatVec2 newVal;
         float const iterStep = 1.0f / static_cast<float>(spline.m_spline.size());
         for (uint i = 0; i < spline.m_spline.size(); ++i) {
             auto const t = iterStep * static_cast<float>(i);
@@ -37,32 +37,32 @@ namespace {
         ImGui::PopID();
     }
 
-    void DrawSpline(canyon::graphics::IGraphics& graphics, ComponentSpline const& spline) {
+    void DrawSpline(moth_graphics::graphics::IGraphics& graphics, ComponentSpline const& spline) {
         auto const samples = 100;
         auto const tStep = 1.0f / static_cast<float>(samples);
         auto t = 0.0f;
         auto lastSample = SampleCatmullRomPath(spline.m_spline, t);
-        graphics.SetColor(canyon::graphics::FromARGB(0xFFFFFF00));
+        graphics.SetColor(moth_graphics::graphics::FromARGB(0xFFFFFF00));
         for (auto i = 1; i <= samples; ++i) {
             t = tStep * static_cast<float>(i);
             auto const newSample = SampleCatmullRomPath(spline.m_spline, t);
             graphics.DrawLineF(lastSample, newSample);
             lastSample = newSample;
         }
-        graphics.SetColor(canyon::graphics::FromARGB(0xFFFF0000));
+        graphics.SetColor(moth_graphics::graphics::FromARGB(0xFFFF0000));
         for (uint i = 0; i < spline.m_spline.size(); ++i) {
             auto const pos = spline.m_spline[i];
-            auto const v1 = pos - canyon::FloatVec2{ 0.0f, 6.0f };
-            auto const v2 = pos + canyon::FloatVec2{ 0.0f, 6.0f };
-            auto const h1 = pos - canyon::FloatVec2{ 6.0f, 0.0f };
-            auto const h2 = pos + canyon::FloatVec2{ 6.0f, 0.0f };
+            auto const v1 = pos - moth_graphics::FloatVec2{ 0.0f, 6.0f };
+            auto const v2 = pos + moth_graphics::FloatVec2{ 0.0f, 6.0f };
+            auto const h1 = pos - moth_graphics::FloatVec2{ 6.0f, 0.0f };
+            auto const h2 = pos + moth_graphics::FloatVec2{ 6.0f, 0.0f };
             graphics.DrawLineF(v1, v2);
             graphics.DrawLineF(h1, h2);
         }
     }
 }
 
-void SystemSplineEditor::Draw(GameWorld& world, canyon::graphics::IGraphics& graphics) {
+void SystemSplineEditor::Draw(GameWorld& world, moth_graphics::graphics::IGraphics& graphics) {
     auto& registry = world.GetRegistry();
     auto view = registry.view<ComponentSpline>();
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <canyon/graphics/surface_context.h>
+#include <moth_graphics/graphics/surface_context.h>
 #include <filesystem>
 #include "gamedata_database.h"
 #include "gamedata_fwd.h"
@@ -20,7 +20,7 @@ enum class GameDataCategory {
 
 struct SerializeContext {
     GameData const& gamedata;
-    canyon::graphics::SurfaceContext& surfaceContext;
+    moth_graphics::graphics::SurfaceContext& surfaceContext;
 };
 
 class GameData {

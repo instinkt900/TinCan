@@ -8,7 +8,7 @@
 
 struct EnemySection {
     DataRef<SpriteData> sprite;
-    canyon::IntVec2 offset;
+    moth_graphics::IntVec2 offset;
     float radius = 1.0f;
     float health = 1.0f;
     DataRef<WeaponData> weapon;

@@ -4,5 +4,5 @@
 
 class SystemBehaviourEditor {
 public:
-    static void Draw(GameWorld& world, canyon::graphics::IGraphics& graphics);
+    static void Draw(GameWorld& world, moth_graphics::graphics::IGraphics& graphics);
 };

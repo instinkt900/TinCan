@@ -31,7 +31,7 @@ namespace {
             }
             if (entityDetails.m_team != targetDetails->m_team) {
                 float const distance =
-                    canyon::DistanceSq(entityPosition->m_position, targetPosition.m_position);
+                    moth_graphics::DistanceSq(entityPosition->m_position, targetPosition.m_position);
                 if (distance < closestDistance) {
                     closestEntity = targetEntity;
                     closestDistance = distance;

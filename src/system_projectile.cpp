@@ -102,8 +102,8 @@ namespace {
 }
 
 entt::entity SystemProjectile::CreateProjectile(entt::registry& registry, ProjectileData const& data,
-                                                entt::entity source, canyon::FloatVec2 const& position,
-                                                canyon::FloatVec2 const& direction, float rotation,
+                                                entt::entity source, moth_graphics::FloatVec2 const& position,
+                                                moth_graphics::FloatVec2 const& direction, float rotation,
                                                 float damage) {
     auto const* sourceEntityData = GetEntityDetails(registry, source);
     if (sourceEntityData == nullptr) {
@@ -125,8 +125,8 @@ entt::entity SystemProjectile::CreateProjectile(entt::registry& registry, Projec
     auto const& spriteData =
         sourceEntityData->m_affinity == Affinity::Light ? data.white_sprite : data.black_sprite;
     auto& sprite = registry.emplace<ComponentSprite>(projectile, *spriteData);
-    sprite.m_color = sourceEntityData->m_affinity == Affinity::Light ? canyon::graphics::BasicColors::Blue
-                                                                     : canyon::graphics::BasicColors::Red;
+    sprite.m_color = sourceEntityData->m_affinity == Affinity::Light ? moth_graphics::graphics::BasicColors::Blue
+                                                                     : moth_graphics::graphics::BasicColors::Red;
 
     if (data.homing_details.has_value()) {
         if (data.homing_details->targeting != Targeting::None) {

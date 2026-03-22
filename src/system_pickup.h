@@ -2,7 +2,7 @@
 
 #include "gamedata.h"
 #include <entt/entity/fwd.hpp>
-#include <canyon/utils/vector.h>
+#include <moth_graphics/utils/vector.h>
 
 class GameWorld;
 
@@ -12,7 +12,7 @@ struct ComponentPickup {
 
 class SystemPickup {
 public:
-    static entt::entity CreatePickup(entt::registry& registry, canyon::FloatVec2 const& position,
+    static entt::entity CreatePickup(entt::registry& registry, moth_graphics::FloatVec2 const& position,
                                      PickupData const& pickupData, GameData const& gamedata);
     static void Update(GameWorld& world, uint32_t ticks);
 };

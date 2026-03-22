@@ -1,17 +1,17 @@
 #pragma once
 
-#include <canyon/utils/math_utils.h>
-#include <canyon/utils/vector.h>
+#include <moth_graphics/utils/math_utils.h>
+#include <moth_graphics/utils/vector.h>
 
-inline canyon::FloatVec2 CatmullRom(canyon::FloatVec2 const& p0, canyon::FloatVec2 const& p1,
-                                    canyon::FloatVec2 const& p2, canyon::FloatVec2 const& p3, float t) {
+inline moth_graphics::FloatVec2 CatmullRom(moth_graphics::FloatVec2 const& p0, moth_graphics::FloatVec2 const& p1,
+                                    moth_graphics::FloatVec2 const& p2, moth_graphics::FloatVec2 const& p3, float t) {
     auto const t2 = t * t;
     auto const t3 = t2 * t;
     return 0.5f * ((2.0f * p1) + (-p0 + p2) * t + (2.0f * p0 - 5.0f * p1 + 4.0f * p2 - p3) * t2 +
                    (-p0 + 3.0f * p1 - 3.0f * p2 + p3) * t3);
 }
 
-inline canyon::FloatVec2 SampleCatmullRomPath(std::vector<canyon::FloatVec2> const& points, float t) {
+inline moth_graphics::FloatVec2 SampleCatmullRomPath(std::vector<moth_graphics::FloatVec2> const& points, float t) {
     if (t >= 1.0f) {
         return points.back();
     }
@@ -33,18 +33,18 @@ struct ArcLengthLUT {
     std::vector<float> t_values;  // corresponding t values
 };
 
-using SplineDefinition = std::vector<canyon::FloatVec2>;
+using SplineDefinition = std::vector<moth_graphics::FloatVec2>;
 
 inline ArcLengthLUT BuildArcLengthTable(SplineDefinition const& spline, int samples = 1000) {
     ArcLengthLUT table;
     table.t_values.reserve(samples);
     table.distances.reserve(samples);
 
-    canyon::FloatVec2 prev = SampleCatmullRomPath(spline, 0.0f);
+    moth_graphics::FloatVec2 prev = SampleCatmullRomPath(spline, 0.0f);
     float dist_accum = 0.0f;
     for (int i = 0; i <= samples; ++i) {
         float t = static_cast<float>(i) / static_cast<float>(samples);
-        canyon::FloatVec2 curr = SampleCatmullRomPath(spline, t);
+        moth_graphics::FloatVec2 curr = SampleCatmullRomPath(spline, t);
         if (i > 0) {
             dist_accum += Length(curr - prev);
         }
@@ -78,10 +78,10 @@ inline float GetTForDistance(ArcLengthLUT const& table, float s) {
     float t0 = table.t_values[low - 1];
     float t1 = table.t_values[low];
     float f = (s - d0) / (d1 - d0);
-    return canyon::Lerp(t0, t1, f);
+    return moth_graphics::Lerp(t0, t1, f);
 }
 
-inline canyon::FloatVec2 SamplePathByDistance(SplineDefinition const& spline, ArcLengthLUT const& table, float distance) {
+inline moth_graphics::FloatVec2 SamplePathByDistance(SplineDefinition const& spline, ArcLengthLUT const& table, float distance) {
     float t = GetTForDistance(table, distance);
     return SampleCatmullRomPath(spline, t);
 }

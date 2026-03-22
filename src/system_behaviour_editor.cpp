@@ -1,4 +1,5 @@
 #include "system_behaviour_editor.h"
+#include "system_debug_spline.h"
 #include "system_enemy_spawner.h"
 #include "gamedata_behaviour.h"
 #include "utils_imgui.h"
@@ -24,7 +25,8 @@ namespace imgui_ext {
         ImGui::InputFloat("Health", &data.health);
     }
 
-    void InputBehaviourStateData(BehaviourStateData& data, GameData const& gamedata) {
+    void InputBehaviourStateData(BehaviourStateData& data, GameData const& gamedata,
+                                 moth_graphics::graphics::IGraphics& graphics) {
         ImGui::PushID(&data);
         InputText("Label", data.label);
         ImGui::InputScalar("Duration", ImGuiDataType_U32, &data.duration);
@@ -56,10 +58,12 @@ namespace imgui_ext {
                     continue;
                 }
 
+                DrawSpline(graphics, data.points);
+
                 ImGui::PopID();
                 ++i;
             }
-            static canyon::FloatVec2 pendingPoint;
+            static moth_graphics::FloatVec2 pendingPoint;
             ImGui::TextUnformatted("New point:");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(150.0f);
@@ -72,13 +76,14 @@ namespace imgui_ext {
         ImGui::PopID();
     }
 
-    void InputBehaviourData(BehaviourData& data, GameData const& gamedata) {
+    void InputBehaviourData(BehaviourData& data, GameData const& gamedata,
+                            moth_graphics::graphics::IGraphics& graphics) {
         ImGui::Text("States:");
         for (int i = 0; i < static_cast<int>(data.states.size()); /* skip */) {
             ImGui::PushID(i);
             ImGui::Text("%d.", i);
             ImGui::Indent();
-            InputBehaviourStateData(data.states[i], gamedata);
+            InputBehaviourStateData(data.states[i], gamedata, graphics);
             if (ImGui::Button("Delete")) {
                 data.states.erase(data.states.begin() + i);
                 ImGui::PopID();
@@ -92,7 +97,7 @@ namespace imgui_ext {
 
         static BehaviourStateData newStateData;
         ImGui::Text("New state:");
-        InputBehaviourStateData(newStateData, gamedata);
+        InputBehaviourStateData(newStateData, gamedata, graphics);
         if (ImGui::Button("Add")) {
             data.states.push_back(newStateData);
             newStateData = {};
@@ -100,13 +105,13 @@ namespace imgui_ext {
     }
 }
 
-void SystemBehaviourEditor::Draw(GameWorld& world, canyon::graphics::IGraphics& graphics) {
+void SystemBehaviourEditor::Draw(GameWorld& world, moth_graphics::graphics::IGraphics& graphics) {
     auto& registry = world.GetRegistry();
     auto const& gamedata = world.GetGameData();
 
     static EnemyData staticEnemyData;
     static BehaviourData staticBehaviourData;
-    static canyon::FloatVec2 staticPosition;
+    static moth_graphics::FloatVec2 staticPosition;
 
     ImGui::Begin("Behaviour Editor");
     ImGui::InputFloat2("Position", static_cast<float*>(staticPosition.data));
@@ -118,7 +123,7 @@ void SystemBehaviourEditor::Draw(GameWorld& world, canyon::graphics::IGraphics& 
     ImGui::Separator();
 
     imgui_ext::InputEnemyData(staticEnemyData, gamedata);
-    imgui_ext::InputBehaviourData(staticBehaviourData, gamedata);
+    imgui_ext::InputBehaviourData(staticBehaviourData, gamedata, graphics);
 
     ImGui::End();
 }

@@ -23,9 +23,9 @@
 #include "tags.h"
 #include "system_power_weapon.h"
 
-canyon::IntVec2 const GameWorld::WorldSize{ 600, 800 };
+moth_graphics::IntVec2 const GameWorld::WorldSize{ 600, 800 };
 
-GameWorld::GameWorld(canyon::platform::Window& window, canyon::graphics::IGraphics& graphics)
+GameWorld::GameWorld(moth_graphics::platform::Window& window, moth_graphics::graphics::IGraphics& graphics)
     : m_window(window)
     , m_graphics(graphics) {
     m_worldSurface = m_graphics.CreateTarget(WorldSize.x, WorldSize.y);
@@ -68,12 +68,12 @@ void GameWorld::Update(uint32_t ticks) {
 
 void GameWorld::Draw() {
     m_graphics.SetTarget(m_worldSurface.get());
-    m_graphics.SetColor(canyon::graphics::BasicColors::Black);
+    m_graphics.SetColor(moth_graphics::graphics::BasicColors::Black);
     m_graphics.Clear();
-    m_graphics.SetBlendMode(canyon::graphics::BlendMode::Replace);
-    m_graphics.SetColor(canyon::graphics::BasicColors::White);
+    m_graphics.SetBlendMode(moth_graphics::graphics::BlendMode::Replace);
+    m_graphics.SetColor(moth_graphics::graphics::BasicColors::White);
     // SystemSplineEditor::Draw(*this, m_graphics);
-    SystemBehaviourEditor::Draw(*this, m_graphics);
+    // SystemBehaviourEditor::Draw(*this, m_graphics);
     SystemDrawable::Draw(*this, m_graphics);
     m_graphics.SetTarget(nullptr);
 }
@@ -105,7 +105,7 @@ void GameWorld::CreatePlayer() {
 
     m_registry.emplace<ComponentEntity>(m_player, Team::Player, Affinity::Light);
 
-    auto const position = canyon::FloatVec2(WorldSize.x / 2, WorldSize.y - 160);
+    auto const position = moth_graphics::FloatVec2(WorldSize.x / 2, WorldSize.y - 160);
     m_registry.emplace<ComponentPosition>(m_player, position);
     m_registry.emplace<ComponentBody>(m_player, 5);
 
@@ -133,7 +133,7 @@ void GameWorld::CreatePlayer() {
     auto& bounds = m_registry.emplace<ComponentBounds>(m_player);
     bounds.m_behaviour = BoundsBehaviour::Limit;
     bounds.m_bounds =
-        canyon::MakeRect(0.0f, 0.0f, static_cast<float>(WorldSize.x), static_cast<float>(WorldSize.y));
+        moth_graphics::MakeRect(0.0f, 0.0f, static_cast<float>(WorldSize.x), static_cast<float>(WorldSize.y));
 
     {
         auto shield = m_registry.create();

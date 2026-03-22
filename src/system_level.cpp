@@ -39,7 +39,7 @@ void SystemLevel::InitLevel(entt::registry& registry, LevelBuilderProperties con
 void HandleLevelEvent(LevelEvent const& event, GameWorld& world) {
     auto& registry = world.GetRegistry();
     auto const& gamedata = world.GetGameData();
-    auto const worldLocation = event.location * static_cast<canyon::FloatVec2>(world.GetWorldSize());
+    auto const worldLocation = event.location * static_cast<moth_graphics::FloatVec2>(world.GetWorldSize());
     if (event.spawner.valid()) {
         SystemEnemySpawner::CreateSpawner(registry, *event.spawner, world.GetGameData(), worldLocation);
     } else if (event.drop.valid()) {

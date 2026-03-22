@@ -2,7 +2,7 @@
 
 #include "gamedata_pickup.h"
 #include <entt/entity/fwd.hpp>
-#include <canyon/utils/vector.h>
+#include <moth_graphics/utils/vector.h>
 
 class GameWorld;
 
@@ -16,7 +16,7 @@ enum class GroupEndCondition {
 struct ComponentGroup {
     int32_t m_memberCount = 0;
     GroupEndCondition m_condition = GroupEndCondition::None;
-    canyon::FloatVec2 m_position;
+    moth_graphics::FloatVec2 m_position;
     DataRef<PickupData> m_drop;
 };
 

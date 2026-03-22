@@ -2,10 +2,10 @@
 
 #include "gamedata_pickup.h"
 #include "gamedata_projectile.h"
-#include <canyon/utils/vector.h>
+#include <moth_graphics/utils/vector.h>
 
 struct BarrelData {
-    canyon::FloatVec2 offset;
+    moth_graphics::FloatVec2 offset;
     int32_t group = 0;
     float angle = 0;
 };

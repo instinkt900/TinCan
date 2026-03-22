@@ -1,9 +1,9 @@
-#include <canyon/platform/glfw/glfw_platform.h>
-#include <canyon/platform/application.h>
+#include <moth_graphics/platform/glfw/glfw_platform.h>
+#include <moth_graphics/platform/application.h>
 #include "game_layer.h"
 
-void start(canyon::platform::IPlatform& platform) {
-    auto application = std::make_unique<canyon::platform::Application>(platform, "Example", 640, 480);
+void start(moth_graphics::platform::IPlatform& platform) {
+    auto application = std::make_unique<moth_graphics::platform::Application>(platform, "Example", 640, 480);
     application->Init();
     auto* window = application->GetWindow();
     auto& mothContext = window->GetMothContext();
@@ -21,8 +21,8 @@ void start(canyon::platform::IPlatform& platform) {
 }
 
 int main(int argc, char* argv[]) {
-    // auto platform = std::make_unique<canyon::platform::sdl::Platform>();
-    auto platform = std::make_unique<canyon::platform::glfw::Platform>();
+    // auto platform = std::make_unique<moth_graphics::platform::sdl::Platform>();
+    auto platform = std::make_unique<moth_graphics::platform::glfw::Platform>();
     platform->Startup();
 
     // startExampleApp(*platform);

@@ -3,7 +3,7 @@
 #include "gamedata_projectile.h"
 #include <entt/entity/entity.hpp>
 #include <entt/entity/fwd.hpp>
-#include <canyon/utils/vector.h>
+#include <moth_graphics/utils/vector.h>
 
 class GameWorld;
 
@@ -15,7 +15,7 @@ struct ComponentProjectile {
 class SystemProjectile {
 public:
     static entt::entity CreateProjectile(entt::registry& registry, ProjectileData const& data,
-                                         entt::entity source, canyon::FloatVec2 const& position,
-                                         canyon::FloatVec2 const& direction, float rotation, float damage);
+                                         entt::entity source, moth_graphics::FloatVec2 const& position,
+                                         moth_graphics::FloatVec2 const& direction, float rotation, float damage);
     static void Update(GameWorld& world, uint32_t ticks);
 };

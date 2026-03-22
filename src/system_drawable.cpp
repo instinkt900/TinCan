@@ -4,7 +4,7 @@
 #include "system_behaviour.h"
 #include "system_movement.h"
 #include <entt/entt.hpp>
-#include <canyon/utils/math_utils.h>
+#include <moth_graphics/utils/math_utils.h>
 #include "game_world.h"
 #include "tags.h"
 #include "utils.h"
@@ -21,44 +21,44 @@ ComponentSprite::ComponentSprite(SpriteData const& data, Affinity affinity)
         auto const& sheetData = data.sheet_data.value();
         for (int y = 0; y < sheetData.grid_dimensions.y; ++y) {
             for (int x = 0; x < sheetData.grid_dimensions.x; ++x) {
-                canyon::IntVec2 cellTL{ sheetData.cell_dimensions.x * x, sheetData.cell_dimensions.y * y };
-                canyon::IntVec2 cellBR = cellTL + sheetData.cell_dimensions;
-                m_cellRects.emplace_back(canyon::IntRect{ cellTL, cellBR });
+                moth_graphics::IntVec2 cellTL{ sheetData.cell_dimensions.x * x, sheetData.cell_dimensions.y * y };
+                moth_graphics::IntVec2 cellBR = cellTL + sheetData.cell_dimensions;
+                m_cellRects.emplace_back(moth_graphics::IntRect{ cellTL, cellBR });
             }
         }
     } else {
-        m_cellRects.emplace_back(canyon::IntVec2{ 0, 0 },
-                                 canyon::IntVec2{ m_image->GetWidth(), m_image->GetHeight() });
+        m_cellRects.emplace_back(moth_graphics::IntVec2{ 0, 0 },
+                                 moth_graphics::IntVec2{ m_image->GetWidth(), m_image->GetHeight() });
     }
 
     if (affinity != Affinity::None) {
-        m_color = affinity == Affinity::Light ? canyon::graphics::BasicColors::Blue
-                                              : canyon::graphics::BasicColors::Red;
+        m_color = affinity == Affinity::Light ? moth_graphics::graphics::BasicColors::Blue
+                                              : moth_graphics::graphics::BasicColors::Red;
     }
 }
 
 struct DrawImage {
     ComponentSprite const* m_image = nullptr;
-    canyon::IntRect m_sourceRect;
-    canyon::IntVec2 m_position;
+    moth_graphics::IntRect m_sourceRect;
+    moth_graphics::IntVec2 m_position;
     float m_angle = 0;
 };
 
 CameraShake::CameraShake(float intensity, uint32_t duration)
     : m_intensity(intensity)
     , m_duration(duration) {
-    m_timeOffset.x = Random(0.0f, canyon::F_PI);
-    m_timeOffset.y = Random(0.0f, canyon::F_PI);
+    m_timeOffset.x = Random(0.0f, moth_graphics::F_PI);
+    m_timeOffset.y = Random(0.0f, moth_graphics::F_PI);
 }
 
 
 bool CameraShake::Update(uint32_t ticks) {
     m_ticks = std::min(m_duration, m_ticks + ticks);
     auto const factor = static_cast<float>(m_ticks) / static_cast<float>(m_duration);
-    auto const curIntensity = canyon::Interp(m_intensity, 0.0f, factor, canyon::InterpType::Smooth);
+    auto const curIntensity = moth_graphics::Interp(m_intensity, 0.0f, factor, moth_graphics::InterpType::Smooth);
 
-    auto const xTime = m_timeOffset.x + (factor * canyon::F_PI * 20.0f);
-    auto const yTime = m_timeOffset.y + (factor * canyon::F_PI * 10.0f);
+    auto const xTime = m_timeOffset.x + (factor * moth_graphics::F_PI * 20.0f);
+    auto const yTime = m_timeOffset.y + (factor * moth_graphics::F_PI * 10.0f);
 
     auto const xOffs = std::sin(xTime) * 5.0f * curIntensity;
     auto const yOffs = std::sin(yTime) * 5.0f * curIntensity;
@@ -81,27 +81,27 @@ void UpdateCameraShake(ComponentCamera& camera, uint32_t ticks) {
     }
 }
 
-// void DrawDebugCurves(entt::registry& registry, canyon::graphics::IGraphics& graphics) {
+// void DrawDebugCurves(entt::registry& registry, moth_graphics::graphics::IGraphics& graphics) {
 //     auto view = registry.view<ComponentBehaviour, ComponentCurveCache>();
 //
 //     for (auto [entity, behaviour, curve] : view.each()) {
-//         graphics.SetColor(canyon::graphics::BasicColors::Red);
+//         graphics.SetColor(moth_graphics::graphics::BasicColors::Red);
 //         for (size_t i = 1; i < curve.samples.size(); ++i) {
-//             auto const offs = canyon::FloatVec2{ behaviour.m_offset.x, behaviour.m_offset.y };
+//             auto const offs = moth_graphics::FloatVec2{ behaviour.m_offset.x, behaviour.m_offset.y };
 //             auto const p1 =
-//                 canyon::FloatVec2{ curve.samples[i - 1].position.x, curve.samples[i - 1].position.y };
-//             auto const p2 = canyon::FloatVec2{ curve.samples[i].position.x, curve.samples[i].position.y };
+//                 moth_graphics::FloatVec2{ curve.samples[i - 1].position.x, curve.samples[i - 1].position.y };
+//             auto const p2 = moth_graphics::FloatVec2{ curve.samples[i].position.x, curve.samples[i].position.y };
 //             graphics.DrawLineF(offs + p1, offs + p2);
 //         }
 //     }
 // }
 //
-// void DrawDebugSplines(entt::registry& registry, canyon::graphics::IGraphics& graphics) {
+// void DrawDebugSplines(entt::registry& registry, moth_graphics::graphics::IGraphics& graphics) {
 //     auto view = registry.view<ComponentBehaviour, ComponentSplineCache>();
 //
 //     auto const samples = 100;
 //     auto const tStep = 1.0f / static_cast<float>(samples);
-//     graphics.SetColor(canyon::graphics::FromARGB(0xFFFFFF00));
+//     graphics.SetColor(moth_graphics::graphics::FromARGB(0xFFFFFF00));
 //     for (auto [entity, behaviour, spline] : view.each()) {
 //         auto t = 0.0f;
 //         auto lastSample = SampleCatmullRomPath(behaviour.m_spline, t);
@@ -114,24 +114,24 @@ void UpdateCameraShake(ComponentCamera& camera, uint32_t ticks) {
 //     }
 // }
 
-void DrawDebugBodies(entt::registry& registry, canyon::graphics::IGraphics& graphics) {
+void DrawDebugBodies(entt::registry& registry, moth_graphics::graphics::IGraphics& graphics) {
     auto view = registry.view<ComponentBody, ComponentPosition>();
 
-    graphics.SetColor(canyon::graphics::BasicColors::Green);
+    graphics.SetColor(moth_graphics::graphics::BasicColors::Green);
     for (auto [entity, body, position] : view.each()) {
-        canyon::FloatVec2 basis{ 0.0f, body.m_radius };
-        canyon::FloatVec2 startPos = basis;
+        moth_graphics::FloatVec2 basis{ 0.0f, body.m_radius };
+        moth_graphics::FloatVec2 startPos = basis;
         auto const segments = 50;
         for (int i = 0; i <= segments; ++i) {
             float const angle = (360.0f / segments) * static_cast<float>(i);
-            auto const endPos = canyon::Rotate2D(basis, canyon::Radians(angle));
+            auto const endPos = moth_graphics::Rotate2D(basis, moth_graphics::Radians(angle));
             graphics.DrawLineF(position.m_position + startPos, position.m_position + endPos);
             startPos = endPos;
         }
     }
 }
 
-void DrawDebugs(entt::registry& registry, canyon::graphics::IGraphics& graphics) {
+void DrawDebugs(entt::registry& registry, moth_graphics::graphics::IGraphics& graphics) {
     // TODO: canyon line drawing is a bit broken
     // DrawDebugCurves(registry, graphics);
     // DrawDebugBodies(registry, graphics);
@@ -158,7 +158,7 @@ void SystemDrawable::Update(GameWorld& world, uint32_t ticks) {
     }
 }
 
-void SystemDrawable::Draw(GameWorld& world, canyon::graphics::IGraphics& graphics) {
+void SystemDrawable::Draw(GameWorld& world, moth_graphics::graphics::IGraphics& graphics) {
     auto& registry = world.GetRegistry();
 
     auto cameraView = registry.view<ComponentCamera>();
@@ -180,7 +180,7 @@ void SystemDrawable::Draw(GameWorld& world, canyon::graphics::IGraphics& graphic
         }
         auto const fullAngle = angle + sprite.m_rotation;
         auto const sourceRect = sprite.m_cellRects[sprite.m_cellIndex];
-        auto position = static_cast<canyon::IntVec2>(pos.m_position + cameraOffset);
+        auto position = static_cast<moth_graphics::IntVec2>(pos.m_position + cameraOffset);
         m_blendedDraws.push_back({ &sprite, sourceRect, position, fullAngle });
     }
 
@@ -191,20 +191,20 @@ void SystemDrawable::Draw(GameWorld& world, canyon::graphics::IGraphics& graphic
     for (auto& draw : m_blendedDraws) {
         auto color = draw.m_image->m_color;
         if (draw.m_image->m_flashTime > 0) {
-            canyon::graphics::Color const flashColor{ 1.0, 1.0f, 1.0f, 1.0f };
+            moth_graphics::graphics::Color const flashColor{ 1.0, 1.0f, 1.0f, 1.0f };
             float const maxFlashTime = 0.2f;
             float const flashFactor = draw.m_image->m_flashTime / maxFlashTime;
             color =
-                (color + flashColor * canyon::Interp(0.0f, 1.0f, flashFactor, canyon::InterpType::Linear));
+                (color + flashColor * moth_graphics::Interp(0.0f, 1.0f, flashFactor, moth_graphics::InterpType::Linear));
         }
         graphics.SetBlendMode(draw.m_image->m_blendMode);
         graphics.SetColor(color);
-        auto const baseSize = static_cast<canyon::FloatVec2>(draw.m_sourceRect.dimensions());
-        auto const scaledSize = static_cast<canyon::IntVec2>(baseSize * draw.m_image->m_scale);
-        canyon::IntVec2 halfSize = scaledSize / 2;
-        auto destRect = canyon::MakeRect(draw.m_position.x - halfSize.x, draw.m_position.y - halfSize.y,
+        auto const baseSize = static_cast<moth_graphics::FloatVec2>(draw.m_sourceRect.dimensions());
+        auto const scaledSize = static_cast<moth_graphics::IntVec2>(baseSize * draw.m_image->m_scale);
+        moth_graphics::IntVec2 halfSize = scaledSize / 2;
+        auto destRect = moth_graphics::MakeRect(draw.m_position.x - halfSize.x, draw.m_position.y - halfSize.y,
                                          scaledSize.x, scaledSize.y);
-        graphics.DrawImage(*draw.m_image->m_image, static_cast<canyon::IntRect>(destRect), &draw.m_sourceRect,
+        graphics.DrawImage(*draw.m_image->m_image, static_cast<moth_graphics::IntRect>(destRect), &draw.m_sourceRect,
                            draw.m_angle);
     }
 
