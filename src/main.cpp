@@ -8,13 +8,13 @@ void start(moth_graphics::platform::IPlatform& platform) {
     auto* window = application->GetWindow();
     auto& mothContext = window->GetMothContext();
     auto& graphics = window->GetGraphics();
-    window->GetLayerStack().SetEventListener(application.get());
+    window->AddEventListener(application.get());
     //
     // // load the fonts before layouts
     // mothContext.GetFontFactory().LoadProject("assets/fonts.json");
     //
     // // add an example layer
-    window->GetLayerStack().PushLayer(std::make_unique<GameLayer>(*window, mothContext, graphics));
+    window->PushLayer(std::make_unique<GameLayer>(*window, mothContext, graphics));
 
     // start the application
     application->Run();

@@ -5,7 +5,7 @@
 #include <entt/entt.hpp>
 #include <moth_ui/events/event_key.h>
 
-class GameWorld : public moth_ui::EventListener {
+class GameWorld : public moth_ui::IEventListener {
 public:
     GameWorld(moth_graphics::platform::Window& window, moth_graphics::graphics::IGraphics& graphics);
     ~GameWorld() override = default;

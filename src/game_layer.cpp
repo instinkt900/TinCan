@@ -85,14 +85,14 @@ bool GameLayer::OnWindowResize(moth_graphics::EventWindowSize const& event) {
 }
 
 bool GameLayer::OnRequestQuitEvent(moth_graphics::EventRequestQuit const& event) {
-    m_layerStack->FireEvent(moth_graphics::EventQuit());
+    FireEvent(moth_graphics::EventQuit());
     return true;
 }
 
 bool GameLayer::OnKeyEvent(moth_ui::EventKey const& event) {
     if (event.GetAction() == moth_ui::KeyAction::Up) {
         if (event.GetKey() == moth_ui::Key::Escape) {
-            m_layerStack->FireEvent(moth_graphics::EventQuit());
+            FireEvent(moth_graphics::EventQuit());
             return true;
         }
     }
