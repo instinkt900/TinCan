@@ -1,5 +1,5 @@
 #include "system_level.h"
-#include <entt/entt.hpp>
+#include <moth/ecs/world.h>
 #include "gamedata.h"
 #include "system_drawable.h"
 #include "system_enemy_spawner.h"
@@ -18,28 +18,28 @@ void BuildLevelEncounters(ComponentLevel& levelComponent, LevelBuilderProperties
     }
 }
 
-void SystemLevel::InitLevel(entt::registry& registry, LevelBuilderProperties const& levelProperties, GameData const& gamedata) {
-    auto view = registry.view<ComponentLevel>();
+void SystemLevel::InitLevel(moth::ecs::World& registry, LevelBuilderProperties const& levelProperties, GameData const& gamedata) {
+    auto view = registry.View<ComponentLevel>();
     if (!view.empty()) {
         spdlog::error("Level already exists.");
         return;
     }
 
-    auto levelEntity = registry.create();
-    auto& levelComp = registry.emplace<ComponentLevel>(levelEntity);
+    auto levelEntity = registry.Create();
+    auto& levelComp = registry.Emplace<ComponentLevel>(levelEntity);
 
     BuildLevelEncounters(levelComp, levelProperties, gamedata);
 
     levelComp.m_encounterIdx = 0;
     levelComp.m_currentTime = 0;
 
-    registry.emplace<ComponentCamera>(levelEntity);
+    registry.Emplace<ComponentCamera>(levelEntity);
 }
 
 void HandleLevelEvent(LevelEvent const& event, GameWorld& world) {
     auto& registry = world.GetRegistry();
     auto const& gamedata = world.GetGameData();
-    auto const worldLocation = event.location * static_cast<moth_graphics::FloatVec2>(world.GetWorldSize());
+    auto const worldLocation = event.location * static_cast<moth::gfx::FloatVec2>(world.GetWorldSize());
     if (event.spawner.valid()) {
         SystemEnemySpawner::CreateSpawner(registry, *event.spawner, world.GetGameData(), worldLocation);
     } else if (event.drop.valid()) {
@@ -67,7 +67,7 @@ bool UpdateEncounter(EncounterState& encounter, uint32_t ticks, GameWorld& world
 
 void SystemLevel::Update(GameWorld& world, uint32_t ticks) {
     auto& registry = world.GetRegistry();
-    auto view = registry.view<ComponentLevel>();
+    auto view = registry.View<ComponentLevel>();
     if (view.size() > 1) {
         spdlog::warn("More than one level component found.");
     }

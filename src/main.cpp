@@ -1,28 +1,27 @@
-#include <moth_graphics/platform/glfw/glfw_platform.h>
-#include <moth_graphics/platform/application.h>
+#include <moth/graphics/platform/glfw/glfw_platform.h>
+#include <moth/bridge/application.h>
 #include "game_layer.h"
 
-void start(moth_graphics::platform::IPlatform& platform) {
-    auto application = std::make_unique<moth_graphics::platform::Application>(platform, "Example", 640, 480);
+void start(moth::gfx::platform::IPlatform& platform) {
+    auto application = std::make_unique<moth::bridge::Application>(platform, "Example", 640, 480);
     application->Init();
-    auto* window = application->GetWindow();
-    auto& mothContext = window->GetMothContext();
-    auto& graphics = window->GetGraphics();
-    window->AddEventListener(application.get());
+    auto* uiWindow = application->GetUiWindow();
+    auto& mothContext = uiWindow->GetMothContext();
+    auto& graphics = uiWindow->GetGraphics();
     //
     // // load the fonts before layouts
     // mothContext.GetFontFactory().LoadProject("assets/fonts.json");
     //
     // // add an example layer
-    window->PushLayer(std::make_unique<GameLayer>(*window, mothContext, graphics));
+    uiWindow->PushLayer(std::make_unique<GameLayer>(uiWindow->GetWindow(), mothContext, graphics));
 
     // start the application
     application->Run();
 }
 
 int main(int argc, char* argv[]) {
-    // auto platform = std::make_unique<moth_graphics::platform::sdl::Platform>();
-    auto platform = std::make_unique<moth_graphics::platform::glfw::Platform>();
+    // auto platform = std::make_unique<moth::gfx::platform::sdl::Platform>();
+    auto platform = std::make_unique<moth::gfx::platform::glfw::Platform>();
     platform->Startup();
 
     // startExampleApp(*platform);

@@ -1,10 +1,10 @@
 #include "utils_collision.h"
-#include <moth_ui/utils/vector_utils.h>
+#include <moth/ui/utils/vector_utils.h>
 #include <vector>
 
 namespace {
-    bool collisionSweepMovingStatic(moth_graphics::FloatVec2 const& circle1, moth_graphics::FloatVec2 const& velocity,
-                                    float circle1r, moth_graphics::FloatVec2 const& circle2, float circle2r,
+    bool collisionSweepMovingStatic(moth::gfx::FloatVec2 const& circle1, moth::gfx::FloatVec2 const& velocity,
+                                    float circle1r, moth::gfx::FloatVec2 const& circle2, float circle2r,
                                     float* out_t = nullptr) {
         auto const rel = circle2 - circle1;
         auto const combined_r = circle1r + circle2r;
@@ -46,8 +46,8 @@ namespace {
     }
 }
 
-float SweepTest(moth_graphics::FloatVec2 const& obj1Pos, moth_graphics::FloatVec2 const& obj1LastPos, float obj1Radius,
-                moth_graphics::FloatVec2 const& obj2Pos, moth_graphics::FloatVec2 const& obj2LastPos, float obj2Radius) {
+float SweepTest(moth::gfx::FloatVec2 const& obj1Pos, moth::gfx::FloatVec2 const& obj1LastPos, float obj1Radius,
+                moth::gfx::FloatVec2 const& obj2Pos, moth::gfx::FloatVec2 const& obj2LastPos, float obj2Radius) {
     auto const vel1 = obj1Pos - obj1LastPos;
     auto const vel2 = obj2Pos - obj2LastPos;
     auto const relativeVel = vel2 - vel1;
@@ -59,9 +59,9 @@ float SweepTest(moth_graphics::FloatVec2 const& obj1Pos, moth_graphics::FloatVec
     return 1.0f;
 }
 
-bool IntersectSegmentWithLine(moth_graphics::FloatVec2 const& p1, moth_graphics::FloatVec2 const& p2,
-                              moth_graphics::FloatVec2 const& a, moth_graphics::FloatVec2 const& b,
-                              moth_graphics::FloatVec2& out) {
+bool IntersectSegmentWithLine(moth::gfx::FloatVec2 const& p1, moth::gfx::FloatVec2 const& p2,
+                              moth::gfx::FloatVec2 const& a, moth::gfx::FloatVec2 const& b,
+                              moth::gfx::FloatVec2& out) {
     auto const r = p2 - p1;
     auto const s = b - a;
     float denom = (r.x * s.y) - (r.y * s.x);
@@ -79,9 +79,9 @@ bool IntersectSegmentWithLine(moth_graphics::FloatVec2 const& p1, moth_graphics:
     return false;
 }
 
-bool GetExitPoint(moth_graphics::FloatVec2 p1, moth_graphics::FloatVec2 p2, const moth_graphics::FloatRect& bounds,
-                  moth_graphics::FloatVec2& out) {
-    std::vector<std::pair<moth_graphics::FloatVec2, moth_graphics::FloatVec2>> edges = {
+bool GetExitPoint(moth::gfx::FloatVec2 p1, moth::gfx::FloatVec2 p2, const moth::gfx::FloatRect& bounds,
+                  moth::gfx::FloatVec2& out) {
+    std::vector<std::pair<moth::gfx::FloatVec2, moth::gfx::FloatVec2>> edges = {
         { { bounds.left(), bounds.top() }, { bounds.right(), bounds.top() } },        // top
         { { bounds.right(), bounds.top() }, { bounds.right(), bounds.bottom() } },    // right
         { { bounds.right(), bounds.bottom() }, { bounds.right(), bounds.bottom() } }, // bottom

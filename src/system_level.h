@@ -1,7 +1,7 @@
 #pragma once
 
 #include "gamedata_encounter.h"
-#include <entt/entity/fwd.hpp>
+#include <moth/ecs/world.h>
 #include <vector>
 
 class GameWorld;
@@ -32,6 +32,6 @@ struct LevelBuilderProperties {
 
 class SystemLevel {
 public:
-    static void InitLevel(entt::registry& registry, LevelBuilderProperties const& levelProperties, GameData const& gamedata);
+    static void InitLevel(moth::ecs::World& registry, LevelBuilderProperties const& levelProperties, GameData const& gamedata);
     static void Update(GameWorld& world, uint32_t ticks);
 };

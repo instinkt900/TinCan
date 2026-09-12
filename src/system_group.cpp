@@ -2,7 +2,7 @@
 #include "system_movement.h"
 #include "system_pickup.h"
 #include "tags.h"
-#include <entt/entt.hpp>
+#include <moth/ecs/world.h>
 #include <spdlog/spdlog.h>
 #include "game_world.h"
 #include "gamedata_pickup.h"
@@ -10,11 +10,11 @@
 void SystemGroup::Update(GameWorld& world, uint32_t ticks) {
     auto& registry = world.GetRegistry();
     auto const& gamedata = world.GetGameData();
-    auto view = registry.view<ComponentGroup>();
+    auto view = registry.View<ComponentGroup>();
 
     for (auto [entity, group] : view.each()) {
         if (group.m_memberCount <= 0) {
-            registry.emplace<DeadTag>(entity);
+            registry.Emplace<DeadTag>(entity);
 
             if (group.m_drop.valid()) {
                 SystemPickup::CreatePickup(registry, group.m_position, *group.m_drop, gamedata);
@@ -23,27 +23,27 @@ void SystemGroup::Update(GameWorld& world, uint32_t ticks) {
     }
 }
 
-entt::entity SystemGroup::CreateGroup(entt::registry& registry, DataRef<PickupData> drop) {
-    auto entity = registry.create();
-    auto& group = registry.emplace<ComponentGroup>(entity);
+moth::ecs::Entity SystemGroup::CreateGroup(moth::ecs::World& registry, DataRef<PickupData> drop) {
+    auto entity = registry.Create();
+    auto& group = registry.Emplace<ComponentGroup>(entity);
     group.m_memberCount = 0;
     group.m_drop = drop;
     return entity;
 }
 
-void SystemGroup::AddMember(entt::registry& registry, entt::entity group, entt::entity member) {
-    if (auto* groupComp = registry.try_get<ComponentGroup>(group)) {
-        auto& groupRef = registry.emplace<ComponentGroupId>(member);
+void SystemGroup::AddMember(moth::ecs::World& registry, moth::ecs::Entity group, moth::ecs::Entity member) {
+    if (auto* groupComp = registry.TryGet<ComponentGroup>(group)) {
+        auto& groupRef = registry.Emplace<ComponentGroupId>(member);
         groupRef.m_group = group;
         groupComp->m_memberCount++;
     }
 }
 
-void SystemGroup::RemoveMember(entt::registry& registry, entt::entity group, entt::entity member, GroupEndCondition condition) {
-    if (auto* groupComp = registry.try_get<ComponentGroup>(group)) {
+void SystemGroup::RemoveMember(moth::ecs::World& registry, moth::ecs::Entity group, moth::ecs::Entity member, GroupEndCondition condition) {
+    if (auto* groupComp = registry.TryGet<ComponentGroup>(group)) {
         groupComp->m_memberCount--;
 
-        auto const* memberPos = registry.try_get<ComponentPosition>(member);
+        auto const* memberPos = registry.TryGet<ComponentPosition>(member);
         if (memberPos != nullptr) {
             groupComp->m_position = memberPos->m_position;
         }

@@ -13,10 +13,10 @@ namespace imgui_ext {
     void Details(ComponentDebugSpline& spline);
 };
 
-void DrawSpline(moth_graphics::graphics::IGraphics& graphics, std::vector<moth_graphics::FloatVec2> const& points,
-                moth_graphics::FloatVec2 const& offset = { 0, 0 });
+void DrawSpline(moth::gfx::IGraphics& graphics, std::vector<moth::gfx::FloatVec2> const& points,
+                moth::gfx::FloatVec2 const& offset = { 0, 0 });
 
 class SystemDebugSpline {
 public:
-    static void Draw(GameWorld& world, moth_graphics::graphics::IGraphics& graphics);
+    static void Draw(GameWorld& world, moth::gfx::IGraphics& graphics);
 };

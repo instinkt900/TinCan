@@ -17,24 +17,24 @@
 //     }
 // }
 //
-// void BehaviourStraight(entt::registry& registry, entt::entity entity, ComponentBehaviour& behaviour,
+// void BehaviourStraight(moth::ecs::World& registry, moth::ecs::Entity entity, ComponentBehaviour& behaviour,
 //                        ComponentPosition& position) {
 //     float const speed = behaviour.m_speed;
 //     float const t = static_cast<float>(behaviour.m_ticks) / 1000.0f;
-//     auto const newPosition = behaviour.m_offset + moth_graphics::FloatVec2{ 0, t * speed };
+//     auto const newPosition = behaviour.m_offset + moth::gfx::FloatVec2{ 0, t * speed };
 //     position.m_lastPosition = position.m_position;
 //     position.m_position = newPosition;
 // }
 //
-// void BehaviourWave(entt::registry& registry, entt::entity entity, ComponentBehaviour& behaviour,
+// void BehaviourWave(moth::ecs::World& registry, moth::ecs::Entity entity, ComponentBehaviour& behaviour,
 //                    ComponentPosition& position) {
 //     float const freq = GetParameter(behaviour.m_parameters, "frequency", 1.0f);
 //     float const amp = GetParameter(behaviour.m_parameters, "amplitude", 1.0f);
 //     float const speed = behaviour.m_speed;
 //
-//     auto* cacheData = registry.try_get<ComponentCurveCache>(entity);
+//     auto* cacheData = registry.TryGet<ComponentCurveCache>(entity);
 //     if (cacheData == nullptr) {
-//         cacheData = &registry.emplace<ComponentCurveCache>(entity);
+//         cacheData = &registry.Emplace<ComponentCurveCache>(entity);
 //
 //         float const MaxT = 1500.0f;
 //         float const TStep = 50.0f;
@@ -49,7 +49,7 @@
 //                 sample.segment_length = 0;
 //                 sample.total_distance = 0;
 //             } else {
-//                 sample.segment_length = moth_graphics::Distance(sample.position, lastSample.position);
+//                 sample.segment_length = moth::gfx::Distance(sample.position, lastSample.position);
 //                 sample.total_distance = lastSample.total_distance + sample.segment_length;
 //             }
 //             lastSample = sample;
@@ -81,12 +81,12 @@
 //     }
 // }
 //
-// void BehaviourSpline(entt::registry& registry, entt::entity entity, ComponentBehaviour& behaviour,
+// void BehaviourSpline(moth::ecs::World& registry, moth::ecs::Entity entity, ComponentBehaviour& behaviour,
 //                      ComponentPosition& position) {
 //
-//     auto* cacheData = registry.try_get<ComponentSplineCache>(entity);
+//     auto* cacheData = registry.TryGet<ComponentSplineCache>(entity);
 //     if (cacheData == nullptr) {
-//         cacheData = &registry.emplace<ComponentSplineCache>(entity);
+//         cacheData = &registry.Emplace<ComponentSplineCache>(entity);
 //         cacheData->m_lut = BuildArcLengthTable(behaviour.m_spline);
 //     }
 //
@@ -99,8 +99,8 @@
 // }
 
 struct BehaviourTarget {
-    entt::registry& registry;
-    entt::entity entity;
+    moth::ecs::World& registry;
+    moth::ecs::Entity entity;
     ComponentBehaviour& behaviourComponent;
     ComponentPosition& positionComponent;
     ComponentVelocity& velocityComponent;
@@ -137,17 +137,17 @@ public:
     void Init(BehaviourTarget const& target) override { Update(target, 0); }
 
     void Update(BehaviourTarget const& target, uint32_t ticks) override {
-        moth_graphics::FloatVec2 targetPos;
+        moth::gfx::FloatVec2 targetPos;
         if (target.behaviourComponent.m_currentState->target == TargetType::Point) {
             targetPos = target.behaviourComponent.m_currentState->point;
         } else if (target.behaviourComponent.m_currentState->target == TargetType::Player) {
-            auto view = target.registry.view<ComponentPosition, PlayerTag>();
+            auto view = target.registry.View<ComponentPosition, PlayerTag>();
             for (auto [entity, position] : view.each()) {
                 targetPos = position.m_position;
             }
         }
         target.velocityComponent.m_velocity =
-            moth_graphics::Normalized(targetPos - target.positionComponent.m_position) *
+            moth::gfx::Normalized(targetPos - target.positionComponent.m_position) *
             target.behaviourComponent.m_currentState->speed;
     }
 };
@@ -163,9 +163,9 @@ public:
 
         target.velocityComponent.m_velocity = { 0, 0 };
 
-        auto* cacheData = registry.try_get<ComponentCurveCache>(entity);
+        auto* cacheData = registry.TryGet<ComponentCurveCache>(entity);
         if (cacheData == nullptr) {
-            cacheData = &registry.emplace<ComponentCurveCache>(entity);
+            cacheData = &registry.Emplace<ComponentCurveCache>(entity);
 
             float const MaxT = 1500.0f;
             float const TStep = 50.0f;
@@ -180,7 +180,7 @@ public:
                     sample.segment_length = 0;
                     sample.total_distance = 0;
                 } else {
-                    sample.segment_length = moth_graphics::Distance(sample.position, lastSample.position);
+                    sample.segment_length = moth::gfx::Distance(sample.position, lastSample.position);
                     sample.total_distance = lastSample.total_distance + sample.segment_length;
                 }
                 lastSample = sample;
@@ -190,7 +190,7 @@ public:
     }
 
     void Deinit(BehaviourTarget const& target) override {
-        target.registry.erase<ComponentCurveCache>(target.entity);
+        target.registry.Remove<ComponentCurveCache>(target.entity);
     }
 
     void Update(BehaviourTarget const& target, uint32_t ticks) override {
@@ -200,7 +200,7 @@ public:
         auto speed = target.behaviourComponent.m_currentState->speed;
         auto& position = target.positionComponent;
 
-        auto& cacheData = registry.get<ComponentCurveCache>(entity);
+        auto& cacheData = registry.Get<ComponentCurveCache>(entity);
         auto const distanceTravelled = speed * (static_cast<float>(behaviour.m_stateTime) / 1000.0f);
         size_t index = 0;
         for (size_t i = 1; i < cacheData.samples.size(); ++i) {
@@ -234,16 +234,16 @@ public:
         auto& behaviour = target.behaviourComponent;
         auto& position = target.positionComponent;
 
-        auto* cacheData = registry.try_get<ComponentSplineCache>(entity);
+        auto* cacheData = registry.TryGet<ComponentSplineCache>(entity);
         if (cacheData == nullptr) {
-            cacheData = &registry.emplace<ComponentSplineCache>(entity);
+            cacheData = &registry.Emplace<ComponentSplineCache>(entity);
             cacheData->m_offset = position.m_position;
             cacheData->m_lut = BuildArcLengthTable(behaviour.m_currentState->points);
         }
     }
 
     void Deinit(BehaviourTarget const& target) override {
-        target.registry.erase<ComponentSplineCache>(target.entity);
+        target.registry.Remove<ComponentSplineCache>(target.entity);
     }
 
     void Update(BehaviourTarget const& target, uint32_t ticks) override {
@@ -252,7 +252,7 @@ public:
         auto& behaviour = target.behaviourComponent;
         auto& position = target.positionComponent;
 
-        auto* cacheData = registry.try_get<ComponentSplineCache>(entity);
+        auto* cacheData = registry.TryGet<ComponentSplineCache>(entity);
 
         float const speed = behaviour.m_currentState->speed;
         auto const distanceTravelled = speed * (static_cast<float>(behaviour.m_stateTime) / 1000.0f);
@@ -273,7 +273,7 @@ std::map<BehaviourType, std::shared_ptr<BehaviourHandler>> const BehaviourHandle
 
 void SystemBehaviour::Update(GameWorld& world, uint32_t ticks) {
     auto& registry = world.GetRegistry();
-    auto view = registry.view<ComponentBehaviour, ComponentPosition, ComponentVelocity>();
+    auto view = registry.View<ComponentBehaviour, ComponentPosition, ComponentVelocity>();
 
     for (auto const& [entity, behaviour, position, velocity] : view.each()) {
         if (behaviour.m_stateIdx < behaviour.m_data.states.size()) {

@@ -3,14 +3,14 @@
 #include "gamedata.h"
 #include "gamedata_projectile.h"
 #include "gamedata_pickup.h"
-#include <entt/entity/fwd.hpp>
-#include <moth_graphics/graphics/surface_context.h>
-#include <moth_graphics/utils/vector.h>
+#include <moth/ecs/world.h>
+#include <moth/graphics/graphics/surface_context.h>
+#include <moth/graphics/utils/vector.h>
 
 class GameWorld;
 
 struct Barrel {
-    moth_graphics::FloatVec2 m_offset;
+    moth::gfx::FloatVec2 m_offset;
     float m_angle = 0;
 };
 
@@ -39,7 +39,7 @@ ComponentWeapon InitWeapon(WeaponData const& data);
 
 class SystemWeapon {
 public:
-    static ComponentWeapon* InitWeapon(entt::registry& registry, entt::entity entity,
+    static ComponentWeapon* InitWeapon(moth::ecs::World& registry, moth::ecs::Entity entity,
                                        WeaponData const& weaponData, GameData const& gamedata,
                                        bool active = false);
     static void Update(GameWorld& world, uint32_t ticks);

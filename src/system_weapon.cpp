@@ -8,8 +8,8 @@
 #include "system_projectile.h"
 #include "system_world_bounds.h"
 #include "tags.h"
-#include <entt/entt.hpp>
-#include <moth_ui/utils/vector_utils.h>
+#include <moth/ecs/world.h>
+#include <moth/ui/utils/vector_utils.h>
 #include <spdlog/spdlog.h>
 #include "game_world.h"
 #include "utils_entity.h"
@@ -39,10 +39,10 @@ ComponentWeapon::ComponentWeapon(WeaponData const& weapon)
     }
 }
 
-ComponentWeapon* SystemWeapon::InitWeapon(entt::registry& registry, entt::entity entity,
+ComponentWeapon* SystemWeapon::InitWeapon(moth::ecs::World& registry, moth::ecs::Entity entity,
                                           WeaponData const& weaponData, GameData const& gamedata,
                                           bool active) {
-    auto& weapon = registry.get_or_emplace<ComponentWeapon>(entity, weaponData);
+    auto& weapon = registry.GetOrEmplace<ComponentWeapon>(entity, weaponData);
     weapon.m_active = active;
     return &weapon;
 }
@@ -54,8 +54,8 @@ struct Passives {
     float burstAdd = 0.0f;
 };
 
-void CollectPassives(entt::registry& registry, entt::entity entity, Passives& passives) {
-    if (auto const* component = registry.try_get<ComponentPassives>(entity)) {
+void CollectPassives(moth::ecs::World& registry, moth::ecs::Entity entity, Passives& passives) {
+    if (auto const* component = registry.TryGet<ComponentPassives>(entity)) {
         passives.cooldownMult = PassiveValue(*component, PassiveType::WeaponCooldown);
         passives.burstCooldownMult = PassiveValue(*component, PassiveType::WeaponCooldownBurst);
         passives.damageMult = PassiveValue(*component, PassiveType::WeaponDamage);
@@ -66,13 +66,13 @@ void CollectPassives(entt::registry& registry, entt::entity entity, Passives& pa
 void SystemWeapon::Update(GameWorld& world, uint32_t ticks) {
     auto& registry = world.GetRegistry();
     ComponentPosition* playerPosition = nullptr;
-    auto playerView = registry.view<ComponentPosition, PlayerTag>();
+    auto playerView = registry.View<ComponentPosition, PlayerTag>();
     if (playerView.begin() != playerView.end()) {
         auto playerEntity = *playerView.begin();
-        playerPosition = registry.try_get<ComponentPosition>(playerEntity);
+        playerPosition = registry.TryGet<ComponentPosition>(playerEntity);
     }
 
-    auto view = registry.view<ComponentWeapon, ComponentPosition>();
+    auto view = registry.View<ComponentWeapon, ComponentPosition>();
     for (auto [entity, weapon, position] : view.each()) {
 
         auto const* entityDetails = GetEntityDetails(registry, entity);
@@ -114,13 +114,13 @@ void SystemWeapon::Update(GameWorld& world, uint32_t ticks) {
                     (weapon.m_barrelGroupIndex + 1) % static_cast<int32_t>(weapon.m_barrelGroupIds.size());
                 for (auto const& barrel : barrelGroup) {
                     auto const barrelAngle = entityDetails->m_angle + barrel.m_angle;
-                    auto direction = moth_ui::Rotate2D({ 0, 1.0f }, barrelAngle);
+                    auto direction = moth::ui::Rotate2D({ 0, 1.0f }, barrelAngle);
                     auto const offset =
-                        moth_ui::Rotate2D({ barrel.m_offset.x, -barrel.m_offset.y }, entityDetails->m_angle);
+                        moth::ui::Rotate2D({ barrel.m_offset.x, -barrel.m_offset.y }, entityDetails->m_angle);
 
                     if (weapon.m_playerTracking && (playerPosition != nullptr)) {
                         auto delta = position.m_position - playerPosition->m_position;
-                        direction = moth_ui::Normalized(delta);
+                        direction = moth::ui::Normalized(delta);
                     }
 
                     auto const* projectileData = &weapon.m_projectile;
@@ -128,8 +128,8 @@ void SystemWeapon::Update(GameWorld& world, uint32_t ticks) {
                         auto const projectileEntity = SystemProjectile::CreateProjectile(
                             registry, *projectileData, entity, position.m_position + offset, direction,
                             barrelAngle, damage);
-                        auto& projectileBounds = registry.emplace<ComponentBounds>(projectileEntity);
-                        projectileBounds.m_bounds = static_cast<moth_graphics::FloatRect>(moth_graphics::MakeRect(
+                        auto& projectileBounds = registry.Emplace<ComponentBounds>(projectileEntity);
+                        projectileBounds.m_bounds = static_cast<moth::gfx::FloatRect>(moth::gfx::MakeRect(
                             -ProjectileBorder, -ProjectileBorder, world.GetWorldSize().x + ProjectileBorder,
                             world.GetWorldSize().y + ProjectileBorder));
                         projectileBounds.m_behaviour = BoundsBehaviour::Kill;

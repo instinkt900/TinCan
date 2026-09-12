@@ -22,13 +22,15 @@
 #include "system_world_bounds.h"
 #include "tags.h"
 #include "system_power_weapon.h"
+#include <moth/graphics/graphics/igraphics_device.h>
+#include <moth/ui/events/event_dispatch.h>
 
-moth_graphics::IntVec2 const GameWorld::WorldSize{ 600, 800 };
+moth::gfx::IntVec2 const GameWorld::WorldSize{ 600, 800 };
 
-GameWorld::GameWorld(moth_graphics::platform::Window& window, moth_graphics::graphics::IGraphics& graphics)
+GameWorld::GameWorld(moth::gfx::platform::Window& window, moth::gfx::IGraphics& graphics)
     : m_window(window)
     , m_graphics(graphics) {
-    m_worldSurface = m_graphics.CreateTarget(WorldSize.x, WorldSize.y);
+    m_worldSurface = m_window.GetDevice().CreateTarget(WorldSize.x, WorldSize.y);
 
     SerializeContext serializeContext{ m_gamedata, m_window.GetSurfaceContext() };
     m_gamedata.LoadDirectory("data", serializeContext);
@@ -38,8 +40,8 @@ GameWorld::GameWorld(moth_graphics::platform::Window& window, moth_graphics::gra
     CreatePlayer();
 }
 
-bool GameWorld::OnEvent(moth_ui::Event const& event) {
-    moth_ui::EventDispatch dispatch(event);
+bool GameWorld::OnEvent(moth::ui::Event const& event) {
+    moth::ui::EventDispatch dispatch(event);
     dispatch.Dispatch(this, &GameWorld::OnKeyEvent);
     bool handled = dispatch.GetHandled();
     return handled;
@@ -68,10 +70,10 @@ void GameWorld::Update(uint32_t ticks) {
 
 void GameWorld::Draw() {
     m_graphics.SetTarget(m_worldSurface.get());
-    m_graphics.SetColor(moth_graphics::graphics::BasicColors::Black);
+    m_graphics.SetColor(moth::gfx::BasicColors::Black);
     m_graphics.Clear();
-    m_graphics.SetBlendMode(moth_graphics::graphics::BlendMode::Replace);
-    m_graphics.SetColor(moth_graphics::graphics::BasicColors::White);
+    m_graphics.SetBlendMode(moth::gfx::BlendMode::Replace);
+    m_graphics.SetColor(moth::gfx::BasicColors::White);
     // SystemSplineEditor::Draw(*this, m_graphics);
     // SystemBehaviourEditor::Draw(*this, m_graphics);
     SystemDrawable::Draw(*this, m_graphics);
@@ -79,21 +81,21 @@ void GameWorld::Draw() {
 }
 
 float GameWorld::GetPlayerHealth() const {
-    if (auto const* playerHealth = m_registry.try_get<ComponentHealth>(m_player)) {
+    if (auto const* playerHealth = m_registry.TryGet<ComponentHealth>(m_player)) {
         return playerHealth->m_currentHealth;
     }
     return 0.0f;
 }
 
 float GameWorld::GetPlayerPower() const {
-    if (auto const* playerPower = m_registry.try_get<ComponentPower>(m_player)) {
+    if (auto const* playerPower = m_registry.TryGet<ComponentPower>(m_player)) {
         return playerPower->m_power;
     }
     return 0.0f;
 }
 
-bool GameWorld::OnKeyEvent(moth_ui::EventKey const& event) {
-    if (event.GetAction() == moth_ui::KeyAction::Down && event.GetKey() == moth_ui::Key::P) {
+bool GameWorld::OnKeyEvent(moth::ui::EventKey const& event) {
+    if (event.GetAction() == moth::ui::KeyAction::Down && event.GetKey() == moth::ui::Key::P) {
         m_paused = !m_paused;
     }
     SystemInput::OnKey(m_registry, event);
@@ -101,47 +103,47 @@ bool GameWorld::OnKeyEvent(moth_ui::EventKey const& event) {
 }
 
 void GameWorld::CreatePlayer() {
-    m_player = m_registry.create();
+    m_player = m_registry.Create();
 
-    m_registry.emplace<ComponentEntity>(m_player, Team::Player, Affinity::Light);
+    m_registry.Emplace<ComponentEntity>(m_player, Team::Player, Affinity::Light);
 
-    auto const position = moth_graphics::FloatVec2(WorldSize.x / 2, WorldSize.y - 160);
-    m_registry.emplace<ComponentPosition>(m_player, position);
-    m_registry.emplace<ComponentBody>(m_player, 5);
+    auto const position = moth::gfx::FloatVec2(WorldSize.x / 2, WorldSize.y - 160);
+    m_registry.Emplace<ComponentPosition>(m_player, position);
+    m_registry.Emplace<ComponentBody>(m_player, 5);
 
     auto const* spriteData = m_gamedata.Get<SpriteData>("player_ship");
-    m_registry.emplace<ComponentSprite>(m_player, *spriteData);
-    m_registry.emplace<ComponentHealth>(m_player, 100);
+    m_registry.Emplace<ComponentSprite>(m_player, *spriteData);
+    m_registry.Emplace<ComponentHealth>(m_player, 100);
 
-    auto& velocity = m_registry.emplace<ComponentVelocity>(m_player);
+    auto& velocity = m_registry.Emplace<ComponentVelocity>(m_player);
     velocity.m_velocity = { 0, 0 };
 
-    m_registry.emplace<ComponentInput>(m_player);
+    m_registry.Emplace<ComponentInput>(m_player);
 
-    auto& power = m_registry.emplace<ComponentPower>(m_player);
+    auto& power = m_registry.Emplace<ComponentPower>(m_player);
     power.m_power = 0;
 
-    m_registry.emplace<ComponentPassives>(m_player);
+    m_registry.Emplace<ComponentPassives>(m_player);
 
     auto const* weaponData = m_gamedata.Get<WeaponData>("player_weapon_01");
     SystemWeapon::InitWeapon(m_registry, m_player, *weaponData, m_gamedata);
     SystemPowerWeapon::InitWeapon(m_registry, m_player, "dummy", m_gamedata);
 
-    m_registry.emplace<PlayerTag>(m_player);
-    m_registry.emplace<TargetTag>(m_player);
+    m_registry.Emplace<PlayerTag>(m_player);
+    m_registry.Emplace<TargetTag>(m_player);
 
-    auto& bounds = m_registry.emplace<ComponentBounds>(m_player);
+    auto& bounds = m_registry.Emplace<ComponentBounds>(m_player);
     bounds.m_behaviour = BoundsBehaviour::Limit;
     bounds.m_bounds =
-        moth_graphics::MakeRect(0.0f, 0.0f, static_cast<float>(WorldSize.x), static_cast<float>(WorldSize.y));
+        moth::gfx::MakeRect(0.0f, 0.0f, static_cast<float>(WorldSize.x), static_cast<float>(WorldSize.y));
 
     {
-        auto shield = m_registry.create();
-        m_registry.emplace<ComponentShield>(shield);
-        m_registry.emplace<ComponentPosition>(shield, position);
-        m_registry.emplace<ComponentBody>(shield, 45.0f);
-        m_registry.emplace<ComponentParenting>(shield, m_player);
+        auto shield = m_registry.Create();
+        m_registry.Emplace<ComponentShield>(shield);
+        m_registry.Emplace<ComponentPosition>(shield, position);
+        m_registry.Emplace<ComponentBody>(shield, 45.0f);
+        m_registry.Emplace<ComponentParenting>(shield, m_player);
         auto const* spriteData = m_gamedata.Get<SpriteData>("player_shield");
-        m_registry.emplace<ComponentSprite>(shield, *spriteData);
+        m_registry.Emplace<ComponentSprite>(shield, *spriteData);
     }
 }

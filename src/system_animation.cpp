@@ -4,7 +4,7 @@
 void SystemAnimation::Update(GameWorld& world, uint32_t ticks) {
     auto const dt = static_cast<float>(ticks) / 1000.0f;
     auto& registry = world.GetRegistry();
-    auto view = registry.view<ComponentSprite>();
+    auto view = registry.View<ComponentSprite>();
     for (auto [entity, drawable] : view.each()) {
         if (drawable.m_fps > 0) {
             auto const frameTime = 1.0f / drawable.m_fps;

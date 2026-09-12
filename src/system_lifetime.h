@@ -1,6 +1,6 @@
 #pragma once
 
-#include <entt/entity/fwd.hpp>
+#include <moth/ecs/world.h>
 
 class GameWorld;
 

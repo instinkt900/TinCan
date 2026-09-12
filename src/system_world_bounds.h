@@ -1,7 +1,7 @@
 #pragma once
 
-#include <entt/entity/fwd.hpp>
-#include <moth_graphics/utils/rect.h>
+#include <moth/ecs/world.h>
+#include <moth/graphics/utils/rect.h>
 
 class GameWorld;
 
@@ -13,7 +13,7 @@ enum class BoundsBehaviour {
 
 struct ComponentBounds {
     BoundsBehaviour m_behaviour = BoundsBehaviour::Unknown;
-    moth_graphics::FloatRect m_bounds;
+    moth::gfx::FloatRect m_bounds;
 };
 
 class SystemWorldBounds {

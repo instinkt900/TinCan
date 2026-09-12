@@ -3,7 +3,7 @@
 #include "dataref.h"
 #include "gamedata_pickup.h"
 #include "gamedata_spawner.h"
-#include <moth_graphics/utils/vector.h>
+#include <moth/graphics/utils/vector.h>
 #include <nlohmann/detail/macro_scope.hpp>
 #include <nlohmann/json.hpp>
 #include <vector>
@@ -11,7 +11,7 @@
 
 struct LevelEvent {
     float offset = 0;
-    moth_graphics::FloatVec2 location;
+    moth::gfx::FloatVec2 location;
     DataRef<PickupData> drop;
     DataRef<SpawnerData> spawner;
 };

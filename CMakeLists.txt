@@ -36,15 +36,15 @@ set(SOURCES ${SOURCES}
 	src/system_debug_spline.cpp
 )
 
-find_package(moth_graphics REQUIRED)
-find_package(EnTT REQUIRED)
+find_package(moth_bridge REQUIRED)
+find_package(moth_ecs REQUIRED)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
 target_include_directories(${PROJECT_NAME} PRIVATE src)
-target_link_libraries(${PROJECT_NAME} moth_graphics::moth_graphics)
-target_link_libraries(${PROJECT_NAME} EnTT::EnTT)
+target_link_libraries(${PROJECT_NAME} moth::bridge)
+target_link_libraries(${PROJECT_NAME} moth::ecs)
 
 if (MSVC)
 	set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/ignore:4099")

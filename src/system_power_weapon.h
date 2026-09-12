@@ -2,7 +2,7 @@
 
 #include "gamedata.h"
 #include <cstdint>
-#include <entt/entity/fwd.hpp>
+#include <moth/ecs/world.h>
 #include <string>
 class GameWorld;
 
@@ -15,6 +15,6 @@ struct ComponentPowerWeapon {
 
 class SystemPowerWeapon {
 public:
-    static void InitWeapon(entt::registry& registry, entt::entity entity, std::string const& name, GameData const& gamedata);
+    static void InitWeapon(moth::ecs::World& registry, moth::ecs::Entity entity, std::string const& name, GameData const& gamedata);
     static void Update(GameWorld& world, uint32_t ticks);
 };

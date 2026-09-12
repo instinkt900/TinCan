@@ -1,12 +1,12 @@
 #pragma once
 
-#include <entt/entity/entity.hpp>
+#include <moth/ecs/world.h>
 
 struct ComponentHealth {
     float m_maxHealth = 100;
     float m_currentHealth = 100;
     bool m_dead = false;
-    entt::entity m_lastDamager = entt::null;
+    moth::ecs::Entity m_lastDamager = moth::ecs::kNullEntity;
 
     explicit ComponentHealth(float maxHealth)
         : m_maxHealth(maxHealth)

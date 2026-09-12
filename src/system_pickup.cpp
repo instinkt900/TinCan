@@ -9,14 +9,14 @@
 #include "system_movement.h"
 #include "system_weapon.h"
 #include "tags.h"
-#include <entt/entt.hpp>
+#include <moth/ecs/world.h>
 #include <magic_enum.hpp>
 #include <spdlog/spdlog.h>
 #include "gamedata.h"
 #include "game_world.h"
 
 float const PickupRadius = 30.0f;
-moth_graphics::FloatVec2 const PickupVelocity{ 0.0f, 100.0f };
+moth::gfx::FloatVec2 const PickupVelocity{ 0.0f, 100.0f };
 
 template <> struct fmt::formatter<PickupType> : fmt::formatter<std::string> {
     static auto format(PickupType type, format_context& ctx)  -> decltype(ctx.out()) {
@@ -24,15 +24,15 @@ template <> struct fmt::formatter<PickupType> : fmt::formatter<std::string> {
     }
 };
 
-entt::entity SystemPickup::CreatePickup(entt::registry& registry, moth_graphics::FloatVec2 const& position,
+moth::ecs::Entity SystemPickup::CreatePickup(moth::ecs::World& registry, moth::gfx::FloatVec2 const& position,
                                         PickupData const& pickupData, GameData const& gamedata) {
-    auto entity = registry.create();
-    registry.emplace<ComponentEntity>(entity);
-    registry.emplace<ComponentBody>(entity, PickupRadius);
-    registry.emplace<ComponentPosition>(entity, position);
-    auto& vel = registry.emplace<ComponentVelocity>(entity);
-    registry.emplace<ComponentSprite>(entity, *pickupData.sprite);
-    auto& pickup = registry.emplace<ComponentPickup>(entity);
+    auto entity = registry.Create();
+    registry.Emplace<ComponentEntity>(entity);
+    registry.Emplace<ComponentBody>(entity, PickupRadius);
+    registry.Emplace<ComponentPosition>(entity, position);
+    auto& vel = registry.Emplace<ComponentVelocity>(entity);
+    registry.Emplace<ComponentSprite>(entity, *pickupData.sprite);
+    auto& pickup = registry.Emplace<ComponentPickup>(entity);
 
     vel.m_velocity = PickupVelocity;
 
@@ -41,19 +41,19 @@ entt::entity SystemPickup::CreatePickup(entt::registry& registry, moth_graphics:
     return entity;
 }
 
-void PlayerPickupWeapon(PickupData const& pickup, moth_graphics::FloatVec2 const& position,
-                        entt::registry& registry, GameData const& gamedata) {
+void PlayerPickupWeapon(PickupData const& pickup, moth::gfx::FloatVec2 const& position,
+                        moth::ecs::World& registry, GameData const& gamedata) {
     // spawn the current weapon as a pickup if it has one defined
-    entt::entity playerEntity = entt::null;
+    moth::ecs::Entity playerEntity = moth::ecs::kNullEntity;
     ComponentWeapon* currentWeapon = nullptr;
-    auto view = registry.view<ComponentWeapon, PlayerTag>();
+    auto view = registry.View<ComponentWeapon, PlayerTag>();
     for (auto [entity, weapon] : view.each()) {
         playerEntity = entity;
         currentWeapon = &weapon;
     }
     if (currentWeapon != nullptr && currentWeapon->m_pickup.valid()) {
         auto const side = rand() % 2 == 1 ? 1.0f : -1.0f;
-        moth_graphics::FloatVec2 const offset = { 100.0f * side, -20.0f };
+        moth::gfx::FloatVec2 const offset = { 100.0f * side, -20.0f };
         SystemPickup::CreatePickup(registry, position + offset, *currentWeapon->m_pickup, gamedata);
     }
 
@@ -66,8 +66,8 @@ void PlayerPickupWeapon(PickupData const& pickup, moth_graphics::FloatVec2 const
     SystemWeapon::InitWeapon(registry, playerEntity, *weaponData, gamedata);
 }
 
-void PlayerPickupPassive(PickupData const& pickup, moth_graphics::FloatVec2 const& position,
-                         entt::registry& registry, GameData const& gamedata) {
+void PlayerPickupPassive(PickupData const& pickup, moth::gfx::FloatVec2 const& position,
+                         moth::ecs::World& registry, GameData const& gamedata) {
     auto const passiveTypeOpt = magic_enum::enum_cast<PassiveType>(pickup.name);
     if (!passiveTypeOpt.has_value()) {
         spdlog::error("PlayerPickupPassive - Unknown passive name {}", pickup.name);
@@ -75,7 +75,7 @@ void PlayerPickupPassive(PickupData const& pickup, moth_graphics::FloatVec2 cons
     }
 
     ComponentPassives* playerPassives = nullptr;
-    auto view = registry.view<ComponentPassives, PlayerTag>();
+    auto view = registry.View<ComponentPassives, PlayerTag>();
     for (auto [entity, passives]: view.each()) {
         playerPassives = &passives;
     }
@@ -91,7 +91,7 @@ void PlayerPickupPassive(PickupData const& pickup, moth_graphics::FloatVec2 cons
     playerPassives->m_value[passiveType] = newBonus;
 }
 
-void PlayerPickup(ComponentPickup const& pickup, moth_graphics::FloatVec2 const& position, entt::registry& registry,
+void PlayerPickup(ComponentPickup const& pickup, moth::gfx::FloatVec2 const& position, moth::ecs::World& registry,
                   GameData const& gamedata) {
     auto const* pickupData = gamedata.Get<PickupData>(pickup.m_name);
     if (pickupData == nullptr) {
@@ -118,7 +118,7 @@ void SystemPickup::Update(GameWorld& world, uint32_t ticks) {
     ComponentPosition const* playerPosition = nullptr;
     ComponentBody const* playerBody = nullptr;
     {
-        auto view = registry.view<PlayerTag, ComponentBody, ComponentPosition>();
+        auto view = registry.View<PlayerTag, ComponentBody, ComponentPosition>();
         for (auto [entity, body, position] : view.each()) {
             playerPosition = &position;
             playerBody = &body;
@@ -129,7 +129,7 @@ void SystemPickup::Update(GameWorld& world, uint32_t ticks) {
         spdlog::error("Unable to locate player");
     }
 
-    auto view = registry.view<ComponentPickup, ComponentEntity, ComponentBody, ComponentPosition>();
+    auto view = registry.View<ComponentPickup, ComponentEntity, ComponentBody, ComponentPosition>();
     for (auto [entity, pickup, pickupEntity, body, position] : view.each()) {
         auto const t =
             SweepTest(playerPosition->m_position, playerPosition->m_lastPosition, playerBody->m_radius,
@@ -137,7 +137,7 @@ void SystemPickup::Update(GameWorld& world, uint32_t ticks) {
 
         if (t < 1.0f) {
             // detroy the pickup.
-            registry.get_or_emplace<DeadTag>(entity);
+            registry.GetOrEmplace<DeadTag>(entity);
 
             PlayerPickup(pickup, playerPosition->m_position, registry, gamedata);
         }

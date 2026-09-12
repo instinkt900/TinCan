@@ -13,8 +13,8 @@
 #include "system_targeting.h"
 #include "system_world_bounds.h"
 #include "tags.h"
-#include <entt/entt.hpp>
-#include <moth_ui/utils/vector_utils.h>
+#include <moth/ecs/world.h>
+#include <moth/ui/utils/vector_utils.h>
 #include <spdlog/spdlog.h>
 #include "game_world.h"
 #include "utils_entity.h"
@@ -23,7 +23,7 @@ namespace {
     float const ComplimentAffinityMult = 2.0f;
 
     struct Projectile {
-        entt::entity entity;
+        moth::ecs::Entity entity;
         ComponentEntity& entityDetails;
         ComponentBody& body;
         ComponentProjectile& projectileDetails;
@@ -31,7 +31,7 @@ namespace {
     };
 
     struct Target {
-        entt::entity entity;
+        moth::ecs::Entity entity;
         ComponentEntity const& entityDetails;
         ComponentBody const& body;
         ComponentPosition const& position;
@@ -44,7 +44,7 @@ namespace {
         return t < 1.0f;
     }
 
-    void ProcessTarget(entt::registry& registry, Projectile& projectile, Target& target,
+    void ProcessTarget(moth::ecs::World& registry, Projectile& projectile, Target& target,
                        GameData const& gamedata) {
         if (projectile.entityDetails.m_team != target.entityDetails.m_team) {
             if (CollisionTest(projectile.position, target.position, projectile.body.m_radius,
@@ -52,10 +52,10 @@ namespace {
                 // projectile collided with entity
 
                 // destroy projectile
-                registry.get_or_emplace<DeadTag>(projectile.entity);
+                registry.GetOrEmplace<DeadTag>(projectile.entity);
 
                 // apply damage
-                if (auto* entityHealth = registry.try_get<ComponentHealth>(target.entity)) {
+                if (auto* entityHealth = registry.TryGet<ComponentHealth>(target.entity)) {
                     auto damage = projectile.projectileDetails.m_damage;
                     if (projectile.entityDetails.m_affinity != target.entityDetails.m_affinity) {
                         damage *= ComplimentAffinityMult;
@@ -64,9 +64,9 @@ namespace {
                         entityHealth->m_currentHealth -= damage;
                         if (entityHealth->m_currentHealth <= 0) {
                             SystemDrawable::StartCameraShake(registry, 0.5f, 500);
-                            registry.emplace<DeadTag>(target.entity);
+                            registry.Emplace<DeadTag>(target.entity);
 
-                            if (auto const* dropComponent = registry.try_get<ComponentDrop>(target.entity)) {
+                            if (auto const* dropComponent = registry.TryGet<ComponentDrop>(target.entity)) {
                                 auto const* pickupData = gamedata.Get<PickupData>(dropComponent->m_name);
                                 if (pickupData == nullptr) {
                                     spdlog::error("Unknown pickup {}", dropComponent->m_name);
@@ -79,7 +79,7 @@ namespace {
                     }
 
                     // flash damage indicator
-                    if (auto* sprite = registry.try_get<ComponentSprite>(target.entity)) {
+                    if (auto* sprite = registry.TryGet<ComponentSprite>(target.entity)) {
                         sprite->m_flashTime = 0.2f;
                     }
                 }
@@ -87,8 +87,8 @@ namespace {
         }
     }
 
-    void ProcessProjectile(entt::registry& registry, Projectile& projectile, GameData const& gamedata) {
-        auto view = registry.view<ComponentBody, ComponentPosition, TargetTag>(entt::exclude<DeadTag>);
+    void ProcessProjectile(moth::ecs::World& registry, Projectile& projectile, GameData const& gamedata) {
+        auto view = registry.View<ComponentBody, ComponentPosition, TargetTag>(moth::ecs::Exclude<DeadTag>);
         for (auto [entity, body, position] : view.each()) {
             if (projectile.entity == entity) {
                 // shouldnt happen but here for safety
@@ -101,21 +101,21 @@ namespace {
     }
 }
 
-entt::entity SystemProjectile::CreateProjectile(entt::registry& registry, ProjectileData const& data,
-                                                entt::entity source, moth_graphics::FloatVec2 const& position,
-                                                moth_graphics::FloatVec2 const& direction, float rotation,
+moth::ecs::Entity SystemProjectile::CreateProjectile(moth::ecs::World& registry, ProjectileData const& data,
+                                                moth::ecs::Entity source, moth::gfx::FloatVec2 const& position,
+                                                moth::gfx::FloatVec2 const& direction, float rotation,
                                                 float damage) {
     auto const* sourceEntityData = GetEntityDetails(registry, source);
     if (sourceEntityData == nullptr) {
-        return entt::null;
+        return moth::ecs::kNullEntity;
     }
-    auto projectile = registry.create();
-    auto& projectileComp = registry.emplace<ComponentProjectile>(projectile);
-    registry.emplace<ComponentEntity>(projectile, sourceEntityData->m_team, sourceEntityData->m_affinity,
+    auto projectile = registry.Create();
+    auto& projectileComp = registry.Emplace<ComponentProjectile>(projectile);
+    registry.Emplace<ComponentEntity>(projectile, sourceEntityData->m_team, sourceEntityData->m_affinity,
                                       rotation);
-    registry.emplace<ComponentBody>(projectile, data.radius);
-    registry.emplace<ComponentPosition>(projectile, position);
-    auto& projectileVel = registry.emplace<ComponentVelocity>(projectile);
+    registry.Emplace<ComponentBody>(projectile, data.radius);
+    registry.Emplace<ComponentPosition>(projectile, position);
+    auto& projectileVel = registry.Emplace<ComponentVelocity>(projectile);
 
     projectileComp.m_source = source;
     projectileComp.m_damage = damage;
@@ -124,13 +124,13 @@ entt::entity SystemProjectile::CreateProjectile(entt::registry& registry, Projec
 
     auto const& spriteData =
         sourceEntityData->m_affinity == Affinity::Light ? data.white_sprite : data.black_sprite;
-    auto& sprite = registry.emplace<ComponentSprite>(projectile, *spriteData);
-    sprite.m_color = sourceEntityData->m_affinity == Affinity::Light ? moth_graphics::graphics::BasicColors::Blue
-                                                                     : moth_graphics::graphics::BasicColors::Red;
+    auto& sprite = registry.Emplace<ComponentSprite>(projectile, *spriteData);
+    sprite.m_color = sourceEntityData->m_affinity == Affinity::Light ? moth::gfx::BasicColors::Blue
+                                                                     : moth::gfx::BasicColors::Red;
 
     if (data.homing_details.has_value()) {
         if (data.homing_details->targeting != Targeting::None) {
-            auto& targeting = registry.emplace<ComponentTargeting>(projectile);
+            auto& targeting = registry.Emplace<ComponentTargeting>(projectile);
             targeting.m_targeting = data.homing_details->targeting;
             targeting.m_maxTurnSpeed = data.homing_details->turn_speed;
             targeting.m_maxThrust = data.homing_details->max_thrust;
@@ -146,8 +146,8 @@ entt::entity SystemProjectile::CreateProjectile(entt::registry& registry, Projec
 void SystemProjectile::Update(GameWorld& world, uint32_t ticks) {
     auto& registry = world.GetRegistry();
     auto const& gamedata = world.GetGameData();
-    auto view = registry.view<ComponentEntity, ComponentProjectile, ComponentBody, ComponentPosition>(
-        entt::exclude<DeadTag>);
+    auto view = registry.View<ComponentEntity, ComponentProjectile, ComponentBody, ComponentPosition>(
+        moth::ecs::Exclude<DeadTag>);
     for (auto [entity, entityDetails, projectileDetails, body, position] : view.each()) {
         Projectile projectile{ entity, entityDetails, body, projectileDetails, position };
         ProcessProjectile(registry, projectile, gamedata);

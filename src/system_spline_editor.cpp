@@ -9,7 +9,7 @@ namespace {
         ImGui::Checkbox("Visible", &spline.m_visible);
 
         int insertAfter = -1;
-        moth_graphics::FloatVec2 newVal;
+        moth::gfx::FloatVec2 newVal;
         float const iterStep = 1.0f / static_cast<float>(spline.m_spline.size());
         for (uint i = 0; i < spline.m_spline.size(); ++i) {
             auto const t = iterStep * static_cast<float>(i);
@@ -37,41 +37,41 @@ namespace {
         ImGui::PopID();
     }
 
-    void DrawSpline(moth_graphics::graphics::IGraphics& graphics, ComponentSpline const& spline) {
+    void DrawSpline(moth::gfx::IGraphics& graphics, ComponentSpline const& spline) {
         auto const samples = 100;
         auto const tStep = 1.0f / static_cast<float>(samples);
         auto t = 0.0f;
         auto lastSample = SampleCatmullRomPath(spline.m_spline, t);
-        graphics.SetColor(moth_graphics::graphics::FromARGB(0xFFFFFF00));
+        graphics.SetColor(moth::gfx::FromARGB(0xFFFFFF00));
         for (auto i = 1; i <= samples; ++i) {
             t = tStep * static_cast<float>(i);
             auto const newSample = SampleCatmullRomPath(spline.m_spline, t);
             graphics.DrawLineF(lastSample, newSample);
             lastSample = newSample;
         }
-        graphics.SetColor(moth_graphics::graphics::FromARGB(0xFFFF0000));
+        graphics.SetColor(moth::gfx::FromARGB(0xFFFF0000));
         for (uint i = 0; i < spline.m_spline.size(); ++i) {
             auto const pos = spline.m_spline[i];
-            auto const v1 = pos - moth_graphics::FloatVec2{ 0.0f, 6.0f };
-            auto const v2 = pos + moth_graphics::FloatVec2{ 0.0f, 6.0f };
-            auto const h1 = pos - moth_graphics::FloatVec2{ 6.0f, 0.0f };
-            auto const h2 = pos + moth_graphics::FloatVec2{ 6.0f, 0.0f };
+            auto const v1 = pos - moth::gfx::FloatVec2{ 0.0f, 6.0f };
+            auto const v2 = pos + moth::gfx::FloatVec2{ 0.0f, 6.0f };
+            auto const h1 = pos - moth::gfx::FloatVec2{ 6.0f, 0.0f };
+            auto const h2 = pos + moth::gfx::FloatVec2{ 6.0f, 0.0f };
             graphics.DrawLineF(v1, v2);
             graphics.DrawLineF(h1, h2);
         }
     }
 }
 
-void SystemSplineEditor::Draw(GameWorld& world, moth_graphics::graphics::IGraphics& graphics) {
+void SystemSplineEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphics) {
     auto& registry = world.GetRegistry();
-    auto view = registry.view<ComponentSpline>();
+    auto view = registry.View<ComponentSpline>();
 
     ImGui::Begin("Splines");
     static std::array<char, 1024> nameBuf;
     ImGui::InputText("Spline name", nameBuf.data(), nameBuf.size());
     if (ImGui::Button("Create")) {
-        auto entity = registry.create();
-        auto& spline = registry.emplace<ComponentSpline>(entity);
+        auto entity = registry.Create();
+        auto& spline = registry.Emplace<ComponentSpline>(entity);
         spline.m_name = nameBuf.data();
         spline.m_spline.push_back({ 0.0f, 0.0f });
         spline.m_spline.push_back({ 600.0f, 800.0f });

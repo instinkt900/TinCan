@@ -24,10 +24,10 @@ struct BehaviourStateData {
     BehaviourType type{ BehaviourType::Undefined };
     std::string label;
     uint32_t duration{ 0 };
-    moth_graphics::FloatVec2 velocity{ 0, 0 };
+    moth::gfx::FloatVec2 velocity{ 0, 0 };
     TargetType target{ TargetType::Undefined };
-    moth_graphics::FloatVec2 point{ 0, 0 };
-    std::vector<moth_graphics::FloatVec2> points;
+    moth::gfx::FloatVec2 point{ 0, 0 };
+    std::vector<moth::gfx::FloatVec2> points;
     float speed{ 0 };
     float frequency{ 0 };
     float amplitude{ 0 };

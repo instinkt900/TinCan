@@ -2,11 +2,11 @@
 
 #include "game_world.h"
 #include "gamedata_projectile.h"
-#include <entt/entity/entity.hpp>
+#include <moth/ecs/world.h>
 
 struct ComponentTargeting {
     Targeting m_targeting = Targeting::Nearest;
-    entt::entity m_currentTarget = entt::null;
+    moth::ecs::Entity m_currentTarget = moth::ecs::kNullEntity;
     
     float m_maxTurnSpeed = 0;
     float m_maxThrust = 0;
@@ -18,7 +18,7 @@ struct ComponentTargeting {
 
     // cached values from the movement system
     bool m_targetValid = false;  // if the current target is set and alive
-    moth_graphics::FloatVec2 m_bearing; // the direction to our current target
+    moth::gfx::FloatVec2 m_bearing; // the direction to our current target
 };
 
 class SystemTargeting {

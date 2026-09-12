@@ -10,29 +10,29 @@
 #include "system_weapon.h"
 #include "system_world_bounds.h"
 #include "tags.h"
-#include <entt/entt.hpp>
+#include <moth/ecs/world.h>
 #include <spdlog/spdlog.h>
 #include "game_world.h"
 
-entt::entity SystemEnemySpawner::SpawnEnemy(entt::registry& registry, EnemyData const& data,
-                                            BehaviourData const& behaviour, moth_graphics::FloatVec2 const& position,
+moth::ecs::Entity SystemEnemySpawner::SpawnEnemy(moth::ecs::World& registry, EnemyData const& data,
+                                            BehaviourData const& behaviour, moth::gfx::FloatVec2 const& position,
                                             GameData const& gamedata) {
-    auto rootEntity = registry.create();
-    auto& rootDetails = registry.emplace<ComponentEntity>(rootEntity, Team::Enemy, data.affinity);
-    registry.emplace<ComponentPosition>(rootEntity, position);
-    registry.emplace<ComponentVelocity>(rootEntity);
+    auto rootEntity = registry.Create();
+    auto& rootDetails = registry.Emplace<ComponentEntity>(rootEntity, Team::Enemy, data.affinity);
+    registry.Emplace<ComponentPosition>(rootEntity, position);
+    registry.Emplace<ComponentVelocity>(rootEntity);
 
     if (data.radius > 0.0f) {
-        registry.emplace<ComponentBody>(rootEntity, data.radius);
+        registry.Emplace<ComponentBody>(rootEntity, data.radius);
     }
 
     if (data.health > 0.0f) {
-        registry.emplace<ComponentHealth>(rootEntity, data.health);
-        registry.emplace<TargetTag>(rootEntity);
+        registry.Emplace<ComponentHealth>(rootEntity, data.health);
+        registry.Emplace<TargetTag>(rootEntity);
     }
 
     if (data.sprite.valid()) {
-        registry.emplace<ComponentSprite>(rootEntity, *data.sprite, data.affinity);
+        registry.Emplace<ComponentSprite>(rootEntity, *data.sprite, data.affinity);
     }
 
     if (data.weapon.valid()) {
@@ -40,20 +40,20 @@ entt::entity SystemEnemySpawner::SpawnEnemy(entt::registry& registry, EnemyData 
     }
 
     for (auto const& [sectionName, section] : data.sections) {
-        auto childEntity = registry.create();
-        registry.emplace<TargetTag>(childEntity);
-        registry.emplace<ComponentParenting>(childEntity, rootEntity,
-                                             static_cast<moth_graphics::FloatVec2>(section.offset));
-        registry.emplace<ComponentPosition>(childEntity,
-                                            position + static_cast<moth_graphics::FloatVec2>(section.offset));
+        auto childEntity = registry.Create();
+        registry.Emplace<TargetTag>(childEntity);
+        registry.Emplace<ComponentParenting>(childEntity, rootEntity,
+                                             static_cast<moth::gfx::FloatVec2>(section.offset));
+        registry.Emplace<ComponentPosition>(childEntity,
+                                            position + static_cast<moth::gfx::FloatVec2>(section.offset));
         if (section.radius > 0.0f) {
-            registry.emplace<ComponentBody>(childEntity, section.radius);
+            registry.Emplace<ComponentBody>(childEntity, section.radius);
         }
         if (section.health > 0) {
-            registry.emplace<ComponentHealth>(childEntity, section.health);
+            registry.Emplace<ComponentHealth>(childEntity, section.health);
         }
         if (section.sprite.valid()) {
-            registry.emplace<ComponentSprite>(childEntity, *section.sprite, data.affinity);
+            registry.Emplace<ComponentSprite>(childEntity, *section.sprite, data.affinity);
         }
 
         if (section.weapon.valid()) {
@@ -63,7 +63,7 @@ entt::entity SystemEnemySpawner::SpawnEnemy(entt::registry& registry, EnemyData 
         rootDetails.m_children.insert(childEntity);
     }
 
-    registry.emplace<ComponentBehaviour>(rootEntity, behaviour);
+    registry.Emplace<ComponentBehaviour>(rootEntity, behaviour);
 
     return rootEntity;
 }
@@ -78,7 +78,7 @@ ComponentEnemySpawner::ComponentEnemySpawner(SpawnerData const& data)
     , m_maxGroupCount(data.group_count)
     , m_maxGroupCooldown(data.group_delay)
     , m_groupDrop(data.drop)
-    , m_currentGroupEntity(entt::null)
+    , m_currentGroupEntity(moth::ecs::kNullEntity)
     , m_killType(data.kill_type)
     , m_lifetime(data.lifetime)
     , m_boundsBorder(data.bounds_border)
@@ -98,7 +98,7 @@ ComponentEnemySpawner::ComponentEnemySpawner(SpawnerData const& data)
 void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
     auto& registry = world.GetRegistry();
     auto const& gamedata = world.GetGameData();
-    auto view = registry.view<ComponentEnemySpawner, ComponentPosition>();
+    auto view = registry.View<ComponentEnemySpawner, ComponentPosition>();
 
     for (auto [entity, spawner, spawnerPosition] : view.each()) {
         if (spawner.m_count > 0) {
@@ -109,7 +109,7 @@ void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
             if (spawner.m_cooldown <= 0) {
                 spawner.m_groupCount = spawner.m_maxGroupCount;
                 if (spawner.m_maxGroupCount > 1) {
-                    spawner.m_currentGroupEntity = entt::null;
+                    spawner.m_currentGroupEntity = moth::ecs::kNullEntity;
                 }
                 spawner.m_cooldown += spawner.m_maxCooldown;
                 spawner.m_count -= 1;
@@ -126,11 +126,11 @@ void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
                 spawner.m_groupCooldown += spawner.m_maxGroupCooldown;
 
                 if (spawner.m_groupCount <= 0 && spawner.m_count <= 0) {
-                    registry.emplace<DeadTag>(entity);
+                    registry.Emplace<DeadTag>(entity);
                 }
 
                 auto const spawnIndex = spawner.m_maxGroupCount - (spawner.m_groupCount + 1);
-                auto const fWorldSize = static_cast<moth_graphics::FloatVec2>(world.GetWorldSize());
+                auto const fWorldSize = static_cast<moth::gfx::FloatVec2>(world.GetWorldSize());
                 auto position = spawnerPosition.m_position;
                 switch (spawner.m_type) {
                 case SpawnerType::Staggered: {
@@ -153,12 +153,12 @@ void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
 
 
                 if (spawner.m_killType == EnemyKillType::Time) {
-                    auto& lifetime = registry.emplace<ComponentLifetime>(enemy);
+                    auto& lifetime = registry.Emplace<ComponentLifetime>(enemy);
                     lifetime.m_msLeft = spawner.m_lifetime.value();
                 } else if (spawner.m_killType == EnemyKillType::Bounds) {
-                    auto& bounds = registry.emplace<ComponentBounds>(enemy);
-                    moth_graphics::FloatRect boundsRect{ { 0.0f, 0.0f },
-                                                  static_cast<moth_graphics::FloatVec2>(world.GetWorldSize()) };
+                    auto& bounds = registry.Emplace<ComponentBounds>(enemy);
+                    moth::gfx::FloatRect boundsRect{ { 0.0f, 0.0f },
+                                                  static_cast<moth::gfx::FloatVec2>(world.GetWorldSize()) };
                     if (spawner.m_boundsBorder.has_value()) {
                         boundsRect.topLeft -=
                             { spawner.m_boundsBorder.value(), spawner.m_boundsBorder.value() };
@@ -170,7 +170,7 @@ void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
                 }
 
                 if (spawner.m_maxGroupCount > 1) {
-                    if (spawner.m_currentGroupEntity == entt::null) {
+                    if (spawner.m_currentGroupEntity == moth::ecs::kNullEntity) {
                         spawner.m_currentGroupEntity =
                             SystemGroup::CreateGroup(registry, spawner.m_groupDrop);
                     }
@@ -181,10 +181,10 @@ void SystemEnemySpawner::Update(GameWorld& world, uint32_t ticks) {
     }
 }
 
-entt::entity SystemEnemySpawner::CreateSpawner(entt::registry& registry, SpawnerData const& data,
-                                               GameData const& gamedata, moth_graphics::FloatVec2 const& position) {
-    auto enemySpawner = registry.create();
-    registry.emplace<ComponentEnemySpawner>(enemySpawner, data);
-    registry.emplace<ComponentPosition>(enemySpawner, position);
+moth::ecs::Entity SystemEnemySpawner::CreateSpawner(moth::ecs::World& registry, SpawnerData const& data,
+                                               GameData const& gamedata, moth::gfx::FloatVec2 const& position) {
+    auto enemySpawner = registry.Create();
+    registry.Emplace<ComponentEnemySpawner>(enemySpawner, data);
+    registry.Emplace<ComponentPosition>(enemySpawner, position);
     return enemySpawner;
 }

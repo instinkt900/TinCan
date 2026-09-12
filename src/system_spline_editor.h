@@ -11,5 +11,5 @@ struct ComponentSpline {
 
 class SystemSplineEditor {
 public:
-    static void Draw(GameWorld& world, moth_graphics::graphics::IGraphics& graphics);
+    static void Draw(GameWorld& world, moth::gfx::IGraphics& graphics);
 };

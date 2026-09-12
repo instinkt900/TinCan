@@ -1,31 +1,30 @@
 #pragma once
 
-#include <entt/entity/entity.hpp>
-#include <entt/entity/fwd.hpp>
-#include <moth_graphics/utils/vector.h>
+#include <moth/ecs/world.h>
+#include <moth/graphics/utils/vector.h>
 
 class GameWorld;
 
 struct ComponentParenting {
-    entt::entity m_parent = entt::null;
-    moth_graphics::FloatVec2 m_offset;
+    moth::ecs::Entity m_parent = moth::ecs::kNullEntity;
+    moth::gfx::FloatVec2 m_offset;
 
-    ComponentParenting(entt::entity parent, moth_graphics::FloatVec2 const& offset = {})
+    ComponentParenting(moth::ecs::Entity parent, moth::gfx::FloatVec2 const& offset = {})
         : m_parent(parent)
         , m_offset(offset) {}
 };
 
 struct ComponentPosition {
-    moth_graphics::FloatVec2 m_position;
-    moth_graphics::FloatVec2 m_lastPosition;
+    moth::gfx::FloatVec2 m_position;
+    moth::gfx::FloatVec2 m_lastPosition;
 
-    explicit ComponentPosition(moth_graphics::FloatVec2 const& initialPosition)
+    explicit ComponentPosition(moth::gfx::FloatVec2 const& initialPosition)
         : m_position(initialPosition)
         , m_lastPosition(initialPosition) {}
 };
 
 struct ComponentVelocity {
-    moth_graphics::FloatVec2 m_velocity;
+    moth::gfx::FloatVec2 m_velocity;
 };
 
 class SystemMovement {

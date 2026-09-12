@@ -3,13 +3,13 @@
 #include "gamedata.h"
 #include "gamedata_spawner.h"
 #include "system_behaviour.h"
-#include <entt/entity/entity.hpp>
+#include <moth/ecs/world.h>
 
 struct ComponentEnemySpawner {
     bool m_active = false;
     SpawnerType m_type = SpawnerType::Unknown;
-    moth_graphics::FloatVec2 m_offsetStep;
-    std::vector<moth_graphics::FloatVec2> m_formationPositions;
+    moth::gfx::FloatVec2 m_offsetStep;
+    std::vector<moth::gfx::FloatVec2> m_formationPositions;
     int32_t m_count = 0;
     int32_t m_cooldown = 0;
     int32_t m_groupCount = 0;
@@ -18,7 +18,7 @@ struct ComponentEnemySpawner {
     int32_t m_maxGroupCount = 1;
     int32_t m_maxGroupCooldown = 0;
     DataRef<PickupData> m_groupDrop;
-    entt::entity m_currentGroupEntity = entt::null;
+    moth::ecs::Entity m_currentGroupEntity = moth::ecs::kNullEntity;
     EnemyData m_enemy;
     BehaviourData m_behaviour;
     EnemyKillType m_killType;
@@ -33,9 +33,9 @@ class SystemEnemySpawner {
 public:
     static void Update(GameWorld& world, uint32_t ticks);
 
-    static entt::entity CreateSpawner(entt::registry& registry, SpawnerData const& data,
-                                      GameData const& gamedata, moth_graphics::FloatVec2 const& position);
-    static entt::entity SpawnEnemy(entt::registry& registry, EnemyData const& data,
-                                   BehaviourData const& behaviour, moth_graphics::FloatVec2 const& position,
+    static moth::ecs::Entity CreateSpawner(moth::ecs::World& registry, SpawnerData const& data,
+                                      GameData const& gamedata, moth::gfx::FloatVec2 const& position);
+    static moth::ecs::Entity SpawnEnemy(moth::ecs::World& registry, EnemyData const& data,
+                                   BehaviourData const& behaviour, moth::gfx::FloatVec2 const& position,
                                    GameData const& gamedata);
 };

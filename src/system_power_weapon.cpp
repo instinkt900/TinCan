@@ -4,11 +4,11 @@
 #include "system_movement.h"
 #include "system_projectile.h"
 #include "system_shield.h"
-#include <moth_graphics/utils/math_utils.h>
+#include <moth/graphics/utils/math_utils.h>
 
-void SystemPowerWeapon::InitWeapon(entt::registry& registry, entt::entity entity, std::string const& name,
+void SystemPowerWeapon::InitWeapon(moth::ecs::World& registry, moth::ecs::Entity entity, std::string const& name,
                                    GameData const& gamedata) {
-    auto& powerWeapon = registry.emplace<ComponentPowerWeapon>(entity);
+    auto& powerWeapon = registry.Emplace<ComponentPowerWeapon>(entity);
     powerWeapon.m_activated = false;
     powerWeapon.m_projectileName = "player_homing_bullet";
     powerWeapon.m_powerPerProjectile = 10.0f;
@@ -17,7 +17,7 @@ void SystemPowerWeapon::InitWeapon(entt::registry& registry, entt::entity entity
 
 void SystemPowerWeapon::Update(GameWorld& world, uint32_t ticks) {
     auto& registry = world.GetRegistry();
-    auto view = registry.view<ComponentPowerWeapon, ComponentPower, ComponentPosition, ComponentEntity>();
+    auto view = registry.View<ComponentPowerWeapon, ComponentPower, ComponentPosition, ComponentEntity>();
     for (auto [entity, weapon, power, position, details] : view.each()) {
         if (!weapon.m_activated) {
             continue;
@@ -47,14 +47,14 @@ void SystemPowerWeapon::Update(GameWorld& world, uint32_t ticks) {
         power.m_power -= usedPower;
 
         // work out the angle for the projectiles.
-        auto const maxSeparation = moth_graphics::Radians(10.0f);
-        auto const anglePerProjectile = std::min(maxSeparation, moth_graphics::Radians(360.0f) / projectileCount);
+        auto const maxSeparation = moth::gfx::DegToRad(10.0f);
+        auto const anglePerProjectile = std::min(maxSeparation, moth::gfx::DegToRad(360.0f) / projectileCount);
         auto const fullSpread = anglePerProjectile * (projectileCount - 1);
         auto const startAngle = -fullSpread / 2.0f;
 
         for (uint32_t i = 0; i < static_cast<uint32_t>(projectileCount); ++i) {
             auto const angle = startAngle + (anglePerProjectile * static_cast<float>(i));
-            auto const direction = moth_graphics::Rotate2D({ 0.0f, 1.0f }, angle);
+            auto const direction = moth::gfx::Rotate2D({ 0.0f, 1.0f }, angle);
             SystemProjectile::CreateProjectile(registry, *projectileData, entity, position.m_position,
                                                direction, angle, weapon.m_damage);
         }

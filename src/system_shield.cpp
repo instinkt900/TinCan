@@ -6,33 +6,33 @@
 #include "system_lifetime.h"
 #include "system_movement.h"
 #include "system_projectile.h"
-#include <entt/entt.hpp>
+#include <moth/ecs/world.h>
 #include "game_world.h"
 #include "tags.h"
 
 void SystemShield::Update(GameWorld& world, uint32_t ticks) {
     auto& registry = world.GetRegistry();
-    auto view = registry.view<ComponentParenting, ComponentPosition, ComponentBody, ComponentShield>(
-        entt::exclude<DeadTag>);
+    auto view = registry.View<ComponentParenting, ComponentPosition, ComponentBody, ComponentShield>(
+        moth::ecs::Exclude<DeadTag>);
 
     for (auto [shieldEntity, shieldParenting, shieldPosition, shieldBody] : view.each()) {
-        if (!registry.valid(shieldParenting.m_parent)) {
+        if (!registry.Valid(shieldParenting.m_parent)) {
             continue;
         }
 
-        auto const* shieldDetails = registry.try_get<ComponentEntity>(shieldParenting.m_parent);
+        auto const* shieldDetails = registry.TryGet<ComponentEntity>(shieldParenting.m_parent);
         if (shieldDetails == nullptr) {
             continue;
         }
 
         // update the visuals
-        if (auto* shieldSprite = registry.try_get<ComponentSprite>(shieldEntity)) {
+        if (auto* shieldSprite = registry.TryGet<ComponentSprite>(shieldEntity)) {
             shieldSprite->m_color = (shieldDetails->m_affinity == Affinity::Light)
-                                        ? moth_graphics::graphics::BasicColors::Blue
-                                        : moth_graphics::graphics::BasicColors::Red;
+                                        ? moth::gfx::BasicColors::Blue
+                                        : moth::gfx::BasicColors::Red;
 
-            float const imageWidth = static_cast<float>(shieldSprite->m_image->GetWidth());
-            float const imageHeight = static_cast<float>(shieldSprite->m_image->GetHeight());
+            float const imageWidth = static_cast<float>(shieldSprite->m_image.GetWidth());
+            float const imageHeight = static_cast<float>(shieldSprite->m_image.GetHeight());
             float const widthScale = (shieldBody.m_radius * 2.0f) / imageWidth;
             float const heightScale = (shieldBody.m_radius * 2.0f) / imageHeight;
             shieldSprite->m_scale.x = widthScale;
@@ -40,7 +40,7 @@ void SystemShield::Update(GameWorld& world, uint32_t ticks) {
         }
 
         auto projectileView =
-            registry.view<ComponentProjectile, ComponentEntity, ComponentBody, ComponentPosition>();
+            registry.View<ComponentProjectile, ComponentEntity, ComponentBody, ComponentPosition>();
 
         for (auto [projectileEntity, projectileData, projectileDetails, projectileBody, projectilePosition] :
              projectileView.each()) {
@@ -54,10 +54,10 @@ void SystemShield::Update(GameWorld& world, uint32_t ticks) {
                     // projectile collided with shield
 
                     // destroy projectile
-                    registry.get_or_emplace<DeadTag>(projectileEntity);
+                    registry.GetOrEmplace<DeadTag>(projectileEntity);
 
                     // apply power
-                    if (auto* ownerPower = registry.try_get<ComponentPower>(shieldParenting.m_parent)) {
+                    if (auto* ownerPower = registry.TryGet<ComponentPower>(shieldParenting.m_parent)) {
                         ownerPower->m_power += projectileData.m_damage;
                     }
                 }

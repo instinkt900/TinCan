@@ -8,7 +8,7 @@
 
 struct EnemySection {
     DataRef<SpriteData> sprite;
-    moth_graphics::IntVec2 offset;
+    moth::gfx::IntVec2 offset;
     float radius = 1.0f;
     float health = 1.0f;
     DataRef<WeaponData> weapon;

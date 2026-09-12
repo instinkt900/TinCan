@@ -1,15 +1,15 @@
 #include "system_world_bounds.h"
 #include "system_movement.h"
 #include "tags.h"
-#include <entt/entt.hpp>
+#include <moth/ecs/world.h>
 #include "game_world.h"
 
-void KillOutOfBounds(entt::registry& registry, entt::entity entity, ComponentBounds const& bounds,
+void KillOutOfBounds(moth::ecs::World& registry, moth::ecs::Entity entity, ComponentBounds const& bounds,
                      ComponentPosition& position) {
-    registry.get_or_emplace<DeadTag>(entity);
+    registry.GetOrEmplace<DeadTag>(entity);
 }
 
-void LimitOutOfBounds(entt::registry& registry, entt::entity entity, ComponentBounds const& bounds,
+void LimitOutOfBounds(moth::ecs::World& registry, moth::ecs::Entity entity, ComponentBounds const& bounds,
                       ComponentPosition& position) {
     auto delta = position.m_position - position.m_lastPosition;
     if (position.m_position.x < bounds.m_bounds.left() || position.m_position.x > bounds.m_bounds.right()) {
@@ -21,7 +21,7 @@ void LimitOutOfBounds(entt::registry& registry, entt::entity entity, ComponentBo
     position.m_position = position.m_lastPosition + delta;
 }
 
-void HandleOutOfBounds(entt::registry& registry, entt::entity entity, ComponentBounds const& bounds,
+void HandleOutOfBounds(moth::ecs::World& registry, moth::ecs::Entity entity, ComponentBounds const& bounds,
                        ComponentPosition& position) {
     switch (bounds.m_behaviour) {
     case BoundsBehaviour::Kill:
@@ -36,10 +36,10 @@ void HandleOutOfBounds(entt::registry& registry, entt::entity entity, ComponentB
 }
 void SystemWorldBounds::Update(GameWorld& world, uint32_t ticks) {
     auto& registry = world.GetRegistry();
-    auto view = registry.view<ComponentBounds, ComponentPosition>();
+    auto view = registry.View<ComponentBounds, ComponentPosition>();
 
     for (auto [entity, bounds, position] : view.each()) {
-        if (!moth_ui::IsInRect(position.m_position, bounds.m_bounds)) {
+        if (!moth::core::IsInRect(position.m_position, bounds.m_bounds)) {
             HandleOutOfBounds(registry, entity, bounds, position);
         }
     }

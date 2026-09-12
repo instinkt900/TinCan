@@ -26,7 +26,7 @@ namespace imgui_ext {
     }
 
     void InputBehaviourStateData(BehaviourStateData& data, GameData const& gamedata,
-                                 moth_graphics::graphics::IGraphics& graphics) {
+                                 moth::gfx::IGraphics& graphics) {
         ImGui::PushID(&data);
         InputText("Label", data.label);
         ImGui::InputScalar("Duration", ImGuiDataType_U32, &data.duration);
@@ -63,7 +63,7 @@ namespace imgui_ext {
                 ImGui::PopID();
                 ++i;
             }
-            static moth_graphics::FloatVec2 pendingPoint;
+            static moth::gfx::FloatVec2 pendingPoint;
             ImGui::TextUnformatted("New point:");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(150.0f);
@@ -77,7 +77,7 @@ namespace imgui_ext {
     }
 
     void InputBehaviourData(BehaviourData& data, GameData const& gamedata,
-                            moth_graphics::graphics::IGraphics& graphics) {
+                            moth::gfx::IGraphics& graphics) {
         ImGui::Text("States:");
         for (int i = 0; i < static_cast<int>(data.states.size()); /* skip */) {
             ImGui::PushID(i);
@@ -105,13 +105,13 @@ namespace imgui_ext {
     }
 }
 
-void SystemBehaviourEditor::Draw(GameWorld& world, moth_graphics::graphics::IGraphics& graphics) {
+void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphics) {
     auto& registry = world.GetRegistry();
     auto const& gamedata = world.GetGameData();
 
     static EnemyData staticEnemyData;
     static BehaviourData staticBehaviourData;
-    static moth_graphics::FloatVec2 staticPosition;
+    static moth::gfx::FloatVec2 staticPosition;
 
     ImGui::Begin("Behaviour Editor");
     ImGui::InputFloat2("Position", static_cast<float*>(staticPosition.data));
