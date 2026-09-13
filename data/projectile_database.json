@@ -2,7 +2,7 @@
     "projectiles": {
         "player_basic_bullet": {
             "radius": 5,
-            "speed": 1000.0,
+            "speed": 1500.0,
             "white_sprite": "player_projectile_light",
             "black_sprite": "player_projectile_dark"
         },

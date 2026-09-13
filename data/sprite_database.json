@@ -1,12 +1,8 @@
 {
     "sprites": {
         "player_ship": {
-            "image": "assets/spritesheet_player.png",
-            "blend_mode": "Alpha",
-            "sheet_data": {
-                "cell_dimensions": [ 48, 58 ],
-                "grid_dimensions": [ 3, 5 ]
-            }
+            "image": "assets/basic_player.png",
+            "blend_mode": "Alpha"
         },
         "player_shield": {
             "image": "assets/shield.png",
@@ -14,7 +10,7 @@
             "z_order": 5
         },
         "enemy_ship_01": {
-            "image": "assets/base_enemy.png",
+            "image": "assets/basic_enemy.png",
             "blend_mode": "Alpha"
         },
         "enemy_ship_02": {
@@ -22,11 +18,11 @@
             "blend_mode": "Alpha"
         },
         "player_projectile_light": {
-            "image": "assets/player_bullet.png",
+            "image": "assets/basic_laser.png",
             "blend_mode": "Alpha"
         },
         "player_projectile_dark": {
-            "image": "assets/player_bullet.png",
+            "image": "assets/basic_laser.png",
             "blend_mode": "Alpha"
         },
         "enemy_projectile_light": {

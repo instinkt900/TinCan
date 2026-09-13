@@ -11,6 +11,7 @@
 #include "system_input.h"
 #include "system_level.h"
 #include "system_lifetime.h"
+#include "system_map.h"
 #include "system_movement.h"
 #include "system_pickup.h"
 #include "system_projectile.h"
@@ -25,7 +26,7 @@
 #include <moth/graphics/graphics/igraphics_device.h>
 #include <moth/ui/events/event_dispatch.h>
 
-moth::gfx::IntVec2 const GameWorld::WorldSize{ 600, 800 };
+moth::gfx::IntVec2 const GameWorld::WorldSize{ 1920, 1080 };
 
 GameWorld::GameWorld(moth::gfx::platform::Window& window, moth::gfx::IGraphics& graphics)
     : m_window(window)
@@ -35,7 +36,10 @@ GameWorld::GameWorld(moth::gfx::platform::Window& window, moth::gfx::IGraphics& 
     SerializeContext serializeContext{ m_gamedata, m_window.GetSurfaceContext() };
     m_gamedata.LoadDirectory("data", serializeContext);
 
-    SystemLevel::InitLevel(m_registry, { .encounterCount = 5 }, m_gamedata);
+    // SystemLevel::InitLevel(m_registry, { .encounterCount = 5 }, m_gamedata);
+    SystemMap::InitMap(m_registry,
+                       LoadTiledMap("tiled_projects/test.tmj", m_window.GetSurfaceContext().GetAssetContext()),
+                       WorldSize);
     // InitTestWorld();
     CreatePlayer();
 }
@@ -51,7 +55,8 @@ void GameWorld::Update(uint32_t ticks) {
     if (m_paused) {
         return;
     }
-    SystemLevel::Update(*this, ticks);
+    // SystemLevel::Update(*this, ticks);
+    SystemMap::Update(*this, ticks);
     SystemLifetime::Update(*this, ticks);
     SystemEnemySpawner::Update(*this, ticks);
     SystemBehaviour::Update(*this, ticks);
@@ -76,6 +81,7 @@ void GameWorld::Draw() {
     m_graphics.SetColor(moth::gfx::BasicColors::White);
     // SystemSplineEditor::Draw(*this, m_graphics);
     // SystemBehaviourEditor::Draw(*this, m_graphics);
+    SystemMap::Draw(*this, m_graphics);
     SystemDrawable::Draw(*this, m_graphics);
     m_graphics.SetTarget(nullptr);
 }

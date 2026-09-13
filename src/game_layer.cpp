@@ -27,6 +27,8 @@ bool GameLayer::OnEvent(moth::ui::Event const& event) {
 void GameLayer::Update(uint32_t ticks) { m_gameWorld->Update(ticks); }
 
 void GameLayer::Draw() {
+    // m_graphics.SetLogicalSize({1920,1080});
+
     // background fill
     m_graphics.SetBlendMode(moth::gfx::BlendMode::Replace);
     m_graphics.SetColor(moth::gfx::BasicColors::Blue);

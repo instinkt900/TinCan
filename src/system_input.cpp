@@ -24,7 +24,7 @@ void SystemInput::OnKey(moth::ecs::World& registry, moth::ui::EventKey const& ev
         }
 
         if (auto* weapon = registry.TryGet<ComponentWeapon>(entity)) {
-            weapon->m_active = input.m_state[moth::ui::Key::Space];
+            weapon->m_active = input.m_state[moth::ui::Key::Lctrl] || input.m_state[moth::ui::Key::Rctrl];
         }
 
         if (auto* weapon = registry.TryGet<ComponentPowerWeapon>(entity)) {

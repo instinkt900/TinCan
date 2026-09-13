@@ -1,3 +1,5 @@
+> **Note:** These notes are old. The project goals are being redesigned, so treat the plans below as outdated.
+
 ### Level construction
 
 - Made up of a series of "encounters"

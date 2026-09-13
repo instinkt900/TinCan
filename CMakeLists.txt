@@ -22,6 +22,7 @@ set(SOURCES ${SOURCES}
 	src/system_input.cpp
 	src/system_level.cpp
 	src/system_lifetime.cpp
+	src/system_map.cpp
 	src/system_movement.cpp
 	src/system_pickup.cpp
 	src/system_power_weapon.cpp
@@ -34,6 +35,7 @@ set(SOURCES ${SOURCES}
 	src/system_spline_editor.cpp
 	src/system_behaviour_editor.cpp
 	src/system_debug_spline.cpp
+	src/tiled_map.cpp
 )
 
 find_package(moth_bridge REQUIRED)

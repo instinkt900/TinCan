@@ -124,9 +124,7 @@ moth::ecs::Entity SystemProjectile::CreateProjectile(moth::ecs::World& registry,
 
     auto const& spriteData =
         sourceEntityData->m_affinity == Affinity::Light ? data.white_sprite : data.black_sprite;
-    auto& sprite = registry.Emplace<ComponentSprite>(projectile, *spriteData);
-    sprite.m_color = sourceEntityData->m_affinity == Affinity::Light ? moth::gfx::BasicColors::Blue
-                                                                     : moth::gfx::BasicColors::Red;
+    registry.Emplace<ComponentSprite>(projectile, *spriteData);
 
     if (data.homing_details.has_value()) {
         if (data.homing_details->targeting != Targeting::None) {

@@ -2,14 +2,19 @@
     "weapons": {
         "player_weapon_01": {
             "damage": 5,
-            "cooldown": 200,
+            "cooldown": 100,
             "burst": 1,
             "burst_delay": 0,
             "player_tracking": false,
             "projectile": "player_basic_bullet",
             "barrels": [
                 {
-                    "offset": [ 0, 0 ],
+                    "offset": [ -4, 0 ],
+                    "group": 0,
+                    "angle": 0
+                },
+                {
+                    "offset": [ 4, 0 ],
                     "group": 0,
                     "angle": 0
                 }
