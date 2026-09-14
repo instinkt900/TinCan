@@ -11,6 +11,7 @@ class TinCan(ConanFile):
     def requirements(self):
         self.requires("moth_bridge/0.1.0")
         self.requires("moth_ecs/0.1.0")
+        self.requires("moth_tilemap/0.1.0")
 
     def build_requirements(self):
         self.tool_requires("cmake/3.27.0")

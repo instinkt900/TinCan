@@ -8,6 +8,15 @@
                 }
             ]
         },
+        "chase_player": {
+            "states": [
+                {
+                    "type": "Target",
+                    "target": "Player",
+                    "speed": 60
+                }
+            ]
+        },
         "in_and_hold": {
             "states": [
                 {

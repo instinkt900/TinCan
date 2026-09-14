@@ -4,6 +4,10 @@
             "image": "assets/basic_player.png",
             "blend_mode": "Alpha"
         },
+        "enemy_basic": {
+            "image": "assets/basic_enemy.png",
+            "blend_mode": "Alpha"
+        },
         "player_shield": {
             "image": "assets/shield.png",
             "blend_mode": "Alpha",

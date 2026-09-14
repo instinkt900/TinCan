@@ -146,9 +146,14 @@ public:
                 targetPos = position.m_position;
             }
         }
+        auto const toTarget = targetPos - target.positionComponent.m_position;
+        if (moth::gfx::LengthSq(toTarget) <= 0.0f) {
+            // already at the target, and a zero vector can't be normalized
+            target.velocityComponent.m_velocity = { 0, 0 };
+            return;
+        }
         target.velocityComponent.m_velocity =
-            moth::gfx::Normalized(targetPos - target.positionComponent.m_position) *
-            target.behaviourComponent.m_currentState->speed;
+            moth::gfx::Normalized(toTarget) * target.behaviourComponent.m_currentState->speed;
     }
 };
 

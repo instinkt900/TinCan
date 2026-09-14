@@ -1,0 +1,27 @@
+{ "object":
+    {
+     "height":0,
+     "id":6,
+     "name":"",
+     "opacity":1,
+     "point":true,
+     "properties":[
+            {
+             "name":"behaviour",
+             "propertytype":"behaviour",
+             "type":"string",
+             "value":"chase_player"
+            }, 
+            {
+             "name":"enemy_type",
+             "propertytype":"enemy_type",
+             "type":"string",
+             "value":"enemy_basic"
+            }],
+     "rotation":0,
+     "type":"EnemySpawn",
+     "visible":true,
+     "width":0
+    },
+ "type":"template"
+}

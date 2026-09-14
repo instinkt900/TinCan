@@ -10,5 +10,63 @@
     "properties": [
     ],
     "propertyTypes": [
+        {
+            "id": 3,
+            "name": "behaviour",
+            "storageType": "string",
+            "type": "enum",
+            "values": [
+                "basic",
+                "chase_player",
+                "in_and_hold"
+            ],
+            "valuesAsFlags": false
+        },
+        {
+            "id": 2,
+            "name": "enemy_type",
+            "storageType": "string",
+            "type": "enum",
+            "values": [
+                "enemy_01_blue",
+                "enemy_01_red",
+                "enemy_02_blue",
+                "enemy_02_red",
+                "enemy_basic"
+            ],
+            "valuesAsFlags": false
+        },
+        {
+            "color": "#ffa0a0a4",
+            "drawFill": true,
+            "id": 1,
+            "members": [
+                {
+                    "name": "behaviour",
+                    "propertyType": "behaviour",
+                    "type": "string",
+                    "value": "basic"
+                },
+                {
+                    "name": "enemy_type",
+                    "propertyType": "enemy_type",
+                    "type": "string",
+                    "value": "enemy_01_blue"
+                }
+            ],
+            "name": "EnemySpawn",
+            "type": "class",
+            "useAs": [
+                "property",
+                "map",
+                "layer",
+                "object",
+                "tile",
+                "tileset",
+                "wangcolor",
+                "wangset",
+                "project"
+            ]
+        }
     ]
 }

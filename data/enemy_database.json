@@ -1,5 +1,11 @@
 {
     "enemies": {
+        "enemy_basic": {
+            "affinity": "Dark",
+            "health": 30,
+            "radius": 20,
+            "sprite": "enemy_basic"
+        },
         "enemy_01_red": {
             "affinity": "Dark",
             "health": 30,

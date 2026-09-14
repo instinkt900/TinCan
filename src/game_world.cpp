@@ -37,9 +37,8 @@ GameWorld::GameWorld(moth::gfx::platform::Window& window, moth::gfx::IGraphics& 
     m_gamedata.LoadDirectory("data", serializeContext);
 
     // SystemLevel::InitLevel(m_registry, { .encounterCount = 5 }, m_gamedata);
-    SystemMap::InitMap(m_registry,
-                       LoadTiledMap("tiled_projects/test.tmj", m_window.GetSurfaceContext().GetAssetContext()),
-                       WorldSize);
+    SystemMap::InitMap(m_registry, "tiled_projects/test.tmj", "tiled_projects/desert.tiled-project",
+                       m_window.GetSurfaceContext().GetAssetContext(), WorldSize);
     // InitTestWorld();
     CreatePlayer();
 }
