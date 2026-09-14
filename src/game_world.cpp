@@ -25,6 +25,7 @@
 #include "system_power_weapon.h"
 #include <moth/graphics/graphics/igraphics_device.h>
 #include <moth/ui/events/event_dispatch.h>
+#include <moth/profile/profiler.h>
 
 moth::gfx::IntVec2 const GameWorld::WorldSize{ 1920, 1080 };
 
@@ -55,34 +56,34 @@ void GameWorld::Update(uint32_t ticks) {
         return;
     }
     // SystemLevel::Update(*this, ticks);
-    SystemMap::Update(*this, ticks);
-    SystemLifetime::Update(*this, ticks);
-    SystemEnemySpawner::Update(*this, ticks);
-    SystemBehaviour::Update(*this, ticks);
-    SystemTargeting::Update(*this, ticks);
-    SystemMovement::Update(*this, ticks);
-    SystemWeapon::Update(*this, ticks);
-    SystemPowerWeapon::Update(*this, ticks);
-    SystemShield::Update(*this, ticks);
-    SystemProjectile::Update(*this, ticks);
-    SystemPickup::Update(*this, ticks);
-    SystemGroup::Update(*this, ticks);
-    SystemWorldBounds::Update(*this, ticks);
-    SystemAnimation::Update(*this, ticks);
-    SystemDrawable::Update(*this, ticks);
+    { MOTH_PROFILE_SCOPE("SystemMap"); SystemMap::Update(*this, ticks); }
+    { MOTH_PROFILE_SCOPE("SystemLifetime"); SystemLifetime::Update(*this, ticks); }
+    { MOTH_PROFILE_SCOPE("SystemEnemySpawner"); SystemEnemySpawner::Update(*this, ticks); }
+    { MOTH_PROFILE_SCOPE("SystemBehaviour"); SystemBehaviour::Update(*this, ticks); }
+    { MOTH_PROFILE_SCOPE("SystemTargeting"); SystemTargeting::Update(*this, ticks); }
+    { MOTH_PROFILE_SCOPE("SystemMovement"); SystemMovement::Update(*this, ticks); }
+    { MOTH_PROFILE_SCOPE("SystemWeapon"); SystemWeapon::Update(*this, ticks); }
+    { MOTH_PROFILE_SCOPE("SystemPowerWeapon"); SystemPowerWeapon::Update(*this, ticks); }
+    { MOTH_PROFILE_SCOPE("SystemShield"); SystemShield::Update(*this, ticks); }
+    { MOTH_PROFILE_SCOPE("SystemProjectile"); SystemProjectile::Update(*this, ticks); }
+    { MOTH_PROFILE_SCOPE("SystemPickup"); SystemPickup::Update(*this, ticks); }
+    { MOTH_PROFILE_SCOPE("SystemGroup"); SystemGroup::Update(*this, ticks); }
+    { MOTH_PROFILE_SCOPE("SystemWorldBounds"); SystemWorldBounds::Update(*this, ticks); }
+    { MOTH_PROFILE_SCOPE("SystemAnimation"); SystemAnimation::Update(*this, ticks); }
+    { MOTH_PROFILE_SCOPE("SystemDrawable"); SystemDrawable::Update(*this, ticks); }
 }
 
 void GameWorld::Draw() {
-    m_graphics.SetTarget(m_worldSurface.get());
+    { MOTH_PROFILE_SCOPE("Set world target"); m_graphics.SetTarget(m_worldSurface.get()); }
     m_graphics.SetColor(moth::gfx::BasicColors::Black);
     m_graphics.Clear();
     m_graphics.SetBlendMode(moth::gfx::BlendMode::Replace);
     m_graphics.SetColor(moth::gfx::BasicColors::White);
     // SystemSplineEditor::Draw(*this, m_graphics);
     // SystemBehaviourEditor::Draw(*this, m_graphics);
-    SystemMap::Draw(*this, m_graphics);
-    SystemDrawable::Draw(*this, m_graphics);
-    m_graphics.SetTarget(nullptr);
+    { MOTH_PROFILE_SCOPE("SystemMap"); SystemMap::Draw(*this, m_graphics); }
+    { MOTH_PROFILE_SCOPE("SystemDrawable"); SystemDrawable::Draw(*this, m_graphics); }
+    { MOTH_PROFILE_SCOPE("Reset target"); m_graphics.SetTarget(nullptr); }
 }
 
 float GameWorld::GetPlayerHealth() const {

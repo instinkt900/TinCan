@@ -40,6 +40,7 @@ set(SOURCES ${SOURCES}
 find_package(moth_bridge REQUIRED)
 find_package(moth_ecs REQUIRED)
 find_package(moth_tilemap REQUIRED)
+find_package(moth_profile REQUIRED)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
@@ -48,6 +49,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE src)
 target_link_libraries(${PROJECT_NAME} moth::bridge)
 target_link_libraries(${PROJECT_NAME} moth::ecs)
 target_link_libraries(${PROJECT_NAME} moth::tilemap)
+target_link_libraries(${PROJECT_NAME} moth::profile moth::profile_imgui)
 
 if (MSVC)
 	set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/ignore:4099")

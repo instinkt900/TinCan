@@ -6,13 +6,15 @@
 #include <moth/graphics/graphics/image.h>
 #include <moth/tilemap/tile_map.h>
 #include <filesystem>
+#include <map>
+#include <string>
 #include <vector>
 
 class GameWorld;
 
 struct ComponentMapScroll {
     moth::tilemap::TileMap m_map;
-    std::vector<moth::gfx::Image> m_tilesetImages; // one per map tileset, in the same order
+    std::map<std::string, moth::gfx::Image> m_images; // tileset and image layer images, keyed by path relative to the map
     float m_scrollSpeed = 60.0f; // pixels per second, from the map's "scroll_speed" property
     float m_cameraTop = 0; // map pixel row currently at the top of the screen
     std::vector<moth::tilemap::MapObject> m_pendingSpawns; // ascending y, so the next to scroll into view is at the back

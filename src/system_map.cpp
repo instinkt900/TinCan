@@ -149,22 +149,31 @@ void SystemMap::InitMap(moth::ecs::World& registry, std::filesystem::path const&
                         moth::gfx::IntVec2 const& viewSize) {
     auto map = moth::tilemap::LoadTileMapFromFile(path, moth::tilemap::LoadPropertyTypes(projectPath));
 
-    // tileset image paths are relative to the map file
-    std::vector<moth::gfx::Image> tilesetImages;
-    for (auto const& tileset : map.tilesets) {
-        auto const imagePath = path.parent_path() / tileset.imagePath;
+    // tileset and image layer image paths are relative to the map file
+    std::map<std::string, moth::gfx::Image> images;
+    auto const loadImage = [&](std::string const& relativePath) {
+        if (relativePath.empty() || images.count(relativePath) != 0) {
+            return;
+        }
+        auto const imagePath = path.parent_path() / relativePath;
         std::shared_ptr<moth::gfx::ITexture> texture = assetContext.TextureFromFile(imagePath);
         if (texture == nullptr) {
-            spdlog::error("Failed loading tileset image at {}", imagePath.string());
-            throw std::runtime_error("Failed loading tileset image " + imagePath.string());
+            spdlog::error("Failed loading map image at {}", imagePath.string());
+            throw std::runtime_error("Failed loading map image " + imagePath.string());
         }
-        tilesetImages.push_back(moth::gfx::Image(std::move(texture)));
+        images.emplace(relativePath, moth::gfx::Image(std::move(texture)));
+    };
+    for (auto const& tileset : map.tilesets) {
+        loadImage(tileset.imagePath);
+    }
+    for (auto const& imageLayer : map.imageLayers) {
+        loadImage(imageLayer.imagePath);
     }
 
     auto mapEntity = registry.Create();
     auto& scroll = registry.Emplace<ComponentMapScroll>(mapEntity);
     scroll.m_map = std::move(map);
-    scroll.m_tilesetImages = std::move(tilesetImages);
+    scroll.m_images = std::move(images);
     scroll.m_scrollSpeed = moth::tilemap::GetProperty(scroll.m_map.properties, "scroll_speed", scroll.m_scrollSpeed);
 
     // start with the bottom of the map on screen and scroll upwards
@@ -216,8 +225,15 @@ void SystemMap::Draw(GameWorld& world, moth::gfx::IGraphics& graphics) {
 
         // the renderer draws in map pixels, so shift the map to put the camera top at the top of the screen
         moth::gfx::FloatRect const viewRect{ { 0.0f, top }, { viewSize.x, top + viewSize.y } };
+        // the view centre drives the layer parallax
+        moth::gfx::FloatVec2 const cameraCentre{ viewSize.x / 2.0f, top + (viewSize.y / 2.0f) };
+        auto const& images = scroll.m_images;
+        auto const resolveImage = [&images](std::string const& imagePath) {
+            auto const it = images.find(imagePath);
+            return it != images.end() ? it->second : moth::gfx::Image{};
+        };
         graphics.PushTransform(moth::gfx::FloatMat4x4::Translation({ shake.x, shake.y - top }));
-        moth::tilemap::DrawTileMap(graphics, scroll.m_map, scroll.m_tilesetImages, viewRect);
+        moth::tilemap::DrawTileMap(graphics, scroll.m_map, resolveImage, viewRect, 0, cameraCentre);
         graphics.PopTransform();
     }
 }

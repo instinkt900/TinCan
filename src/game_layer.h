@@ -6,6 +6,7 @@
 #include <moth/ui/events/event_key.h>
 #include <moth/ui/layers/layer.h>
 #include <moth/ecs/world.h>
+#include <moth/profile/imgui/profiler_panel.h>
 
 class GameLayer : public moth::ui::Layer {
 public:
@@ -35,4 +36,5 @@ private:
     moth::gfx::IGraphics& m_graphics;
     std::unique_ptr<GameWorld> m_gameWorld;
     std::unique_ptr<moth::gfx::IFont> m_font;
+    moth::profile::ProfilerPanel m_profilerPanel;
 };

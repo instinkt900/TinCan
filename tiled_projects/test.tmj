@@ -374,7 +374,7 @@
          "offsety":-202.077431539188,
          "opacity":1,
          "type":"objectgroup",
-         "visible":true,
+         "visible":false,
          "x":0,
          "y":0
         }, 
@@ -405,7 +405,12 @@
                          "name":"enemy_type",
                          "propertytype":"enemy_type",
                          "type":"string",
-                         "value":"enemy_basic"
+                         "value":"enemy_01_red"
+                        }, 
+                        {
+                         "name":"spacing",
+                         "type":"float",
+                         "value":64
                         }],
                  "rotation":0,
                  "type":"EnemySpawn",
@@ -527,11 +532,27 @@
                 }],
          "opacity":1,
          "type":"objectgroup",
+         "visible":false,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "id":5,
+         "image":"clouds.png",
+         "imageheight":3100,
+         "imagewidth":1920,
+         "name":"Image Layer 1",
+         "opacity":1,
+         "parallaxx":2,
+         "parallaxy":2,
+         "repeatx":true,
+         "repeaty":true,
+         "type":"imagelayer",
          "visible":true,
          "x":0,
          "y":0
         }],
- "nextlayerid":4,
+ "nextlayerid":6,
  "nextobjectid":17,
  "orientation":"orthogonal",
  "properties":[

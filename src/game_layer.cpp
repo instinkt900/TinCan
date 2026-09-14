@@ -5,6 +5,7 @@
 #include <moth/ui/events/event_dispatch.h>
 #include <moth/ui/events/event_key.h>
 #include <moth/ui/layers/layer_stack.h>
+#include <moth/profile/profiler.h>
 #include <spdlog/spdlog.h>
 
 GameLayer::GameLayer(moth::gfx::platform::Window& window, moth::ui::Context& context,
@@ -24,9 +25,20 @@ bool GameLayer::OnEvent(moth::ui::Event const& event) {
     return handled;
 }
 
-void GameLayer::Update(uint32_t ticks) { m_gameWorld->Update(ticks); }
+void GameLayer::Update(uint32_t ticks) {
+    MOTH_PROFILE_SCOPE("Update");
+    m_gameWorld->Update(ticks);
+}
 
 void GameLayer::Draw() {
+    // a profiler frame runs from one draw to the next, so it also covers the updates in between
+    MOTH_PROFILE_FRAME();
+    {
+        MOTH_PROFILE_SCOPE("Profiler panel");
+        m_profilerPanel.Draw();
+    }
+    MOTH_PROFILE_SCOPE("Draw");
+
     // m_graphics.SetLogicalSize({1920,1080});
 
     // background fill
@@ -36,7 +48,10 @@ void GameLayer::Draw() {
                                               static_cast<float>(m_window.GetHeight())));
 
     // let the world draw
-    m_gameWorld->Draw();
+    {
+        MOTH_PROFILE_SCOPE("World");
+        m_gameWorld->Draw();
+    }
 
     // draw the game world
     m_graphics.SetColor(moth::gfx::BasicColors::White);
@@ -95,6 +110,10 @@ bool GameLayer::OnKeyEvent(moth::ui::EventKey const& event) {
     if (event.GetAction() == moth::ui::KeyAction::Up) {
         if (event.GetKey() == moth::ui::Key::Escape) {
             FireEvent(moth::gfx::EventQuit());
+            return true;
+        }
+        if (event.GetKey() == moth::ui::Key::F1) {
+            m_profilerPanel.ToggleOpen();
             return true;
         }
     }

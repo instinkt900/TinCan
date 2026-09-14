@@ -14,7 +14,7 @@
             "z_order": 5
         },
         "enemy_ship_01": {
-            "image": "assets/basic_enemy.png",
+            "image": "assets/enemy_ship.png",
             "blend_mode": "Alpha"
         },
         "enemy_ship_02": {
