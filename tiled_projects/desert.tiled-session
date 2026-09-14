@@ -1,8 +1,8 @@
 {
     "activeFile": "test.tmj",
     "expandedProjectPaths": [
-        "extensions",
-        "."
+        ".",
+        "extensions"
     ],
     "fileStates": {
         ":/automap-tiles.tsx": {
@@ -18,10 +18,10 @@
         },
         "test.tmj": {
             "scale": 0.5295,
-            "selectedLayer": 2,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 614.7308781869689,
-                "y": 8946.175637393768
+                "x": 967.8942398489141,
+                "y": 8277.620396600567
             }
         },
         "test.tmx": {
@@ -42,7 +42,7 @@
         "test.tmj"
     ],
     "project": "desert.tiled-project",
-    "property.type": "float",
+    "property.type": "formation",
     "recentFiles": [
         "desert.tsj",
         "test.tmj"

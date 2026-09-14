@@ -17,6 +17,11 @@
              "propertytype":"enemy_type",
              "type":"string",
              "value":"enemy_basic"
+            }, 
+            {
+             "name":"speed",
+             "type":"float",
+             "value":100
             }],
      "rotation":0,
      "type":"EnemySpawn",

@@ -2,6 +2,7 @@
 #include "game_world.h"
 #include "system_drawable.h"
 #include "system_enemy_spawner.h"
+#include "system_group.h"
 #include "system_movement.h"
 #include "system_world_bounds.h"
 #include <moth/graphics/utils/transform.h>
@@ -9,12 +10,64 @@
 #include <moth/tilemap/tile_map_renderer.h>
 #include <spdlog/spdlog.h>
 #include <algorithm>
+#include <cmath>
 #include <stdexcept>
+#include <string_view>
 #include <variant>
 
 namespace {
     // spawns trigger when they are this many pixels above the top of the screen
     float constexpr SpawnMargin = 64.0f;
+
+    // tiled may store a float property as an int
+    float GetFloatProperty(moth::tilemap::Properties const& properties, std::string_view name, float fallback) {
+        if (auto const it = properties.find(std::string(name)); it != properties.end()) {
+            if (auto const* floatValue = std::get_if<float>(&it->second)) {
+                return *floatValue;
+            }
+            if (auto const* intValue = std::get_if<int>(&it->second)) {
+                return static_cast<float>(*intValue);
+            }
+        }
+        return fallback;
+    }
+
+    // offsets of each formation member from the spawn point, in map pixels. the spawn point is the front of the
+    // formation and members further back are placed above it, so they scroll into view after the front
+    std::vector<moth::gfx::FloatVec2> GetFormationOffsets(std::string const& formation, int count, float spacing) {
+        std::vector<moth::gfx::FloatVec2> offsets;
+        offsets.reserve(static_cast<size_t>(count));
+        if (formation == "line") {
+            for (int i = 0; i < count; ++i) {
+                offsets.push_back({ (static_cast<float>(i) - static_cast<float>(count - 1) / 2.0f) * spacing, 0.0f });
+            }
+        } else if (formation == "column") {
+            for (int i = 0; i < count; ++i) {
+                offsets.push_back({ 0.0f, -static_cast<float>(i) * spacing });
+            }
+        } else if (formation == "v") {
+            // the leader is on the point, the rest alternate stepping back to the left and right
+            for (int i = 0; i < count; ++i) {
+                auto const step = static_cast<float>((i + 1) / 2);
+                auto const side = i % 2 == 1 ? -1.0f : 1.0f;
+                offsets.push_back({ side * step * spacing, -step * spacing });
+            }
+        } else if (formation == "grid") {
+            // rows fill front to back, each centred on the point
+            auto const columns = static_cast<int>(std::ceil(std::sqrt(static_cast<float>(count))));
+            for (int i = 0; i < count; ++i) {
+                auto const row = i / columns;
+                auto const rowCount = std::min(columns, count - (row * columns));
+                auto const column = i % columns;
+                offsets.push_back({ (static_cast<float>(column) - static_cast<float>(rowCount - 1) / 2.0f) * spacing,
+                                    -static_cast<float>(row) * spacing });
+            }
+        } else {
+            spdlog::error("Map spawn has unknown formation {}", formation);
+            offsets.push_back({ 0.0f, 0.0f });
+        }
+        return offsets;
+    }
 
     void SpawnMapEnemy(GameWorld& world, moth::tilemap::MapObject const& spawn, ComponentMapScroll const& scroll) {
         auto& registry = world.GetRegistry();
@@ -54,20 +107,40 @@ namespace {
             }
         }
 
-        moth::gfx::FloatVec2 const position{ spawn.position.x, spawn.position.y - scroll.m_cameraTop };
-        auto enemy = SystemEnemySpawner::SpawnEnemy(registry, *enemyData, behaviour, position, gamedata);
+        auto const count = std::max(1, moth::tilemap::GetProperty(spawn.properties, "count", 1));
+        auto const formation = moth::tilemap::GetProperty<std::string>(spawn.properties, "formation", "line");
+        auto const spacing = GetFloatProperty(spawn.properties, "spacing", 32.0f);
 
-        if (behaviourData == nullptr) {
-            // move with the map so the enemy stays where it was placed
-            registry.Get<ComponentVelocity>(enemy).m_velocity = { 0.0f, scroll.m_scrollSpeed };
+        // formation members share a group so that killing the whole formation can give a drop. no drop is set yet
+        auto group = moth::ecs::kNullEntity;
+        if (count > 1) {
+            group = SystemGroup::CreateGroup(registry, DataRef<PickupData>{});
         }
 
         moth::gfx::FloatRect boundsRect{ { 0.0f, 0.0f }, static_cast<moth::gfx::FloatVec2>(world.GetWorldSize()) };
         boundsRect.topLeft -= { SpawnMargin * 2.0f, SpawnMargin * 2.0f };
         boundsRect.bottomRight += { SpawnMargin * 2.0f, SpawnMargin * 2.0f };
-        auto& bounds = registry.Emplace<ComponentBounds>(enemy);
-        bounds.m_bounds = boundsRect;
-        bounds.m_behaviour = BoundsBehaviour::Kill;
+
+        for (auto const& offset : GetFormationOffsets(formation, count, spacing)) {
+            moth::gfx::FloatVec2 const position{ spawn.position.x + offset.x,
+                                                 spawn.position.y - scroll.m_cameraTop + offset.y };
+            auto enemy = SystemEnemySpawner::SpawnEnemy(registry, *enemyData, behaviour, position, gamedata);
+
+            if (behaviourData == nullptr) {
+                // move with the map so the enemy stays where it was placed
+                registry.Get<ComponentVelocity>(enemy).m_velocity = { 0.0f, scroll.m_scrollSpeed };
+            }
+
+            // members behind the front spawn further above the screen, so their bounds reach up that far too
+            auto& bounds = registry.Emplace<ComponentBounds>(enemy);
+            bounds.m_bounds = boundsRect;
+            bounds.m_bounds.topLeft.y += offset.y;
+            bounds.m_behaviour = BoundsBehaviour::Kill;
+
+            if (group != moth::ecs::kNullEntity) {
+                SystemGroup::AddMember(registry, group, enemy);
+            }
+        }
     }
 }
 

@@ -48,10 +48,31 @@
                     "value": "basic"
                 },
                 {
+                    "name": "count",
+                    "type": "int",
+                    "value": 1
+                },
+                {
                     "name": "enemy_type",
                     "propertyType": "enemy_type",
                     "type": "string",
                     "value": "enemy_01_blue"
+                },
+                {
+                    "name": "formation",
+                    "propertyType": "formation",
+                    "type": "string",
+                    "value": "line"
+                },
+                {
+                    "name": "spacing",
+                    "type": "float",
+                    "value": 32
+                },
+                {
+                    "name": "speed",
+                    "type": "float",
+                    "value": 100
                 }
             ],
             "name": "EnemySpawn",
@@ -67,6 +88,19 @@
                 "wangset",
                 "project"
             ]
+        },
+        {
+            "id": 4,
+            "name": "formation",
+            "storageType": "string",
+            "type": "enum",
+            "values": [
+                "line",
+                "column",
+                "v",
+                "grid"
+            ],
+            "valuesAsFlags": false
         }
     ]
 }
