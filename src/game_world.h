@@ -2,6 +2,7 @@
 
 #include "gamedata.h"
 #include <moth/graphics/graphics/itarget.h>
+#include <moth/graphics/graphics/spritesheet.h>
 #include <moth/graphics/platform/window.h>
 #include <moth/ecs/world.h>
 #include <moth/ui/events/event_key.h>
@@ -17,6 +18,7 @@ public:
     moth::ecs::World const& GetRegistry() const { return m_registry; }
     moth::ecs::Entity GetPlayerEntity() const { return m_player; }
     moth::gfx::IntVec2 const& GetWorldSize() const { return WorldSize; }
+    std::shared_ptr<moth::gfx::SpriteSheet> const& GetExplosionSheet() const { return m_explosionSheet; }
 
     bool OnEvent(moth::ui::Event const& event) override;
     void Update(uint32_t ticks);
@@ -41,6 +43,7 @@ private:
     std::unique_ptr<moth::gfx::ITarget> m_worldSurface;
 
     GameData m_gamedata;
+    std::shared_ptr<moth::gfx::SpriteSheet> m_explosionSheet;
     moth::ecs::World m_registry;
     moth::ecs::Entity m_player = moth::ecs::kNullEntity;
 
