@@ -1,15 +1,10 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.27)
 
 project(tincan VERSION 1.0 DESCRIPTION "TinCan")
 
-message("Building with CMake version: ${CMAKE_VERSION}")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
-set(CMAKE_EXPORT_COMPILE_COMMANDS on)
-
-set(SOURCES ${SOURCES}
+set(SOURCES
 	src/utils_collision.cpp
 	src/gamedata.cpp
 	src/game_layer.cpp
@@ -44,7 +39,7 @@ find_package(moth_tilemap REQUIRED)
 find_package(moth_profile REQUIRED)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 target_link_libraries(${PROJECT_NAME} moth::bridge)
@@ -52,7 +47,7 @@ target_link_libraries(${PROJECT_NAME} moth::ecs)
 target_link_libraries(${PROJECT_NAME} moth::tilemap)
 target_link_libraries(${PROJECT_NAME} moth::profile moth::profile_imgui)
 
-if (MSVC)
+if(MSVC)
 	set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/ignore:4099")
 	set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W3 /WX")
 	target_compile_definitions(${PROJECT_NAME} PRIVATE _CRT_SECURE_NO_WARNINGS)

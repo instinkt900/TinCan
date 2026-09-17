@@ -43,7 +43,7 @@ void GameLayer::Draw() {
 
     // background fill
     m_graphics.SetBlendMode(moth::gfx::BlendMode::Replace);
-    m_graphics.SetColor(moth::gfx::BasicColors::Blue);
+    m_graphics.SetColor(moth::gfx::BasicColors::Black);
     m_graphics.DrawFillRectF(moth::gfx::MakeRect(0.0f, 0.0f, static_cast<float>(m_window.GetWidth()),
                                               static_cast<float>(m_window.GetHeight())));
 

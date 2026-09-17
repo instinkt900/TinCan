@@ -1,0 +1,58 @@
+{
+    "activeFile": "",
+    "expandedProjectPaths": [
+        "tilesets",
+        "extensions",
+        ".",
+        "maps"
+    ],
+    "fileStates": {
+        ":/automap-tiles.tsx": {
+            "scaleInDock": 1
+        },
+        "maps/desert.tmj": {
+            "scale": 0.5295,
+            "selectedLayer": 3,
+            "viewCenter": {
+                "x": 661.0009442870632,
+                "y": 7100.094428706327
+            }
+        },
+        "maps/stars.tmj": {
+            "scale": 0.5,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 544,
+                "y": 10585
+            }
+        },
+        "maps/tilesets/desert.tsj": {
+            "scaleInDock": 1
+        },
+        "tilesets/desert.tsj": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "tilesets/desert.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        }
+    },
+    "last.objectTemplatePath": "/home/mcotton/Development/moth/TinCan/tiled_project",
+    "map.height": 340,
+    "map.lastUsedFormat": "json",
+    "map.width": 60,
+    "openFiles": [
+    ],
+    "project": "tincan.tiled-project",
+    "property.type": "float",
+    "recentFiles": [
+        "tilesets/desert.tsj",
+        "maps/desert.tmj",
+        "maps/stars.tmj",
+        "stars.tmj",
+        "test.tmj",
+        "desert.tsj"
+    ],
+    "tileset.lastUsedFormat": "json"
+}

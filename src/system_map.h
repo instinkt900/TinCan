@@ -23,10 +23,10 @@ struct ComponentMapScroll {
 class SystemMap {
 public:
     // loads a tiled json map (.tmj), with class defaults from its tiled project, and creates the map entity
-    // along with the camera
-    static void InitMap(moth::ecs::World& registry, std::filesystem::path const& path,
-                        std::filesystem::path const& projectPath, moth::gfx::AssetContext& assetContext,
-                        moth::gfx::IntVec2 const& viewSize);
+    // along with the camera. returns the world size: the map's width in pixels by viewHeight
+    static moth::gfx::IntVec2 InitMap(moth::ecs::World& registry, std::filesystem::path const& path,
+                                      std::filesystem::path const& projectPath, moth::gfx::AssetContext& assetContext,
+                                      int viewHeight);
     static void Update(GameWorld& world, uint32_t ticks);
     static void Draw(GameWorld& world, moth::gfx::IGraphics& graphics);
 };

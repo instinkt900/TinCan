@@ -17,7 +17,7 @@ public:
     moth::ecs::World& GetRegistry() { return m_registry; }
     moth::ecs::World const& GetRegistry() const { return m_registry; }
     moth::ecs::Entity GetPlayerEntity() const { return m_player; }
-    moth::gfx::IntVec2 const& GetWorldSize() const { return WorldSize; }
+    moth::gfx::IntVec2 const& GetWorldSize() const { return m_worldSize; }
     std::shared_ptr<moth::gfx::SpriteSheet> const& GetExplosionSheet() const { return m_explosionSheet; }
 
     bool OnEvent(moth::ui::Event const& event) override;
@@ -49,5 +49,7 @@ private:
 
     bool m_paused = false;
 
-    static moth::gfx::IntVec2 const WorldSize;
+    // the world is a fixed height, its width comes from the loaded map
+    static int constexpr WorldHeight = 1080;
+    moth::gfx::IntVec2 m_worldSize{ 0, WorldHeight };
 };

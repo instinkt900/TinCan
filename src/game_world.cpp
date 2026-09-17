@@ -29,21 +29,19 @@
 #include <moth/ui/events/event_dispatch.h>
 #include <moth/profile/profiler.h>
 
-moth::gfx::IntVec2 const GameWorld::WorldSize{ 1920, 1080 };
-
 GameWorld::GameWorld(moth::gfx::platform::Window& window, moth::gfx::IGraphics& graphics)
     : m_window(window)
     , m_graphics(graphics) {
-    m_worldSurface = m_window.GetDevice().CreateTarget(WorldSize.x, WorldSize.y);
-
     SerializeContext serializeContext{ m_gamedata, m_window.GetSurfaceContext() };
     m_gamedata.LoadDirectory("data", serializeContext);
     m_explosionSheet = m_window.GetSurfaceContext().GetAssetContext().GetSpriteSheetFactory().GetSpriteSheet(
         "assets/sprites/explosion.json");
 
     // SystemLevel::InitLevel(m_registry, { .encounterCount = 5 }, m_gamedata);
-    SystemMap::InitMap(m_registry, "tiled_projects/test.tmj", "tiled_projects/desert.tiled-project",
-                       m_window.GetSurfaceContext().GetAssetContext(), WorldSize);
+    // m_worldSize = SystemMap::InitMap(m_registry, "tiled_project/maps/test.tmj", "tiled_project/tincan.tiled-project",
+    m_worldSize = SystemMap::InitMap(m_registry, "tiled_project/maps/stars.tmj", "tiled_project/tincan.tiled-project",
+                                     m_window.GetSurfaceContext().GetAssetContext(), WorldHeight);
+    m_worldSurface = m_window.GetDevice().CreateTarget(m_worldSize.x, m_worldSize.y);
     // InitTestWorld();
     CreatePlayer();
 }
@@ -119,7 +117,7 @@ void GameWorld::CreatePlayer() {
 
     m_registry.Emplace<ComponentEntity>(m_player, Team::Player, Affinity::Light);
 
-    auto const position = moth::gfx::FloatVec2(WorldSize.x / 2, WorldSize.y - 160);
+    auto const position = moth::gfx::FloatVec2(m_worldSize.x / 2, m_worldSize.y - 160);
     m_registry.Emplace<ComponentPosition>(m_player, position);
     m_registry.Emplace<ComponentBody>(m_player, 5);
 
@@ -147,7 +145,7 @@ void GameWorld::CreatePlayer() {
     auto& bounds = m_registry.Emplace<ComponentBounds>(m_player);
     bounds.m_behaviour = BoundsBehaviour::Limit;
     bounds.m_bounds =
-        moth::gfx::MakeRect(0.0f, 0.0f, static_cast<float>(WorldSize.x), static_cast<float>(WorldSize.y));
+        moth::gfx::MakeRect(0.0f, 0.0f, static_cast<float>(m_worldSize.x), static_cast<float>(m_worldSize.y));
 
     {
         auto shield = m_registry.Create();

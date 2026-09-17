@@ -144,9 +144,9 @@ namespace {
     }
 }
 
-void SystemMap::InitMap(moth::ecs::World& registry, std::filesystem::path const& path,
-                        std::filesystem::path const& projectPath, moth::gfx::AssetContext& assetContext,
-                        moth::gfx::IntVec2 const& viewSize) {
+moth::gfx::IntVec2 SystemMap::InitMap(moth::ecs::World& registry, std::filesystem::path const& path,
+                                      std::filesystem::path const& projectPath,
+                                      moth::gfx::AssetContext& assetContext, int viewHeight) {
     auto map = moth::tilemap::LoadTileMapFromFile(path, moth::tilemap::LoadPropertyTypes(projectPath));
 
     // tileset and image layer image paths are relative to the map file
@@ -178,7 +178,7 @@ void SystemMap::InitMap(moth::ecs::World& registry, std::filesystem::path const&
 
     // start with the bottom of the map on screen and scroll upwards
     auto const mapHeight = static_cast<float>(scroll.m_map.height * scroll.m_map.tileHeight);
-    scroll.m_cameraTop = std::max(0.0f, mapHeight - static_cast<float>(viewSize.y));
+    scroll.m_cameraTop = std::max(0.0f, mapHeight - static_cast<float>(viewHeight));
 
     for (auto const& objectLayer : scroll.m_map.objectLayers) {
         for (auto const& object : objectLayer.objects) {
@@ -193,6 +193,8 @@ void SystemMap::InitMap(moth::ecs::World& registry, std::filesystem::path const&
               });
 
     registry.Emplace<ComponentCamera>(mapEntity);
+
+    return { scroll.m_map.width * scroll.m_map.tileWidth, viewHeight };
 }
 
 void SystemMap::Update(GameWorld& world, uint32_t ticks) {
