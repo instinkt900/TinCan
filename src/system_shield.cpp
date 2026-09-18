@@ -27,10 +27,6 @@ void SystemShield::Update(GameWorld& world, uint32_t ticks) {
 
         // update the visuals
         if (auto* shieldSprite = registry.TryGet<ComponentSprite>(shieldEntity)) {
-            shieldSprite->m_color = (shieldDetails->m_affinity == Affinity::Light)
-                                        ? moth::gfx::BasicColors::Blue
-                                        : moth::gfx::BasicColors::Red;
-
             float const imageWidth = static_cast<float>(shieldSprite->m_image.GetWidth());
             float const imageHeight = static_cast<float>(shieldSprite->m_image.GetHeight());
             float const widthScale = (shieldBody.m_radius * 2.0f) / imageWidth;

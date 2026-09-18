@@ -32,7 +32,7 @@ moth::ecs::Entity SystemEnemySpawner::SpawnEnemy(moth::ecs::World& registry, Ene
     }
 
     if (data.sprite.valid()) {
-        registry.Emplace<ComponentSprite>(rootEntity, *data.sprite, data.affinity);
+        registry.Emplace<ComponentSprite>(rootEntity, *data.sprite);
     }
 
     if (data.weapon.valid()) {
@@ -53,7 +53,7 @@ moth::ecs::Entity SystemEnemySpawner::SpawnEnemy(moth::ecs::World& registry, Ene
             registry.Emplace<ComponentHealth>(childEntity, section.health);
         }
         if (section.sprite.valid()) {
-            registry.Emplace<ComponentSprite>(childEntity, *section.sprite, data.affinity);
+            registry.Emplace<ComponentSprite>(childEntity, *section.sprite);
         }
 
         if (section.weapon.valid()) {

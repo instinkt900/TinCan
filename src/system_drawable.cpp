@@ -10,7 +10,7 @@
 #include "utils.h"
 #include "utils_paths.h"
 
-ComponentSprite::ComponentSprite(SpriteData const& data, Affinity affinity)
+ComponentSprite::ComponentSprite(SpriteData const& data)
     : m_image(data.image)
     , m_scale(data.scale)
     , m_blendMode(data.blend_mode)
@@ -31,11 +31,6 @@ ComponentSprite::ComponentSprite(SpriteData const& data, Affinity affinity)
         set.states.push_back({ data.clip, data.clip, std::nullopt });
         m_stateIds.insert(set.initial);
         m_animator = std::make_shared<moth::anim::Animator>(data.sheet, std::move(set));
-    }
-
-    if (affinity != Affinity::None) {
-        m_color = affinity == Affinity::Light ? moth::gfx::BasicColors::Blue
-                                               : moth::gfx::BasicColors::Red;
     }
 }
 

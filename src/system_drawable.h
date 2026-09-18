@@ -43,7 +43,7 @@ struct ComponentSprite {
 
     float m_flashTime = 0;
 
-    explicit ComponentSprite(SpriteData const& data, Affinity affinity = Affinity::None);
+    explicit ComponentSprite(SpriteData const& data);
 };
 
 // Switches an animated sprite to a named state; a no-op for static sprites and
