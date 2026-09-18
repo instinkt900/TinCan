@@ -12,9 +12,7 @@ enum class GameDataCategory {
     Weapons,
     Enemies,
     Spawners,
-    Levels,
     Pickups,
-    Encounters,
     Behaviours,
 };
 
@@ -43,12 +41,8 @@ public:
             return &m_enemyDatabase;
         } else if constexpr (T::Category == GameDataCategory::Spawners) {
             return &m_spawnerDatabase;
-        } else if constexpr (T::Category == GameDataCategory::Levels) {
-            return &m_levelDatabase;
         } else if constexpr (T::Category == GameDataCategory::Pickups) {
             return &m_pickupDatabase;
-        } else if constexpr (T::Category == GameDataCategory::Encounters) {
-            return &m_encounterDatabase;
         } else if constexpr (T::Category == GameDataCategory::Behaviours) {
             return &m_behaviourDatabase;
         } else {
@@ -68,12 +62,8 @@ public:
             return m_enemyDatabase.Get(name);
         } else if constexpr (T::Category == GameDataCategory::Spawners) {
             return m_spawnerDatabase.Get(name);
-        } else if constexpr (T::Category == GameDataCategory::Levels) {
-            return m_levelDatabase.Get(name);
         } else if constexpr (T::Category == GameDataCategory::Pickups) {
             return m_pickupDatabase.Get(name);
-        } else if constexpr (T::Category == GameDataCategory::Encounters) {
-            return m_encounterDatabase.Get(name);
         } else if constexpr (T::Category == GameDataCategory::Behaviours) {
             return m_behaviourDatabase.Get(name);
         } else {
@@ -94,9 +84,7 @@ private:
     Database<WeaponData> m_weaponDatabase;
     Database<EnemyData> m_enemyDatabase;
     Database<SpawnerData> m_spawnerDatabase;
-    Database<LevelData> m_levelDatabase;
     Database<PickupData> m_pickupDatabase;
-    Database<EncounterData> m_encounterDatabase;
     Database<BehaviourData> m_behaviourDatabase;
 };
 

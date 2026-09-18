@@ -10,7 +10,6 @@
 #include "system_group.h"
 #include "component_health.h"
 #include "system_input.h"
-#include "system_level.h"
 #include "system_lifetime.h"
 #include "system_map.h"
 #include "system_movement.h"
@@ -37,7 +36,6 @@ GameWorld::GameWorld(moth::gfx::platform::Window& window, moth::gfx::IGraphics& 
     m_explosionSheet = m_window.GetSurfaceContext().GetAssetContext().GetSpriteSheetFactory().GetSpriteSheet(
         "assets/sprites/explosion.json");
 
-    // SystemLevel::InitLevel(m_registry, { .encounterCount = 5 }, m_gamedata);
     // m_worldSize = SystemMap::InitMap(m_registry, "tiled_project/maps/test.tmj", "tiled_project/tincan.tiled-project",
     m_worldSize = SystemMap::InitMap(m_registry, "tiled_project/maps/stars.tmj", "tiled_project/tincan.tiled-project",
                                      m_window.GetSurfaceContext().GetAssetContext(), WorldHeight);
@@ -57,7 +55,6 @@ void GameWorld::Update(uint32_t ticks) {
     if (m_paused) {
         return;
     }
-    // SystemLevel::Update(*this, ticks);
     { MOTH_PROFILE_SCOPE("SystemMap"); SystemMap::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemLifetime"); SystemLifetime::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemEnemySpawner"); SystemEnemySpawner::Update(*this, ticks); }
@@ -135,7 +132,7 @@ void GameWorld::CreatePlayer() {
 
     m_registry.Emplace<ComponentPassives>(m_player);
 
-    auto const* weaponData = m_gamedata.Get<WeaponData>("player_weapon_01_boost");
+    auto const* weaponData = m_gamedata.Get<WeaponData>("player_weapon_01");
     SystemWeapon::InitWeapon(m_registry, m_player, *weaponData, m_gamedata);
     SystemPowerWeapon::InitWeapon(m_registry, m_player, "dummy", m_gamedata);
 

@@ -2,12 +2,10 @@
 #include <fstream>
 #include "utils_serialization.h"
 #include "gamedata_sprite.h"
-#include "gamedata_level.h"
 #include "gamedata_pickup.h"
 #include "gamedata_projectile.h"
 #include "gamedata_spawner.h"
 #include "gamedata_weapon.h"
-#include "gamedata_encounter.h"
 #include "gamedata_behaviour.h"
 
 MAGIC_SERIALIZE_ENUM(GameDataCategory);
@@ -80,14 +78,8 @@ bool GameData::Load(std::filesystem::path const& path, SerializeContext const& c
         case GameDataCategory::Spawners:
             m_spawnerDatabase.Load(categoryJson);
             break;
-        case GameDataCategory::Levels:
-            m_levelDatabase.Load(categoryJson);
-            break;
         case GameDataCategory::Pickups:
             m_pickupDatabase.Load(categoryJson);
-            break;
-        case GameDataCategory::Encounters:
-            m_encounterDatabase.Load(categoryJson);
             break;
         case GameDataCategory::Behaviours:
             m_behaviourDatabase.Load(categoryJson);

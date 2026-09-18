@@ -16,7 +16,6 @@ set(SOURCES
 	src/system_explosion.cpp
 	src/system_group.cpp
 	src/system_input.cpp
-	src/system_level.cpp
 	src/system_lifetime.cpp
 	src/system_map.cpp
 	src/system_movement.cpp
