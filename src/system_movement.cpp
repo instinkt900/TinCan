@@ -1,5 +1,6 @@
 #include "system_movement.h"
 #include "component_entity.h"
+#include "system_drawable.h"
 #include "system_input.h"
 #include <moth/ecs/world.h>
 #include "game_world.h"
@@ -135,6 +136,16 @@ namespace {
                 }
                 if (input->m_state[moth::ui::Key::Right]) {
                     velocity.x += 400.0f;
+                }
+            }
+
+            if (auto* sprite = registry.TryGet<ComponentSprite>(entity)) {
+                if (velocity.x < -10.0f) {
+                    SetSpriteState(*sprite, "turn_left");
+                } else if (velocity.x > 10.0f) {
+                    SetSpriteState(*sprite, "turn_right");
+                } else {
+                    SetSpriteState(*sprite, "idle");
                 }
             }
 

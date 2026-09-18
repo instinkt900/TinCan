@@ -1,7 +1,7 @@
 {
     "sprites": {
         "player_ship": {
-            "image": "assets/basic_player.png",
+            "anim": "assets/sprites/player_ship.anim.json",
             "blend_mode": "Alpha"
         },
         "enemy_basic": {

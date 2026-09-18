@@ -1,0 +1,18 @@
+{
+  "initial": "idle",
+  "flipbook": "player_ship.json",
+  "states": [
+    {
+      "id": "idle",
+      "clip": "idle"
+    },
+    {
+      "id": "turn_left",
+      "clip": "turn_left"
+    },
+    {
+      "id": "turn_right",
+      "clip": "turn_right"
+    }
+  ]
+}
