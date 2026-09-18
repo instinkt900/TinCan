@@ -5,14 +5,16 @@
             "health": 40,
             "radius": 28,
             "sprite": "bug_light",
-            "weapon": "bug_weapon"
+            "weapon": "bug_weapon",
+            "death_sprite": "explosion"
         },
         "bug_dark": {
             "affinity": "Dark",
             "health": 40,
             "radius": 28,
             "sprite": "bug_dark",
-            "weapon": "bug_weapon"
+            "weapon": "bug_weapon",
+            "death_sprite": "explosion"
         }
     }
 }

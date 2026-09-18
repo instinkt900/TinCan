@@ -20,6 +20,11 @@
             "blend_mode": "Alpha",
             "z_order": -1
         },
+        "explosion": {
+            "sheet": "assets/sprites/explosion.json",
+            "clip": "explode",
+            "blend_mode": "Alpha"
+        },
         "drop_01": {
             "image": "assets/pickup.png",
             "blend_mode": "Alpha"

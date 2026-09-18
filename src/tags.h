@@ -12,3 +12,6 @@ struct TargetTag{};
 // Marks the entity as dead and that the lifetime system should remove it.
 struct DeadTag{};
 
+// Marks the entity as playing a one-shot animation. The animation system kills
+// it once the animation stops.
+struct OneShotTag{};

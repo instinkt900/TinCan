@@ -5,6 +5,7 @@
 #include "system_movement.h"
 #include <moth/ecs/world.h>
 #include <moth/graphics/utils/math_utils.h>
+#include <spdlog/spdlog.h>
 #include "game_world.h"
 #include "tags.h"
 #include "utils.h"
@@ -44,6 +45,21 @@ void SetSpriteState(ComponentSprite& sprite, std::string_view state) {
     if (sprite.m_animator->GetCurrentState() != state) {
         sprite.m_animator->TransitionTo(state);
     }
+}
+
+moth::ecs::Entity SystemDrawable::CreateOneShotSprite(moth::ecs::World& registry, SpriteData const& data,
+                                                      moth::gfx::FloatVec2 const& position) {
+    auto entity = registry.Create();
+    registry.Emplace<ComponentPosition>(entity, position);
+    auto const& sprite = registry.Emplace<ComponentSprite>(entity, data);
+    if (sprite.m_animator == nullptr) {
+        // A static sprite has no animation to end on, so it would never die.
+        spdlog::error("A one-shot sprite needs a sheet or an anim set");
+        registry.Destroy(entity);
+        return moth::ecs::kNullEntity;
+    }
+    registry.Emplace<OneShotTag>(entity);
+    return entity;
 }
 
 struct DrawImage {

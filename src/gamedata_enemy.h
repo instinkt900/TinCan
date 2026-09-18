@@ -12,6 +12,7 @@ struct EnemySection {
     float radius = 1.0f;
     float health = 1.0f;
     DataRef<WeaponData> weapon;
+    DataRef<SpriteData> death_sprite;
 };
 
 inline void from_json(nlohmann::json const& json, EnemySection& data) {
@@ -20,6 +21,7 @@ inline void from_json(nlohmann::json const& json, EnemySection& data) {
     DATA_OPTIONAL(json, data, radius);
     DATA_OPTIONAL(json, data, health);
     DATA_OPTIONAL(json, data, weapon);
+    DATA_OPTIONAL(json, data, death_sprite);
 }
 
 struct EnemyData {
@@ -30,6 +32,7 @@ struct EnemyData {
     float radius = 0.0f;
     float health = 0.0f;
     DataRef<WeaponData> weapon;
+    DataRef<SpriteData> death_sprite;
     std::map<std::string, EnemySection> sections;
 };
 
@@ -39,6 +42,7 @@ inline void from_json(nlohmann::json const& json, EnemyData& data) {
     DATA_OPTIONAL(json, data, radius);
     DATA_OPTIONAL(json, data, health);
     DATA_OPTIONAL(json, data, weapon);
+    DATA_OPTIONAL(json, data, death_sprite);
     DATA_OPTIONAL(json, data, sections);
 }
 

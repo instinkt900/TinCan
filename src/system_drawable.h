@@ -56,4 +56,9 @@ public:
     static void Draw(GameWorld& world, moth::gfx::IGraphics& graphics);
 
     static void StartCameraShake(moth::ecs::World& registry, float intensity, uint32_t duration);
+
+    // Spawns a sprite at the position that removes itself once its animation
+    // stops. Static sprites never stop, so they are rejected.
+    static moth::ecs::Entity CreateOneShotSprite(moth::ecs::World& registry, SpriteData const& data,
+                                                 moth::gfx::FloatVec2 const& position);
 };

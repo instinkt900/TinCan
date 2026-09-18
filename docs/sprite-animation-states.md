@@ -34,12 +34,10 @@ Game code asks for a state by name (`"turn_left"`), never for a clip or a frame.
   for each one sets blend mode and colour (with the hit flash mixed in) and calls
   `graphics.DrawImage(frame, transform)` with a `Transform2D` carrying position,
   angle and scale.
-- Explosions already use the newer path: `GameWorld` loads
-  `assets/sprites/explosion.json` through
-  `GetAssetContext().GetSpriteSheetFactory().GetSpriteSheet()`
-  (`src/game_world.cpp:41`), and `ComponentExplosion` holds a `gfx::Sprite` that
-  `SystemExplosion` drives with `SetClip("explode")`. This is separate from the
-  sprite database.
+- Explosions are ordinary sprite entities: a `sprites` entry names the sheet and
+  clip, and `SystemDrawable::CreateOneShotSprite` spawns it with an `OneShotTag`
+  that `SystemAnimation` turns into a `DeadTag` once the clip stops. What an
+  entity spawns when it dies comes from its `death_sprite` entry in the data.
 - `ComponentSprite` is emplaced from a `SpriteData const&` (plus an optional
   `Affinity`) at seven sites: `src/game_world.cpp:128` and `:160`,
   `src/system_projectile.cpp:133`, `src/system_enemy_spawner.cpp:35` and `:56`,
@@ -280,11 +278,11 @@ implementing; if it is noisier than that, have the helper check the set first.
 
 ### Explosions
 
-Out of scope. Explosions stay separate entities using `ComponentExplosion` and
-the shared explosion sheet. An `exploding` state on a ship would need the entity
-to outlive its own death so the clip can finish (destroying it from
-`OnStateEntered` or a clip-stopped callback), which changes entity lifetime
-handling. Worth doing later, on its own.
+Explosions are one-shot sprite entities spawned from the dying entity's
+`death_sprite`, so they go through the sprite database like anything else. An
+`exploding` state on the ship itself is still out of scope: it would need the
+entity to outlive its own death so the clip can finish, which changes entity
+lifetime handling. Worth doing later, on its own.
 
 ### Build files
 

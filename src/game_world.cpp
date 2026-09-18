@@ -6,7 +6,6 @@
 #include "system_animation.h"
 #include "system_drawable.h"
 #include "system_enemy_spawner.h"
-#include "system_explosion.h"
 #include "system_group.h"
 #include "component_health.h"
 #include "system_input.h"
@@ -24,7 +23,6 @@
 #include "tags.h"
 #include "system_power_weapon.h"
 #include <moth/graphics/graphics/igraphics_device.h>
-#include <moth/graphics/graphics/spritesheet_factory.h>
 #include <moth/ui/events/event_dispatch.h>
 #include <moth/profile/profiler.h>
 
@@ -33,8 +31,6 @@ GameWorld::GameWorld(moth::gfx::platform::Window& window, moth::gfx::IGraphics& 
     , m_graphics(graphics) {
     SerializeContext serializeContext{ m_gamedata, m_window.GetSurfaceContext() };
     m_gamedata.LoadDirectory("data", serializeContext);
-    m_explosionSheet = m_window.GetSurfaceContext().GetAssetContext().GetSpriteSheetFactory().GetSpriteSheet(
-        "assets/sprites/explosion.json");
 
     // m_worldSize = SystemMap::InitMap(m_registry, "tiled_project/maps/test.tmj", "tiled_project/tincan.tiled-project",
     m_worldSize = SystemMap::InitMap(m_registry, "tiled_project/maps/stars.tmj", "tiled_project/tincan.tiled-project",
@@ -69,7 +65,6 @@ void GameWorld::Update(uint32_t ticks) {
     { MOTH_PROFILE_SCOPE("SystemGroup"); SystemGroup::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemWorldBounds"); SystemWorldBounds::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemAnimation"); SystemAnimation::Update(*this, ticks); }
-    { MOTH_PROFILE_SCOPE("SystemExplosion"); SystemExplosion::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemDrawable"); SystemDrawable::Update(*this, ticks); }
 }
 
@@ -83,7 +78,6 @@ void GameWorld::Draw() {
     // SystemBehaviourEditor::Draw(*this, m_graphics);
     { MOTH_PROFILE_SCOPE("SystemMap"); SystemMap::Draw(*this, m_graphics); }
     { MOTH_PROFILE_SCOPE("SystemDrawable"); SystemDrawable::Draw(*this, m_graphics); }
-    { MOTH_PROFILE_SCOPE("SystemExplosion"); SystemExplosion::Draw(*this, m_graphics); }
     { MOTH_PROFILE_SCOPE("Reset target"); m_graphics.SetTarget(nullptr); }
 }
 

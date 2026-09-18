@@ -1,13 +1,13 @@
 #include "system_projectile.h"
 #include "utils_collision.h"
 #include "component_body.h"
+#include "component_death_sprite.h"
 #include "component_drop.h"
 #include "component_entity.h"
 #include "component_health.h"
 #include "gamedata_projectile.h"
 #include "gamedata_pickup.h"
 #include "system_drawable.h"
-#include "system_explosion.h"
 #include "system_lifetime.h"
 #include "system_movement.h"
 #include "system_pickup.h"
@@ -46,7 +46,7 @@ namespace {
     }
 
     void ProcessTarget(moth::ecs::World& registry, Projectile& projectile, Target& target,
-                       GameData const& gamedata, std::shared_ptr<moth::gfx::SpriteSheet> const& explosionSheet) {
+                       GameData const& gamedata) {
         if (projectile.entityDetails.m_team != target.entityDetails.m_team) {
             if (CollisionTest(projectile.position, target.position, projectile.body.m_radius,
                               target.body.m_radius)) {
@@ -67,8 +67,10 @@ namespace {
                             SystemDrawable::StartCameraShake(registry, 0.5f, 500);
                             registry.Emplace<DeadTag>(target.entity);
 
-                            if (target.entityDetails.m_team == Team::Enemy) {
-                                SystemExplosion::CreateExplosion(registry, explosionSheet, target.position.m_position);
+                            if (auto const* deathSprite = registry.TryGet<ComponentDeathSprite>(target.entity);
+                                deathSprite != nullptr && deathSprite->m_sprite != nullptr) {
+                                SystemDrawable::CreateOneShotSprite(registry, *deathSprite->m_sprite,
+                                                                    target.position.m_position);
                             }
 
                             if (auto const* dropComponent = registry.TryGet<ComponentDrop>(target.entity)) {
@@ -92,8 +94,7 @@ namespace {
         }
     }
 
-    void ProcessProjectile(moth::ecs::World& registry, Projectile& projectile, GameData const& gamedata,
-                           std::shared_ptr<moth::gfx::SpriteSheet> const& explosionSheet) {
+    void ProcessProjectile(moth::ecs::World& registry, Projectile& projectile, GameData const& gamedata) {
         auto view = registry.View<ComponentBody, ComponentPosition, TargetTag>(moth::ecs::Exclude<DeadTag>);
         for (auto [entity, body, position] : view.each()) {
             if (projectile.entity == entity) {
@@ -102,7 +103,7 @@ namespace {
             }
             auto const* entityDetails = GetEntityDetails(registry, entity);
             Target target{ entity, *entityDetails, body, position };
-            ProcessTarget(registry, projectile, target, gamedata, explosionSheet);
+            ProcessTarget(registry, projectile, target, gamedata);
         }
     }
 }
@@ -154,6 +155,6 @@ void SystemProjectile::Update(GameWorld& world, uint32_t ticks) {
         moth::ecs::Exclude<DeadTag>);
     for (auto [entity, entityDetails, projectileDetails, body, position] : view.each()) {
         Projectile projectile{ entity, entityDetails, body, projectileDetails, position };
-        ProcessProjectile(registry, projectile, gamedata, world.GetExplosionSheet());
+        ProcessProjectile(registry, projectile, gamedata);
     }
 }

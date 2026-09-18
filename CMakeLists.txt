@@ -13,7 +13,6 @@ set(SOURCES
 	src/system_behaviour.cpp
 	src/system_drawable.cpp
 	src/system_enemy_spawner.cpp
-	src/system_explosion.cpp
 	src/system_group.cpp
 	src/system_input.cpp
 	src/system_lifetime.cpp
