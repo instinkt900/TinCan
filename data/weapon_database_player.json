@@ -20,57 +20,6 @@
                 }
             ]
         },
-        "player_weapon_01_boost": {
-            "damage": 5,
-            "cooldown": 100,
-            "burst": 1,
-            "burst_delay": 0,
-            "player_tracking": false,
-            "projectile": "player_basic_bullet",
-            "barrels": [
-                {
-                    "offset": [ -12, 0 ],
-                    "group": 0,
-                    "angle": 0
-                },
-                {
-                    "offset": [ -4, 4 ],
-                    "group": 0,
-                    "angle": 0
-                },
-                {
-                    "offset": [ 4, 4 ],
-                    "group": 0,
-                    "angle": 0
-                },
-                {
-                    "offset": [ 12, 0 ],
-                    "group": 0,
-                    "angle": 0
-                }
-            ]
-        },
-        "player_weapon_02": {
-            "pickup": "weapon_drop_01",
-            "damage": 10,
-            "cooldown": 400,
-            "burst": 2,
-            "burst_delay": 50,
-            "player_tracking": false,
-            "projectile": "player_basic_bullet",
-            "barrels": [
-                {
-                    "offset": [ -5, 0 ],
-                    "group": 0,
-                    "angle": 0
-                },
-                {
-                    "offset": [ 5, 0 ],
-                    "group": 0,
-                    "angle": 0
-                }
-            ]
-        },
         "player_weapon_homing_01": {
             "damage": 20,
             "cooldown": 500,
