@@ -14,8 +14,10 @@
             "z_order": 5
         },
         "enemy_ship_01": {
-            "image": "assets/enemy_ship.png",
-            "blend_mode": "Alpha"
+            "sheet": "assets/sprites/enemy_wraith.json",
+            "clip": "idle",
+            "blend_mode": "Alpha",
+            "scale": [3.0, 3.0]
         },
         "enemy_ship_02": {
             "image": "assets/sprites/alien2.png",

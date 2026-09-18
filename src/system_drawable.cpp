@@ -17,17 +17,43 @@ ComponentSprite::ComponentSprite(SpriteData const& data, Affinity affinity)
     , m_color(data.color)
     , m_rotation(data.rotation)
     , m_zOrder(data.z_order) {
+    if (data.sheet) {
+        // A sheet entry has no states of its own: synthesise a one-state set
+        // around its clip so it runs through the same animator path.
+        moth::anim::AnimSet set;
+        set.initial = data.clip;
+        set.states.push_back({ data.clip, data.clip, std::nullopt });
+        for (auto const& state : set.states) {
+            m_stateIds.insert(state.id);
+        }
+        m_animator = std::make_shared<moth::anim::Animator>(data.sheet, std::move(set));
+    }
+
     if (affinity != Affinity::None) {
         m_color = affinity == Affinity::Light ? moth::gfx::BasicColors::Blue
-                                              : moth::gfx::BasicColors::Red;
+                                               : moth::gfx::BasicColors::Red;
+    }
+}
+
+void SetSpriteState(ComponentSprite& sprite, std::string_view state) {
+    if (sprite.m_animator == nullptr) {
+        return;
+    }
+    if (sprite.m_stateIds.find(std::string(state)) == sprite.m_stateIds.end()) {
+        return;
+    }
+    if (sprite.m_animator->GetCurrentState() != state) {
+        sprite.m_animator->TransitionTo(state);
     }
 }
 
 struct DrawImage {
-    ComponentSprite const* m_image = nullptr;
-    moth::gfx::IntRect m_sourceRect;
+    ComponentSprite const* m_sprite = nullptr;
+    moth::gfx::Image m_frame;
     moth::gfx::IntVec2 m_position;
     float m_angle = 0;
+    moth::gfx::FloatVec2 m_pivot{ 0.5f, 0.5f };
+    bool m_flipX = false;
 };
 
 CameraShake::CameraShake(float intensity, uint32_t duration)
@@ -165,31 +191,44 @@ void SystemDrawable::Draw(GameWorld& world, moth::gfx::IGraphics& graphics) {
             angle = details->m_angle;
         }
         auto const fullAngle = angle + sprite.m_rotation;
-        auto const sourceRect =
-            moth::gfx::MakeRect(0, 0, sprite.m_image.GetWidth(), sprite.m_image.GetHeight());
         auto position = static_cast<moth::gfx::IntVec2>(pos.m_position + cameraOffset);
-        m_blendedDraws.push_back({ &sprite, sourceRect, position, fullAngle });
+
+        DrawImage draw;
+        draw.m_sprite = &sprite;
+        draw.m_position = position;
+        draw.m_angle = fullAngle;
+        if (sprite.m_animator) {
+            auto const& sp = sprite.m_animator->GetSprite();
+            auto const sourceRect = sp.GetCurrentFrameRect();
+            auto const pivot = sp.GetCurrentFramePivot();
+            draw.m_frame = moth::gfx::Image(sp.GetImage().GetTexture(), sourceRect);
+            draw.m_pivot = { static_cast<float>(pivot.x) / static_cast<float>(sp.GetWidth()),
+                             static_cast<float>(pivot.y) / static_cast<float>(sp.GetHeight()) };
+            draw.m_flipX = sp.GetFlipX();
+        } else {
+            draw.m_frame = sprite.m_image;
+        }
+        m_blendedDraws.push_back(draw);
     }
 
     std::sort(m_blendedDraws.begin(), m_blendedDraws.end(), [](DrawImage const& a, DrawImage const& b) {
-        return a.m_image->m_zOrder < b.m_image->m_zOrder;
+        return a.m_sprite->m_zOrder < b.m_sprite->m_zOrder;
     });
 
     for (auto& draw : m_blendedDraws) {
-        auto color = draw.m_image->m_color;
-        if (draw.m_image->m_flashTime > 0) {
+        auto color = draw.m_sprite->m_color;
+        if (draw.m_sprite->m_flashTime > 0) {
             moth::gfx::Color const flashColor{ 1.0, 1.0f, 1.0f, 1.0f };
             float const maxFlashTime = 0.2f;
-            float const flashFactor = draw.m_image->m_flashTime / maxFlashTime;
+            float const flashFactor = draw.m_sprite->m_flashTime / maxFlashTime;
             color =
                 (color + flashColor * moth::gfx::Interp(0.0f, 1.0f, flashFactor, moth::gfx::InterpType::Linear));
         }
-        graphics.SetBlendMode(draw.m_image->m_blendMode);
+        graphics.SetBlendMode(draw.m_sprite->m_blendMode);
         graphics.SetColor(color);
-        moth::gfx::Image const frame(draw.m_image->m_image.GetTexture(), draw.m_sourceRect);
         moth::gfx::Transform2D const transform{ static_cast<moth::gfx::FloatVec2>(draw.m_position), draw.m_angle,
-                                                draw.m_image->m_scale };
-        graphics.DrawImage(frame, transform);
+                                                draw.m_sprite->m_scale };
+        graphics.DrawImage(draw.m_frame, transform, draw.m_pivot, draw.m_flipX);
     }
 
     DrawDebugs(registry, graphics);
