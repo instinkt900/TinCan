@@ -36,12 +36,12 @@
                     "angle": 0
                 },
                 {
-                    "offset": [ -4, 0 ],
+                    "offset": [ -4, 4 ],
                     "group": 0,
                     "angle": 0
                 },
                 {
-                    "offset": [ 4, 0 ],
+                    "offset": [ 4, 4 ],
                     "group": 0,
                     "angle": 0
                 },
