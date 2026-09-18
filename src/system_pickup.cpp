@@ -6,6 +6,7 @@
 #include "gamedata_pickup.h"
 #include "gamedata_weapon.h"
 #include "system_drawable.h"
+#include "system_map.h"
 #include "system_movement.h"
 #include "system_weapon.h"
 #include "tags.h"
@@ -19,12 +20,22 @@
 #include "game_world.h"
 
 float const PickupRadius = 30.0f;
-moth::gfx::FloatVec2 const PickupVelocity{ 0.0f, 100.0f };
+// pickups drift with the map. without a map entity they fall at this speed instead
+float const PickupFallbackSpeed = 100.0f;
 
 // a swapped out weapon drops somewhere in this ring around the player. the inner edge clears the
 // player so the drop is not collected again the moment it appears
 float const DropMinDistance = 80.0f;
 float const DropMaxDistance = 140.0f;
+
+// a pickup travels at the map's scroll speed, so it stays over the ground it appeared on
+float MapScrollSpeed(moth::ecs::World& registry) {
+    auto view = registry.View<ComponentMapScroll>();
+    for (auto [entity, scroll] : view.each()) {
+        return scroll.m_scrollSpeed;
+    }
+    return PickupFallbackSpeed;
+}
 
 template <> struct fmt::formatter<PickupType> : fmt::formatter<std::string> {
     static auto format(PickupType type, format_context& ctx)  -> decltype(ctx.out()) {
@@ -42,7 +53,7 @@ moth::ecs::Entity SystemPickup::CreatePickup(moth::ecs::World& registry, moth::g
     registry.Emplace<ComponentSprite>(entity, *pickupData.sprite);
     auto& pickup = registry.Emplace<ComponentPickup>(entity);
 
-    vel.m_velocity = PickupVelocity;
+    vel.m_velocity = { 0.0f, MapScrollSpeed(registry) };
 
     pickup.m_data = pickupData;
 

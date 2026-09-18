@@ -4,6 +4,7 @@
 #include "system_enemy_spawner.h"
 #include "system_group.h"
 #include "system_movement.h"
+#include "system_pickup.h"
 #include "system_world_bounds.h"
 #include <moth/graphics/utils/transform.h>
 #include <moth/tilemap/tile_map_loader.h>
@@ -152,6 +153,24 @@ namespace {
             }
         }
     }
+
+    void SpawnMapPickup(GameWorld& world, moth::tilemap::MapObject const& spawn, ComponentMapScroll const& scroll) {
+        auto& registry = world.GetRegistry();
+        auto const& gamedata = world.GetGameData();
+        auto const pickupName = moth::tilemap::GetProperty<std::string>(spawn.properties, "pickup");
+        if (pickupName.empty()) {
+            spdlog::error("Map pickup spawn is missing a pickup");
+            return;
+        }
+        auto const* pickupData = gamedata.Get<PickupData>(pickupName);
+        if (pickupData == nullptr) {
+            spdlog::error("Map pickup spawn references unknown pickup {}", pickupName);
+            return;
+        }
+
+        moth::gfx::FloatVec2 const position{ spawn.position.x, spawn.position.y - scroll.m_cameraTop };
+        SystemPickup::CreatePickup(registry, position, *pickupData, gamedata);
+    }
 }
 
 moth::gfx::IntVec2 SystemMap::InitMap(moth::ecs::World& registry, std::filesystem::path const& path,
@@ -192,7 +211,8 @@ moth::gfx::IntVec2 SystemMap::InitMap(moth::ecs::World& registry, std::filesyste
 
     for (auto const& objectLayer : scroll.m_map.objectLayers) {
         for (auto const& object : objectLayer.objects) {
-            if (object.kind == moth::tilemap::ObjectKind::Point && object.type == "EnemySpawn") {
+            if (object.kind == moth::tilemap::ObjectKind::Point &&
+                (object.type == "EnemySpawn" || object.type == "PickupSpawn")) {
                 scroll.m_pendingSpawns.push_back(object);
             }
         }
@@ -216,7 +236,11 @@ void SystemMap::Update(GameWorld& world, uint32_t ticks) {
 
         auto& spawns = scroll.m_pendingSpawns;
         while (!spawns.empty() && spawns.back().position.y >= scroll.m_cameraTop - SpawnMargin) {
-            SpawnMapEnemy(world, spawns.back(), scroll);
+            if (spawns.back().type == "PickupSpawn") {
+                SpawnMapPickup(world, spawns.back(), scroll);
+            } else {
+                SpawnMapEnemy(world, spawns.back(), scroll);
+            }
             spawns.pop_back();
         }
     }

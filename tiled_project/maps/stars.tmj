@@ -597,6 +597,26 @@
                  "width":0,
                  "x":850,
                  "y":8366
+                }, 
+                {
+                 "height":0,
+                 "id":7,
+                 "name":"",
+                 "opacity":1,
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"pickup",
+                         "propertytype":"pickup",
+                         "type":"string",
+                         "value":"weapon_drop_02"
+                        }],
+                 "rotation":0,
+                 "type":"PickupSpawn",
+                 "visible":true,
+                 "width":0,
+                 "x":568,
+                 "y":9690
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -605,7 +625,7 @@
          "y":0
         }],
  "nextlayerid":5,
- "nextobjectid":7,
+ "nextobjectid":8,
  "orientation":"orthogonal",
  "properties":[
         {

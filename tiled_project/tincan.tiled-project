@@ -52,16 +52,16 @@
                     "value": 1
                 },
                 {
-                    "name": "enemy_type",
-                    "propertyType": "enemy_type",
-                    "type": "string",
-                    "value": "big_bug_dark"
-                },
-                {
                     "name": "drop",
                     "propertyType": "pickup",
                     "type": "string",
                     "value": ""
+                },
+                {
+                    "name": "enemy_type",
+                    "propertyType": "enemy_type",
+                    "type": "string",
+                    "value": "big_bug_dark"
                 },
                 {
                     "name": "formation",
@@ -119,6 +119,32 @@
                 "weapon_drop_02"
             ],
             "valuesAsFlags": false
+        },
+        {
+            "color": "#ffa0a0a4",
+            "drawFill": true,
+            "id": 6,
+            "members": [
+                {
+                    "name": "pickup",
+                    "propertyType": "pickup",
+                    "type": "string",
+                    "value": "weapon_burst_01"
+                }
+            ],
+            "name": "PickupSpawn",
+            "type": "class",
+            "useAs": [
+                "property",
+                "map",
+                "layer",
+                "object",
+                "tile",
+                "tileset",
+                "wangcolor",
+                "wangset",
+                "project"
+            ]
         }
     ]
 }
