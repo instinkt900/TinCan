@@ -18,6 +18,16 @@
             "anim": "assets/sprites/bug_dark.anim.json",
             "blend_mode": "Alpha"
         },
+        "big_bug_light": {
+            "sheet": "assets/sprites/big_bug.json",
+            "clip": "idle_light",
+            "blend_mode": "Alpha"
+        },
+        "big_bug_dark": {
+            "sheet": "assets/sprites/big_bug.json",
+            "clip": "idle_dark",
+            "blend_mode": "Alpha"
+        },
         "enemy_bomb_light": {
             "sheet": "assets/sprites/enemy_bomb.json",
             "clip": "idle_light",

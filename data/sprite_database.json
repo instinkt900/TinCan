@@ -11,17 +11,24 @@
             "z_order": 5
         },
         "player_projectile_light": {
-            "image": "assets/basic_laser.png",
+            "sheet": "assets/sprites/laser.json",
+            "clip": "idle_light",
             "blend_mode": "Alpha",
             "z_order": -1
         },
         "player_projectile_dark": {
-            "image": "assets/basic_laser.png",
+            "sheet": "assets/sprites/laser.json",
+            "clip": "idle_dark",
             "blend_mode": "Alpha",
             "z_order": -1
         },
         "explosion": {
             "sheet": "assets/sprites/explosion.json",
+            "clip": "explode",
+            "blend_mode": "Alpha"
+        },
+        "explosion2": {
+            "sheet": "assets/sprites/explosion2.json",
             "clip": "explode",
             "blend_mode": "Alpha"
         },

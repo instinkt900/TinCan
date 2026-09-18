@@ -15,6 +15,22 @@
             "sprite": "bug_dark",
             "weapon": "bug_weapon",
             "death_sprite": "explosion"
+        },
+        "big_bug_light": {
+            "affinity": "Light",
+            "health": 80,
+            "radius": 28,
+            "sprite": "big_bug_light",
+            "weapon": "big_bug_weapon",
+            "death_sprite": "explosion2"
+        },
+        "big_bug_dark": {
+            "affinity": "Dark",
+            "health": 80,
+            "radius": 28,
+            "sprite": "big_bug_dark",
+            "weapon": "big_bug_weapon",
+            "death_sprite": "explosion2"
         }
     }
 }

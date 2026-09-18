@@ -28,6 +28,8 @@
             "storageType": "string",
             "type": "enum",
             "values": [
+                "big_bug_dark",
+                "big_bug_light",
                 "bug_dark",
                 "bug_light"
             ],
@@ -53,7 +55,7 @@
                     "name": "enemy_type",
                     "propertyType": "enemy_type",
                     "type": "string",
-                    "value": "bug_dark"
+                    "value": "big_bug_dark"
                 },
                 {
                     "name": "formation",
