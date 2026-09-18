@@ -33,6 +33,7 @@ set(SOURCES
 	src/system_debug_spline.cpp
 )
 
+find_package(moth_anim REQUIRED)
 find_package(moth_bridge REQUIRED)
 find_package(moth_ecs REQUIRED)
 find_package(moth_tilemap REQUIRED)
@@ -42,6 +43,7 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
 target_include_directories(${PROJECT_NAME} PRIVATE src)
+target_link_libraries(${PROJECT_NAME} moth::anim)
 target_link_libraries(${PROJECT_NAME} moth::bridge)
 target_link_libraries(${PROJECT_NAME} moth::ecs)
 target_link_libraries(${PROJECT_NAME} moth::tilemap)

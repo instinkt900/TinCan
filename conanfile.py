@@ -14,6 +14,7 @@ class TinCan(ConanFile):
         check_min_cppstd(self, 17)
 
     def requirements(self):
+        self.requires("moth_anim/0.1.0")
         self.requires("moth_bridge/0.1.0")
         self.requires("moth_ecs/0.1.0")
         self.requires("moth_tilemap/0.1.0")
