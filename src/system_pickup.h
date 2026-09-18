@@ -1,13 +1,14 @@
 #pragma once
 
 #include "gamedata.h"
+#include "gamedata_pickup.h"
 #include <moth/ecs/world.h>
 #include <moth/graphics/utils/vector.h>
 
 class GameWorld;
 
 struct ComponentPickup {
-    std::string m_name;
+    PickupData m_data;
 };
 
 class SystemPickup {

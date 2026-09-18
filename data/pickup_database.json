@@ -1,9 +1,14 @@
 {
     "pickups": {
         "weapon_drop_01": {
-            "sprite": "drop_01",
+            "sprite": "pickup_power",
             "type": "Weapon",
-            "name": "player_weapon_homing_01"
+            "name": "player_weapon_01"
+        },
+        "weapon_drop_02": {
+            "sprite": "pickup_power",
+            "type": "Weapon",
+            "name": "player_weapon_02"
         },
         "weapon_cooldown_01": {
             "sprite": "drop_01",

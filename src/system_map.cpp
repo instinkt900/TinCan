@@ -111,10 +111,20 @@ namespace {
         auto const formation = moth::tilemap::GetProperty<std::string>(spawn.properties, "formation", "line");
         auto const spacing = GetFloatProperty(spawn.properties, "spacing", 32.0f);
 
-        // formation members share a group so that killing the whole formation can give a drop. no drop is set yet
+        DataRef<PickupData> drop;
+        auto const dropName = moth::tilemap::GetProperty<std::string>(spawn.properties, "drop");
+        if (!dropName.empty()) {
+            if (gamedata.Get<PickupData>(dropName) == nullptr) {
+                spdlog::error("Map spawn references unknown pickup {}", dropName);
+            } else {
+                drop.load_ref(dropName, gamedata);
+            }
+        }
+
+        // the spawn's members share a group, so the drop appears once the whole formation has been killed
         auto group = moth::ecs::kNullEntity;
-        if (count > 1) {
-            group = SystemGroup::CreateGroup(registry, DataRef<PickupData>{});
+        if (count > 1 || drop.valid()) {
+            group = SystemGroup::CreateGroup(registry, drop);
         }
 
         moth::gfx::FloatRect boundsRect{ { 0.0f, 0.0f }, static_cast<moth::gfx::FloatVec2>(world.GetWorldSize()) };

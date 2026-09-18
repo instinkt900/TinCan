@@ -9,14 +9,22 @@
 #include "system_movement.h"
 #include "system_weapon.h"
 #include "tags.h"
+#include "utils.h"
 #include <moth/ecs/world.h>
+#include <moth/graphics/utils/math_utils.h>
 #include <magic_enum.hpp>
 #include <spdlog/spdlog.h>
+#include <cmath>
 #include "gamedata.h"
 #include "game_world.h"
 
 float const PickupRadius = 30.0f;
 moth::gfx::FloatVec2 const PickupVelocity{ 0.0f, 100.0f };
+
+// a swapped out weapon drops somewhere in this ring around the player. the inner edge clears the
+// player so the drop is not collected again the moment it appears
+float const DropMinDistance = 80.0f;
+float const DropMaxDistance = 140.0f;
 
 template <> struct fmt::formatter<PickupType> : fmt::formatter<std::string> {
     static auto format(PickupType type, format_context& ctx)  -> decltype(ctx.out()) {
@@ -36,7 +44,7 @@ moth::ecs::Entity SystemPickup::CreatePickup(moth::ecs::World& registry, moth::g
 
     vel.m_velocity = PickupVelocity;
 
-    pickup.m_name = pickupData.name;
+    pickup.m_data = pickupData;
 
     return entity;
 }
@@ -52,8 +60,9 @@ void PlayerPickupWeapon(PickupData const& pickup, moth::gfx::FloatVec2 const& po
         currentWeapon = &weapon;
     }
     if (currentWeapon != nullptr && currentWeapon->m_pickup.valid()) {
-        auto const side = rand() % 2 == 1 ? 1.0f : -1.0f;
-        moth::gfx::FloatVec2 const offset = { 100.0f * side, -20.0f };
+        auto const angle = Random(0.0f, moth::gfx::F_PI * 2.0f);
+        auto const distance = Random(DropMinDistance, DropMaxDistance);
+        moth::gfx::FloatVec2 const offset{ std::cos(angle) * distance, std::sin(angle) * distance };
         SystemPickup::CreatePickup(registry, position + offset, *currentWeapon->m_pickup, gamedata);
     }
 
@@ -93,18 +102,12 @@ void PlayerPickupPassive(PickupData const& pickup, moth::gfx::FloatVec2 const& p
 
 void PlayerPickup(ComponentPickup const& pickup, moth::gfx::FloatVec2 const& position, moth::ecs::World& registry,
                   GameData const& gamedata) {
-    auto const* pickupData = gamedata.Get<PickupData>(pickup.m_name);
-    if (pickupData == nullptr) {
-        spdlog::error("PlayerPickup - Unable to find pickup name {}.", pickup.m_name);
-        return;
-    }
-
-    switch (pickupData->type) {
+    switch (pickup.m_data.type) {
     case PickupType::Weapon:
-        PlayerPickupWeapon(*pickupData, position, registry, gamedata);
+        PlayerPickupWeapon(pickup.m_data, position, registry, gamedata);
         break;
     case PickupType::Passive:
-        PlayerPickupPassive(*pickupData, position, registry, gamedata);
+        PlayerPickupPassive(pickup.m_data, position, registry, gamedata);
         break;
     }
 }

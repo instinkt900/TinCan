@@ -58,6 +58,12 @@
                     "value": "big_bug_dark"
                 },
                 {
+                    "name": "drop",
+                    "propertyType": "pickup",
+                    "type": "string",
+                    "value": ""
+                },
+                {
                     "name": "formation",
                     "propertyType": "formation",
                     "type": "string",
@@ -98,6 +104,19 @@
                 "column",
                 "v",
                 "grid"
+            ],
+            "valuesAsFlags": false
+        },
+        {
+            "id": 5,
+            "name": "pickup",
+            "storageType": "string",
+            "type": "enum",
+            "values": [
+                "weapon_burst_01",
+                "weapon_cooldown_01",
+                "weapon_drop_01",
+                "weapon_drop_02"
             ],
             "valuesAsFlags": false
         }

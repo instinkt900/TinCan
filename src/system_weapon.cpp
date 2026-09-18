@@ -49,7 +49,10 @@ ComponentWeapon* SystemWeapon::InitWeapon(moth::ecs::World& registry, moth::ecs:
         spdlog::error("Weapon has no valid projectile; skipping it");
         return nullptr;
     }
+    // GetOrEmplace leaves an existing component as it is and drops the arguments, so swapping an
+    // entity onto a different weapon has to overwrite what is already there
     auto& weapon = registry.GetOrEmplace<ComponentWeapon>(entity, weaponData);
+    weapon = ComponentWeapon(weaponData);
     weapon.m_active = active;
     return &weapon;
 }

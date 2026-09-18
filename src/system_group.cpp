@@ -16,7 +16,9 @@ void SystemGroup::Update(GameWorld& world, uint32_t ticks) {
         if (group.m_memberCount <= 0) {
             registry.Emplace<DeadTag>(entity);
 
-            if (group.m_drop.valid()) {
+            // only a group that was wiped out drops. if any member escaped off the bottom there is no reward,
+            // and the last recorded position would be off screen anyway
+            if (group.m_condition == GroupEndCondition::Killed && group.m_drop.valid()) {
                 SystemPickup::CreatePickup(registry, group.m_position, *group.m_drop, gamedata);
             }
         }

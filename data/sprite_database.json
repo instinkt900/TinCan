@@ -35,6 +35,11 @@
         "drop_01": {
             "image": "assets/pickup.png",
             "blend_mode": "Alpha"
+        },
+        "pickup_power": {
+            "sheet": "assets/sprites/pickup_power.json",
+            "clip": "idle",
+            "blend_mode": "Alpha"
         }
     }
 }

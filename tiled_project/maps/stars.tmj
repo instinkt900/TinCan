@@ -423,6 +423,12 @@
                          "value":11
                         }, 
                         {
+                         "name":"drop",
+                         "propertytype":"pickup",
+                         "type":"string",
+                         "value":"weapon_drop_02"
+                        }, 
+                        {
                          "name":"enemy_type",
                          "propertytype":"enemy_type",
                          "type":"string",

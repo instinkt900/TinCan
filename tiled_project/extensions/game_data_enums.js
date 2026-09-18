@@ -4,6 +4,7 @@
 const enums = [
     { type: "enemy_type", file: "enemy_database.json", category: "enemies" },
     { type: "behaviour", file: "behaviour_database.json", category: "behaviours" },
+    { type: "pickup", file: "pickup_database.json", category: "pickups" },
 ];
 
 function syncEnum(dataDir, { type, file, category }) {

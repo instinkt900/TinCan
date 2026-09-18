@@ -7,6 +7,7 @@
             "burst_delay": 0,
             "player_tracking": false,
             "projectile": "player_basic_bullet",
+            "pickup": "weapon_drop_01",
             "barrels": [
                 {
                     "offset": [ -4, 0 ],
@@ -15,6 +16,37 @@
                 },
                 {
                     "offset": [ 4, 0 ],
+                    "group": 0,
+                    "angle": 0
+                }
+            ]
+        },
+        "player_weapon_02": {
+            "damage": 5,
+            "cooldown": 100,
+            "burst": 1,
+            "burst_delay": 0,
+            "player_tracking": false,
+            "projectile": "player_basic_bullet",
+            "pickup": "weapon_drop_02",
+            "barrels": [
+                {
+                    "offset": [ -12, 0 ],
+                    "group": 0,
+                    "angle": 0
+                },
+                {
+                    "offset": [ -4, 0 ],
+                    "group": 0,
+                    "angle": 0
+                },
+                {
+                    "offset": [ 4, 0 ],
+                    "group": 0,
+                    "angle": 0
+                },
+                {
+                    "offset": [ 12, 0 ],
                     "group": 0,
                     "angle": 0
                 }
