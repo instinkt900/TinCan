@@ -1,39 +1,5 @@
 {
     "enemies": {
-        "enemy_basic": {
-            "affinity": "Dark",
-            "health": 30,
-            "radius": 20,
-            "sprite": "enemy_basic"
-        },
-        "enemy_01_red": {
-            "affinity": "Dark",
-            "health": 30,
-            "radius": 20,
-            "sprite": "enemy_ship_01",
-            "weapon": "enemy_weapon"
-        },
-        "enemy_01_blue": {
-            "affinity": "Light",
-            "health": 30,
-            "radius": 20,
-            "sprite": "enemy_ship_01",
-            "weapon": "enemy_weapon"
-        },
-        "enemy_02_red": {
-            "affinity": "Dark",
-            "health": 30,
-            "radius": 40,
-            "weapon": "enemy_weapon",
-            "sprite": "enemy_ship_02"
-        },
-        "enemy_02_blue": {
-            "affinity": "Light",
-            "health": 30,
-            "radius": 40,
-            "sprite": "enemy_ship_02",
-            "weapon": "enemy_weapon"
-        },
         "bug_light": {
             "affinity": "Light",
             "health": 40,

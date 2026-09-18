@@ -4,24 +4,11 @@
             "anim": "assets/sprites/player_ship.anim.json",
             "blend_mode": "Alpha"
         },
-        "enemy_basic": {
-            "image": "assets/basic_enemy.png",
-            "blend_mode": "Alpha"
-        },
         "player_shield": {
             "anim": "assets/sprites/shield.anim.json",
             "blend_mode": "Alpha",
             "scale": [1.73, 1.73],
             "z_order": 5
-        },
-        "enemy_ship_01": {
-            "sheet": "assets/sprites/bug.json",
-            "clip": "idle",
-            "blend_mode": "Alpha"
-        },
-        "enemy_ship_02": {
-            "image": "assets/sprites/alien2.png",
-            "blend_mode": "Alpha"
         },
         "player_projectile_light": {
             "image": "assets/basic_laser.png",
@@ -33,36 +20,8 @@
             "blend_mode": "Alpha",
             "z_order": -1
         },
-        "enemy_projectile_light": {
-            "sheet": "assets/sprites/enemy_bullet.json",
-            "clip": "idle_light",
-            "blend_mode": "Alpha"
-        },
-        "enemy_projectile_dark": {
-            "sheet": "assets/sprites/enemy_bullet.json",
-            "clip": "idle_dark",
-            "blend_mode": "Alpha"
-        },
         "drop_01": {
             "image": "assets/pickup.png",
-            "blend_mode": "Alpha"
-        },
-        "bug_light": {
-            "anim": "assets/sprites/bug_light.anim.json",
-            "blend_mode": "Alpha"
-        },
-        "bug_dark": {
-            "anim": "assets/sprites/bug_dark.anim.json",
-            "blend_mode": "Alpha"
-        },
-        "enemy_bomb_light": {
-            "sheet": "assets/sprites/enemy_bomb.json",
-            "clip": "idle_light",
-            "blend_mode": "Alpha"
-        },
-        "enemy_bomb_dark": {
-            "sheet": "assets/sprites/enemy_bomb.json",
-            "clip": "idle_dark",
             "blend_mode": "Alpha"
         }
     }
