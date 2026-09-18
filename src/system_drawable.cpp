@@ -17,20 +17,6 @@ ComponentSprite::ComponentSprite(SpriteData const& data, Affinity affinity)
     , m_color(data.color)
     , m_rotation(data.rotation)
     , m_zOrder(data.z_order) {
-    if (data.sheet_data.has_value()) {
-        auto const& sheetData = data.sheet_data.value();
-        for (int y = 0; y < sheetData.grid_dimensions.y; ++y) {
-            for (int x = 0; x < sheetData.grid_dimensions.x; ++x) {
-                moth::gfx::IntVec2 cellTL{ sheetData.cell_dimensions.x * x, sheetData.cell_dimensions.y * y };
-                moth::gfx::IntVec2 cellBR = cellTL + sheetData.cell_dimensions;
-                m_cellRects.emplace_back(moth::gfx::IntRect{ cellTL, cellBR });
-            }
-        }
-    } else {
-        m_cellRects.emplace_back(moth::gfx::IntVec2{ 0, 0 },
-                                 moth::gfx::IntVec2{ m_image.GetWidth(), m_image.GetHeight() });
-    }
-
     if (affinity != Affinity::None) {
         m_color = affinity == Affinity::Light ? moth::gfx::BasicColors::Blue
                                               : moth::gfx::BasicColors::Red;
@@ -179,7 +165,8 @@ void SystemDrawable::Draw(GameWorld& world, moth::gfx::IGraphics& graphics) {
             angle = details->m_angle;
         }
         auto const fullAngle = angle + sprite.m_rotation;
-        auto const sourceRect = sprite.m_cellRects[sprite.m_cellIndex];
+        auto const sourceRect =
+            moth::gfx::MakeRect(0, 0, sprite.m_image.GetWidth(), sprite.m_image.GetHeight());
         auto position = static_cast<moth::gfx::IntVec2>(pos.m_position + cameraOffset);
         m_blendedDraws.push_back({ &sprite, sourceRect, position, fullAngle });
     }

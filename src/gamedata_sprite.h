@@ -8,28 +8,15 @@
 #include <moth/graphics/utils/math_utils.h>
 #include "utils_serialization.h"
 
-struct SpriteSheetData {
-    moth::gfx::IntVec2 cell_dimensions;
-    moth::gfx::IntVec2 grid_dimensions;
-    float fps = 0;
-};
-
-inline void from_json(nlohmann::json const& json, SpriteSheetData& data) {
-    DATA_REQUIRED(json, data, cell_dimensions);
-    DATA_REQUIRED(json, data, grid_dimensions);
-    DATA_OPTIONAL_DEFAULT(json, data, fps, 0.0f);
-}
-
 struct SpriteData {
     static constexpr GameDataCategory Category = GameDataCategory::Sprites;
-    
+
     moth::gfx::Image image;
     moth::gfx::FloatVec2 scale{ 1.0f, 1.0f };
     moth::gfx::BlendMode blend_mode = moth::gfx::BlendMode::Replace;
     moth::gfx::Color color = moth::gfx::BasicColors::White;
     float rotation = 0;
     int32_t z_order = 0;
-    std::optional<SpriteSheetData> sheet_data;
 };
 
 inline void from_json(nlohmann::json const& json, SpriteData& data) {
@@ -47,7 +34,6 @@ inline void from_json(nlohmann::json const& json, SpriteData& data) {
     DATA_OPTIONAL(json, data, color);
     DATA_OPTIONAL(json, data, rotation);
     DATA_OPTIONAL(json, data, z_order);
-    DATA_OPTIONAL(json, data, sheet_data);
 
     data.rotation = moth::gfx::DegToRad(data.rotation);
 }
