@@ -1,10 +1,10 @@
 {
-    "activeFile": "",
+    "activeFile": "maps/stars.tmj",
     "expandedProjectPaths": [
-        "tilesets",
         "extensions",
+        "maps",
         ".",
-        "maps"
+        "tilesets"
     ],
     "fileStates": {
         ":/automap-tiles.tsx": {
@@ -20,10 +20,10 @@
         },
         "maps/stars.tmj": {
             "scale": 0.5,
-            "selectedLayer": 2,
+            "selectedLayer": 3,
             "viewCenter": {
                 "x": 544,
-                "y": 10585
+                "y": 8797
             }
         },
         "maps/tilesets/desert.tsj": {
@@ -43,13 +43,14 @@
     "map.lastUsedFormat": "json",
     "map.width": 60,
     "openFiles": [
+        "maps/stars.tmj"
     ],
     "project": "tincan.tiled-project",
     "property.type": "float",
     "recentFiles": [
+        "maps/stars.tmj",
         "tilesets/desert.tsj",
         "maps/desert.tmj",
-        "maps/stars.tmj",
         "stars.tmj",
         "test.tmj",
         "desert.tsj"

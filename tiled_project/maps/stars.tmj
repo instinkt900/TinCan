@@ -355,7 +355,7 @@
         }, 
         {
          "id":3,
-         "image":"../images/spr_stars02.png",
+         "image":"..\/images\/spr_stars02.png",
          "imageheight":2560,
          "imagewidth":2560,
          "name":"Image Layer 2",
@@ -371,7 +371,7 @@
         }, 
         {
          "id":2,
-         "image":"../images/spr_stars01.png",
+         "image":"..\/images\/spr_stars01.png",
          "imageheight":2560,
          "imagewidth":2560,
          "name":"Image Layer 1",
@@ -423,6 +423,12 @@
                          "value":11
                         }, 
                         {
+                         "name":"enemy_type",
+                         "propertytype":"enemy_type",
+                         "type":"string",
+                         "value":"bug_light"
+                        }, 
+                        {
                          "name":"formation",
                          "propertytype":"formation",
                          "type":"string",
@@ -442,8 +448,55 @@
                  "type":"EnemySpawn",
                  "visible":true,
                  "width":0,
-                 "x":536,
-                 "y":9224
+                 "x":294,
+                 "y":9374
+                }, 
+                {
+                 "height":0,
+                 "id":4,
+                 "name":"",
+                 "opacity":1,
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"behaviour",
+                         "propertytype":"behaviour",
+                         "type":"string",
+                         "value":"chase_player"
+                        }, 
+                        {
+                         "name":"count",
+                         "type":"int",
+                         "value":11
+                        }, 
+                        {
+                         "name":"enemy_type",
+                         "propertytype":"enemy_type",
+                         "type":"string",
+                         "value":"bug_dark"
+                        }, 
+                        {
+                         "name":"formation",
+                         "propertytype":"formation",
+                         "type":"string",
+                         "value":"v"
+                        }, 
+                        {
+                         "name":"spacing",
+                         "type":"float",
+                         "value":64
+                        }, 
+                        {
+                         "name":"speed",
+                         "type":"float",
+                         "value":100
+                        }],
+                 "rotation":0,
+                 "type":"EnemySpawn",
+                 "visible":true,
+                 "width":0,
+                 "x":796,
+                 "y":8876
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -452,7 +505,7 @@
          "y":0
         }],
  "nextlayerid":5,
- "nextobjectid":4,
+ "nextobjectid":5,
  "orientation":"orthogonal",
  "properties":[
         {
