@@ -1,10 +1,10 @@
 {
     "activeFile": "maps/stars.tmj",
     "expandedProjectPaths": [
-        "extensions",
         "maps",
-        ".",
-        "tilesets"
+        "extensions",
+        "tilesets",
+        "."
     ],
     "fileStates": {
         ":/automap-tiles.tsx": {

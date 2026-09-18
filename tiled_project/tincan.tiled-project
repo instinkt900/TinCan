@@ -29,12 +29,7 @@
             "type": "enum",
             "values": [
                 "bug_dark",
-                "bug_light",
-                "enemy_01_blue",
-                "enemy_01_red",
-                "enemy_02_blue",
-                "enemy_02_red",
-                "enemy_basic"
+                "bug_light"
             ],
             "valuesAsFlags": false
         },
