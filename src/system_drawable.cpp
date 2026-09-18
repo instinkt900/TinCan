@@ -17,15 +17,19 @@ ComponentSprite::ComponentSprite(SpriteData const& data, Affinity affinity)
     , m_color(data.color)
     , m_rotation(data.rotation)
     , m_zOrder(data.z_order) {
-    if (data.sheet) {
+    if (data.animSet) {
+        auto const& set = *data.animSet;
+        for (auto const& state : set.states) {
+            m_stateIds.insert(state.id);
+        }
+        m_animator = std::make_shared<moth::anim::Animator>(data.sheet, set);
+    } else if (data.sheet) {
         // A sheet entry has no states of its own: synthesise a one-state set
         // around its clip so it runs through the same animator path.
         moth::anim::AnimSet set;
         set.initial = data.clip;
         set.states.push_back({ data.clip, data.clip, std::nullopt });
-        for (auto const& state : set.states) {
-            m_stateIds.insert(state.id);
-        }
+        m_stateIds.insert(set.initial);
         m_animator = std::make_shared<moth::anim::Animator>(data.sheet, std::move(set));
     }
 
