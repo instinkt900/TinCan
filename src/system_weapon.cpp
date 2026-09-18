@@ -43,6 +43,12 @@ ComponentWeapon::ComponentWeapon(WeaponData const& weapon)
 ComponentWeapon* SystemWeapon::InitWeapon(moth::ecs::World& registry, moth::ecs::Entity entity,
                                           WeaponData const& weaponData, GameData const& gamedata,
                                           bool active) {
+    // ComponentWeapon dereferences the projectile, so an unresolved one leaves
+    // the entity weaponless rather than taking the game down.
+    if (!weaponData.projectile.valid()) {
+        spdlog::error("Weapon has no valid projectile; skipping it");
+        return nullptr;
+    }
     auto& weapon = registry.GetOrEmplace<ComponentWeapon>(entity, weaponData);
     weapon.m_active = active;
     return &weapon;

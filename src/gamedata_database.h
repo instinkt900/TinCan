@@ -1,5 +1,6 @@
 #pragma once
 
+#include <magic_enum.hpp>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
@@ -12,7 +13,15 @@ public:
         }
 
         for (auto [entryName, entryJson]: json.items()) {
-            m_database.insert(std::make_pair(entryName, entryJson.get<T>()));
+            // A bad entry is skipped rather than taken as fatal: the rest of the
+            // database still loads, and anything referring to the missing entry
+            // reports it when the reference is resolved.
+            try {
+                m_database.insert(std::make_pair(entryName, entryJson.get<T>()));
+            } catch (std::exception const& e) {
+                spdlog::error("Skipping {} entry {}: {}", magic_enum::enum_name(T::Category), entryName,
+                              e.what());
+            }
         }
 
         return true;

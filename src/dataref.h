@@ -31,8 +31,9 @@ public:
     T const* get() const {
         if (m_isRef) {
             if (m_reference == nullptr) {
+                // Get() logs an unresolved name. Leaving it null keeps valid()
+                // honest so callers can skip the reference instead of aborting.
                 m_reference = m_gamedata->Get<T>(m_refName);
-                assert(m_reference != nullptr);
             }
             return m_reference;
         }
