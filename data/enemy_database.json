@@ -33,6 +33,20 @@
             "radius": 40,
             "sprite": "enemy_ship_02",
             "weapon": "enemy_weapon"
+        },
+        "bug_light": {
+            "affinity": "Light",
+            "health": 40,
+            "radius": 28,
+            "sprite": "bug_light",
+            "weapon": "bug_weapon"
+        },
+        "bug_dark": {
+            "affinity": "Dark",
+            "health": 40,
+            "radius": 28,
+            "sprite": "bug_dark",
+            "weapon": "bug_weapon"
         }
     }
 }

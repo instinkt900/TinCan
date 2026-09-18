@@ -1,0 +1,15 @@
+{
+  "initial": "idle",
+  "flipbook": "bug.json",
+  "states": [
+    {
+      "id": "idle",
+      "clip": "idle_dark"
+    },
+    {
+      "id": "fire",
+      "clip": "fire_dark",
+      "onComplete": "idle"
+    }
+  ]
+}

@@ -46,6 +46,24 @@
         "drop_01": {
             "image": "assets/pickup.png",
             "blend_mode": "Alpha"
+        },
+        "bug_light": {
+            "anim": "assets/sprites/bug_light.anim.json",
+            "blend_mode": "Alpha"
+        },
+        "bug_dark": {
+            "anim": "assets/sprites/bug_dark.anim.json",
+            "blend_mode": "Alpha"
+        },
+        "enemy_bomb_light": {
+            "sheet": "assets/sprites/enemy_bomb.json",
+            "clip": "idle_light",
+            "blend_mode": "Alpha"
+        },
+        "enemy_bomb_dark": {
+            "sheet": "assets/sprites/enemy_bomb.json",
+            "clip": "idle_dark",
+            "blend_mode": "Alpha"
         }
     }
 }

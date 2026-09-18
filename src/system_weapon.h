@@ -27,6 +27,7 @@ struct ComponentWeapon {
     int32_t m_burstCooldown = 0;
     int32_t m_maxBurstCooldown = 0;
     bool m_playerTracking = false;
+    std::string m_fireState;
     ProjectileData m_projectile;
     int32_t m_barrelGroupIndex = 0;
     std::vector<int32_t> m_barrelGroupIds;

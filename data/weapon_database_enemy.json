@@ -14,6 +14,22 @@
                     "angle": 0
                 }
             ]
+        },
+        "bug_weapon": {
+            "damage": 15,
+            "cooldown": 5000,
+            "burst": 1,
+            "burst_delay": 200,
+            "player_tracking": true,
+            "projectile": "enemy_bomb",
+            "fire_state": "fire",
+            "barrels": [
+                {
+                    "offset": [0, 0],
+                    "group": 0,
+                    "angle": 0
+                }
+            ]
         }
     }
 }

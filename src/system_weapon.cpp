@@ -28,6 +28,7 @@ ComponentWeapon::ComponentWeapon(WeaponData const& weapon)
     , m_burstCooldown(weapon.burst_delay)
     , m_maxBurstCooldown(weapon.burst_delay)
     , m_playerTracking(weapon.player_tracking)
+    , m_fireState(weapon.fire_state)
     , m_projectile(*weapon.projectile) {
     m_barrelGroups.clear();
     m_barrelGroupIds.clear();
@@ -107,6 +108,12 @@ void SystemWeapon::Update(GameWorld& world, uint32_t ticks) {
                    (weapon.m_active || weapon.m_burst < burstCount)) {
                 weapon.m_burst -= 1;
                 weapon.m_burstCooldown += static_cast<int32_t>(burstCooldown);
+
+                if (!weapon.m_fireState.empty()) {
+                    if (auto* sprite = registry.TryGet<ComponentSprite>(entity)) {
+                        SetSpriteState(*sprite, weapon.m_fireState);
+                    }
+                }
 
                 auto const barrelGroupId = weapon.m_barrelGroupIds[weapon.m_barrelGroupIndex];
                 auto const& barrelGroup = weapon.m_barrelGroups[barrelGroupId];
