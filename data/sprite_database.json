@@ -34,11 +34,13 @@
             "z_order": -1
         },
         "enemy_projectile_light": {
-            "image": "assets/enemy_bullet.png",
+            "sheet": "assets/sprites/enemy_bullet.json",
+            "clip": "idle_light",
             "blend_mode": "Alpha"
         },
         "enemy_projectile_dark": {
-            "image": "assets/enemy_bullet.png",
+            "sheet": "assets/sprites/enemy_bullet.json",
+            "clip": "idle_dark",
             "blend_mode": "Alpha"
         },
         "drop_01": {
