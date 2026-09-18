@@ -14,10 +14,9 @@
             "z_order": 5
         },
         "enemy_ship_01": {
-            "sheet": "assets/sprites/enemy_wraith.json",
+            "sheet": "assets/sprites/bug.json",
             "clip": "idle",
-            "blend_mode": "Alpha",
-            "scale": [3.0, 3.0]
+            "blend_mode": "Alpha"
         },
         "enemy_ship_02": {
             "image": "assets/sprites/alien2.png",
@@ -25,11 +24,13 @@
         },
         "player_projectile_light": {
             "image": "assets/basic_laser.png",
-            "blend_mode": "Alpha"
+            "blend_mode": "Alpha",
+            "z_order": -1
         },
         "player_projectile_dark": {
             "image": "assets/basic_laser.png",
-            "blend_mode": "Alpha"
+            "blend_mode": "Alpha",
+            "z_order": -1
         },
         "enemy_projectile_light": {
             "image": "assets/enemy_bullet.png",

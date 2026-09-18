@@ -135,7 +135,7 @@ void GameWorld::CreatePlayer() {
 
     m_registry.Emplace<ComponentPassives>(m_player);
 
-    auto const* weaponData = m_gamedata.Get<WeaponData>("player_weapon_01");
+    auto const* weaponData = m_gamedata.Get<WeaponData>("player_weapon_01_boost");
     SystemWeapon::InitWeapon(m_registry, m_player, *weaponData, m_gamedata);
     SystemPowerWeapon::InitWeapon(m_registry, m_player, "dummy", m_gamedata);
 

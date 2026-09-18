@@ -1,241 +1,181 @@
 {
-  "image": "../spritesheet_player.png",
-  "frames": [
-    {
-      "x": 0,
-      "y": 0,
-      "w": 48,
-      "h": 48,
-      "pivot_x": 24,
-      "pivot_y": 24
-    },
-    {
-      "x": 0,
-      "y": 48,
-      "w": 48,
-      "h": 48,
-      "pivot_x": 24,
-      "pivot_y": 24
-    },
-    {
-      "x": 0,
-      "y": 96,
-      "w": 48,
-      "h": 48,
-      "pivot_x": 24,
-      "pivot_y": 24
-    },
-    {
-      "x": 0,
-      "y": 144,
-      "w": 48,
-      "h": 48,
-      "pivot_x": 24,
-      "pivot_y": 24
-    },
-    {
-      "x": 0,
-      "y": 192,
-      "w": 48,
-      "h": 48,
-      "pivot_x": 24,
-      "pivot_y": 24
-    },
-    {
-      "x": 0,
-      "y": 240,
-      "w": 48,
-      "h": 48,
-      "pivot_x": 24,
-      "pivot_y": 24
-    },
-    {
-      "x": 48,
-      "y": 0,
-      "w": 48,
-      "h": 48,
-      "pivot_x": 24,
-      "pivot_y": 24
-    },
-    {
-      "x": 48,
-      "y": 48,
-      "w": 48,
-      "h": 48,
-      "pivot_x": 24,
-      "pivot_y": 24
-    },
-    {
-      "x": 48,
-      "y": 96,
-      "w": 48,
-      "h": 48,
-      "pivot_x": 24,
-      "pivot_y": 24
-    },
-    {
-      "x": 48,
-      "y": 144,
-      "w": 48,
-      "h": 48,
-      "pivot_x": 24,
-      "pivot_y": 24
-    },
-    {
-      "x": 48,
-      "y": 192,
-      "w": 48,
-      "h": 48,
-      "pivot_x": 24,
-      "pivot_y": 24
-    },
-    {
-      "x": 48,
-      "y": 240,
-      "w": 48,
-      "h": 48,
-      "pivot_x": 24,
-      "pivot_y": 24
-    },
-    {
-      "x": 96,
-      "y": 0,
-      "w": 48,
-      "h": 48,
-      "pivot_x": 24,
-      "pivot_y": 24
-    },
-    {
-      "x": 96,
-      "y": 48,
-      "w": 48,
-      "h": 48,
-      "pivot_x": 24,
-      "pivot_y": 24
-    },
-    {
-      "x": 96,
-      "y": 96,
-      "w": 48,
-      "h": 48,
-      "pivot_x": 24,
-      "pivot_y": 24
-    },
-    {
-      "x": 96,
-      "y": 144,
-      "w": 48,
-      "h": 48,
-      "pivot_x": 24,
-      "pivot_y": 24
-    },
-    {
-      "x": 96,
-      "y": 192,
-      "w": 48,
-      "h": 48,
-      "pivot_x": 24,
-      "pivot_y": 24
-    },
-    {
-      "x": 96,
-      "y": 240,
-      "w": 48,
-      "h": 48,
-      "pivot_x": 24,
-      "pivot_y": 24
-    }
-  ],
   "clips": [
     {
-      "name": "idle",
-      "loop": "loop",
       "frames": [
         {
-          "frame": 0,
-          "duration_ms": 100
+          "duration_ms": 100,
+          "frame": 0
         },
         {
-          "frame": 1,
-          "duration_ms": 100
+          "duration_ms": 100,
+          "frame": 1
         },
         {
-          "frame": 2,
-          "duration_ms": 100
-        },
-        {
-          "frame": 3,
-          "duration_ms": 100
-        },
-        {
-          "frame": 4,
-          "duration_ms": 100
-        },
-        {
-          "frame": 5,
-          "duration_ms": 100
+          "duration_ms": 100,
+          "frame": 2
         }
-      ]
+      ],
+      "loop": "loop",
+      "name": "idle"
     },
     {
-      "name": "turn_left",
-      "loop": "loop",
       "frames": [
         {
-          "frame": 6,
-          "duration_ms": 100
+          "duration_ms": 100,
+          "frame": 12
         },
         {
-          "frame": 7,
-          "duration_ms": 100
+          "duration_ms": 100,
+          "frame": 13
         },
         {
-          "frame": 8,
-          "duration_ms": 100
-        },
-        {
-          "frame": 9,
-          "duration_ms": 100
-        },
-        {
-          "frame": 10,
-          "duration_ms": 100
-        },
-        {
-          "frame": 11,
-          "duration_ms": 100
+          "duration_ms": 100,
+          "frame": 14
         }
-      ]
+      ],
+      "loop": "loop",
+      "name": "turn_left"
     },
     {
-      "name": "turn_right",
-      "loop": "loop",
       "frames": [
         {
-          "frame": 12,
-          "duration_ms": 100
+          "duration_ms": 100,
+          "frame": 6
         },
         {
-          "frame": 13,
-          "duration_ms": 100
+          "duration_ms": 100,
+          "frame": 7
         },
         {
-          "frame": 14,
-          "duration_ms": 100
-        },
-        {
-          "frame": 15,
-          "duration_ms": 100
-        },
-        {
-          "frame": 16,
-          "duration_ms": 100
-        },
-        {
-          "frame": 17,
-          "duration_ms": 100
+          "duration_ms": 100,
+          "frame": 8
         }
-      ]
+      ],
+      "loop": "loop",
+      "name": "turn_right"
     }
-  ]
+  ],
+  "frames": [
+    {
+      "h": 58,
+      "pivot_x": 24,
+      "pivot_y": 29,
+      "w": 48,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "h": 58,
+      "pivot_x": 24,
+      "pivot_y": 29,
+      "w": 48,
+      "x": 48,
+      "y": 0
+    },
+    {
+      "h": 58,
+      "pivot_x": 24,
+      "pivot_y": 29,
+      "w": 48,
+      "x": 96,
+      "y": 0
+    },
+    {
+      "h": 58,
+      "pivot_x": 24,
+      "pivot_y": 29,
+      "w": 48,
+      "x": 0,
+      "y": 58
+    },
+    {
+      "h": 58,
+      "pivot_x": 24,
+      "pivot_y": 29,
+      "w": 48,
+      "x": 48,
+      "y": 58
+    },
+    {
+      "h": 58,
+      "pivot_x": 24,
+      "pivot_y": 29,
+      "w": 48,
+      "x": 96,
+      "y": 58
+    },
+    {
+      "h": 58,
+      "pivot_x": 24,
+      "pivot_y": 29,
+      "w": 48,
+      "x": 0,
+      "y": 116
+    },
+    {
+      "h": 58,
+      "pivot_x": 24,
+      "pivot_y": 29,
+      "w": 48,
+      "x": 48,
+      "y": 116
+    },
+    {
+      "h": 58,
+      "pivot_x": 24,
+      "pivot_y": 29,
+      "w": 48,
+      "x": 96,
+      "y": 116
+    },
+    {
+      "h": 58,
+      "pivot_x": 24,
+      "pivot_y": 29,
+      "w": 48,
+      "x": 0,
+      "y": 174
+    },
+    {
+      "h": 58,
+      "pivot_x": 24,
+      "pivot_y": 29,
+      "w": 48,
+      "x": 48,
+      "y": 174
+    },
+    {
+      "h": 58,
+      "pivot_x": 24,
+      "pivot_y": 29,
+      "w": 48,
+      "x": 96,
+      "y": 174
+    },
+    {
+      "h": 58,
+      "pivot_x": 24,
+      "pivot_y": 29,
+      "w": 48,
+      "x": 0,
+      "y": 232
+    },
+    {
+      "h": 58,
+      "pivot_x": 24,
+      "pivot_y": 29,
+      "w": 48,
+      "x": 48,
+      "y": 232
+    },
+    {
+      "h": 58,
+      "pivot_x": 24,
+      "pivot_y": 29,
+      "w": 48,
+      "x": 96,
+      "y": 232
+    }
+  ],
+  "image": "player_ship.png"
 }

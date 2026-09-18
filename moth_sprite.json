@@ -1,0 +1,37 @@
+{
+  "LastImageDir": "/home/mcotton/Development/moth/test_assets/Pixel_Enemies_for_SHMUP_1.2.3/01 Bug (Animation)/Bug 1",
+  "LastProjectDir": "/home/mcotton/Development/moth/projects/TinCan/assets/sprites",
+  "PreviewBackgroundColor": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "RecentProjects": [
+    "/home/mcotton/Development/moth/projects/TinCan/assets/sprites/bug.mothsprite",
+    "/home/mcotton/Development/moth/projects/TinCan/assets/sprites/player.mothsprite"
+  ],
+  "ShowCellListWindow": true,
+  "ShowCellWindow": true,
+  "ShowClipEditorWindow": true,
+  "ShowSheetWindow": true,
+  "SpriteEditorNormalColor": [
+    1.0,
+    1.0,
+    0.0,
+    0.7843137383460999
+  ],
+  "SpriteEditorPrimeColor": [
+    1.0,
+    0.0,
+    1.0,
+    1.0
+  ],
+  "SpriteEditorRectThickness": 1,
+  "SpriteEditorSelectedColor": [
+    0.0,
+    1.0,
+    1.0,
+    1.0
+  ]
+}

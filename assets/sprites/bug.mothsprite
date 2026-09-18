@@ -1,0 +1,100 @@
+{
+  "clips": [
+    {
+      "frames": [
+        {
+          "duration_ms": 100,
+          "frame": 0
+        },
+        {
+          "duration_ms": 100,
+          "frame": 1
+        },
+        {
+          "duration_ms": 100,
+          "frame": 2
+        },
+        {
+          "duration_ms": 100,
+          "frame": 3
+        },
+        {
+          "duration_ms": 100,
+          "frame": 4
+        },
+        {
+          "duration_ms": 100,
+          "frame": 5
+        }
+      ],
+      "loop": "loop",
+      "name": "idle"
+    }
+  ],
+  "export_path": "bug.json",
+  "frames": [
+    {
+      "h": 64,
+      "pivot_x": 32,
+      "pivot_y": 32,
+      "w": 64,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "h": 64,
+      "pivot_x": 32,
+      "pivot_y": 32,
+      "w": 64,
+      "x": 64,
+      "y": 0
+    },
+    {
+      "h": 64,
+      "pivot_x": 32,
+      "pivot_y": 32,
+      "w": 64,
+      "x": 0,
+      "y": 64
+    },
+    {
+      "h": 64,
+      "pivot_x": 32,
+      "pivot_y": 32,
+      "w": 64,
+      "x": 64,
+      "y": 64
+    },
+    {
+      "h": 64,
+      "pivot_x": 32,
+      "pivot_y": 32,
+      "w": 64,
+      "x": 0,
+      "y": 128
+    },
+    {
+      "h": 64,
+      "pivot_x": 32,
+      "pivot_y": 32,
+      "w": 64,
+      "x": 64,
+      "y": 128
+    }
+  ],
+  "image": "bug_packed.png",
+  "pack": {
+    "best_pack": true,
+    "format": "png",
+    "image": "bug_packed.png",
+    "jpeg_quality": 90,
+    "max_height": 64,
+    "max_width": 256,
+    "min_height": 64,
+    "min_width": 64,
+    "padding": 0,
+    "padding_color": "00000000",
+    "padding_type": "color"
+  },
+  "version": 1
+}
