@@ -2,3 +2,5 @@
 build/
 CMakeUserPresets.json
 imgui.ini
+moth_sprite.json
+tiled_project/tincan.tiled-session
