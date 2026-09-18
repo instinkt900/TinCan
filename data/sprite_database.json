@@ -9,8 +9,9 @@
             "blend_mode": "Alpha"
         },
         "player_shield": {
-            "image": "assets/shield.png",
+            "anim": "assets/sprites/shield.anim.json",
             "blend_mode": "Alpha",
+            "scale": [1.73, 1.73],
             "z_order": 5
         },
         "enemy_ship_01": {

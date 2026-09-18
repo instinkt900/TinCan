@@ -15,7 +15,7 @@ void SystemShield::Update(GameWorld& world, uint32_t ticks) {
     auto view = registry.View<ComponentParenting, ComponentPosition, ComponentBody, ComponentShield>(
         moth::ecs::Exclude<DeadTag>);
 
-    for (auto [shieldEntity, shieldParenting, shieldPosition, shieldBody] : view.each()) {
+    for (auto [shieldEntity, shieldParenting, shieldPosition, shieldBody, shield] : view.each()) {
         if (!registry.Valid(shieldParenting.m_parent)) {
             continue;
         }
@@ -26,13 +26,12 @@ void SystemShield::Update(GameWorld& world, uint32_t ticks) {
         }
 
         // update the visuals
-        if (auto* shieldSprite = registry.TryGet<ComponentSprite>(shieldEntity)) {
-            float const imageWidth = static_cast<float>(shieldSprite->m_image.GetWidth());
-            float const imageHeight = static_cast<float>(shieldSprite->m_image.GetHeight());
-            float const widthScale = (shieldBody.m_radius * 2.0f) / imageWidth;
-            float const heightScale = (shieldBody.m_radius * 2.0f) / imageHeight;
-            shieldSprite->m_scale.x = widthScale;
-            shieldSprite->m_scale.y = heightScale;
+        if (shield.m_shownAffinity != shieldDetails->m_affinity) {
+            shield.m_shownAffinity = shieldDetails->m_affinity;
+            if (auto* shieldSprite = registry.TryGet<ComponentSprite>(shieldEntity)) {
+                SetSpriteState(*shieldSprite,
+                               shieldDetails->m_affinity == Affinity::Dark ? "idle_dark" : "idle_light");
+            }
         }
 
         auto projectileView =

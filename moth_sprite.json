@@ -1,5 +1,5 @@
 {
-  "LastImageDir": "/home/mcotton/Development/moth/test_assets/Pixel_Enemies_for_SHMUP_1.2.3/01 Bug (Animation)/Bug 1",
+  "LastImageDir": "/home/mcotton/Development/moth/projects/TinCan/assets",
   "LastProjectDir": "/home/mcotton/Development/moth/projects/TinCan/assets/sprites",
   "PreviewBackgroundColor": [
     0.0,
@@ -8,6 +8,7 @@
     0.0
   ],
   "RecentProjects": [
+    "/home/mcotton/Development/moth/projects/TinCan/assets/sprites/shield.mothsprite",
     "/home/mcotton/Development/moth/projects/TinCan/assets/sprites/bug.mothsprite",
     "/home/mcotton/Development/moth/projects/TinCan/assets/sprites/player.mothsprite"
   ],

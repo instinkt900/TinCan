@@ -1,0 +1,182 @@
+{
+  "clips": [
+    {
+      "frames": [
+        {
+          "duration_ms": 100,
+          "frame": 4
+        }
+      ],
+      "loop": "stop",
+      "name": "idle_light"
+    },
+    {
+      "frames": [
+        {
+          "duration_ms": 100,
+          "frame": 0
+        }
+      ],
+      "loop": "stop",
+      "name": "idle_dark"
+    },
+    {
+      "frames": [
+        {
+          "duration_ms": 33,
+          "frame": 4
+        },
+        {
+          "duration_ms": 33,
+          "frame": 7
+        },
+        {
+          "duration_ms": 33,
+          "frame": 6
+        },
+        {
+          "duration_ms": 33,
+          "frame": 5
+        },
+        {
+          "duration_ms": 33,
+          "frame": 1
+        },
+        {
+          "duration_ms": 33,
+          "frame": 2
+        },
+        {
+          "duration_ms": 33,
+          "frame": 3
+        },
+        {
+          "duration_ms": 33,
+          "frame": 0
+        }
+      ],
+      "loop": "stop",
+      "name": "light_to_dark"
+    },
+    {
+      "frames": [
+        {
+          "duration_ms": 33,
+          "frame": 0
+        },
+        {
+          "duration_ms": 33,
+          "frame": 3
+        },
+        {
+          "duration_ms": 33,
+          "frame": 2
+        },
+        {
+          "duration_ms": 33,
+          "frame": 1
+        },
+        {
+          "duration_ms": 33,
+          "frame": 5
+        },
+        {
+          "duration_ms": 33,
+          "frame": 6
+        },
+        {
+          "duration_ms": 33,
+          "frame": 7
+        },
+        {
+          "duration_ms": 33,
+          "frame": 4
+        }
+      ],
+      "loop": "stop",
+      "name": "dark_to_light"
+    }
+  ],
+  "export_path": "shield.json",
+  "frames": [
+    {
+      "h": 53,
+      "pivot_x": 26,
+      "pivot_y": 26,
+      "w": 52,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "h": 13,
+      "pivot_x": 6,
+      "pivot_y": 6,
+      "w": 13,
+      "x": 234,
+      "y": 0
+    },
+    {
+      "h": 27,
+      "pivot_x": 13,
+      "pivot_y": 13,
+      "w": 26,
+      "x": 182,
+      "y": 0
+    },
+    {
+      "h": 40,
+      "pivot_x": 19,
+      "pivot_y": 20,
+      "w": 39,
+      "x": 104,
+      "y": 0
+    },
+    {
+      "h": 53,
+      "pivot_x": 26,
+      "pivot_y": 26,
+      "w": 52,
+      "x": 52,
+      "y": 0
+    },
+    {
+      "h": 13,
+      "pivot_x": 6,
+      "pivot_y": 6,
+      "w": 13,
+      "x": 234,
+      "y": 13
+    },
+    {
+      "h": 27,
+      "pivot_x": 13,
+      "pivot_y": 13,
+      "w": 26,
+      "x": 208,
+      "y": 0
+    },
+    {
+      "h": 40,
+      "pivot_x": 19,
+      "pivot_y": 20,
+      "w": 39,
+      "x": 143,
+      "y": 0
+    }
+  ],
+  "image": "shield.png",
+  "pack": {
+    "best_pack": true,
+    "format": "png",
+    "image": "shield.png",
+    "jpeg_quality": 90,
+    "max_height": 4096,
+    "max_width": 4096,
+    "min_height": 256,
+    "min_width": 256,
+    "padding": 0,
+    "padding_color": "00000000",
+    "padding_type": "color"
+  },
+  "version": 1
+}

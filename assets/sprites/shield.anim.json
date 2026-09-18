@@ -1,0 +1,28 @@
+{
+  "initial": "idle_light",
+  "flipbook": "shield.json",
+  "states": [
+    {
+      "id": "idle_light",
+      "clip": "idle_light"
+    },
+    {
+      "id": "idle_dark",
+      "clip": "idle_dark"
+    }
+  ],
+  "transitions": [
+    {
+      "id": "idle_light.idle_dark",
+      "from": "idle_light",
+      "to": "idle_dark",
+      "clip": "light_to_dark"
+    },
+    {
+      "id": "idle_dark.idle_light",
+      "from": "idle_dark",
+      "to": "idle_light",
+      "clip": "dark_to_light"
+    }
+  ]
+}
