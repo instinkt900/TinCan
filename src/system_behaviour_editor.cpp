@@ -231,6 +231,8 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
     static int staticSelectedState = -1;
     static int staticSelectedWaypoint = -1;
     static int staticDraggedWaypoint = -1;
+    static float staticPreviewProgress = 0.0f;
+    static bool staticPreviewPlaying = false;
 
     ImGui::Begin("Behaviour Editor");
     ImGui::InputFloat2("Position", static_cast<float*>(staticPosition.data));
@@ -277,8 +279,6 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
 
     imgui_ext::InputBehaviourData(staticBehaviourData, staticSelectedState, staticSelectedWaypoint);
 
-    ImGui::End();
-
     // waypoints of the state being edited are drawn into the game view and edited with the mouse there,
     // because what is being judged is whether a movement feels right at the size the player sees it
     BehaviourStateData* editedState = nullptr;
@@ -290,8 +290,44 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
     }
     if (editedState == nullptr) {
         staticDraggedWaypoint = -1;
+        staticPreviewPlaying = false;
+        ImGui::End();
         return;
     }
+
+    // the arc-length table the state would build when it is entered, so the preview and the flight agree.
+    // rebuilt every frame because the path is being edited every frame
+    auto const previewLut = editedState->waypoints.size() >= 2
+                                ? BuildArcLengthTable(editedState->waypoints, editedState->interpolation)
+                                : ArcLengthLUT{ { 0.0f }, { 0.0f } };
+    auto const previewLength = previewLut.distances.back();
+
+    ImGui::Separator();
+    ImGui::TextUnformatted("Preview:");
+    if (ImGui::Button(staticPreviewPlaying ? "Pause" : "Play")) {
+        staticPreviewPlaying = !staticPreviewPlaying;
+    }
+    ImGui::SameLine();
+    ImGui::SliderFloat("Scrub", &staticPreviewProgress, 0.0f, 1.0f);
+    if (staticPreviewPlaying) {
+        if (editedState->speed > 0.0f && previewLength > 0.0f) {
+            // playback runs at the speed the state would fly at, which is what tells you how it feels
+            staticPreviewProgress +=
+                (editedState->speed * ImGui::GetIO().DeltaTime) / previewLength;
+            if (staticPreviewProgress > 1.0f) {
+                staticPreviewProgress -= 1.0f;
+            }
+        } else {
+            ImGui::TextUnformatted("The state needs a speed and two waypoints before it can play");
+        }
+    }
+    if (previewLength > 0.0f && editedState->speed > 0.0f) {
+        ImGui::Text("%.2f seconds along the path, %.2f in all",
+                    (staticPreviewProgress * previewLength) / editedState->speed,
+                    previewLength / editedState->speed);
+    }
+
+    ImGui::End();
 
     // a spawn-relative path is authored around wherever the enemy comes in, so it is drawn there too
     auto const origin = staticBehaviourData.space == BehaviourSpace::SpawnRelative
@@ -330,5 +366,6 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
     }
 
     DrawPath(graphics, waypoints, editedState->interpolation, origin);
+    DrawPathStatePreview(graphics, *editedState, previewLut, origin, staticPreviewProgress);
     DrawWaypointHandles(graphics, waypoints, origin, staticSelectedWaypoint);
 }
