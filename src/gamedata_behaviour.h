@@ -74,6 +74,19 @@ inline void from_json(nlohmann::json const& json, BehaviourModifierData& data) {
     }
 }
 
+inline void to_json(nlohmann::json& json, BehaviourModifierData const& data) {
+    json["type"] = data.type;
+
+    if (data.type == ModifierType::Wave) {
+        json["amplitude"] = data.amplitude;
+        json["frequency"] = data.frequency;
+    } else if (data.type == ModifierType::Phase) {
+        json["cycles"] = data.cycles;
+    } else if (data.type == ModifierType::Ease) {
+        json["ease"] = data.ease;
+    }
+}
+
 struct BehaviourStateData {
     BehaviourType type{ BehaviourType::Undefined };
     std::string label;
@@ -114,4 +127,32 @@ inline void from_json(nlohmann::json const& json, BehaviourStateData& data) {
 inline void from_json(nlohmann::json const& json, BehaviourData& data) {
     DATA_OPTIONAL(json, data, space);
     DATA_REQUIRED(json, data, states);
+}
+
+inline void to_json(nlohmann::json& json, BehaviourStateData const& data) {
+    json["type"] = data.type;
+    if (!data.label.empty()) {
+        json["label"] = data.label;
+    }
+    if (data.duration > 0) {
+        json["duration"] = data.duration;
+    }
+
+    if (data.type == BehaviourType::Path) {
+        json["waypoints"] = data.waypoints;
+        json["interpolation"] = data.interpolation;
+        json["speed"] = data.speed;
+        if (!data.modifiers.empty()) {
+            json["modifiers"] = data.modifiers;
+        }
+    } else if (data.type == BehaviourType::Target) {
+        json["target"] = data.target;
+        json["point"] = data.point;
+        json["speed"] = data.speed;
+    }
+}
+
+inline void to_json(nlohmann::json& json, BehaviourData const& data) {
+    json["space"] = data.space;
+    json["states"] = data.states;
 }

@@ -4,6 +4,9 @@
 #include "gamedata_behaviour.h"
 #include "utils_imgui.h"
 #include <algorithm>
+#include <fstream>
+#include <magic_enum.hpp>
+#include <spdlog/spdlog.h>
 
 namespace {
     // A state is incomplete while it is still being built in the editor. Spawning one would put an entity
@@ -24,6 +27,49 @@ namespace {
             break;
         }
         return false;
+    }
+
+    // where the behaviours the editor saves are kept. the whole file is read, the named behaviour is
+    // replaced or added, and the file is written back, so its formatting and ordering are not preserved
+    char const* const BehaviourDatabasePath = "data/behaviour_database.json";
+
+    bool SaveBehaviour(std::string const& name, BehaviourData const& data) {
+        nlohmann::json json;
+        {
+            std::ifstream file(BehaviourDatabasePath);
+            if (file.is_open()) {
+                try {
+                    file >> json;
+                } catch (std::exception const& e) {
+                    spdlog::error("Cannot save behaviour {}: {} does not parse: {}", name,
+                                  BehaviourDatabasePath, e.what());
+                    return false;
+                }
+            }
+        }
+        if (!json.is_object()) {
+            json = nlohmann::json::object();
+        }
+
+        // keep whatever spelling of the category the file already uses
+        auto categoryName = std::string(magic_enum::enum_name(GameDataCategory::Behaviours));
+        for (auto const& [key, value] : json.items()) {
+            if (magic_enum::enum_cast<GameDataCategory>(key, magic_enum::case_insensitive) ==
+                GameDataCategory::Behaviours) {
+                categoryName = key;
+                break;
+            }
+        }
+        json[categoryName][name] = data;
+
+        std::ofstream out(BehaviourDatabasePath);
+        if (!out.is_open()) {
+            spdlog::error("Cannot save behaviour {}: unable to write {}", name, BehaviourDatabasePath);
+            return false;
+        }
+        out << json.dump(4) << "\n";
+        spdlog::info("Saved behaviour {} to {}", name, BehaviourDatabasePath);
+        return true;
     }
 
     // the waypoint the mouse has hold of, or -1
@@ -179,6 +225,7 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
 
     static std::string staticEnemyName;
     static std::string staticBehaviourName;
+    static std::string staticSaveName;
     static BehaviourData staticBehaviourData;
     static moth::gfx::FloatVec2 staticPosition;
     static int staticSelectedState = -1;
@@ -211,11 +258,22 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
         // loading a named behaviour is a starting point for editing, not a live link to the database
         if (auto const* loaded = gamedata.Get<BehaviourData>(staticBehaviourName)) {
             staticBehaviourData = *loaded;
+            staticSaveName = staticBehaviourName;
             staticSelectedState = -1;
             staticSelectedWaypoint = -1;
             staticDraggedWaypoint = -1;
         }
     }
+
+    imgui_ext::InputText("Save as", staticSaveName);
+    ImGui::SameLine();
+    // a name that is not in the database adds a behaviour rather than replacing one
+    ImGui::BeginDisabled(staticSaveName.empty());
+    if (ImGui::Button("Save")) {
+        SaveBehaviour(staticSaveName, staticBehaviourData);
+    }
+    ImGui::EndDisabled();
+    ImGui::TextUnformatted("Saved behaviours are picked up the next time the game starts");
 
     imgui_ext::InputBehaviourData(staticBehaviourData, staticSelectedState, staticSelectedWaypoint);
 
