@@ -91,7 +91,7 @@ row.
 - Run `tools/smoke_launch.sh` and confirm it prints `SMOKE LAUNCH PASSED`.
 - Run the game normally and confirm the window is titled `TinCan`.
 
-### [todo] T-001 Guard the path samplers against short point lists
+### [done] T-001 Guard the path samplers against short point lists
 
 **Review:** reviewed 2026-09-19
 
@@ -107,13 +107,13 @@ still instead of moving. Stop the crash before anything is built on top of it.
 Step 1 of [behaviour-paths-and-editor.md](behaviour-paths-and-editor.md).
 
 **Requirements:**
-- [ ] Zero, one, two and three points are each defined cases in the sampler, with
+- [x] Zero, one, two and three points are each defined cases in the sampler, with
       no crash and no silent freeze.
-- [ ] Fewer than two points is a no-op: the entity holds position for the state's
+- [x] Fewer than two points is a no-op: the entity holds position for the state's
       duration, and a warning naming the behaviour is logged once, not per frame.
-- [ ] Catmull-Rom endpoint padding happens in the sampler, not in `from_json`
+- [x] Catmull-Rom endpoint padding happens in the sampler, not in `from_json`
       (`src/gamedata_behaviour.h:60`), so authored and loaded data agree.
-- [ ] The behaviour editor's Spawn button is disabled while the current state is
+- [x] The behaviour editor's Spawn button is disabled while the current state is
       incomplete.
 
 **Out of scope:**
@@ -126,10 +126,36 @@ types and only makes them safe.
   a half-placed path has to be survivable at runtime.
 
 **Notes:**
+The sampler now defines every length: empty is the origin, one point is that
+point, two points are the straight line between them, and three or more are a
+Catmull-Rom spline that clamps its control indices to the ends of the list. That
+clamping is the endpoint padding, so the two duplicated points `from_json` used
+to insert are gone and a loaded path holds the points that were authored.
+`GetTForDistance` also returns early on a path that covers no distance, which
+used to divide by zero and put an entity at a NaN position.
+
+Assumption: "the current state is incomplete" is read as the behaviour that
+Spawn would spawn, so the button is disabled when the behaviour has no states or
+any of its states is incomplete, with a line beside it saying why. The "New
+state" being typed in below is not part of the behaviour yet and does not count.
+Incomplete means `Undefined` type, a `Target` with no target type, or a `Spline`
+with fewer than two points.
+
+Assumption: the warning names the behaviour by its state index and label, because
+`BehaviourData` carries no name of its own; the name a behaviour is loaded under
+is not kept in `ComponentBehaviour`.
 
 **Commits:**
+- 361e3bc fix(T-001): guard the path samplers against short point lists
 
 **Manual verification:**
+- Open the behaviour editor (F2). With no states added, Spawn is disabled.
+- Add a Spline state with one point. Spawn stays disabled.
+- Add a second point. Spawn enables, and the spawned enemy flies the path drawn
+  in the preview.
+- Set a spawned spline behaviour's state to a single point in the editor and
+  confirm the enemy holds position rather than freezing the game, with one
+  warning in the log rather than one per frame.
 
 ### [todo] T-004 Pick enemies and behaviours from the database in the editor
 
