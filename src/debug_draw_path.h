@@ -20,10 +20,20 @@ float constexpr WaypointHandleRadius = 12.0f;
 void DrawFlownPath(moth::gfx::IGraphics& graphics, BehaviourStateData const& state, ArcLengthLUT const& lut,
                    moth::gfx::FloatVec2 const& offset, moth::gfx::Color const& color);
 
+// Draws the approach into the state at `index`, starting from where the state before it ends. Nothing is
+// drawn when that state snaps to its start, or when what comes before it is not a path, because then
+// where the entity will be coming from is not known until it runs.
+void DrawEntryApproach(moth::gfx::IGraphics& graphics, BehaviourData const& behaviour, int index,
+                       moth::gfx::FloatVec2 const& origin, moth::gfx::Color const& color);
+
 // The colour the states that are not being edited are drawn in. Opaque rather than faded through alpha,
 // because the editor draws while the blend mode is Replace, which would ignore the alpha and give a fully
 // bright line instead of a faint one.
 inline moth::gfx::Color ReferencePathColor() { return moth::gfx::FromARGB(0xFF707070); }
+
+// the colour an approach into a state being edited is drawn in, dimmer than the path so that the join
+// between the two can be seen
+inline moth::gfx::Color EntryPathColor() { return moth::gfx::FromARGB(0xFF338899); }
 
 // Draws what the state actually flies: the path with its modifiers applied, arrows along the direction of
 // travel, a tick for each second at the state's speed, and a ghost at the scrubbed point. progress is the

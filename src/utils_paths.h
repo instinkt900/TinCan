@@ -76,6 +76,58 @@ inline moth::gfx::FloatVec2 SamplePath(std::vector<moth::gfx::FloatVec2> const& 
                                                           : SampleLinearPath(points, t);
 }
 
+// How an entity gets from wherever it is to the start of a path.
+enum class TransitionType {
+    // appear at the start of the path, which is what happens when nothing is asked for
+    Snap,
+    // a straight line to it
+    Linear,
+    // a curve that leaves along the way the entity was already going and arrives along the way the path
+    // sets off, so the join cannot be seen
+    Spline,
+};
+
+// A cubic through p0 and p1 that leaves with velocity m0 and arrives with velocity m1.
+inline moth::gfx::FloatVec2 Hermite(moth::gfx::FloatVec2 const& p0, moth::gfx::FloatVec2 const& m0,
+                                    moth::gfx::FloatVec2 const& p1, moth::gfx::FloatVec2 const& m1,
+                                    float t) {
+    auto const t2 = t * t;
+    auto const t3 = t2 * t;
+    auto const h00 = (2.0f * t3) - (3.0f * t2) + 1.0f;
+    auto const h10 = t3 - (2.0f * t2) + t;
+    auto const h01 = (-2.0f * t3) + (3.0f * t2);
+    auto const h11 = t3 - t2;
+    return (p0 * h00) + (m0 * h10) + (p1 * h01) + (m1 * h11);
+}
+
+// The approach into the start of a path, as a list of points. A curve is sampled into a polyline so that
+// the same arc-length sampler that carries an entity along a path carries it along the approach too, which
+// is what makes the speed mean the same thing in both. A direction that is zero, because the entity was
+// holding still or because there is no path behind it, falls back to pointing straight at the target.
+inline std::vector<moth::gfx::FloatVec2> BuildTransitionPath(TransitionType type,
+                                                             moth::gfx::FloatVec2 const& from,
+                                                             moth::gfx::FloatVec2 const& fromDirection,
+                                                             moth::gfx::FloatVec2 const& to,
+                                                             moth::gfx::FloatVec2 const& toDirection) {
+    auto const chord = to - from;
+    if (type != TransitionType::Spline || moth::gfx::LengthSq(chord) <= 0.0f) {
+        return { from, to };
+    }
+
+    auto const straight = moth::gfx::Normalized(chord);
+    auto const length = moth::gfx::Length(chord);
+    auto const m0 = (moth::gfx::LengthSq(fromDirection) > 0.0f ? fromDirection : straight) * length;
+    auto const m1 = (moth::gfx::LengthSq(toDirection) > 0.0f ? toDirection : straight) * length;
+
+    int const samples = 24;
+    std::vector<moth::gfx::FloatVec2> points;
+    points.reserve(samples + 1);
+    for (int i = 0; i <= samples; ++i) {
+        points.push_back(Hermite(from, m0, to, m1, static_cast<float>(i) / static_cast<float>(samples)));
+    }
+    return points;
+}
+
 struct ArcLengthLUT {
     std::vector<float> distances; // length at sample i
     std::vector<float> t_values;  // corresponding t values
@@ -139,5 +191,26 @@ inline moth::gfx::FloatVec2 SamplePathByDistance(SplineDefinition const& spline,
                                                  float distance) {
     float t = GetTForDistance(table, distance);
     return SamplePath(spline, interpolation, t);
+}
+
+// The direction of travel at a point on the path, found by stepping along the path's arc length rather
+// than along its parameter. The two are only the same when the path happens to be evenly parameterised,
+// as a straight line between two waypoints is. On a curve they can be most of the path apart.
+inline moth::gfx::FloatVec2 PathTangentAtDistance(SplineDefinition const& spline,
+                                                  PathInterpolation interpolation,
+                                                  ArcLengthLUT const& table, float distance) {
+    auto const totalLength = table.distances.back();
+    if (totalLength <= 0.0f) {
+        return { 0, 0 };
+    }
+    auto const step = totalLength * 0.002f;
+    auto const ahead =
+        SamplePathByDistance(spline, interpolation, table, std::min(totalLength, distance + step));
+    auto const behind = SamplePathByDistance(spline, interpolation, table, std::max(0.0f, distance - step));
+    auto const delta = ahead - behind;
+    if (moth::gfx::LengthSq(delta) <= 0.0f) {
+        return { 0, 0 };
+    }
+    return moth::gfx::Normalized(delta);
 }
 

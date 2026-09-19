@@ -18,29 +18,6 @@ namespace {
         }
         return u;
     }
-
-    // The direction of travel where the entity actually is, measured by stepping along the path's arc
-    // length rather than along its parameter. The two are only the same when the path happens to be
-    // evenly parameterised, as a straight line between two waypoints is. On a curve they can be most of
-    // the path apart, and a normal taken from the wrong place points partly along the direction of travel
-    // instead of across it, which makes a wave lurch rather than weave.
-    moth::gfx::FloatVec2 PathTangent(BehaviourStateData const& state, ArcLengthLUT const& lut,
-                                     float distance) {
-        auto const totalLength = lut.distances.back();
-        if (totalLength <= 0.0f) {
-            return { 0, 0 };
-        }
-        auto const step = totalLength * 0.002f;
-        auto const ahead = SamplePathByDistance(state.waypoints, state.interpolation, lut,
-                                                std::min(totalLength, distance + step));
-        auto const behind = SamplePathByDistance(state.waypoints, state.interpolation, lut,
-                                                 std::max(0.0f, distance - step));
-        auto const delta = ahead - behind;
-        if (moth::gfx::LengthSq(delta) <= 0.0f) {
-            return { 0, 0 };
-        }
-        return moth::gfx::Normalized(delta);
-    }
 }
 
 moth::gfx::FloatVec2 SamplePathState(BehaviourStateData const& state, ArcLengthLUT const& lut,
@@ -67,7 +44,8 @@ moth::gfx::FloatVec2 SamplePathState(BehaviourStateData const& state, ArcLengthL
         if (modifier.type != ModifierType::Wave) {
             continue;
         }
-        auto const tangent = PathTangent(state, lut, distanceAlong);
+        auto const tangent =
+            PathTangentAtDistance(state.waypoints, state.interpolation, lut, distanceAlong);
         auto const normal = moth::gfx::FloatVec2{ -tangent.y, tangent.x };
         auto const angle = 2.0f * static_cast<float>(M_PI) * ((modifier.frequency * u) + phase);
         position += normal * (modifier.amplitude * std::sin(angle));
@@ -89,6 +67,10 @@ public:
     virtual void Init(BehaviourTarget const& target) {}
     virtual void Deinit(BehaviourTarget const& target) {}
     virtual void Update(BehaviourTarget const& target, uint32_t ticks) {}
+    // Runs before the state's own clock starts, for a state that has to travel to its start first.
+    // Returns the ticks it did not use, which are the ones the state itself then gets. While it uses all
+    // of them the state has not begun, so its duration is untouched.
+    virtual uint32_t Enter(BehaviourTarget const& target, uint32_t ticks) { return ticks; }
     // asked only of a state with no duration, which then runs until its handler says it is done
     virtual bool IsFinished(BehaviourTarget const& target) const { return false; }
 
@@ -111,6 +93,7 @@ public:
         auto& registry = target.registry;
         auto entity = target.entity;
         auto& behaviour = target.behaviourComponent;
+        auto const& position = target.positionComponent;
         auto const& state = *behaviour.m_currentState;
 
         // a path drives position directly, so nothing is left for the movement system to apply
@@ -132,11 +115,39 @@ public:
                                       ? behaviour.m_origin
                                       : moth::gfx::FloatVec2{ 0, 0 };
             cacheData->m_lut = BuildArcLengthTable(state.waypoints, state.interpolation);
+            SetUpEntry(*cacheData, state, position);
         }
     }
 
     void Deinit(BehaviourTarget const& target) override {
         target.registry.Remove<ComponentPathCache>(target.entity);
+    }
+
+    uint32_t Enter(BehaviourTarget const& target, uint32_t ticks) override {
+        auto* cacheData = target.registry.TryGet<ComponentPathCache>(target.entity);
+        if (cacheData == nullptr || cacheData->m_entryPoints.empty()) {
+            return ticks;
+        }
+
+        auto& position = target.positionComponent;
+        auto const totalLength = cacheData->m_entryLut.distances.back();
+        auto const needed = totalLength / cacheData->m_entrySpeed;
+        auto const elapsed = cacheData->m_entryTime + (static_cast<float>(ticks) / 1000.0f);
+
+        if (elapsed >= needed) {
+            // the approach finishes part way through this tick, and what is left over starts the state
+            auto const spare = elapsed - needed;
+            cacheData->m_entryPoints.clear();
+            cacheData->m_entryLut = {};
+            return static_cast<uint32_t>(spare * 1000.0f);
+        }
+
+        cacheData->m_entryTime = elapsed;
+        position.m_lastPosition = position.m_position;
+        position.m_position =
+            SamplePathByDistance(cacheData->m_entryPoints, PathInterpolation::Linear, cacheData->m_entryLut,
+                                 elapsed * cacheData->m_entrySpeed);
+        return 0;
     }
 
     void Update(BehaviourTarget const& target, uint32_t ticks) override {
@@ -166,6 +177,34 @@ public:
     }
 
 private:
+    // Works out the approach into the start of the path, if the state asks for one. The direction the
+    // entity is already travelling comes from the step it took last frame, so it does not matter what kind
+    // of state it came from; at a spawn it is zero, and the approach then aims straight at the start.
+    static void SetUpEntry(ComponentPathCache& cache, BehaviourStateData const& state,
+                           ComponentPosition const& position) {
+        auto const speed = state.entry.speed > 0.0f ? state.entry.speed : state.speed;
+        if (state.entry.type == TransitionType::Snap || speed <= 0.0f) {
+            return;
+        }
+
+        auto const start = cache.m_offset + SamplePath(state.waypoints, state.interpolation, 0.0f);
+        if (moth::gfx::LengthSq(start - position.m_position) <= 0.0f) {
+            return;
+        }
+
+        auto const travelled = position.m_position - position.m_lastPosition;
+        auto const heading = moth::gfx::LengthSq(travelled) > 0.0f ? moth::gfx::Normalized(travelled)
+                                                                   : moth::gfx::FloatVec2{ 0, 0 };
+        cache.m_entryPoints = BuildTransitionPath(state.entry.type, position.m_position, heading, start,
+                                                  PathTangentAtDistance(state.waypoints, state.interpolation, cache.m_lut, 0.0f));
+        cache.m_entryLut = BuildArcLengthTable(cache.m_entryPoints, PathInterpolation::Linear);
+        cache.m_entryTime = 0.0f;
+        cache.m_entrySpeed = speed;
+        if (cache.m_entryLut.distances.back() <= 0.0f) {
+            cache.m_entryPoints.clear();
+        }
+    }
+
     static float DistanceTravelled(BehaviourTarget const& target) {
         auto const& behaviour = target.behaviourComponent;
         return behaviour.m_currentState->speed * (static_cast<float>(behaviour.m_stateTime) / 1000.0f);
@@ -226,6 +265,15 @@ void SystemBehaviour::Update(GameWorld& world, uint32_t ticks) {
             auto pendingTicks = ticks;
             while (pendingTicks > 0) {
                 if (behaviour.m_currentState != nullptr) {
+                    auto* entering = FindHandler(behaviour.m_currentState->type);
+                    if (entering != nullptr) {
+                        // travelling to the start of the state happens before its own clock starts
+                        pendingTicks = entering->Enter(target, pendingTicks);
+                        if (pendingTicks == 0) {
+                            break;
+                        }
+                    }
+
                     auto const maxTime = behaviour.m_currentState->duration;
                     auto const usedTicks =
                         maxTime > 0 ? std::min(maxTime - behaviour.m_stateTime, pendingTicks) : pendingTicks;

@@ -11,6 +11,13 @@ class GameWorld;
 struct ComponentPathCache {
     moth::gfx::FloatVec2 m_offset;
     ArcLengthLUT m_lut;
+
+    // the approach into the start of the path, in world coordinates. empty once it is done, or when the
+    // state snaps to its start. it runs on its own clock, so that it does not eat the state's duration
+    std::vector<moth::gfx::FloatVec2> m_entryPoints;
+    ArcLengthLUT m_entryLut;
+    float m_entryTime = 0.0f;
+    float m_entrySpeed = 0.0f;
 };
 
 struct ComponentBehaviour {

@@ -116,3 +116,45 @@ void DrawPathStatePreview(moth::gfx::IGraphics& graphics, BehaviourStateData con
     graphics.DrawLineF(ghost - (across * ghostSize), ghost + (ghostDirection * ghostSize));
     graphics.DrawLineF(ghost, ghost + (ghostDirection * (ghostSize * 2.0f)));
 }
+
+void DrawEntryApproach(moth::gfx::IGraphics& graphics, BehaviourData const& behaviour, int index,
+                       moth::gfx::FloatVec2 const& origin, moth::gfx::Color const& color) {
+    if (index < 0 || index >= static_cast<int>(behaviour.states.size())) {
+        return;
+    }
+    auto const& state = behaviour.states[index];
+    if (state.type != BehaviourType::Path || state.entry.type == TransitionType::Snap ||
+        state.waypoints.size() < 2) {
+        return;
+    }
+
+    // the entity comes in at the spawn point for the first state, and off the end of the path before it
+    // otherwise. anything else only settles at run time, so there is nothing honest to draw
+    auto from = origin;
+    moth::gfx::FloatVec2 heading{ 0, 0 };
+    if (index > 0) {
+        auto const& previous = behaviour.states[index - 1];
+        if (previous.type != BehaviourType::Path || previous.waypoints.size() < 2) {
+            return;
+        }
+        auto const previousLut = BuildArcLengthTable(previous.waypoints, previous.interpolation);
+        from = FlownAt(previous, previousLut, 1.0f) + origin;
+        heading = FlownDirection(previous, previousLut, 1.0f);
+    }
+
+    auto const lut = BuildArcLengthTable(state.waypoints, state.interpolation);
+    auto const to = origin + SamplePath(state.waypoints, state.interpolation, 0.0f);
+    if (moth::gfx::LengthSq(to - from) <= 0.0f) {
+        return;
+    }
+
+    auto const points = BuildTransitionPath(
+        state.entry.type, from, heading, to,
+        PathTangentAtDistance(state.waypoints, state.interpolation, lut, 0.0f));
+
+    graphics.SetColor(color);
+    for (size_t i = 1; i < points.size(); ++i) {
+        graphics.DrawLineF(points[i - 1], points[i]);
+    }
+    DrawArrow(graphics, to, PathTangentAtDistance(state.waypoints, state.interpolation, lut, 0.0f), 10.0f);
+}

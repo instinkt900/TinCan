@@ -125,6 +125,10 @@ namespace imgui_ext {
         } else if (data.type == BehaviourType::Path) {
             ImGui::InputFloat("Speed", &data.speed);
             EnumCombo("Interpolation", data.interpolation);
+            EnumCombo("Entry", data.entry.type);
+            if (data.entry.type != TransitionType::Snap) {
+                ImGui::InputFloat("Entry speed (0 = this state's)", &data.entry.speed);
+            }
             for (int i = 0; i < static_cast<int>(data.waypoints.size()); /* skip */) {
                 ImGui::PushID(i);
 
@@ -335,6 +339,7 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
         }
         auto const lut = BuildArcLengthTable(state.waypoints, state.interpolation);
         DrawFlownPath(graphics, state, lut, origin, ReferencePathColor());
+        DrawEntryApproach(graphics, staticBehaviourData, i, origin, ReferencePathColor());
     }
 
     if (editedState == nullptr) {
@@ -374,6 +379,7 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
     }
 
     DrawPath(graphics, waypoints, editedState->interpolation, origin);
+    DrawEntryApproach(graphics, staticBehaviourData, staticSelectedState, origin, EntryPathColor());
     DrawPathStatePreview(graphics, *editedState, previewLut, origin, staticPreviewProgress);
     DrawWaypointHandles(graphics, waypoints, origin, staticSelectedWaypoint);
 }

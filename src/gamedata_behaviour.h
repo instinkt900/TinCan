@@ -19,8 +19,9 @@ enum class TargetType {
 };
 MAGIC_SERIALIZE_ENUM(TargetType);
 
-// PathInterpolation belongs to the sampler, which is what gives it meaning
+// PathInterpolation and TransitionType belong to the sampler, which is what gives them meaning
 MAGIC_SERIALIZE_ENUM(PathInterpolation);
+MAGIC_SERIALIZE_ENUM(TransitionType);
 
 // What the coordinates of a behaviour are measured against. A path is usually authored as a shape relative
 // to wherever the enemy comes in, which is what SpawnRelative means.
@@ -87,6 +88,27 @@ inline void to_json(nlohmann::json& json, BehaviourModifierData const& data) {
     }
 }
 
+// How a state reaches its own start, which is also how the first state reaches its start from wherever
+// the entity spawned. It runs before the state's duration starts counting, so a short duration cannot
+// silently swallow the approach.
+struct BehaviourTransitionData {
+    TransitionType type{ TransitionType::Snap };
+    // 0 means travel at the speed of the state being entered
+    float speed{ 0 };
+};
+
+inline void from_json(nlohmann::json const& json, BehaviourTransitionData& data) {
+    DATA_REQUIRED(json, data, type);
+    DATA_OPTIONAL(json, data, speed);
+}
+
+inline void to_json(nlohmann::json& json, BehaviourTransitionData const& data) {
+    json["type"] = data.type;
+    if (data.speed > 0.0f) {
+        json["speed"] = data.speed;
+    }
+}
+
 struct BehaviourStateData {
     BehaviourType type{ BehaviourType::Undefined };
     std::string label;
@@ -97,6 +119,7 @@ struct BehaviourStateData {
     std::vector<moth::gfx::FloatVec2> waypoints;
     PathInterpolation interpolation{ PathInterpolation::Linear };
     float speed{ 0 };
+    BehaviourTransitionData entry;
     std::vector<BehaviourModifierData> modifiers;
 };
 
@@ -116,6 +139,7 @@ inline void from_json(nlohmann::json const& json, BehaviourStateData& data) {
         DATA_REQUIRED(json, data, waypoints);
         DATA_OPTIONAL(json, data, interpolation);
         DATA_REQUIRED(json, data, speed);
+        DATA_OPTIONAL(json, data, entry);
         DATA_OPTIONAL(json, data, modifiers);
     } else if (data.type == BehaviourType::Target) {
         DATA_REQUIRED(json, data, target);
@@ -142,6 +166,9 @@ inline void to_json(nlohmann::json& json, BehaviourStateData const& data) {
         json["waypoints"] = data.waypoints;
         json["interpolation"] = data.interpolation;
         json["speed"] = data.speed;
+        if (data.entry.type != TransitionType::Snap) {
+            json["entry"] = data.entry;
+        }
         if (!data.modifiers.empty()) {
             json["modifiers"] = data.modifiers;
         }
