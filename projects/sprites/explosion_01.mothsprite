@@ -1,0 +1,303 @@
+{
+  "clips": [
+    {
+      "frames": [
+        {
+          "duration_ms": 32,
+          "frame": 0
+        },
+        {
+          "duration_ms": 32,
+          "frame": 1
+        },
+        {
+          "duration_ms": 32,
+          "frame": 2
+        },
+        {
+          "duration_ms": 32,
+          "frame": 3
+        },
+        {
+          "duration_ms": 32,
+          "frame": 4
+        },
+        {
+          "duration_ms": 32,
+          "frame": 5
+        },
+        {
+          "duration_ms": 32,
+          "frame": 6
+        },
+        {
+          "duration_ms": 32,
+          "frame": 7
+        },
+        {
+          "duration_ms": 32,
+          "frame": 8
+        },
+        {
+          "duration_ms": 32,
+          "frame": 9
+        },
+        {
+          "duration_ms": 32,
+          "frame": 10
+        },
+        {
+          "duration_ms": 32,
+          "frame": 11
+        },
+        {
+          "duration_ms": 32,
+          "frame": 12
+        },
+        {
+          "duration_ms": 32,
+          "frame": 13
+        },
+        {
+          "duration_ms": 32,
+          "frame": 14
+        },
+        {
+          "duration_ms": 32,
+          "frame": 15
+        },
+        {
+          "duration_ms": 32,
+          "frame": 16
+        },
+        {
+          "duration_ms": 32,
+          "frame": 17
+        },
+        {
+          "duration_ms": 32,
+          "frame": 18
+        },
+        {
+          "duration_ms": 32,
+          "frame": 19
+        },
+        {
+          "duration_ms": 32,
+          "frame": 20
+        },
+        {
+          "duration_ms": 32,
+          "frame": 21
+        },
+        {
+          "duration_ms": 32,
+          "frame": 22
+        },
+        {
+          "duration_ms": 32,
+          "frame": 23
+        }
+      ],
+      "loop": "stop",
+      "name": "explode"
+    }
+  ],
+  "export_path": "../../assets/sprites/explosion_01.json",
+  "frames": [
+    {
+      "h": 34,
+      "pivot_x": 17,
+      "pivot_y": 17,
+      "w": 34,
+      "x": 42,
+      "y": 21
+    },
+    {
+      "h": 46,
+      "pivot_x": 23,
+      "pivot_y": 23,
+      "w": 46,
+      "x": 167,
+      "y": 16
+    },
+    {
+      "h": 61,
+      "pivot_x": 30,
+      "pivot_y": 30,
+      "w": 61,
+      "x": 290,
+      "y": 8
+    },
+    {
+      "h": 73,
+      "pivot_x": 36,
+      "pivot_y": 36,
+      "w": 72,
+      "x": 415,
+      "y": 2
+    },
+    {
+      "h": 81,
+      "pivot_x": 41,
+      "pivot_y": 40,
+      "w": 83,
+      "x": 540,
+      "y": 0
+    },
+    {
+      "h": 93,
+      "pivot_x": 46,
+      "pivot_y": 46,
+      "w": 92,
+      "x": 16,
+      "y": 122
+    },
+    {
+      "h": 101,
+      "pivot_x": 50,
+      "pivot_y": 50,
+      "w": 100,
+      "x": 142,
+      "y": 118
+    },
+    {
+      "h": 107,
+      "pivot_x": 53,
+      "pivot_y": 53,
+      "w": 106,
+      "x": 269,
+      "y": 115
+    },
+    {
+      "h": 111,
+      "pivot_x": 55,
+      "pivot_y": 55,
+      "w": 110,
+      "x": 397,
+      "y": 113
+    },
+    {
+      "h": 117,
+      "pivot_x": 57,
+      "pivot_y": 58,
+      "w": 115,
+      "x": 525,
+      "y": 110
+    },
+    {
+      "h": 121,
+      "pivot_x": 60,
+      "pivot_y": 60,
+      "w": 120,
+      "x": 2,
+      "y": 238
+    },
+    {
+      "h": 123,
+      "pivot_x": 61,
+      "pivot_y": 61,
+      "w": 123,
+      "x": 131,
+      "y": 237
+    },
+    {
+      "h": 127,
+      "pivot_x": 62,
+      "pivot_y": 63,
+      "w": 125,
+      "x": 260,
+      "y": 235
+    },
+    {
+      "h": 129,
+      "pivot_x": 64,
+      "pivot_y": 64,
+      "w": 129,
+      "x": 388,
+      "y": 234
+    },
+    {
+      "h": 131,
+      "pivot_x": 63,
+      "pivot_y": 65,
+      "w": 127,
+      "x": 517,
+      "y": 233
+    },
+    {
+      "h": 136,
+      "pivot_x": 61,
+      "pivot_y": 65,
+      "w": 128,
+      "x": 0,
+      "y": 362
+    },
+    {
+      "h": 127,
+      "pivot_x": 63,
+      "pivot_y": 60,
+      "w": 132,
+      "x": 126,
+      "y": 368
+    },
+    {
+      "h": 135,
+      "pivot_x": 64,
+      "pivot_y": 67,
+      "w": 129,
+      "x": 255,
+      "y": 362
+    },
+    {
+      "h": 128,
+      "pivot_x": 55,
+      "pivot_y": 56,
+      "w": 120,
+      "x": 394,
+      "y": 369
+    },
+    {
+      "h": 56,
+      "pivot_x": 29,
+      "pivot_y": 28,
+      "w": 65,
+      "x": 550,
+      "y": 397
+    },
+    {
+      "h": 55,
+      "pivot_x": 28,
+      "pivot_y": 27,
+      "w": 57,
+      "x": 30,
+      "y": 528
+    },
+    {
+      "h": 52,
+      "pivot_x": 27,
+      "pivot_y": 26,
+      "w": 55,
+      "x": 161,
+      "y": 529
+    },
+    {
+      "h": 51,
+      "pivot_x": 26,
+      "pivot_y": 25,
+      "w": 52,
+      "x": 292,
+      "y": 530
+    },
+    {
+      "h": 49,
+      "pivot_x": 24,
+      "pivot_y": 24,
+      "w": 49,
+      "x": 424,
+      "y": 531
+    }
+  ],
+  "image": "../../assets/images/sheets/spritesheet_explosion_01.png",
+  "version": 1
+}

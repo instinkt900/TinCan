@@ -1,0 +1,58 @@
+{
+  "clips": [
+    {
+      "frames": [
+        {
+          "duration_ms": 100,
+          "frame": 0
+        }
+      ],
+      "loop": "stop",
+      "name": "dark"
+    },
+    {
+      "frames": [
+        {
+          "duration_ms": 100,
+          "frame": 1
+        }
+      ],
+      "loop": "stop",
+      "name": "light"
+    }
+  ],
+  "export_path": "../../assets/sprites/enemy_projectile.json",
+  "frames": [
+    {
+      "h": 64,
+      "pivot_x": 32,
+      "pivot_y": 32,
+      "w": 64,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "h": 64,
+      "pivot_x": 32,
+      "pivot_y": 32,
+      "w": 64,
+      "x": 64,
+      "y": 0
+    }
+  ],
+  "image": "../../assets/images/sheets/spritesheet_enemy_projectile.png",
+  "pack": {
+    "best_pack": true,
+    "format": "png",
+    "image": "../../assets/images/sheets/spritesheet_enemy_projectile.png",
+    "jpeg_quality": 90,
+    "max_height": 4096,
+    "max_width": 4096,
+    "min_height": 256,
+    "min_width": 256,
+    "padding": 0,
+    "padding_color": "00000000",
+    "padding_type": "color"
+  },
+  "version": 1
+}

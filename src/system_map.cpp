@@ -113,8 +113,9 @@ namespace {
         auto const spacing = GetFloatProperty(spawn.properties, "spacing", 32.0f);
 
         DataRef<PickupData> drop;
+        // "none" is the enum's way of saying no drop, since tiled cannot clear an enum property
         auto const dropName = moth::tilemap::GetProperty<std::string>(spawn.properties, "drop");
-        if (!dropName.empty()) {
+        if (!dropName.empty() && dropName != "none") {
             if (gamedata.Get<PickupData>(dropName) == nullptr) {
                 spdlog::error("Map spawn references unknown pickup {}", dropName);
             } else {

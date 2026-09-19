@@ -24,20 +24,20 @@
   "frames": [
     {
       "h": 12,
-      "pivot_x": 0,
-      "pivot_y": 0,
+      "pivot_x": 2,
+      "pivot_y": 6,
       "w": 4,
       "x": 0,
       "y": 0
     },
     {
       "h": 12,
-      "pivot_x": 0,
-      "pivot_y": 0,
+      "pivot_x": 2,
+      "pivot_y": 6,
       "w": 4,
       "x": 4,
       "y": 0
     }
   ],
-  "image": "laser.png"
+  "image": "../images/sheets/spritesheet_laser.png"
 }

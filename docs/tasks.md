@@ -676,6 +676,72 @@ show in the frame times.
   follow the wave, while the plain path still shows the line underneath it.
 - Spawn the same behaviour and confirm the enemy flies where the ghost went.
 
+### [todo] T-010 Describe spawn formations in the game data
+
+**Review:** unreviewed
+
+**Goal:**
+The formations a map spawn can use are the four hardcoded in the if-chain in
+`GetFormationOffsets` (`src/system_map.cpp:38`): line, column, v and grid. There
+is no way to stagger a formation on an angle, and no way to make a shape like a
+diamond or a star without writing another branch and hand-editing the
+`formation` enum in `tiled_project/tincan.tiled-project`.
+
+Move formations into the game data, the same way enemies, behaviours and
+pickups are already done: a `FormationData` type, a
+`GameDataCategory::Formations` category and a `data/formation_database.json`.
+A formation entry is an ordered list of slot offsets in unit space that
+describes the *largest* version of the shape. The spawn's `count` property
+fills the slots one by one from the front, so a single entry serves every count
+up to its size, and whatever shape is authored progressively fills out as the
+count grows. `SpawnerData::formation_positions` (`src/gamedata_spawner.h:54`)
+is the same idea in the older spawner path.
+
+On top of that, the offsets are transformed before use by a rotation and a
+scale. The rotation is the Tiled object's own `rotation`, which
+`moth::tilemap::MapObject` already carries and `SpawnMapEnemy` currently
+ignores, so a formation is staggered on an angle by rotating the object in
+Tiled and the angle is visible while placing it. The scale lets larger enemies
+reuse the same shapes without their slots overlapping.
+
+**Requirements:**
+- [ ] `FormationData` and `GameDataCategory::Formations` follow the pattern of
+      the other game data categories, loaded from `data/formation_database.json`.
+- [ ] A formation entry is an ordered list of slot offsets in unit space,
+      describing the largest version of the shape.
+- [ ] The spawn's `count` fills the slots one by one from the front of the list.
+- [ ] Slots are placed where they are authored. The used subset is not
+      re-centred on the spawn point when the count is under the full size.
+- [ ] A `count` larger than the slot list spawns the slots that exist and logs a
+      warning naming the formation, the requested count and the slot count.
+- [ ] `GetFormationOffsets` looks the formation name up in the database first
+      and falls back to the built-in line, column, v and grid generators, which
+      stay because they are not bounded by a count.
+- [ ] Existing maps keep working without being edited.
+- [ ] The offsets are rotated by the Tiled object's `rotation`
+      (`moth::tilemap::MapObject::rotation`), which `SpawnMapEnemy` currently
+      ignores.
+- [ ] The offsets are scaled, so larger enemies can use the same formations.
+- [ ] The `formation` enum is no longer maintained by hand in
+      `tiled_project/tincan.tiled-project`: it is synced by
+      `tiled_project/extensions/game_data_enums.js` with
+      `extra: ["line", "column", "v", "grid"]` for the built-ins.
+- [ ] `data/formation_database.json` ships with a diamond and a star.
+
+**Open questions:**
+- Q: How does the new scale relate to the existing `spacing` property on the
+  spawn, which already multiplies the unit offsets? Is scale a second
+  multiplier, or does it replace `spacing` for data formations?
+- Q: Is the scale uniform, or per-axis?
+- Q: Where does the scale come from: a property on the spawn object, the enemy
+  data (so a large enemy scales its formation automatically), or both?
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
 ## Discovered
 
 - `SystemPickup::Update` logs `[error] Unable to locate player` and then

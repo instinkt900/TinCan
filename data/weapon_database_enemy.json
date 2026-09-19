@@ -1,43 +1,12 @@
 {
     "weapons": {
-        "enemy_weapon": {
+        "enemy_danger_1_weapon": {
             "damage": 10,
             "cooldown": 3000,
             "burst": 1,
             "burst_delay": 200,
             "player_tracking": true,
-            "projectile": "enemy_basic_bullet",
-            "barrels": [
-                {
-                    "offset": [0, 0],
-                    "group": 0,
-                    "angle": 0
-                }
-            ]
-        },
-        "bug_weapon": {
-            "damage": 15,
-            "cooldown": 3000,
-            "burst": 1,
-            "burst_delay": 200,
-            "player_tracking": true,
-            "projectile": "enemy_basic_bullet",
-            "fire_state": "fire",
-            "barrels": [
-                {
-                    "offset": [0, 0],
-                    "group": 0,
-                    "angle": 0
-                }
-            ]
-        },
-        "big_bug_weapon": {
-            "damage": 15,
-            "cooldown": 5000,
-            "burst": 1,
-            "burst_delay": 200,
-            "player_tracking": true,
-            "projectile": "enemy_bomb",
+            "projectile": "enemy_projectile",
             "barrels": [
                 {
                     "offset": [0, 0],

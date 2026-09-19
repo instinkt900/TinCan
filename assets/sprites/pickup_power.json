@@ -30,44 +30,44 @@
   "frames": [
     {
       "h": 32,
-      "pivot_x": 0,
-      "pivot_y": 0,
+      "pivot_x": 16,
+      "pivot_y": 16,
       "w": 32,
       "x": 0,
       "y": 0
     },
     {
       "h": 32,
-      "pivot_x": 0,
-      "pivot_y": 0,
+      "pivot_x": 16,
+      "pivot_y": 16,
       "w": 32,
       "x": 32,
       "y": 0
     },
     {
       "h": 32,
-      "pivot_x": 0,
-      "pivot_y": 0,
+      "pivot_x": 16,
+      "pivot_y": 16,
       "w": 32,
       "x": 64,
       "y": 0
     },
     {
       "h": 32,
-      "pivot_x": 0,
-      "pivot_y": 0,
+      "pivot_x": 16,
+      "pivot_y": 16,
       "w": 32,
       "x": 96,
       "y": 0
     },
     {
       "h": 32,
-      "pivot_x": 0,
-      "pivot_y": 0,
+      "pivot_x": 16,
+      "pivot_y": 16,
       "w": 32,
       "x": 128,
       "y": 0
     }
   ],
-  "image": "pickup_power.png"
+  "image": "../images/sheets/spritesheet_pickup_power.png"
 }

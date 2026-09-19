@@ -1,0 +1,58 @@
+{
+  "clips": [
+    {
+      "frames": [
+        {
+          "duration_ms": 100,
+          "frame": 1
+        }
+      ],
+      "loop": "loop",
+      "name": "idle_light"
+    },
+    {
+      "frames": [
+        {
+          "duration_ms": 100,
+          "frame": 0
+        }
+      ],
+      "loop": "loop",
+      "name": "idle_dark"
+    }
+  ],
+  "export_path": "../../assets/sprites/laser.json",
+  "frames": [
+    {
+      "h": 12,
+      "pivot_x": 2,
+      "pivot_y": 6,
+      "w": 4,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "h": 12,
+      "pivot_x": 2,
+      "pivot_y": 6,
+      "w": 4,
+      "x": 4,
+      "y": 0
+    }
+  ],
+  "image": "../../assets/images/sheets/spritesheet_laser.png",
+  "pack": {
+    "best_pack": true,
+    "format": "png",
+    "image": "../../assets/sprites/laser.png",
+    "jpeg_quality": 90,
+    "max_height": 4096,
+    "max_width": 4096,
+    "min_height": 256,
+    "min_width": 256,
+    "padding": 0,
+    "padding_color": "00000000",
+    "padding_type": "color"
+  },
+  "version": 1
+}

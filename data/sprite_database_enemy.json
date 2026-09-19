@@ -1,42 +1,76 @@
 {
     "sprites": {
-        "enemy_projectile_light": {
-            "sheet": "assets/sprites/enemy_bullet.json",
-            "clip": "idle_light",
+        "enemy_danger_1_light": {
+            "sheet": "assets/sprites/enemy_danger.json",
+            "clip": "danger_1_light",
             "blend_mode": "Alpha"
+        },
+        "enemy_danger_1_dark": {
+            "sheet": "assets/sprites/enemy_danger.json",
+            "clip": "danger_1_dark",
+            "blend_mode": "Alpha"
+        },
+        "enemy_danger_2_light": {
+            "sheet": "assets/sprites/enemy_danger.json",
+            "clip": "danger_2_light",
+            "blend_mode": "Alpha"
+        },
+        "enemy_danger_2_dark": {
+            "sheet": "assets/sprites/enemy_danger.json",
+            "clip": "danger_2_dark",
+            "blend_mode": "Alpha"
+        },
+        "enemy_danger_3_light": {
+            "sheet": "assets/sprites/enemy_danger.json",
+            "clip": "danger_3_light",
+            "blend_mode": "Alpha"
+        },
+        "enemy_danger_3_dark": {
+            "sheet": "assets/sprites/enemy_danger.json",
+            "clip": "danger_3_dark",
+            "blend_mode": "Alpha"
+        },
+        "enemy_danger_4_light": {
+            "sheet": "assets/sprites/enemy_danger.json",
+            "clip": "danger_4_light",
+            "blend_mode": "Alpha"
+        },
+        "enemy_danger_4_dark": {
+            "sheet": "assets/sprites/enemy_danger.json",
+            "clip": "danger_4_dark",
+            "blend_mode": "Alpha"
+        },
+        "enemy_danger_5_light": {
+            "sheet": "assets/sprites/enemy_danger.json",
+            "clip": "danger_5_light",
+            "blend_mode": "Alpha"
+        },
+        "enemy_danger_5_dark": {
+            "sheet": "assets/sprites/enemy_danger.json",
+            "clip": "danger_5_dark",
+            "blend_mode": "Alpha"
+        },
+        "enemy_danger_6_light": {
+            "sheet": "assets/sprites/enemy_danger.json",
+            "clip": "danger_6_light",
+            "blend_mode": "Alpha"
+        },
+        "enemy_danger_6_dark": {
+            "sheet": "assets/sprites/enemy_danger.json",
+            "clip": "danger_6_dark",
+            "blend_mode": "Alpha"
+        },
+        "enemy_projectile_light": {
+            "sheet": "assets/sprites/enemy_projectile.json",
+            "clip": "light",
+            "blend_mode": "Alpha",
+            "scale": [0.2,0.2]
         },
         "enemy_projectile_dark": {
-            "sheet": "assets/sprites/enemy_bullet.json",
-            "clip": "idle_dark",
-            "blend_mode": "Alpha"
-        },
-        "bug_light": {
-            "anim": "assets/sprites/bug_light.anim.json",
-            "blend_mode": "Alpha"
-        },
-        "bug_dark": {
-            "anim": "assets/sprites/bug_dark.anim.json",
-            "blend_mode": "Alpha"
-        },
-        "big_bug_light": {
-            "sheet": "assets/sprites/big_bug.json",
-            "clip": "idle_light",
-            "blend_mode": "Alpha"
-        },
-        "big_bug_dark": {
-            "sheet": "assets/sprites/big_bug.json",
-            "clip": "idle_dark",
-            "blend_mode": "Alpha"
-        },
-        "enemy_bomb_light": {
-            "sheet": "assets/sprites/enemy_bomb.json",
-            "clip": "idle_light",
-            "blend_mode": "Alpha"
-        },
-        "enemy_bomb_dark": {
-            "sheet": "assets/sprites/enemy_bomb.json",
-            "clip": "idle_dark",
-            "blend_mode": "Alpha"
+            "sheet": "assets/sprites/enemy_projectile.json",
+            "clip": "dark",
+            "blend_mode": "Alpha",
+            "scale": [0.2,0.2]
         }
     }
 }

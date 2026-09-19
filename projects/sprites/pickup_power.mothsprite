@@ -1,0 +1,75 @@
+{
+  "clips": [
+    {
+      "frames": [
+        {
+          "duration_ms": 100,
+          "frame": 0
+        },
+        {
+          "duration_ms": 100,
+          "frame": 1
+        },
+        {
+          "duration_ms": 100,
+          "frame": 2
+        },
+        {
+          "duration_ms": 100,
+          "frame": 3
+        },
+        {
+          "duration_ms": 1200,
+          "frame": 4
+        }
+      ],
+      "loop": "loop",
+      "name": "idle"
+    }
+  ],
+  "export_path": "../../assets/sprites/pickup_power.json",
+  "frames": [
+    {
+      "h": 32,
+      "pivot_x": 16,
+      "pivot_y": 16,
+      "w": 32,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "h": 32,
+      "pivot_x": 16,
+      "pivot_y": 16,
+      "w": 32,
+      "x": 32,
+      "y": 0
+    },
+    {
+      "h": 32,
+      "pivot_x": 16,
+      "pivot_y": 16,
+      "w": 32,
+      "x": 64,
+      "y": 0
+    },
+    {
+      "h": 32,
+      "pivot_x": 16,
+      "pivot_y": 16,
+      "w": 32,
+      "x": 96,
+      "y": 0
+    },
+    {
+      "h": 32,
+      "pivot_x": 16,
+      "pivot_y": 16,
+      "w": 32,
+      "x": 128,
+      "y": 0
+    }
+  ],
+  "image": "../../assets/images/sheets/spritesheet_pickup_power.png",
+  "version": 1
+}

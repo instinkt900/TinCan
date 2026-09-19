@@ -1,0 +1,223 @@
+{
+  "clips": [
+    {
+      "frames": [
+        {
+          "duration_ms": 100,
+          "frame": 0
+        }
+      ],
+      "loop": "stop",
+      "name": "danger_1_dark"
+    },
+    {
+      "frames": [
+        {
+          "duration_ms": 100,
+          "frame": 1
+        }
+      ],
+      "loop": "stop",
+      "name": "danger_1_light"
+    },
+    {
+      "frames": [
+        {
+          "duration_ms": 100,
+          "frame": 2
+        }
+      ],
+      "loop": "stop",
+      "name": "danger_2_dark"
+    },
+    {
+      "frames": [
+        {
+          "duration_ms": 100,
+          "frame": 3
+        }
+      ],
+      "loop": "stop",
+      "name": "danger_2_light"
+    },
+    {
+      "frames": [
+        {
+          "duration_ms": 100,
+          "frame": 4
+        }
+      ],
+      "loop": "stop",
+      "name": "danger_3_dark"
+    },
+    {
+      "frames": [
+        {
+          "duration_ms": 100,
+          "frame": 5
+        }
+      ],
+      "loop": "stop",
+      "name": "danger_3_light"
+    },
+    {
+      "frames": [
+        {
+          "duration_ms": 100,
+          "frame": 6
+        }
+      ],
+      "loop": "stop",
+      "name": "danger_4_dark"
+    },
+    {
+      "frames": [
+        {
+          "duration_ms": 100,
+          "frame": 8
+        }
+      ],
+      "loop": "stop",
+      "name": "danger_5_dark"
+    },
+    {
+      "frames": [
+        {
+          "duration_ms": 100,
+          "frame": 9
+        }
+      ],
+      "loop": "stop",
+      "name": "danger_5_light"
+    },
+    {
+      "frames": [
+        {
+          "duration_ms": 100,
+          "frame": 10
+        }
+      ],
+      "loop": "stop",
+      "name": "danger_6_dark"
+    },
+    {
+      "frames": [
+        {
+          "duration_ms": 100,
+          "frame": 11
+        }
+      ],
+      "loop": "stop",
+      "name": "danger_6_light"
+    },
+    {
+      "frames": [
+        {
+          "duration_ms": 100,
+          "frame": 7
+        }
+      ],
+      "loop": "stop",
+      "name": "danger_4_light"
+    }
+  ],
+  "frames": [
+    {
+      "h": 64,
+      "pivot_x": 32,
+      "pivot_y": 32,
+      "w": 64,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "h": 64,
+      "pivot_x": 32,
+      "pivot_y": 32,
+      "w": 64,
+      "x": 64,
+      "y": 0
+    },
+    {
+      "h": 64,
+      "pivot_x": 32,
+      "pivot_y": 32,
+      "w": 64,
+      "x": 128,
+      "y": 0
+    },
+    {
+      "h": 64,
+      "pivot_x": 32,
+      "pivot_y": 32,
+      "w": 64,
+      "x": 192,
+      "y": 0
+    },
+    {
+      "h": 64,
+      "pivot_x": 32,
+      "pivot_y": 32,
+      "w": 64,
+      "x": 0,
+      "y": 64
+    },
+    {
+      "h": 64,
+      "pivot_x": 32,
+      "pivot_y": 32,
+      "w": 64,
+      "x": 64,
+      "y": 64
+    },
+    {
+      "h": 64,
+      "pivot_x": 32,
+      "pivot_y": 32,
+      "w": 64,
+      "x": 128,
+      "y": 64
+    },
+    {
+      "h": 64,
+      "pivot_x": 32,
+      "pivot_y": 32,
+      "w": 64,
+      "x": 192,
+      "y": 64
+    },
+    {
+      "h": 64,
+      "pivot_x": 32,
+      "pivot_y": 32,
+      "w": 64,
+      "x": 0,
+      "y": 128
+    },
+    {
+      "h": 64,
+      "pivot_x": 32,
+      "pivot_y": 32,
+      "w": 64,
+      "x": 64,
+      "y": 128
+    },
+    {
+      "h": 64,
+      "pivot_x": 32,
+      "pivot_y": 32,
+      "w": 64,
+      "x": 128,
+      "y": 128
+    },
+    {
+      "h": 64,
+      "pivot_x": 32,
+      "pivot_y": 32,
+      "w": 64,
+      "x": 192,
+      "y": 128
+    }
+  ],
+  "image": "../images/sheets/spritesheet_enemy_danger.png"
+}

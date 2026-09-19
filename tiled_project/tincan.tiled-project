@@ -28,10 +28,18 @@
             "storageType": "string",
             "type": "enum",
             "values": [
-                "big_bug_dark",
-                "big_bug_light",
-                "bug_dark",
-                "bug_light"
+                "danger_1_dark",
+                "danger_1_light",
+                "danger_2_dark",
+                "danger_2_light",
+                "danger_3_dark",
+                "danger_3_light",
+                "danger_4_dark",
+                "danger_4_light",
+                "danger_5_dark",
+                "danger_5_light",
+                "danger_6_dark",
+                "danger_6_light"
             ],
             "valuesAsFlags": false
         },
@@ -55,13 +63,13 @@
                     "name": "drop",
                     "propertyType": "pickup",
                     "type": "string",
-                    "value": ""
+                    "value": "none"
                 },
                 {
                     "name": "enemy_type",
                     "propertyType": "enemy_type",
                     "type": "string",
-                    "value": "big_bug_dark"
+                    "value": "danger_1_dark"
                 },
                 {
                     "name": "formation",
@@ -113,8 +121,7 @@
             "storageType": "string",
             "type": "enum",
             "values": [
-                "weapon_burst_01",
-                "weapon_cooldown_01",
+                "none",
                 "weapon_drop_01",
                 "weapon_drop_02"
             ],
@@ -129,7 +136,7 @@
                     "name": "pickup",
                     "propertyType": "pickup",
                     "type": "string",
-                    "value": "weapon_burst_01"
+                    "value": "weapon_drop_01"
                 }
             ],
             "name": "PickupSpawn",

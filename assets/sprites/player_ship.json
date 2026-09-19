@@ -177,5 +177,5 @@
       "y": 232
     }
   ],
-  "image": "player_ship.png"
+  "image": "../images/sheets/spritesheet_player.png"
 }

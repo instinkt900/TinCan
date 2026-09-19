@@ -22,18 +22,9 @@
             "blend_mode": "Alpha",
             "z_order": -1
         },
-        "explosion": {
-            "sheet": "assets/sprites/explosion.json",
+        "explosion_01": {
+            "sheet": "assets/sprites/explosion_01.json",
             "clip": "explode",
-            "blend_mode": "Alpha"
-        },
-        "explosion2": {
-            "sheet": "assets/sprites/explosion2.json",
-            "clip": "explode",
-            "blend_mode": "Alpha"
-        },
-        "drop_01": {
-            "image": "assets/pickup.png",
             "blend_mode": "Alpha"
         },
         "pickup_power": {

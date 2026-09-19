@@ -1,0 +1,43 @@
+{
+  "clips": [
+    {
+      "frames": [
+        {
+          "duration_ms": 100,
+          "frame": 0
+        }
+      ],
+      "loop": "stop",
+      "name": "dark"
+    },
+    {
+      "frames": [
+        {
+          "duration_ms": 100,
+          "frame": 1
+        }
+      ],
+      "loop": "stop",
+      "name": "light"
+    }
+  ],
+  "frames": [
+    {
+      "h": 64,
+      "pivot_x": 32,
+      "pivot_y": 32,
+      "w": 64,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "h": 64,
+      "pivot_x": 32,
+      "pivot_y": 32,
+      "w": 64,
+      "x": 64,
+      "y": 0
+    }
+  ],
+  "image": "../images/sheets/spritesheet_enemy_projectile.png"
+}

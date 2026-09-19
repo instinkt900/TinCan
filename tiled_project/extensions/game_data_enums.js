@@ -4,10 +4,12 @@
 const enums = [
     { type: "enemy_type", file: "enemy_database.json", category: "enemies" },
     { type: "behaviour", file: "behaviour_database.json", category: "behaviours" },
-    { type: "pickup", file: "pickup_database.json", category: "pickups" },
+    // "none" is not in the game data. it gives EnemySpawn.drop a way to say "no drop",
+    // since tiled cannot clear an enum property
+    { type: "pickup", file: "pickup_database.json", category: "pickups", extra: ["none"] },
 ];
 
-function syncEnum(dataDir, { type, file, category }) {
+function syncEnum(dataDir, { type, file, category, extra }) {
     const path = FileInfo.joinPaths(dataDir, file);
     if (!File.exists(path)) {
         tiled.error(`Game data not found at ${path}`);
@@ -20,7 +22,7 @@ function syncEnum(dataDir, { type, file, category }) {
 
     let names;
     try {
-        names = Object.keys(JSON.parse(text)[category] ?? {}).sort();
+        names = (extra ?? []).concat(Object.keys(JSON.parse(text)[category] ?? {}).sort());
     } catch (e) {
         tiled.error(`Failed to parse ${path}: ${e.message}`);
         return;

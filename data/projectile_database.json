@@ -20,17 +20,11 @@
                 "max_drag": 4.0
             }
         },
-        "enemy_basic_bullet": {
+        "enemy_projectile": {
             "radius": 8,
             "speed": 200.0,
             "white_sprite": "enemy_projectile_light",
             "black_sprite": "enemy_projectile_dark"
-        },
-        "enemy_bomb": {
-            "radius": 12,
-            "speed": 120.0,
-            "white_sprite": "enemy_bomb_light",
-            "black_sprite": "enemy_bomb_dark"
         }
     }
 }
