@@ -17,7 +17,9 @@ struct ComponentCurveCache {
     float total_length;
 };
 
-struct ComponentSplineCache {
+// what a path state works out once when it is entered: where its coordinates are measured from, and the
+// arc-length table that turns a distance travelled into a point on the path
+struct ComponentPathCache {
     moth::gfx::FloatVec2 m_offset;
     ArcLengthLUT m_lut;
 };

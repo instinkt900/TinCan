@@ -112,6 +112,8 @@ public:
     virtual void Init(BehaviourTarget const& target) {}
     virtual void Deinit(BehaviourTarget const& target) {}
     virtual void Update(BehaviourTarget const& target, uint32_t ticks) {}
+    // asked only of a state with no duration, which then runs until its handler says it is done
+    virtual bool IsFinished(BehaviourTarget const& target) const { return false; }
 
     BehaviourHandler() = default;
     virtual ~BehaviourHandler() = default;
@@ -126,10 +128,71 @@ public:
     void Init(BehaviourTarget const& target) override { target.velocityComponent.m_velocity = { 0, 0 }; }
 };
 
-class BehaviourHandlerLine : public BehaviourHandler {
+class BehaviourHandlerPath : public BehaviourHandler {
 public:
     void Init(BehaviourTarget const& target) override {
-        target.velocityComponent.m_velocity = target.behaviourComponent.m_currentState->velocity;
+        auto& registry = target.registry;
+        auto entity = target.entity;
+        auto& behaviour = target.behaviourComponent;
+        auto& position = target.positionComponent;
+        auto const& state = *behaviour.m_currentState;
+
+        // a path drives position directly, so nothing is left for the movement system to apply
+        target.velocityComponent.m_velocity = { 0, 0 };
+
+        if (state.waypoints.size() < 2) {
+            // a path needs two points before it goes anywhere. hold position for the state's duration
+            // rather than refusing to spawn, because the editor builds a path a point at a time. Init runs
+            // once per entry into a state, so this does not repeat every frame.
+            spdlog::warn("Behaviour state {} '{}' has fewer than two waypoints, so it does not move",
+                         behaviour.m_stateIdx, state.label);
+            return;
+        }
+
+        auto* cacheData = registry.TryGet<ComponentPathCache>(entity);
+        if (cacheData == nullptr) {
+            cacheData = &registry.Emplace<ComponentPathCache>(entity);
+            cacheData->m_offset = behaviour.m_data.space == BehaviourSpace::SpawnRelative
+                                      ? position.m_position
+                                      : moth::gfx::FloatVec2{ 0, 0 };
+            cacheData->m_lut = BuildArcLengthTable(state.waypoints, state.interpolation);
+        }
+    }
+
+    void Deinit(BehaviourTarget const& target) override {
+        target.registry.Remove<ComponentPathCache>(target.entity);
+    }
+
+    void Update(BehaviourTarget const& target, uint32_t ticks) override {
+        auto& behaviour = target.behaviourComponent;
+        auto& position = target.positionComponent;
+
+        auto const* cacheData = target.registry.TryGet<ComponentPathCache>(target.entity);
+        if (cacheData == nullptr) {
+            // Init found a path with too few points and left no cache, so the entity holds position
+            return;
+        }
+
+        auto const& state = *behaviour.m_currentState;
+        auto const sample = SamplePathByDistance(state.waypoints, state.interpolation, cacheData->m_lut,
+                                                 DistanceTravelled(target));
+
+        position.m_lastPosition = position.m_position;
+        position.m_position = cacheData->m_offset + sample;
+    }
+
+    bool IsFinished(BehaviourTarget const& target) const override {
+        auto const* cacheData = target.registry.TryGet<ComponentPathCache>(target.entity);
+        if (cacheData == nullptr) {
+            return false;
+        }
+        return DistanceTravelled(target) >= cacheData->m_lut.distances.back();
+    }
+
+private:
+    static float DistanceTravelled(BehaviourTarget const& target) {
+        auto const& behaviour = target.behaviourComponent;
+        return behaviour.m_currentState->speed * (static_cast<float>(behaviour.m_stateTime) / 1000.0f);
     }
 };
 
@@ -158,138 +221,16 @@ public:
     }
 };
 
-class BehaviourHandlerWave : public BehaviourHandler {
-public:
-    void Init(BehaviourTarget const& target) override {
-        auto& registry = target.registry;
-        auto entity = target.entity;
-        auto freq = target.behaviourComponent.m_currentState->frequency;
-        auto amp = target.behaviourComponent.m_currentState->amplitude;
-        auto const& position = target.positionComponent.m_position;
-
-        target.velocityComponent.m_velocity = { 0, 0 };
-
-        auto* cacheData = registry.TryGet<ComponentCurveCache>(entity);
-        if (cacheData == nullptr) {
-            cacheData = &registry.Emplace<ComponentCurveCache>(entity);
-
-            float const MaxT = 1500.0f;
-            float const TStep = 50.0f;
-
-            CurveSample lastSample;
-            for (float t = 0; t < MaxT; t += TStep) {
-                float const tf = t / 1000.0f;
-                auto& sample = cacheData->samples.emplace_back();
-                sample.position.x = position.x + std::sin(tf * freq) * amp;
-                sample.position.y = position.y + t;
-                if (t == 0) {
-                    sample.segment_length = 0;
-                    sample.total_distance = 0;
-                } else {
-                    sample.segment_length = moth::gfx::Distance(sample.position, lastSample.position);
-                    sample.total_distance = lastSample.total_distance + sample.segment_length;
-                }
-                lastSample = sample;
-            }
-            cacheData->total_length = lastSample.total_distance;
-        }
-    }
-
-    void Deinit(BehaviourTarget const& target) override {
-        target.registry.Remove<ComponentCurveCache>(target.entity);
-    }
-
-    void Update(BehaviourTarget const& target, uint32_t ticks) override {
-        auto& registry = target.registry;
-        auto entity = target.entity;
-        auto& behaviour = target.behaviourComponent;
-        auto speed = target.behaviourComponent.m_currentState->speed;
-        auto& position = target.positionComponent;
-
-        auto& cacheData = registry.Get<ComponentCurveCache>(entity);
-        auto const distanceTravelled = speed * (static_cast<float>(behaviour.m_stateTime) / 1000.0f);
-        size_t index = 0;
-        for (size_t i = 1; i < cacheData.samples.size(); ++i) {
-            if (distanceTravelled < cacheData.samples[i].total_distance) {
-                break;
-            }
-            index = i;
-        }
-        auto const& pastNode = cacheData.samples[index];
-
-        position.m_lastPosition = position.m_position;
-        position.m_position = pastNode.position;
-
-        if (index < (cacheData.samples.size() - 1)) {
-            auto const& nextNode = cacheData.samples[index + 1];
-            float const remainder = distanceTravelled - pastNode.total_distance;
-            if (remainder > 0) {
-                float const factor = remainder / nextNode.segment_length;
-                auto const delta = nextNode.position - pastNode.position;
-                position.m_position += delta * factor;
-            }
-        }
-    }
-};
-
-class BehaviourHandlerSpline : public BehaviourHandler {
-public:
-    void Init(BehaviourTarget const& target) override {
-        auto& registry = target.registry;
-        auto entity = target.entity;
-        auto& behaviour = target.behaviourComponent;
-        auto& position = target.positionComponent;
-
-        if (behaviour.m_currentState->points.size() < 2) {
-            // a path needs two points before it goes anywhere. hold position for the state's duration
-            // rather than refusing to spawn, because the editor builds a path a point at a time. Init runs
-            // once per entry into a state, so this does not repeat every frame.
-            spdlog::warn("Behaviour state {} '{}' has fewer than two waypoints, so it does not move",
-                         behaviour.m_stateIdx, behaviour.m_currentState->label);
-            target.velocityComponent.m_velocity = { 0, 0 };
-            return;
-        }
-
-        auto* cacheData = registry.TryGet<ComponentSplineCache>(entity);
-        if (cacheData == nullptr) {
-            cacheData = &registry.Emplace<ComponentSplineCache>(entity);
-            cacheData->m_offset = position.m_position;
-            cacheData->m_lut = BuildArcLengthTable(behaviour.m_currentState->points);
-        }
-    }
-
-    void Deinit(BehaviourTarget const& target) override {
-        target.registry.Remove<ComponentSplineCache>(target.entity);
-    }
-
-    void Update(BehaviourTarget const& target, uint32_t ticks) override {
-        auto& registry = target.registry;
-        auto entity = target.entity;
-        auto& behaviour = target.behaviourComponent;
-        auto& position = target.positionComponent;
-
-        auto* cacheData = registry.TryGet<ComponentSplineCache>(entity);
-        if (cacheData == nullptr) {
-            // Init found a path with too few points and left no cache, so the entity holds position
-            return;
-        }
-
-        float const speed = behaviour.m_currentState->speed;
-        auto const distanceTravelled = speed * (static_cast<float>(behaviour.m_stateTime) / 1000.0f);
-        auto const sample = SamplePathByDistance(behaviour.m_currentState->points, cacheData->m_lut, distanceTravelled);
-
-        position.m_lastPosition = position.m_position;
-        position.m_position = cacheData->m_offset + sample;
-    }
-};
-
 std::map<BehaviourType, std::shared_ptr<BehaviourHandler>> const BehaviourHandlers{
     { BehaviourType::Hold, std::make_shared<BehaviourHandlerHold>() },
-    { BehaviourType::Line, std::make_shared<BehaviourHandlerLine>() },
-    { BehaviourType::Target, std::make_shared<BehaviourHandlerTarget>() },
-    { BehaviourType::Wave, std::make_shared<BehaviourHandlerWave>() },
-    { BehaviourType::Spline, std::make_shared<BehaviourHandlerSpline>() }
+    { BehaviourType::Path, std::make_shared<BehaviourHandlerPath>() },
+    { BehaviourType::Target, std::make_shared<BehaviourHandlerTarget>() }
 };
+
+BehaviourHandler* FindHandler(BehaviourType type) {
+    auto const it = BehaviourHandlers.find(type);
+    return it != BehaviourHandlers.end() ? it->second.get() : nullptr;
+}
 
 void SystemBehaviour::Update(GameWorld& world, uint32_t ticks) {
     auto& registry = world.GetRegistry();
@@ -297,40 +238,43 @@ void SystemBehaviour::Update(GameWorld& world, uint32_t ticks) {
 
     for (auto const& [entity, behaviour, position, velocity] : view.each()) {
         if (behaviour.m_stateIdx < behaviour.m_data.states.size()) {
+            BehaviourTarget const target{ registry, entity, behaviour, position, velocity };
             auto pendingTicks = ticks;
             while (pendingTicks > 0) {
                 if (behaviour.m_currentState != nullptr) {
                     auto const maxTime = behaviour.m_currentState->duration;
-                    auto const remainingTime = maxTime - behaviour.m_stateTime;
-                    auto const usedTicks = std::min(remainingTime, pendingTicks);
-                    if (maxTime > 0) {
-                        behaviour.m_stateTime += usedTicks;
-                        pendingTicks -= usedTicks;
-                    } else {
-                        behaviour.m_stateTime += pendingTicks;
-                        pendingTicks = 0;
+                    auto const usedTicks =
+                        maxTime > 0 ? std::min(maxTime - behaviour.m_stateTime, pendingTicks) : pendingTicks;
+                    behaviour.m_stateTime += usedTicks;
+                    pendingTicks -= usedTicks;
+
+                    auto* handler = FindHandler(behaviour.m_currentState->type);
+                    if (handler != nullptr) {
+                        handler->Update(target, usedTicks);
                     }
-                    auto const handlerIt = BehaviourHandlers.find(behaviour.m_currentState->type);
-                    if (std::end(BehaviourHandlers) != handlerIt) {
-                        handlerIt->second->Update({ registry, entity, behaviour, position, velocity },
-                                                  usedTicks);
+
+                    // a state with a duration ends when it runs out. one without runs until its handler
+                    // says it is done, which for a path is when it reaches the end of its waypoints
+                    bool const finished = maxTime > 0 ? behaviour.m_stateTime >= maxTime
+                                                      : handler != nullptr && handler->IsFinished(target);
+                    if (!finished) {
+                        break;
                     }
-                    if (pendingTicks > 0) {
-                        handlerIt->second->Deinit({ registry, entity, behaviour, position, velocity });
-                        ++behaviour.m_stateIdx;
+                    if (handler != nullptr) {
+                        handler->Deinit(target);
                     }
-                }
-                if (pendingTicks > 0) {
-                    // transition
+                    ++behaviour.m_stateIdx;
                     behaviour.m_currentState = nullptr;
                     behaviour.m_stateTime = 0;
-                    if (behaviour.m_stateIdx < behaviour.m_data.states.size()) {
-                        behaviour.m_currentState = &behaviour.m_data.states[behaviour.m_stateIdx];
-                        auto const it = BehaviourHandlers.find(behaviour.m_currentState->type);
-                        if (std::end(BehaviourHandlers) != it) {
-                            it->second->Init({ registry, entity, behaviour, position, velocity });
-                        }
-                    }
+                }
+
+                // enter the next state
+                if (behaviour.m_stateIdx >= behaviour.m_data.states.size()) {
+                    break;
+                }
+                behaviour.m_currentState = &behaviour.m_data.states[behaviour.m_stateIdx];
+                if (auto* handler = FindHandler(behaviour.m_currentState->type); handler != nullptr) {
+                    handler->Init(target);
                 }
             }
         }

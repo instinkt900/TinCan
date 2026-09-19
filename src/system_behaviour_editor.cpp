@@ -10,14 +10,12 @@ namespace {
     // in the world that cannot do what its state asks.
     bool IsStateComplete(BehaviourStateData const& state) {
         switch (state.type) {
-        case BehaviourType::Line:
         case BehaviourType::Hold:
-        case BehaviourType::Wave:
             return true;
         case BehaviourType::Target:
             return state.target != TargetType::Undefined;
-        case BehaviourType::Spline:
-            return state.points.size() >= 2;
+        case BehaviourType::Path:
+            return state.waypoints.size() >= 2;
         case BehaviourType::Undefined:
             break;
         }
@@ -56,44 +54,39 @@ namespace imgui_ext {
         EnumCombo("Type", data.type);
 
         if (data.type == BehaviourType::Hold) {
-        } else if (data.type == BehaviourType::Line) {
-            ImGui::InputFloat2("Velocity", static_cast<float*>(data.velocity.data));
         } else if (data.type == BehaviourType::Target) {
             EnumCombo("Target", data.target);
             ImGui::InputFloat2("Position", static_cast<float*>(data.point.data));
             ImGui::InputFloat("Speed", &data.speed);
-        } else if (data.type == BehaviourType::Wave) {
+        } else if (data.type == BehaviourType::Path) {
             ImGui::InputFloat("Speed", &data.speed);
-            ImGui::InputFloat("Frequency", &data.frequency);
-            ImGui::InputFloat("Amplitude", &data.amplitude);
-        } else if (data.type == BehaviourType::Spline) {
-            ImGui::InputFloat("Speed", &data.speed);
-            for (int i = 0; i < static_cast<int>(data.points.size()); /* skip */) {
+            EnumCombo("Interpolation", data.interpolation);
+            for (int i = 0; i < static_cast<int>(data.waypoints.size()); /* skip */) {
                 ImGui::PushID(i);
 
-                ImGui::Text("Point %d", i);
+                ImGui::Text("Waypoint %d", i);
                 ImGui::SameLine();
-                ImGui::InputFloat2("##value", static_cast<float*>(data.points[i].data));
+                ImGui::InputFloat2("##value", static_cast<float*>(data.waypoints[i].data));
                 ImGui::SameLine();
                 if (ImGui::SmallButton("X")) {
-                    data.points.erase(data.points.begin() + i);
+                    data.waypoints.erase(data.waypoints.begin() + i);
                     ImGui::PopID();
                     continue;
                 }
 
-                DrawSpline(graphics, data.points);
+                DrawPath(graphics, data.waypoints, data.interpolation);
 
                 ImGui::PopID();
                 ++i;
             }
             static moth::gfx::FloatVec2 pendingPoint;
-            ImGui::TextUnformatted("New point:");
+            ImGui::TextUnformatted("New waypoint:");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(150.0f);
             ImGui::InputFloat2("##value", static_cast<float*>(pendingPoint.data));
             ImGui::SameLine();
             if (ImGui::Button("Add")) {
-                data.points.push_back(pendingPoint);
+                data.waypoints.push_back(pendingPoint);
             }
         }
         ImGui::PopID();
@@ -101,6 +94,7 @@ namespace imgui_ext {
 
     void InputBehaviourData(BehaviourData& data, GameData const& gamedata,
                             moth::gfx::IGraphics& graphics) {
+        EnumCombo("Space", data.space);
         ImGui::Text("States:");
         for (int i = 0; i < static_cast<int>(data.states.size()); /* skip */) {
             ImGui::PushID(i);

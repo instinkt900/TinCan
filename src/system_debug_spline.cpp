@@ -35,16 +35,16 @@ namespace imgui_ext {
     }
 }
 
-void DrawSpline(moth::gfx::IGraphics& graphics, std::vector<moth::gfx::FloatVec2> const& points,
-                moth::gfx::FloatVec2 const& offset) {
+void DrawPath(moth::gfx::IGraphics& graphics, std::vector<moth::gfx::FloatVec2> const& points,
+              PathInterpolation interpolation, moth::gfx::FloatVec2 const& offset) {
     auto const samples = 100;
     auto const tStep = 1.0f / static_cast<float>(samples);
     auto t = 0.0f;
-    auto lastSample = SampleCatmullRomPath(points, t);
+    auto lastSample = SamplePath(points, interpolation, t);
     graphics.SetColor(moth::gfx::FromARGB(0xFFFFFF00));
     for (auto i = 1; i <= samples; ++i) {
         t = tStep * static_cast<float>(i);
-        auto const newSample = SampleCatmullRomPath(points, t) + offset;
+        auto const newSample = SamplePath(points, interpolation, t) + offset;
         graphics.DrawLineF(lastSample, newSample);
         lastSample = newSample;
     }
@@ -66,7 +66,7 @@ void SystemDebugSpline::Draw(GameWorld& world, moth::gfx::IGraphics& graphics) {
 
     for (auto [entity, spline] : view.each()) {
         if (spline.m_visible && spline.m_spline.size() > 2) {
-            DrawSpline(graphics, spline.m_spline);
+            DrawPath(graphics, spline.m_spline, PathInterpolation::CatmullRom);
         }
     }
 }

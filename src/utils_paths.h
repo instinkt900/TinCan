@@ -45,6 +45,37 @@ inline moth::gfx::FloatVec2 SampleCatmullRomPath(std::vector<moth::gfx::FloatVec
                       PathPointAt(points, i + 2), localT);
 }
 
+// How a path runs between its waypoints. Both are sampled by arc length, so speed means the same thing
+// whichever is chosen.
+enum class PathInterpolation {
+    Linear,
+    CatmullRom,
+};
+
+// Samples a polyline through the points. Lengths shorter than two points match SampleCatmullRomPath.
+inline moth::gfx::FloatVec2 SampleLinearPath(std::vector<moth::gfx::FloatVec2> const& points, float t) {
+    if (points.empty()) {
+        return { 0, 0 };
+    }
+    if (points.size() == 1) {
+        return points[0];
+    }
+
+    t = std::clamp(t, 0.0f, 1.0f);
+    auto const n = static_cast<int>(points.size());
+    auto const segmentF = t * static_cast<float>(n - 1);
+    auto const i = std::min(static_cast<int>(segmentF), n - 2);
+    auto const localT = segmentF - static_cast<float>(i);
+
+    return points[i] + (points[i + 1] - points[i]) * localT;
+}
+
+inline moth::gfx::FloatVec2 SamplePath(std::vector<moth::gfx::FloatVec2> const& points,
+                                       PathInterpolation interpolation, float t) {
+    return interpolation == PathInterpolation::CatmullRom ? SampleCatmullRomPath(points, t)
+                                                          : SampleLinearPath(points, t);
+}
+
 struct ArcLengthLUT {
     std::vector<float> distances; // length at sample i
     std::vector<float> t_values;  // corresponding t values
@@ -52,16 +83,17 @@ struct ArcLengthLUT {
 
 using SplineDefinition = std::vector<moth::gfx::FloatVec2>;
 
-inline ArcLengthLUT BuildArcLengthTable(SplineDefinition const& spline, int samples = 1000) {
+inline ArcLengthLUT BuildArcLengthTable(SplineDefinition const& spline, PathInterpolation interpolation,
+                                        int samples = 1000) {
     ArcLengthLUT table;
     table.t_values.reserve(samples);
     table.distances.reserve(samples);
 
-    moth::gfx::FloatVec2 prev = SampleCatmullRomPath(spline, 0.0f);
+    moth::gfx::FloatVec2 prev = SamplePath(spline, interpolation, 0.0f);
     float dist_accum = 0.0f;
     for (int i = 0; i <= samples; ++i) {
         float t = static_cast<float>(i) / static_cast<float>(samples);
-        moth::gfx::FloatVec2 curr = SampleCatmullRomPath(spline, t);
+        moth::gfx::FloatVec2 curr = SamplePath(spline, interpolation, t);
         if (i > 0) {
             dist_accum += Length(curr - prev);
         }
@@ -102,8 +134,10 @@ inline float GetTForDistance(ArcLengthLUT const& table, float s) {
     return moth::gfx::Lerp(t0, t1, f);
 }
 
-inline moth::gfx::FloatVec2 SamplePathByDistance(SplineDefinition const& spline, ArcLengthLUT const& table, float distance) {
+inline moth::gfx::FloatVec2 SamplePathByDistance(SplineDefinition const& spline,
+                                                 PathInterpolation interpolation, ArcLengthLUT const& table,
+                                                 float distance) {
     float t = GetTForDistance(table, distance);
-    return SampleCatmullRomPath(spline, t);
+    return SamplePath(spline, interpolation, t);
 }
 

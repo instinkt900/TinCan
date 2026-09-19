@@ -13,8 +13,9 @@ namespace imgui_ext {
     void Details(ComponentDebugSpline& spline);
 };
 
-void DrawSpline(moth::gfx::IGraphics& graphics, std::vector<moth::gfx::FloatVec2> const& points,
-                moth::gfx::FloatVec2 const& offset = { 0, 0 });
+// draws the path the game would fly, so the preview and the movement use the same sampler
+void DrawPath(moth::gfx::IGraphics& graphics, std::vector<moth::gfx::FloatVec2> const& points,
+              PathInterpolation interpolation, moth::gfx::FloatVec2 const& offset = { 0, 0 });
 
 class SystemDebugSpline {
 public:

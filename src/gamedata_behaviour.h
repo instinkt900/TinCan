@@ -1,15 +1,14 @@
 #pragma once
 
 #include "gamedata.h"
+#include "utils_paths.h"
 #include "utils_serialization.h"
 
 enum class BehaviourType {
     Undefined,
-    Line,
+    Path,
     Target,
     Hold,
-    Wave,
-    Spline,
 };
 MAGIC_SERIALIZE_ENUM(BehaviourType);
 
@@ -20,22 +19,33 @@ enum class TargetType {
 };
 MAGIC_SERIALIZE_ENUM(TargetType);
 
+// PathInterpolation belongs to the sampler, which is what gives it meaning
+MAGIC_SERIALIZE_ENUM(PathInterpolation);
+
+// What the coordinates of a behaviour are measured against. A path is usually authored as a shape relative
+// to wherever the enemy comes in, which is what SpawnRelative means.
+enum class BehaviourSpace {
+    SpawnRelative,
+    World,
+};
+MAGIC_SERIALIZE_ENUM(BehaviourSpace);
+
 struct BehaviourStateData {
     BehaviourType type{ BehaviourType::Undefined };
     std::string label;
+    // 0 means the state runs until it completes on its own, which for a path is when it reaches its end
     uint32_t duration{ 0 };
-    moth::gfx::FloatVec2 velocity{ 0, 0 };
     TargetType target{ TargetType::Undefined };
     moth::gfx::FloatVec2 point{ 0, 0 };
-    std::vector<moth::gfx::FloatVec2> points;
+    std::vector<moth::gfx::FloatVec2> waypoints;
+    PathInterpolation interpolation{ PathInterpolation::Linear };
     float speed{ 0 };
-    float frequency{ 0 };
-    float amplitude{ 0 };
 };
 
 struct BehaviourData {
     static constexpr GameDataCategory Category = GameDataCategory::Behaviours;
 
+    BehaviourSpace space{ BehaviourSpace::SpawnRelative };
     std::vector<BehaviourStateData> states;
 };
 
@@ -44,22 +54,18 @@ inline void from_json(nlohmann::json const& json, BehaviourStateData& data) {
     DATA_OPTIONAL(json, data, label);
     DATA_OPTIONAL(json, data, duration);
 
-    if (data.type == BehaviourType::Line) {
-        DATA_REQUIRED(json, data, velocity);
+    if (data.type == BehaviourType::Path) {
+        DATA_REQUIRED(json, data, waypoints);
+        DATA_OPTIONAL(json, data, interpolation);
+        DATA_REQUIRED(json, data, speed);
     } else if (data.type == BehaviourType::Target) {
         DATA_REQUIRED(json, data, target);
         DATA_OPTIONAL(json, data, point);
         DATA_OPTIONAL(json, data, speed);
-    } else if (data.type == BehaviourType::Wave) {
-        DATA_REQUIRED(json, data, speed);
-        DATA_REQUIRED(json, data, frequency);
-        DATA_REQUIRED(json, data, amplitude);
-    } else if (data.type == BehaviourType::Spline) {
-        DATA_REQUIRED(json, data, speed);
-        DATA_REQUIRED(json, data, points);
-        // the endpoint padding a Catmull-Rom spline needs is applied by the sampler, so that a loaded path
-        // holds the same points an authored one does
     }
 }
 
-inline void from_json(nlohmann::json const& json, BehaviourData& data) { DATA_REQUIRED(json, data, states); }
+inline void from_json(nlohmann::json const& json, BehaviourData& data) {
+    DATA_OPTIONAL(json, data, space);
+    DATA_REQUIRED(json, data, states);
+}
