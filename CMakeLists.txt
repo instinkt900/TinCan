@@ -26,9 +26,8 @@ set(SOURCES
 	src/system_weapon.cpp
 	src/system_world_bounds.cpp
 	src/system_animation.cpp
-	src/system_spline_editor.cpp
 	src/system_behaviour_editor.cpp
-	src/system_debug_spline.cpp
+	src/debug_draw_path.cpp
 )
 
 find_package(moth_anim REQUIRED)

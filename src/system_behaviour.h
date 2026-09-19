@@ -6,17 +6,6 @@
 
 class GameWorld;
 
-struct CurveSample {
-    moth::gfx::FloatVec2 position;
-    float segment_length = 0;
-    float total_distance = 0;
-};
-
-struct ComponentCurveCache {
-    std::vector<CurveSample> samples;
-    float total_length;
-};
-
 // what a path state works out once when it is entered: where its coordinates are measured from, and the
 // arc-length table that turns a distance travelled into a point on the path
 struct ComponentPathCache {

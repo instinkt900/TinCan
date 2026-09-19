@@ -108,39 +108,6 @@ void UpdateCameraShake(ComponentCamera& camera, uint32_t ticks) {
     }
 }
 
-// void DrawDebugCurves(moth::ecs::World& registry, moth::gfx::IGraphics& graphics) {
-//     auto view = registry.View<ComponentBehaviour, ComponentCurveCache>();
-//
-//     for (auto [entity, behaviour, curve] : view.each()) {
-//         graphics.SetColor(moth::gfx::BasicColors::Red);
-//         for (size_t i = 1; i < curve.samples.size(); ++i) {
-//             auto const offs = moth::gfx::FloatVec2{ behaviour.m_offset.x, behaviour.m_offset.y };
-//             auto const p1 =
-//                 moth::gfx::FloatVec2{ curve.samples[i - 1].position.x, curve.samples[i - 1].position.y };
-//             auto const p2 = moth::gfx::FloatVec2{ curve.samples[i].position.x, curve.samples[i].position.y };
-//             graphics.DrawLineF(offs + p1, offs + p2);
-//         }
-//     }
-// }
-//
-// void DrawDebugSplines(moth::ecs::World& registry, moth::gfx::IGraphics& graphics) {
-//     auto view = registry.View<ComponentBehaviour, ComponentSplineCache>();
-//
-//     auto const samples = 100;
-//     auto const tStep = 1.0f / static_cast<float>(samples);
-//     graphics.SetColor(moth::gfx::FromARGB(0xFFFFFF00));
-//     for (auto [entity, behaviour, spline] : view.each()) {
-//         auto t = 0.0f;
-//         auto lastSample = SampleCatmullRomPath(behaviour.m_spline, t);
-//         for (auto i = 1; i <= samples; ++i) {
-//             t = tStep * static_cast<float>(i);
-//             auto const newSample = SampleCatmullRomPath(behaviour.m_spline, t);
-//             graphics.DrawLineF(lastSample, newSample);
-//             lastSample = newSample;
-//         }
-//     }
-// }
-
 void DrawDebugBodies(moth::ecs::World& registry, moth::gfx::IGraphics& graphics) {
     auto view = registry.View<ComponentBody, ComponentPosition>();
 

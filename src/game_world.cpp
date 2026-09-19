@@ -15,7 +15,6 @@
 #include "system_pickup.h"
 #include "system_projectile.h"
 #include "system_shield.h"
-#include "system_spline_editor.h"
 #include "system_behaviour_editor.h"
 #include "system_targeting.h"
 #include "system_weapon.h"
@@ -77,7 +76,6 @@ void GameWorld::Draw() {
     m_graphics.Clear();
     m_graphics.SetBlendMode(moth::gfx::BlendMode::Replace);
     m_graphics.SetColor(moth::gfx::BasicColors::White);
-    // SystemSplineEditor::Draw(*this, m_graphics);
     if (m_behaviourEditorOpen) {
         SystemBehaviourEditor::Draw(*this, m_graphics);
     }

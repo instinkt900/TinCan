@@ -1,5 +1,5 @@
 #include "system_behaviour_editor.h"
-#include "system_debug_spline.h"
+#include "debug_draw_path.h"
 #include "system_enemy_spawner.h"
 #include "gamedata_behaviour.h"
 #include "utils_imgui.h"
