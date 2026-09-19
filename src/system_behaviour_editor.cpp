@@ -283,43 +283,41 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
             editedState = &state;
         }
     }
+    // the arc-length table the edited state would build when it is entered, so that the preview and the
+    // flight agree. rebuilt every frame, because the path is being edited every frame
+    ArcLengthLUT previewLut{ { 0.0f }, { 0.0f } };
     if (editedState == nullptr) {
         staticDraggedWaypoint = -1;
         staticPreviewPlaying = false;
-        ImGui::End();
-        return;
-    }
-
-    // the arc-length table the state would build when it is entered, so the preview and the flight agree.
-    // rebuilt every frame because the path is being edited every frame
-    auto const previewLut = editedState->waypoints.size() >= 2
-                                ? BuildArcLengthTable(editedState->waypoints, editedState->interpolation)
-                                : ArcLengthLUT{ { 0.0f }, { 0.0f } };
-    auto const previewLength = previewLut.distances.back();
-
-    ImGui::Separator();
-    ImGui::TextUnformatted("Preview:");
-    if (ImGui::Button(staticPreviewPlaying ? "Pause" : "Play")) {
-        staticPreviewPlaying = !staticPreviewPlaying;
-    }
-    ImGui::SameLine();
-    ImGui::SliderFloat("Scrub", &staticPreviewProgress, 0.0f, 1.0f);
-    if (staticPreviewPlaying) {
-        if (editedState->speed > 0.0f && previewLength > 0.0f) {
-            // playback runs at the speed the state would fly at, which is what tells you how it feels
-            staticPreviewProgress +=
-                (editedState->speed * ImGui::GetIO().DeltaTime) / previewLength;
-            if (staticPreviewProgress > 1.0f) {
-                staticPreviewProgress -= 1.0f;
-            }
-        } else {
-            ImGui::TextUnformatted("The state needs a speed and two waypoints before it can play");
+    } else {
+        if (editedState->waypoints.size() >= 2) {
+            previewLut = BuildArcLengthTable(editedState->waypoints, editedState->interpolation);
         }
-    }
-    if (previewLength > 0.0f && editedState->speed > 0.0f) {
-        ImGui::Text("%.2f seconds along the path, %.2f in all",
-                    (staticPreviewProgress * previewLength) / editedState->speed,
-                    previewLength / editedState->speed);
+        auto const previewLength = previewLut.distances.back();
+
+        ImGui::Separator();
+        ImGui::TextUnformatted("Preview:");
+        if (ImGui::Button(staticPreviewPlaying ? "Pause" : "Play")) {
+            staticPreviewPlaying = !staticPreviewPlaying;
+        }
+        ImGui::SameLine();
+        ImGui::SliderFloat("Scrub", &staticPreviewProgress, 0.0f, 1.0f);
+        if (staticPreviewPlaying) {
+            if (editedState->speed > 0.0f && previewLength > 0.0f) {
+                // playback runs at the speed the state would fly at, which is what tells you how it feels
+                staticPreviewProgress += (editedState->speed * ImGui::GetIO().DeltaTime) / previewLength;
+                if (staticPreviewProgress > 1.0f) {
+                    staticPreviewProgress -= 1.0f;
+                }
+            } else {
+                ImGui::TextUnformatted("The state needs a speed and two waypoints before it can play");
+            }
+        }
+        if (previewLength > 0.0f && editedState->speed > 0.0f) {
+            ImGui::Text("%.2f seconds along the path, %.2f in all",
+                        (staticPreviewProgress * previewLength) / editedState->speed,
+                        previewLength / editedState->speed);
+        }
     }
 
     ImGui::End();
@@ -328,6 +326,21 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
     auto const origin = staticBehaviourData.space == BehaviourSpace::SpawnRelative
                             ? staticPosition
                             : moth::gfx::FloatVec2{ 0, 0 };
+
+    // every other path in the behaviour is drawn faintly, so a path can be placed against the whole of it
+    for (int i = 0; i < static_cast<int>(staticBehaviourData.states.size()); ++i) {
+        auto const& state = staticBehaviourData.states[i];
+        if (i == staticSelectedState || state.type != BehaviourType::Path || state.waypoints.size() < 2) {
+            continue;
+        }
+        auto const lut = BuildArcLengthTable(state.waypoints, state.interpolation);
+        DrawFlownPath(graphics, state, lut, origin, ReferencePathColor());
+    }
+
+    if (editedState == nullptr) {
+        return;
+    }
+
     auto& waypoints = editedState->waypoints;
     auto const& io = ImGui::GetIO();
     auto const mouseWorld =

@@ -57,6 +57,23 @@ void DrawWaypointHandles(moth::gfx::IGraphics& graphics, std::vector<moth::gfx::
     }
 }
 
+void DrawFlownPath(moth::gfx::IGraphics& graphics, BehaviourStateData const& state, ArcLengthLUT const& lut,
+                   moth::gfx::FloatVec2 const& offset, moth::gfx::Color const& color) {
+    if (lut.distances.back() <= 0.0f) {
+        return;
+    }
+
+    auto const samples = 200;
+    auto const step = 1.0f / static_cast<float>(samples);
+    graphics.SetColor(color);
+    auto last = FlownAt(state, lut, 0.0f) + offset;
+    for (auto i = 1; i <= samples; ++i) {
+        auto const next = FlownAt(state, lut, step * static_cast<float>(i)) + offset;
+        graphics.DrawLineF(last, next);
+        last = next;
+    }
+}
+
 void DrawPathStatePreview(moth::gfx::IGraphics& graphics, BehaviourStateData const& state,
                           ArcLengthLUT const& lut, moth::gfx::FloatVec2 const& offset, float progress) {
     auto const totalLength = lut.distances.back();
@@ -65,15 +82,7 @@ void DrawPathStatePreview(moth::gfx::IGraphics& graphics, BehaviourStateData con
     }
 
     // the flown path, drawn over the plain geometry so the two can be compared
-    auto const samples = 200;
-    auto const step = 1.0f / static_cast<float>(samples);
-    graphics.SetColor(moth::gfx::FromARGB(0xFF66CCFF));
-    auto last = FlownAt(state, lut, 0.0f) + offset;
-    for (auto i = 1; i <= samples; ++i) {
-        auto const next = FlownAt(state, lut, step * static_cast<float>(i)) + offset;
-        graphics.DrawLineF(last, next);
-        last = next;
-    }
+    DrawFlownPath(graphics, state, lut, offset, moth::gfx::FromARGB(0xFF66CCFF));
 
     // which way along it the entity goes
     for (auto i = 1; i <= 8; ++i) {

@@ -111,7 +111,6 @@ public:
         auto& registry = target.registry;
         auto entity = target.entity;
         auto& behaviour = target.behaviourComponent;
-        auto& position = target.positionComponent;
         auto const& state = *behaviour.m_currentState;
 
         // a path drives position directly, so nothing is left for the movement system to apply
@@ -130,7 +129,7 @@ public:
         if (cacheData == nullptr) {
             cacheData = &registry.Emplace<ComponentPathCache>(entity);
             cacheData->m_offset = behaviour.m_data.space == BehaviourSpace::SpawnRelative
-                                      ? position.m_position
+                                      ? behaviour.m_origin
                                       : moth::gfx::FloatVec2{ 0, 0 };
             cacheData->m_lut = BuildArcLengthTable(state.waypoints, state.interpolation);
         }
@@ -214,6 +213,14 @@ void SystemBehaviour::Update(GameWorld& world, uint32_t ticks) {
     auto view = registry.View<ComponentBehaviour, ComponentPosition, ComponentVelocity>();
 
     for (auto const& [entity, behaviour, position, velocity] : view.each()) {
+        if (!behaviour.m_init) {
+            // the behaviour starts here, which is what a spawn-relative one measures its states from.
+            // taken on the first update rather than at spawn, so that it does not depend on whoever
+            // created the entity remembering to set it
+            behaviour.m_origin = position.m_position;
+            behaviour.m_init = true;
+        }
+
         if (behaviour.m_stateIdx < behaviour.m_data.states.size()) {
             BehaviourTarget const target{ registry, entity, behaviour, position, velocity };
             auto pendingTicks = ticks;
