@@ -318,7 +318,7 @@ the gap, so it is left alone rather than fixed inside this task.
 - Spawn a path with `duration` 0 and confirm the enemy stops at the end of the
   path rather than continuing.
 
-### [todo] T-003 Add movement modifiers, starting with Wave
+### [done] T-003 Add movement modifiers, starting with Wave
 
 **Review:** reviewed 2026-09-19
 
@@ -339,13 +339,13 @@ worse interface than text.
 Step 3 of [behaviour-paths-and-editor.md](behaviour-paths-and-editor.md).
 
 **Requirements:**
-- [ ] `Wave` applies oscillation perpendicular to the direction of travel, with
+- [x] `Wave` applies oscillation perpendicular to the direction of travel, with
       amplitude and frequency.
-- [ ] `Phase` offsets a modifier's cycle, so two entities on the same behaviour
+- [x] `Phase` offsets a modifier's cycle, so two entities on the same behaviour
       can be visibly out of step.
-- [ ] `Ease` reshapes speed along the path without changing its geometry.
-- [ ] Modifiers work over both `Linear` and `CatmullRom` paths.
-- [ ] Modifiers apply in an order fixed by the engine, not by the order they are
+- [x] `Ease` reshapes speed along the path without changing its geometry.
+- [x] Modifiers work over both `Linear` and `CatmullRom` paths.
+- [x] Modifiers apply in an order fixed by the engine, not by the order they are
       listed in the data.
 
 **Out of scope:**
@@ -360,10 +360,41 @@ Reorderable modifier lists.
   compare against. The requirement is that it looks right, checked by hand.
 
 **Notes:**
+The order the engine fixes is Phase, then Ease, then Wave: Phase only produces a
+number the wave uses, Ease reshapes how far along the path the entity is, and
+Wave displaces it across the direction of travel at that point. Several
+modifiers of one kind accumulate in the order they are listed, which is the only
+sense in which the listed order matters.
+
+`Wave` measures frequency in cycles over the whole path rather than per second,
+so the shape does not change with the speed, and it takes its direction from the
+tangent of the path at that point. That is what makes it work the same over a
+straight line and over a curve.
+
+Assumption: `Phase` offsets by its `cycles` multiplied by the entity's place in
+the formation it spawned with, which is the only way two entities on one shared
+behaviour can differ. `ComponentBehaviour` gained `m_phaseIndex` and
+`SpawnMapEnemy` sets it as it walks the formation offsets. A lone spawn, and
+anything spawned from the editor, is index 0 and so is unaffected by Phase.
+
+Assumption: a modifier whose type is still `Undefined` makes its state
+incomplete, so the editor will not spawn a behaviour with a half-added modifier.
+
+The editor's path preview draws the geometry of the path, not the modified
+flight. T-007 owns showing what the entity actually flies, through its ghost.
 
 **Commits:**
+- 3fc1cce feat(T-003): add movement modifiers, starting with Wave
 
 **Manual verification:**
+- In the editor (F2), add a Path state with two waypoints and a Wave modifier
+  with an amplitude and a frequency. The spawned enemy weaves across the line.
+- Change the interpolation to CatmullRom with three or more waypoints. The same
+  wave now weaves across the curve.
+- Add an Ease modifier and confirm the enemy speeds up or slows down along the
+  path without the path changing shape.
+- In the star map, give a formation behaviour a Wave and a Phase modifier and
+  confirm the members of the formation weave out of step with one another.
 
 ### [todo] T-009 Remove the dead spline and curve code
 
