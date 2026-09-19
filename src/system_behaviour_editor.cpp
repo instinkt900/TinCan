@@ -72,6 +72,24 @@ namespace {
         return true;
     }
 
+    // Where a waypoint added from the panel goes. It carries on in the direction the path was already
+    // going, so that it lands clear of the handle before it and can be picked up and dragged, rather than
+    // stacking on top of another one where neither can be grabbed.
+    moth::gfx::FloatVec2 PlaceholderWaypoint(std::vector<moth::gfx::FloatVec2> const& waypoints) {
+        moth::gfx::FloatVec2 const fallback{ 0.0f, 100.0f };
+        if (waypoints.empty()) {
+            return { 0.0f, 0.0f };
+        }
+        auto step = fallback;
+        if (waypoints.size() >= 2) {
+            auto const last = waypoints.back() - waypoints[waypoints.size() - 2];
+            if (moth::gfx::LengthSq(last) > 0.0f) {
+                step = last;
+            }
+        }
+        return waypoints.back() + step;
+    }
+
     // the waypoint the mouse has hold of, or -1
     int FindWaypoint(std::vector<moth::gfx::FloatVec2> const& waypoints,
                      moth::gfx::FloatVec2 const& position) {
@@ -114,21 +132,22 @@ namespace imgui_ext {
     void InputBehaviourStateData(BehaviourStateData& data, int selectedWaypoint) {
         ImGui::PushID(&data);
         InputText("Label", data.label);
-        ImGui::InputScalar("Duration", ImGuiDataType_U32, &data.duration);
+        ImGui::InputScalar("Duration (ms, 0 = until it completes)", ImGuiDataType_U32, &data.duration);
         EnumCombo("Type", data.type);
 
         if (data.type == BehaviourType::Hold) {
         } else if (data.type == BehaviourType::Target) {
             EnumCombo("Target", data.target);
-            ImGui::InputFloat2("Position", static_cast<float*>(data.point.data));
-            ImGui::InputFloat("Speed", &data.speed);
+            ImGui::InputFloat2("Position (px)", static_cast<float*>(data.point.data));
+            ImGui::InputFloat("Speed (px/s)", &data.speed);
         } else if (data.type == BehaviourType::Path) {
-            ImGui::InputFloat("Speed", &data.speed);
+            ImGui::InputFloat("Speed (px/s)", &data.speed);
             EnumCombo("Interpolation", data.interpolation);
             EnumCombo("Entry", data.entry.type);
             if (data.entry.type != TransitionType::Snap) {
-                ImGui::InputFloat("Entry speed (0 = this state's)", &data.entry.speed);
+                ImGui::InputFloat("Entry speed (px/s, 0 = this state's)", &data.entry.speed);
             }
+            ImGui::TextUnformatted("Waypoints (px):");
             for (int i = 0; i < static_cast<int>(data.waypoints.size()); /* skip */) {
                 ImGui::PushID(i);
 
@@ -145,14 +164,8 @@ namespace imgui_ext {
                 ImGui::PopID();
                 ++i;
             }
-            static moth::gfx::FloatVec2 pendingPoint;
-            ImGui::TextUnformatted("New waypoint:");
-            ImGui::SameLine();
-            ImGui::SetNextItemWidth(150.0f);
-            ImGui::InputFloat2("##value", static_cast<float*>(pendingPoint.data));
-            ImGui::SameLine();
-            if (ImGui::Button("Add")) {
-                data.waypoints.push_back(pendingPoint);
+            if (ImGui::Button("Add waypoint")) {
+                data.waypoints.push_back(PlaceholderWaypoint(data.waypoints));
             }
 
             ImGui::TextUnformatted("Modifiers:");
@@ -161,10 +174,10 @@ namespace imgui_ext {
                 auto& modifier = data.modifiers[i];
                 EnumCombo("Type", modifier.type);
                 if (modifier.type == ModifierType::Wave) {
-                    ImGui::InputFloat("Amplitude", &modifier.amplitude);
-                    ImGui::InputFloat("Frequency", &modifier.frequency);
+                    ImGui::InputFloat("Amplitude (px)", &modifier.amplitude);
+                    ImGui::InputFloat("Frequency (cycles per path)", &modifier.frequency);
                 } else if (modifier.type == ModifierType::Phase) {
-                    ImGui::InputFloat("Cycles", &modifier.cycles);
+                    ImGui::InputFloat("Cycles (per place in the formation)", &modifier.cycles);
                 } else if (modifier.type == ModifierType::Ease) {
                     EnumCombo("Ease", modifier.ease);
                 }
@@ -235,7 +248,7 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
 
     // what to spawn, and where
     DatabaseCombo<EnemyData>("Enemy", gamedata, staticEnemyName);
-    ImGui::InputFloat2("Position", static_cast<float*>(staticPosition.data));
+    ImGui::InputFloat2("Position (px)", static_cast<float*>(staticPosition.data));
 
     auto const* enemyData = staticEnemyName.empty() ? nullptr : gamedata.Get<EnemyData>(staticEnemyName);
     bool const canSpawn = enemyData != nullptr && IsBehaviourComplete(staticBehaviourData);
@@ -305,7 +318,7 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
             staticPreviewPlaying = !staticPreviewPlaying;
         }
         ImGui::SameLine();
-        ImGui::SliderFloat("Scrub", &staticPreviewProgress, 0.0f, 1.0f);
+        ImGui::SliderFloat("Scrub (fraction of path)", &staticPreviewProgress, 0.0f, 1.0f);
         if (staticPreviewPlaying) {
             if (editedState->speed > 0.0f && previewLength > 0.0f) {
                 // playback runs at the speed the state would fly at, which is what tells you how it feels
