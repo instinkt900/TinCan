@@ -19,11 +19,22 @@ namespace {
         return u;
     }
 
-    // the direction of travel at this point on the path, found from the points either side of it
-    moth::gfx::FloatVec2 PathTangent(BehaviourStateData const& state, float u) {
-        float const step = 0.001f;
-        auto const ahead = SamplePath(state.waypoints, state.interpolation, std::min(1.0f, u + step));
-        auto const behind = SamplePath(state.waypoints, state.interpolation, std::max(0.0f, u - step));
+    // The direction of travel where the entity actually is, measured by stepping along the path's arc
+    // length rather than along its parameter. The two are only the same when the path happens to be
+    // evenly parameterised, as a straight line between two waypoints is. On a curve they can be most of
+    // the path apart, and a normal taken from the wrong place points partly along the direction of travel
+    // instead of across it, which makes a wave lurch rather than weave.
+    moth::gfx::FloatVec2 PathTangent(BehaviourStateData const& state, ArcLengthLUT const& lut,
+                                     float distance) {
+        auto const totalLength = lut.distances.back();
+        if (totalLength <= 0.0f) {
+            return { 0, 0 };
+        }
+        auto const step = totalLength * 0.002f;
+        auto const ahead = SamplePathByDistance(state.waypoints, state.interpolation, lut,
+                                                std::min(totalLength, distance + step));
+        auto const behind = SamplePathByDistance(state.waypoints, state.interpolation, lut,
+                                                 std::max(0.0f, distance - step));
         auto const delta = ahead - behind;
         if (moth::gfx::LengthSq(delta) <= 0.0f) {
             return { 0, 0 };
@@ -49,13 +60,14 @@ moth::gfx::FloatVec2 SamplePathState(BehaviourStateData const& state, ArcLengthL
         }
     }
 
-    auto position = SamplePathByDistance(state.waypoints, state.interpolation, lut, u * totalLength);
+    auto const distanceAlong = u * totalLength;
+    auto position = SamplePathByDistance(state.waypoints, state.interpolation, lut, distanceAlong);
 
     for (auto const& modifier : state.modifiers) {
         if (modifier.type != ModifierType::Wave) {
             continue;
         }
-        auto const tangent = PathTangent(state, u);
+        auto const tangent = PathTangent(state, lut, distanceAlong);
         auto const normal = moth::gfx::FloatVec2{ -tangent.y, tangent.x };
         auto const angle = 2.0f * static_cast<float>(M_PI) * ((modifier.frequency * u) + phase);
         position += normal * (modifier.amplitude * std::sin(angle));
