@@ -12,7 +12,7 @@ to [tasks-done.md](tasks-done.md).
 
 ## Tasks
 
-### [todo] T-008 Add a smoke launch check
+### [done] T-008 Add a smoke launch check
 
 **Review:** reviewed 2026-09-19
 
@@ -29,26 +29,26 @@ This task comes first because it raises the verification floor for everything
 after it.
 
 **Requirements:**
-- [ ] `tools/smoke_launch.sh` starts the Debug build, waits for the window, lets
+- [x] `tools/smoke_launch.sh` starts the Debug build, waits for the window, lets
       it run a few seconds, closes it with `WM_DELETE_WINDOW` so normal shutdown
       runs, and reports pass or fail.
-- [ ] It runs the game in a temporary directory, because the app writes
+- [x] It runs the game in a temporary directory, because the app writes
       `imgui.ini` to the current directory. Unlike moth_sprite, TinCan also needs
       `assets/`, `data/` and `tiled_project/` beside it, so the script links or
       copies them in.
-- [ ] It passes when the app exits with code 0 and the log has no `[warning]` or
+- [x] It passes when the app exits with code 0 and the log has no `[warning]` or
       `[error]` lines. Debug enables the Vulkan validation layers, so this is the
       check that catches renderer regressions.
-- [ ] Two known shutdown validation errors are allowed, named by VUID so they
+- [x] Two known shutdown validation errors are allowed, named by VUID so they
       cannot hide anything else: `VUID-vkDestroyBuffer-buffer-00922` and
       `VUID-vkDestroySampler-sampler-01082`. Any other validation error still
       fails the check. The allowance is removed once moth_toolkit T-002 is
       released and TinCan picks up the new `moth_graphics`.
-- [ ] It prints a clear pass or fail line, exits 0 on pass, and exits 2 when it
+- [x] It prints a clear pass or fail line, exits 0 on pass, and exits 2 when it
       cannot run at all (no display, no build, missing tool).
-- [ ] The window title is set to something specific enough to match. It is
+- [x] The window title is set to something specific enough to match. It is
       currently `"Example"` (`src/main.cpp:6`).
-- [ ] `docs/task-profile.md` is updated to name the launch check instead of
+- [x] `docs/task-profile.md` is updated to name the launch check instead of
       `none`.
 
 **Out of scope:**
@@ -66,10 +66,30 @@ work.
   and the task blocks if the check cannot otherwise pass against unmodified code.
 
 **Notes:**
+The log records that the validation layers produce span several lines and the
+VUID is on a continuation line, not on the line carrying `[error]`, so the check
+reads the log as records rather than lines and allows a record that names one of
+the two VUIDs. The two allowed shutdown errors are the only ones the check saw.
+
+One other error was seen, once, in an early run where the close request went
+astray and the game was left playing for twenty seconds:
+`[error] Unable to locate player` from `SystemPickup::Update`
+(`src/system_pickup.cpp:143`). It is logged when the player entity is gone, and
+the loop that follows it then dereferences a null `playerPosition` if any pickup
+is alive. Not silenced and not fixed here, because it is outside this task.
+Recorded under `## Discovered`.
+
+That early run also showed that a close request sent while the window manager is
+still taking the window over can be dropped, so the check sends it a second time
+after three seconds before it gives up. The check then passed three runs in a
+row.
 
 **Commits:**
+- f12c1a7 test(T-008): add a smoke launch check
 
 **Manual verification:**
+- Run `tools/smoke_launch.sh` and confirm it prints `SMOKE LAUNCH PASSED`.
+- Run the game normally and confirm the window is titled `TinCan`.
 
 ### [todo] T-001 Guard the path samplers against short point lists
 
@@ -427,3 +447,8 @@ Previewing a whole behaviour across several states. This is one state's path.
 **Manual verification:**
 
 ## Discovered
+
+- `SystemPickup::Update` logs `[error] Unable to locate player` and then
+  dereferences a null `playerPosition` in the pickup loop that follows
+  (`src/system_pickup.cpp:132`-`152`). Reachable once the player entity is gone.
+  Found by the T-008 launch check.
