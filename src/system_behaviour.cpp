@@ -99,6 +99,64 @@
 //     position.m_position = sample;
 // }
 
+namespace {
+    float ApplyEase(EaseType ease, float u) {
+        switch (ease) {
+        case EaseType::In:
+            return u * u;
+        case EaseType::Out:
+            return 1.0f - ((1.0f - u) * (1.0f - u));
+        case EaseType::InOut:
+            return u * u * (3.0f - (2.0f * u));
+        }
+        return u;
+    }
+
+    // the direction of travel at this point on the path, found from the points either side of it
+    moth::gfx::FloatVec2 PathTangent(BehaviourStateData const& state, float u) {
+        float const step = 0.001f;
+        auto const ahead = SamplePath(state.waypoints, state.interpolation, std::min(1.0f, u + step));
+        auto const behind = SamplePath(state.waypoints, state.interpolation, std::max(0.0f, u - step));
+        auto const delta = ahead - behind;
+        if (moth::gfx::LengthSq(delta) <= 0.0f) {
+            return { 0, 0 };
+        }
+        return moth::gfx::Normalized(delta);
+    }
+}
+
+moth::gfx::FloatVec2 SamplePathState(BehaviourStateData const& state, ArcLengthLUT const& lut,
+                                     float distanceTravelled, uint32_t phaseIndex) {
+    auto const totalLength = lut.distances.back();
+    auto u = totalLength > 0.0f ? std::clamp(distanceTravelled / totalLength, 0.0f, 1.0f) : 0.0f;
+
+    float phase = 0.0f;
+    for (auto const& modifier : state.modifiers) {
+        if (modifier.type == ModifierType::Phase) {
+            phase += modifier.cycles * static_cast<float>(phaseIndex);
+        }
+    }
+    for (auto const& modifier : state.modifiers) {
+        if (modifier.type == ModifierType::Ease) {
+            u = ApplyEase(modifier.ease, u);
+        }
+    }
+
+    auto position = SamplePathByDistance(state.waypoints, state.interpolation, lut, u * totalLength);
+
+    for (auto const& modifier : state.modifiers) {
+        if (modifier.type != ModifierType::Wave) {
+            continue;
+        }
+        auto const tangent = PathTangent(state, u);
+        auto const normal = moth::gfx::FloatVec2{ -tangent.y, tangent.x };
+        auto const angle = 2.0f * static_cast<float>(M_PI) * ((modifier.frequency * u) + phase);
+        position += normal * (modifier.amplitude * std::sin(angle));
+    }
+
+    return position;
+}
+
 struct BehaviourTarget {
     moth::ecs::World& registry;
     moth::ecs::Entity entity;
@@ -174,8 +232,8 @@ public:
         }
 
         auto const& state = *behaviour.m_currentState;
-        auto const sample = SamplePathByDistance(state.waypoints, state.interpolation, cacheData->m_lut,
-                                                 DistanceTravelled(target));
+        auto const sample =
+            SamplePathState(state, cacheData->m_lut, DistanceTravelled(target), behaviour.m_phaseIndex);
 
         position.m_lastPosition = position.m_position;
         position.m_position = cacheData->m_offset + sample;

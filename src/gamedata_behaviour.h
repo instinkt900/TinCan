@@ -30,6 +30,50 @@ enum class BehaviourSpace {
 };
 MAGIC_SERIALIZE_ENUM(BehaviourSpace);
 
+// What a modifier does to the position a path produced. A fixed, small set of numbers: modifiers do not
+// read the world, do not branch and cannot be nested.
+enum class ModifierType {
+    Undefined,
+    // offsets the cycle of the wave, so entities spawned together do not move in lockstep
+    Phase,
+    // reshapes speed along the path without bending its geometry
+    Ease,
+    // oscillates across the direction of travel
+    Wave,
+};
+MAGIC_SERIALIZE_ENUM(ModifierType);
+
+enum class EaseType {
+    In,
+    Out,
+    InOut,
+};
+MAGIC_SERIALIZE_ENUM(EaseType);
+
+struct BehaviourModifierData {
+    ModifierType type{ ModifierType::Undefined };
+    // Wave
+    float amplitude{ 0 };
+    float frequency{ 0 }; // cycles over the whole path
+    // Phase
+    float cycles{ 0 }; // cycles of offset per place in the formation
+    // Ease
+    EaseType ease{ EaseType::InOut };
+};
+
+inline void from_json(nlohmann::json const& json, BehaviourModifierData& data) {
+    DATA_REQUIRED(json, data, type);
+
+    if (data.type == ModifierType::Wave) {
+        DATA_REQUIRED(json, data, amplitude);
+        DATA_REQUIRED(json, data, frequency);
+    } else if (data.type == ModifierType::Phase) {
+        DATA_REQUIRED(json, data, cycles);
+    } else if (data.type == ModifierType::Ease) {
+        DATA_OPTIONAL(json, data, ease);
+    }
+}
+
 struct BehaviourStateData {
     BehaviourType type{ BehaviourType::Undefined };
     std::string label;
@@ -40,6 +84,7 @@ struct BehaviourStateData {
     std::vector<moth::gfx::FloatVec2> waypoints;
     PathInterpolation interpolation{ PathInterpolation::Linear };
     float speed{ 0 };
+    std::vector<BehaviourModifierData> modifiers;
 };
 
 struct BehaviourData {
@@ -58,6 +103,7 @@ inline void from_json(nlohmann::json const& json, BehaviourStateData& data) {
         DATA_REQUIRED(json, data, waypoints);
         DATA_OPTIONAL(json, data, interpolation);
         DATA_REQUIRED(json, data, speed);
+        DATA_OPTIONAL(json, data, modifiers);
     } else if (data.type == BehaviourType::Target) {
         DATA_REQUIRED(json, data, target);
         DATA_OPTIONAL(json, data, point);

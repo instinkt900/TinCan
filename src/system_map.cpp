@@ -132,10 +132,14 @@ namespace {
         boundsRect.topLeft -= { SpawnMargin * 2.0f, SpawnMargin * 2.0f };
         boundsRect.bottomRight += { SpawnMargin * 2.0f, SpawnMargin * 2.0f };
 
+        uint32_t phaseIndex = 0;
         for (auto const& offset : GetFormationOffsets(formation, count, spacing)) {
             moth::gfx::FloatVec2 const position{ spawn.position.x + offset.x,
                                                  spawn.position.y - scroll.m_cameraTop + offset.y };
             auto enemy = SystemEnemySpawner::SpawnEnemy(registry, *enemyData, behaviour, position, gamedata);
+
+            // a Phase modifier staggers the formation by each member's place in it
+            registry.Get<ComponentBehaviour>(enemy).m_phaseIndex = phaseIndex++;
 
             if (behaviourData == nullptr) {
                 // move with the map so the enemy stays where it was placed

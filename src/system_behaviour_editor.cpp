@@ -15,7 +15,11 @@ namespace {
         case BehaviourType::Target:
             return state.target != TargetType::Undefined;
         case BehaviourType::Path:
-            return state.waypoints.size() >= 2;
+            return state.waypoints.size() >= 2 &&
+                   std::none_of(state.modifiers.begin(), state.modifiers.end(),
+                                [](BehaviourModifierData const& modifier) {
+                                    return modifier.type == ModifierType::Undefined;
+                                });
         case BehaviourType::Undefined:
             break;
         }
@@ -87,6 +91,31 @@ namespace imgui_ext {
             ImGui::SameLine();
             if (ImGui::Button("Add")) {
                 data.waypoints.push_back(pendingPoint);
+            }
+
+            ImGui::TextUnformatted("Modifiers:");
+            for (int i = 0; i < static_cast<int>(data.modifiers.size()); /* skip */) {
+                ImGui::PushID(i);
+                auto& modifier = data.modifiers[i];
+                EnumCombo("Type", modifier.type);
+                if (modifier.type == ModifierType::Wave) {
+                    ImGui::InputFloat("Amplitude", &modifier.amplitude);
+                    ImGui::InputFloat("Frequency", &modifier.frequency);
+                } else if (modifier.type == ModifierType::Phase) {
+                    ImGui::InputFloat("Cycles", &modifier.cycles);
+                } else if (modifier.type == ModifierType::Ease) {
+                    EnumCombo("Ease", modifier.ease);
+                }
+                if (ImGui::SmallButton("Remove")) {
+                    data.modifiers.erase(data.modifiers.begin() + i);
+                    ImGui::PopID();
+                    continue;
+                }
+                ImGui::PopID();
+                ++i;
+            }
+            if (ImGui::Button("Add modifier")) {
+                data.modifiers.emplace_back();
             }
         }
         ImGui::PopID();

@@ -30,7 +30,16 @@ struct ComponentBehaviour {
     uint32_t m_stateIdx = 0;
     uint32_t m_stateTime = 0;
     bool m_init = false;
+    // place in the formation this entity was spawned with, which is what a Phase modifier multiplies its
+    // offset by so that members of one formation do not move in lockstep
+    uint32_t m_phaseIndex = 0;
 };
+
+// Where a path state puts an entity that has travelled this far along it, with the state's modifiers
+// applied. The engine fixes the order they apply in: Phase feeds the wave, Ease reshapes the progress
+// along the path, then Wave displaces across the direction of travel.
+moth::gfx::FloatVec2 SamplePathState(BehaviourStateData const& state, ArcLengthLUT const& lut,
+                                     float distanceTravelled, uint32_t phaseIndex);
 
 class SystemBehaviour {
 public:
