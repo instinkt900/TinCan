@@ -28,29 +28,26 @@ namespace {
         return !data.states.empty() &&
                std::all_of(data.states.begin(), data.states.end(), IsStateComplete);
     }
-}
 
-namespace imgui_ext {
-    void InputEnemyData(EnemyData& data, GameData const& gamedata) {
-        static std::string currentSpriteName;
-        currentSpriteName = "";
-        if (data.sprite.valid()) {
-            currentSpriteName = data.sprite.ref_name();
-        }
-        if (ImGui::BeginCombo("Sprite", currentSpriteName.c_str())) {
-            auto const& spriteDb = gamedata.Get<SpriteData>();
-            for (auto const& spriteName : spriteDb->Keys()) {
-                bool selected = spriteName == currentSpriteName;
-                if (ImGui::Selectable(spriteName.c_str(), &selected)) {
-                    data.sprite.load_ref(spriteName, gamedata);
+    // Names one entry of a database. Returns true on the frame the selection changes.
+    template <typename T>
+    bool DatabaseCombo(char const* label, GameData const& gamedata, std::string& currentName) {
+        bool changed = false;
+        if (ImGui::BeginCombo(label, currentName.c_str())) {
+            for (auto const& name : gamedata.Get<T>()->Keys()) {
+                bool const selected = name == currentName;
+                if (ImGui::Selectable(name.c_str(), selected) && !selected) {
+                    currentName = name;
+                    changed = true;
                 }
             }
             ImGui::EndCombo();
         }
-        ImGui::InputFloat("Radius", &data.radius);
-        ImGui::InputFloat("Health", &data.health);
+        return changed;
     }
+}
 
+namespace imgui_ext {
     void InputBehaviourStateData(BehaviourStateData& data, GameData const& gamedata,
                                  moth::gfx::IGraphics& graphics) {
         ImGui::PushID(&data);
@@ -135,27 +132,40 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
     auto& registry = world.GetRegistry();
     auto const& gamedata = world.GetGameData();
 
-    static EnemyData staticEnemyData;
+    static std::string staticEnemyName;
+    static std::string staticBehaviourName;
     static BehaviourData staticBehaviourData;
     static moth::gfx::FloatVec2 staticPosition;
 
     ImGui::Begin("Behaviour Editor");
     ImGui::InputFloat2("Position", static_cast<float*>(staticPosition.data));
-    bool const canSpawn = IsBehaviourComplete(staticBehaviourData);
+
+    auto const* enemyData = staticEnemyName.empty() ? nullptr : gamedata.Get<EnemyData>(staticEnemyName);
+    bool const canSpawn = enemyData != nullptr && IsBehaviourComplete(staticBehaviourData);
     ImGui::BeginDisabled(!canSpawn);
     if (ImGui::Button("Spawn")) {
-        SystemEnemySpawner::SpawnEnemy(registry, staticEnemyData, staticBehaviourData, staticPosition,
-                                       gamedata);
+        SystemEnemySpawner::SpawnEnemy(registry, *enemyData, staticBehaviourData, staticPosition, gamedata);
     }
     ImGui::EndDisabled();
     if (!canSpawn) {
         ImGui::SameLine();
-        ImGui::TextUnformatted("Add a state, and finish every state, before spawning");
+        if (enemyData == nullptr) {
+            ImGui::TextUnformatted("Choose an enemy before spawning");
+        } else {
+            ImGui::TextUnformatted("Add a state, and finish every state, before spawning");
+        }
     }
 
     ImGui::Separator();
 
-    imgui_ext::InputEnemyData(staticEnemyData, gamedata);
+    DatabaseCombo<EnemyData>("Enemy", gamedata, staticEnemyName);
+    if (DatabaseCombo<BehaviourData>("Behaviour", gamedata, staticBehaviourName)) {
+        // loading a named behaviour is a starting point for editing, not a live link to the database
+        if (auto const* loaded = gamedata.Get<BehaviourData>(staticBehaviourName)) {
+            staticBehaviourData = *loaded;
+        }
+    }
+
     imgui_ext::InputBehaviourData(staticBehaviourData, gamedata, graphics);
 
     ImGui::End();
