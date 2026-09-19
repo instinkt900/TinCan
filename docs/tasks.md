@@ -541,7 +541,7 @@ the wrong place.
   marked in the list.
 - Resize the window and confirm a click still lands where it is pointed.
 
-### [todo] T-006 Save edited behaviours back to the database
+### [done] T-006 Save edited behaviours back to the database
 
 **Review:** reviewed 2026-09-19
 
@@ -557,12 +557,12 @@ the edited behaviour back to `data/behaviour_database.json` under a name.
 Step 6 of [behaviour-paths-and-editor.md](behaviour-paths-and-editor.md).
 
 **Requirements:**
-- [ ] The movement state and its modifiers have serialisers matching their
+- [x] The movement state and its modifiers have serialisers matching their
       loaders.
-- [ ] Saving loads the whole of `data/behaviour_database.json`, replaces the
+- [x] Saving loads the whole of `data/behaviour_database.json`, replaces the
       named behaviour, and writes the file back.
-- [ ] Saving under a new name adds a behaviour rather than replacing one.
-- [ ] A behaviour saved from the editor reloads on the next run and moves
+- [x] Saving under a new name adds a behaviour rather than replacing one.
+- [x] A behaviour saved from the editor reloads on the next run and moves
       identically.
 
 **Out of scope:**
@@ -575,10 +575,40 @@ formatting, ordering or comments — a full rewrite is accepted.
   lost, which is accepted.
 
 **Notes:**
+Each `to_json` writes exactly the fields its `from_json` reads for that type, so
+the two cannot drift apart type by type. A label, a duration and a modifier list
+are written only when they hold something, which keeps a saved file close to
+what a person would have written by hand.
+
+The save reads the whole file, replaces or adds the named behaviour and writes
+it back at four-space indent, so ordering and hand formatting are lost, as the
+task accepts. It keeps whatever spelling of the `behaviours` category the file
+already uses rather than imposing its own.
+
+Checked rather than assumed: a `behaviour_database.json` written in the shape
+the serialisers produce, including a Path state with a Wave, a Phase and an Ease
+modifier, loads with no warnings or errors. That exercised the modifier loader
+from T-003 for the first time. The file was restored afterwards.
+
+Assumption: the database path is a constant in the editor, because the editor is
+the only thing that writes one, and the game loads the whole `data/` directory
+rather than naming files.
+
+Saving does not update the database the running game holds, so a behaviour saved
+under a new name appears in the Behaviour combo on the next run. The panel says
+so.
 
 **Commits:**
+- ad65d0e feat(T-006): save edited behaviours back to the database
 
 **Manual verification:**
+- Open the editor (F2), load `basic`, move a waypoint, and press Save. The file
+  `data/behaviour_database.json` holds the moved waypoint.
+- Restart and confirm `basic` spawns with the edited path.
+- Save under a name that is not in the database. The file gains a behaviour and
+  keeps the others. Restart and confirm the new name is in the Behaviour combo.
+- Save a behaviour with a Wave, a Phase and an Ease modifier, restart, load it
+  and confirm it moves as it did before the restart.
 
 ### [todo] T-007 Preview a path with a scrubbed ghost
 
