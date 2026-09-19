@@ -396,7 +396,7 @@ flight. T-007 owns showing what the entity actually flies, through its ghost.
 - In the star map, give a formation behaviour a Wave and a Phase modifier and
   confirm the members of the formation weave out of step with one another.
 
-### [todo] T-009 Remove the dead spline and curve code
+### [done] T-009 Remove the dead spline and curve code
 
 **Review:** reviewed 2026-09-19
 
@@ -413,12 +413,12 @@ Kept separate from T-002 and T-003 so that cleanup is not smuggled into a featur
 change, per the workspace `CLAUDE.md`.
 
 **Requirements:**
-- [ ] Code that nothing reaches after T-003 is removed, along with its entries in
+- [x] Code that nothing reaches after T-003 is removed, along with its entries in
       `SOURCES` in `CMakeLists.txt`.
-- [ ] `DrawSpline` / `src/system_debug_spline.*` is kept if the editor's path
+- [x] `DrawSpline` / `src/system_debug_spline.*` is kept if the editor's path
       preview still uses it, and removed if not. Check, do not assume.
-- [ ] Commented-out code left from the old design is removed.
-- [ ] No behaviour changes.
+- [x] Commented-out code left from the old design is removed.
+- [x] No behaviour changes.
 
 **Out of scope:**
 `data/spawner_database.json` and the unused spawner path
@@ -429,10 +429,29 @@ cleanup.
 **Open questions:**
 
 **Notes:**
+Checked rather than assumed: the editor's path preview does still use the draw
+helper, so the file is kept. Everything else in it reached nothing —
+`ComponentDebugSpline`, `imgui_ext::Details` for it and `SystemDebugSpline::Draw`
+had no callers — so what is left is the one function, and the file is renamed
+`src/debug_draw_path.*` to say so.
+
+Removed: `src/system_spline_editor.*` and its `SOURCES` entry, its include and
+its commented-out call in `game_world.cpp`; `CurveSample` and
+`ComponentCurveCache` from `system_behaviour.h`; the commented-out
+`BehaviourStraight`, `BehaviourWave` and `BehaviourSpline` from
+`system_behaviour.cpp`; and the commented-out `DrawDebugCurves` and
+`DrawDebugSplines` from `system_drawable.cpp`.
+
+Left alone: the commented-out alternative `UpdateTargeting` in
+`system_movement.cpp`, which is not part of this design, and the unused spawner
+path, which the task puts out of scope.
 
 **Commits:**
+- 2dccd66 refactor(T-009): remove the dead spline and curve code
 
 **Manual verification:**
+- Nothing to check by hand beyond confirming the game still plays as it did:
+  no behaviour was meant to change.
 
 ### [todo] T-005 Edit waypoints with the mouse in the game view
 
