@@ -610,7 +610,7 @@ so.
 - Save a behaviour with a Wave, a Phase and an Ease modifier, restart, load it
   and confirm it moves as it did before the restart.
 
-### [todo] T-007 Preview a path with a scrubbed ghost
+### [done] T-007 Preview a path with a scrubbed ghost
 
 **Review:** reviewed 2026-09-19
 
@@ -628,11 +628,11 @@ reworked.
 Step 7 of [behaviour-paths-and-editor.md](behaviour-paths-and-editor.md).
 
 **Requirements:**
-- [ ] A ghost can be scrubbed along the current path with a slider.
-- [ ] The ghost can play back at the state's real speed, with play and pause.
-- [ ] The preview shows direction along the path.
-- [ ] The preview shows time markers.
-- [ ] The ghost reflects modifiers, so a wave shows as a wave.
+- [x] A ghost can be scrubbed along the current path with a slider.
+- [x] The ghost can play back at the state's real speed, with play and pause.
+- [x] The preview shows direction along the path.
+- [x] The preview shows time markers.
+- [x] The ghost reflects modifiers, so a wave shows as a wave.
 
 **Out of scope:**
 Previewing a whole behaviour across several states. This is one state's path.
@@ -642,10 +642,39 @@ Previewing a whole behaviour across several states. This is one state's path.
   worth having; scrubbing is for inspecting a moment.
 
 **Notes:**
+The preview samples through `SamplePathState`, the same function the path
+handler uses, so the ghost, the arrows and the markers all reflect the
+modifiers: a wave shows as a wave, and the direction arrows follow the flown
+path rather than the line underneath it. The flown path is drawn over the plain
+geometry, so the two can be compared.
+
+Playback advances the scrub by `speed * delta / length`, which is the state's
+real speed, and wraps back to the start so a shape can be watched over and over.
+The panel shows where the ghost is in seconds, and how long the whole path takes.
+
+Assumption: the time markers are ticks across the path, one for each second and
+a longer one every fifth, rather than numbers. The editor draws into the world
+surface where it has no font, and a tick is readable at the size the path is
+drawn at.
+
+The arc-length table is rebuilt every frame, because the path is being edited
+every frame. It is a thousand samples of a two-dimensional curve, which does not
+show in the frame times.
 
 **Commits:**
+- b82bb56 feat(T-007): preview a path with a scrubbed ghost
 
 **Manual verification:**
+- Open the editor (F2) and select a Path state with two or more waypoints.
+- Drag the Scrub slider: the ghost moves along the path and its heading follows
+  the path.
+- Press Play: the ghost runs at the state's speed and loops. Pause stops it
+  where it is.
+- Confirm the arrows point the way the entity travels, and that the ticks across
+  the path are one second apart, with a longer one every fifth.
+- Add a Wave modifier: the flown path, the ghost, the arrows and the ticks all
+  follow the wave, while the plain path still shows the line underneath it.
+- Spawn the same behaviour and confirm the enemy flies where the ghost went.
 
 ## Discovered
 
