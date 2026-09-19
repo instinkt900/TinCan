@@ -453,7 +453,7 @@ path, which the task puts out of scope.
 - Nothing to check by hand beyond confirming the game still plays as it did:
   no behaviour was meant to change.
 
-### [todo] T-005 Edit waypoints with the mouse in the game view
+### [done] T-005 Edit waypoints with the mouse in the game view
 
 **Review:** reviewed 2026-09-19
 
@@ -478,15 +478,15 @@ player sees.
 Step 5 of [behaviour-paths-and-editor.md](behaviour-paths-and-editor.md).
 
 **Requirements:**
-- [ ] The window-to-world transform is available to both the draw and the editor
+- [x] The window-to-world transform is available to both the draw and the editor
       rather than recomputed or discarded.
-- [ ] Waypoints draw as handles in the game view.
-- [ ] Click on empty space appends a waypoint, drag moves one, right-click
+- [x] Waypoints draw as handles in the game view.
+- [x] Click on empty space appends a waypoint, drag moves one, right-click
       deletes one.
-- [ ] Mouse input for editing is ignored when ImGui wants the mouse, so clicking
+- [x] Mouse input for editing is ignored when ImGui wants the mouse, so clicking
       in the editor panel does not place a waypoint.
-- [ ] The path preview redraws live while editing.
-- [ ] The numeric fields remain, for precise nudging and to show what is
+- [x] The path preview redraws live while editing.
+- [x] The numeric fields remain, for precise nudging and to show what is
       selected.
 
 **Out of scope:**
@@ -495,10 +495,51 @@ Saving, which is T-006. Editing anything other than waypoints with the mouse.
 **Open questions:**
 
 **Notes:**
+The transform is a small `WorldViewTransform` in `src/world_view.h`, held by
+`GameWorld`. `GameLayer::Draw` works it out at the top of the frame, before the
+world draws, so the editor sees the current frame's transform rather than the
+last one, and the draw then uses it to place the world image as it did before.
+
+The editor's drawing needs no transform: it runs inside `GameWorld::Draw` with
+the world surface as the target, so its handles are already in world
+coordinates. The transform is only what turns the mouse position into a point in
+the world.
+
+Assumption: "the waypoints" means the waypoints of one state at a time, so each
+Path state carries an "Edit in view" radio button and the selected state is the
+one drawn and edited. Adding a Path state selects it. A behaviour loaded from
+the database starts with nothing selected.
+
+Assumption: a spawn-relative behaviour is drawn and edited around the editor's
+spawn Position, which is where the enemy would come in, so what is on screen is
+where the enemy would fly.
+
+A click is ignored when ImGui wants the mouse, but a drag already under way
+carries on even if the pointer crosses the panel, which is what makes dragging
+near the panel usable. This relies on ImGui mouse positions being in window
+coordinates, which holds while multi-viewport support is off, as it is by
+default in this workspace.
+
+Fixed in passing, inside the function this task rewrote: `DrawPath` left the
+offset off its first sample, so the first segment of a preview was drawn from
+the wrong place.
 
 **Commits:**
+- 69cc3a5 feat(T-005): edit waypoints with the mouse in the game view
 
 **Manual verification:**
+- Open the editor (F2), add a Path state, and confirm it is selected for editing
+  in the view.
+- Click in the game view away from the panel: a waypoint is appended and the
+  path redraws.
+- Drag a handle: it follows the mouse and the path follows it.
+- Right-click a handle: it is deleted.
+- Click inside the editor panel: no waypoint is placed.
+- Start a drag in the view and pull the mouse over the panel: the drag carries
+  on.
+- Check the numeric fields still nudge a waypoint, and that the selected one is
+  marked in the list.
+- Resize the window and confirm a click still lands where it is pointed.
 
 ### [todo] T-006 Save edited behaviours back to the database
 
