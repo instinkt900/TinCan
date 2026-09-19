@@ -24,16 +24,34 @@ none. The project has no automated tests, and no test framework is linked.
 
 ## Launch check
 
-none, until T-008 adds one.
+`tools/smoke_launch.sh [seconds, default 5]`.
 
-TinCan is a windowed Vulkan game with no headless mode, so until that task lands
-a session can confirm only that the build succeeds. Every requirement that can be
-judged only by looking at the game goes in the task's **Manual verification**
-field for the user to check by hand.
+It runs `build/Debug/tincan` in a temporary directory with `assets/`, `data/` and
+`tiled_project/` linked in, waits for the window titled `TinCan`, lets it play for
+a few seconds, then closes it with `WM_DELETE_WINDOW` so normal shutdown runs.
 
-A session must not launch the app to check its work by other means. The app reads
-and writes `imgui.ini` in the current directory, and it needs `assets/`, `data/`
-and `tiled_project/` beside it.
+- Pass: prints `SMOKE LAUNCH PASSED`, exits 0. The app exited with code 0 and the
+  log holds no `[warning]` or `[error]` record.
+- Fail: prints `SMOKE LAUNCH FAILED`, the reasons and the kept log path, exits 1.
+- Cannot run: prints `SMOKE LAUNCH CANNOT RUN`, exits 2.
+
+Debug enables the Vulkan validation layers, so this is also what catches renderer
+regressions. Two shutdown validation errors are allowed by name,
+`VUID-vkDestroyBuffer-buffer-00922` and `VUID-vkDestroySampler-sampler-01082`.
+They are a destruction-order problem in gfx (moth_toolkit T-002), and the
+allowance is removed once TinCan picks up the fixed `moth_graphics`. Any other
+validation error still fails the check.
+
+It needs an X11 display, `xdotool` and `python3`.
+
+TinCan is a windowed Vulkan game with no headless mode, so the check tells a
+session that the game starts, runs and shuts down cleanly, and nothing more.
+Every requirement that can be judged only by looking at the game goes in the
+task's **Manual verification** field for the user to check by hand.
+
+A session must not launch the app any other way. The app reads and writes
+`imgui.ini` in the current directory, and it needs `assets/`, `data/` and
+`tiled_project/` beside it.
 
 ## Rules
 

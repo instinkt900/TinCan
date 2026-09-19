@@ -3,7 +3,7 @@
 #include "game_layer.h"
 
 void start(moth::gfx::platform::IPlatform& platform) {
-    auto application = std::make_unique<moth::bridge::Application>(platform, "Example", 640, 480);
+    auto application = std::make_unique<moth::bridge::Application>(platform, "TinCan", 640, 480);
     application->Init();
     auto* uiWindow = application->GetUiWindow();
     auto& mothContext = uiWindow->GetMothContext();
