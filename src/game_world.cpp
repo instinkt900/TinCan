@@ -51,7 +51,10 @@ void GameWorld::Update(uint32_t ticks) {
     if (m_paused) {
         return;
     }
-    { MOTH_PROFILE_SCOPE("SystemMap"); SystemMap::Update(*this, ticks); }
+    if (!m_behaviourEditorOpen) {
+        MOTH_PROFILE_SCOPE("SystemMap");
+        SystemMap::Update(*this, ticks);
+    }
     { MOTH_PROFILE_SCOPE("SystemLifetime"); SystemLifetime::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemEnemySpawner"); SystemEnemySpawner::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemBehaviour"); SystemBehaviour::Update(*this, ticks); }
@@ -75,7 +78,9 @@ void GameWorld::Draw() {
     m_graphics.SetBlendMode(moth::gfx::BlendMode::Replace);
     m_graphics.SetColor(moth::gfx::BasicColors::White);
     // SystemSplineEditor::Draw(*this, m_graphics);
-    // SystemBehaviourEditor::Draw(*this, m_graphics);
+    if (m_behaviourEditorOpen) {
+        SystemBehaviourEditor::Draw(*this, m_graphics);
+    }
     { MOTH_PROFILE_SCOPE("SystemMap"); SystemMap::Draw(*this, m_graphics); }
     { MOTH_PROFILE_SCOPE("SystemDrawable"); SystemDrawable::Draw(*this, m_graphics); }
     { MOTH_PROFILE_SCOPE("Reset target"); m_graphics.SetTarget(nullptr); }

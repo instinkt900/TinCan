@@ -18,6 +18,9 @@ public:
     moth::ecs::Entity GetPlayerEntity() const { return m_player; }
     moth::gfx::IntVec2 const& GetWorldSize() const { return m_worldSize; }
 
+    // the behaviour editor freezes the map scroll while it is open, so spawns hold still while editing
+    void ToggleBehaviourEditor() { m_behaviourEditorOpen = !m_behaviourEditorOpen; }
+
     bool OnEvent(moth::ui::Event const& event) override;
     void Update(uint32_t ticks);
     void Draw();
@@ -45,6 +48,7 @@ private:
     moth::ecs::Entity m_player = moth::ecs::kNullEntity;
 
     bool m_paused = false;
+    bool m_behaviourEditorOpen = false;
 
     // the world is a fixed height, its width comes from the loaded map
     static int constexpr WorldHeight = 1080;

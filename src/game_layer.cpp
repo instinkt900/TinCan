@@ -116,6 +116,10 @@ bool GameLayer::OnKeyEvent(moth::ui::EventKey const& event) {
             m_profilerPanel.ToggleOpen();
             return true;
         }
+        if (event.GetKey() == moth::ui::Key::F2) {
+            m_gameWorld->ToggleBehaviourEditor();
+            return true;
+        }
     }
 
     return false;
