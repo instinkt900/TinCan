@@ -228,6 +228,9 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
     static bool staticPreviewPlaying = false;
 
     ImGui::Begin("Behaviour Editor");
+
+    // what to spawn, and where
+    DatabaseCombo<EnemyData>("Enemy", gamedata, staticEnemyName);
     ImGui::InputFloat2("Position", static_cast<float*>(staticPosition.data));
 
     auto const* enemyData = staticEnemyName.empty() ? nullptr : gamedata.Get<EnemyData>(staticEnemyName);
@@ -248,7 +251,6 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
 
     ImGui::Separator();
 
-    DatabaseCombo<EnemyData>("Enemy", gamedata, staticEnemyName);
     if (DatabaseCombo<BehaviourData>("Behaviour", gamedata, staticBehaviourName)) {
         // loading a named behaviour is a starting point for editing, not a live link to the database
         if (auto const* loaded = gamedata.Get<BehaviourData>(staticBehaviourName)) {
