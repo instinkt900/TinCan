@@ -157,7 +157,7 @@ is not kept in `ComponentBehaviour`.
   confirm the enemy holds position rather than freezing the game, with one
   warning in the log rather than one per frame.
 
-### [todo] T-004 Pick enemies and behaviours from the database in the editor
+### [done] T-004 Pick enemies and behaviours from the database in the editor
 
 **Review:** reviewed 2026-09-19
 
@@ -177,11 +177,11 @@ the model change.
 Step 4 of [behaviour-paths-and-editor.md](behaviour-paths-and-editor.md).
 
 **Requirements:**
-- [ ] A combo selects which enemy from `data/enemy_database.json` to spawn.
-- [ ] A combo loads a named behaviour from `data/behaviour_database.json` into
+- [x] A combo selects which enemy from `data/enemy_database.json` to spawn.
+- [x] A combo loads a named behaviour from `data/behaviour_database.json` into
       the editor as a starting point.
-- [ ] The typed sprite, radius and health fields are gone.
-- [ ] Spawning uses the selected enemy's data, not a hand-built `EnemyData`.
+- [x] The typed sprite, radius and health fields are gone.
+- [x] Spawning uses the selected enemy's data, not a hand-built `EnemyData`.
 
 **Out of scope:**
 A general gamedata editor that builds selectors from the data structures. That is
@@ -193,10 +193,29 @@ back.
 **Open questions:**
 
 **Notes:**
+The two combos share one templated helper over `GameData::Get<T>()->Keys()`,
+which is how the sprite combo it replaces already worked. The helper reports the
+frame the selection changes, so the behaviour is copied into the editor once on
+selection rather than every frame: loading a behaviour is a starting point for
+editing, not a live link to the database.
+
+Assumption: the Spawn button, which T-001 disables for an unfinished behaviour,
+is also disabled until an enemy is chosen, with a line beside it saying which of
+the two is missing. Spawning with no enemy selected would put an entity in the
+world with no sprite, no body and no health.
 
 **Commits:**
+- f30d0d8 feat(T-004): pick enemies and behaviours from the database in the editor
 
 **Manual verification:**
+- Open the behaviour editor (F2). The Enemy combo lists the entries of
+  `data/enemy_database.json` and the Behaviour combo lists those of
+  `data/behaviour_database.json`.
+- With nothing chosen, Spawn is disabled and says an enemy is needed.
+- Choose `chase_player` in the Behaviour combo and confirm its states appear in
+  the editor below.
+- Choose an enemy and spawn: the enemy that appears is the one named, with its
+  own sprite, radius and health, and it follows the edited behaviour.
 
 ### [todo] T-002 Replace the movement types with a waypoint path state
 
