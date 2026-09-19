@@ -205,16 +205,9 @@ namespace imgui_ext {
             ++i;
         }
 
-        static BehaviourStateData newStateData;
-        ImGui::Text("New state:");
-        InputBehaviourStateData(newStateData, -1);
-        if (ImGui::Button("Add")) {
-            data.states.push_back(newStateData);
-            if (newStateData.type == BehaviourType::Path) {
-                // editing in the view follows the state that was just added
-                selectedState = static_cast<int>(data.states.size()) - 1;
-            }
-            newStateData = {};
+        // a state is added empty and filled in where it sits in the list, rather than filled in first
+        if (ImGui::Button("Add state")) {
+            data.states.emplace_back();
         }
     }
 }
