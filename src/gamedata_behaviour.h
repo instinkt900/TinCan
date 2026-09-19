@@ -57,9 +57,8 @@ inline void from_json(nlohmann::json const& json, BehaviourStateData& data) {
     } else if (data.type == BehaviourType::Spline) {
         DATA_REQUIRED(json, data, speed);
         DATA_REQUIRED(json, data, points);
-        // duplicate the start and end points to get smooth transitions
-        data.points.insert(data.points.begin(), data.points[0]);
-        data.points.push_back(data.points.back());
+        // the endpoint padding a Catmull-Rom spline needs is applied by the sampler, so that a loaded path
+        // holds the same points an authored one does
     }
 }
 

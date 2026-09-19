@@ -2,6 +2,8 @@
 
 #include <moth/graphics/utils/math_utils.h>
 #include <moth/graphics/utils/vector.h>
+#include <algorithm>
+#include <vector>
 
 inline moth::gfx::FloatVec2 CatmullRom(moth::gfx::FloatVec2 const& p0, moth::gfx::FloatVec2 const& p1,
                                     moth::gfx::FloatVec2 const& p2, moth::gfx::FloatVec2 const& p3, float t) {
@@ -11,21 +13,36 @@ inline moth::gfx::FloatVec2 CatmullRom(moth::gfx::FloatVec2 const& p0, moth::gfx
                    (-p0 + 3.0f * p1 - 3.0f * p2 + p3) * t3);
 }
 
-inline moth::gfx::FloatVec2 SampleCatmullRomPath(std::vector<moth::gfx::FloatVec2> const& points, float t) {
-    if (t >= 1.0f) {
-        return points.back();
-    }
+// The control points either side of a segment. Indices outside the list clamp to its ends, which is the
+// endpoint padding a Catmull-Rom spline needs. Doing it here rather than by duplicating points in the data
+// keeps an authored path and a loaded one the same path.
+inline moth::gfx::FloatVec2 PathPointAt(std::vector<moth::gfx::FloatVec2> const& points, int index) {
+    auto const last = static_cast<int>(points.size()) - 1;
+    return points[static_cast<size_t>(std::clamp(index, 0, last))];
+}
 
-    auto const n = static_cast<int>(points.size());
-    if (n < 4) {
+// Samples a path of any length. An empty path is the origin, one point is that point, two points are the
+// straight line between them, and three or more are a Catmull-Rom spline through all of them.
+inline moth::gfx::FloatVec2 SampleCatmullRomPath(std::vector<moth::gfx::FloatVec2> const& points, float t) {
+    if (points.empty()) {
+        return { 0, 0 };
+    }
+    if (points.size() == 1) {
         return points[0];
     }
 
-    auto const segmentF = t * static_cast<float>(n - 3);
-    auto const i = std::min(static_cast<int>(segmentF), n - 4);
+    t = std::clamp(t, 0.0f, 1.0f);
+    if (points.size() == 2) {
+        return points[0] + (points[1] - points[0]) * t;
+    }
+
+    auto const n = static_cast<int>(points.size());
+    auto const segmentF = t * static_cast<float>(n - 1);
+    auto const i = std::min(static_cast<int>(segmentF), n - 2);
     auto const localT = segmentF - static_cast<float>(i);
 
-    return CatmullRom(points[i], points[i + 1], points[i + 2], points[i + 3], localT);
+    return CatmullRom(PathPointAt(points, i - 1), PathPointAt(points, i), PathPointAt(points, i + 1),
+                      PathPointAt(points, i + 2), localT);
 }
 
 struct ArcLengthLUT {
@@ -77,6 +94,10 @@ inline float GetTForDistance(ArcLengthLUT const& table, float s) {
     float d1 = table.distances[low];
     float t0 = table.t_values[low - 1];
     float t1 = table.t_values[low];
+    if (d1 <= d0) {
+        // a path that covers no distance, so there is nothing to interpolate along
+        return t1;
+    }
     float f = (s - d0) / (d1 - d0);
     return moth::gfx::Lerp(t0, t1, f);
 }

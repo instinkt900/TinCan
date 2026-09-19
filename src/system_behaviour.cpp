@@ -4,6 +4,7 @@
 #include "system_movement.h"
 #include "tags.h"
 #include <magic_enum.hpp>
+#include <spdlog/spdlog.h>
 
 // namespace {
 //     template <typename T>
@@ -239,6 +240,16 @@ public:
         auto& behaviour = target.behaviourComponent;
         auto& position = target.positionComponent;
 
+        if (behaviour.m_currentState->points.size() < 2) {
+            // a path needs two points before it goes anywhere. hold position for the state's duration
+            // rather than refusing to spawn, because the editor builds a path a point at a time. Init runs
+            // once per entry into a state, so this does not repeat every frame.
+            spdlog::warn("Behaviour state {} '{}' has fewer than two waypoints, so it does not move",
+                         behaviour.m_stateIdx, behaviour.m_currentState->label);
+            target.velocityComponent.m_velocity = { 0, 0 };
+            return;
+        }
+
         auto* cacheData = registry.TryGet<ComponentSplineCache>(entity);
         if (cacheData == nullptr) {
             cacheData = &registry.Emplace<ComponentSplineCache>(entity);
@@ -258,6 +269,10 @@ public:
         auto& position = target.positionComponent;
 
         auto* cacheData = registry.TryGet<ComponentSplineCache>(entity);
+        if (cacheData == nullptr) {
+            // Init found a path with too few points and left no cache, so the entity holds position
+            return;
+        }
 
         float const speed = behaviour.m_currentState->speed;
         auto const distanceTravelled = speed * (static_cast<float>(behaviour.m_stateTime) / 1000.0f);

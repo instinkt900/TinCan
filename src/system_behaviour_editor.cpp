@@ -3,6 +3,32 @@
 #include "system_enemy_spawner.h"
 #include "gamedata_behaviour.h"
 #include "utils_imgui.h"
+#include <algorithm>
+
+namespace {
+    // A state is incomplete while it is still being built in the editor. Spawning one would put an entity
+    // in the world that cannot do what its state asks.
+    bool IsStateComplete(BehaviourStateData const& state) {
+        switch (state.type) {
+        case BehaviourType::Line:
+        case BehaviourType::Hold:
+        case BehaviourType::Wave:
+            return true;
+        case BehaviourType::Target:
+            return state.target != TargetType::Undefined;
+        case BehaviourType::Spline:
+            return state.points.size() >= 2;
+        case BehaviourType::Undefined:
+            break;
+        }
+        return false;
+    }
+
+    bool IsBehaviourComplete(BehaviourData const& data) {
+        return !data.states.empty() &&
+               std::all_of(data.states.begin(), data.states.end(), IsStateComplete);
+    }
+}
 
 namespace imgui_ext {
     void InputEnemyData(EnemyData& data, GameData const& gamedata) {
@@ -115,9 +141,16 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
 
     ImGui::Begin("Behaviour Editor");
     ImGui::InputFloat2("Position", static_cast<float*>(staticPosition.data));
+    bool const canSpawn = IsBehaviourComplete(staticBehaviourData);
+    ImGui::BeginDisabled(!canSpawn);
     if (ImGui::Button("Spawn")) {
         SystemEnemySpawner::SpawnEnemy(registry, staticEnemyData, staticBehaviourData, staticPosition,
                                        gamedata);
+    }
+    ImGui::EndDisabled();
+    if (!canSpawn) {
+        ImGui::SameLine();
+        ImGui::TextUnformatted("Add a state, and finish every state, before spawning");
     }
 
     ImGui::Separator();
