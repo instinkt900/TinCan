@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gamedata.h"
+#include "world_view.h"
 #include <moth/graphics/graphics/itarget.h>
 #include <moth/graphics/platform/window.h>
 #include <moth/ecs/world.h>
@@ -27,6 +28,10 @@ public:
 
     moth::gfx::Image GetWorldImage() const { return m_worldSurface->GetImage(); }
 
+    // set by the draw each frame, and read by the behaviour editor to place the mouse in the world
+    void SetViewTransform(WorldViewTransform const& transform) { m_viewTransform = transform; }
+    WorldViewTransform const& GetViewTransform() const { return m_viewTransform; }
+
     float GetPlayerHealth() const;
     float GetPlayerPower() const;
 
@@ -46,6 +51,8 @@ private:
     GameData m_gamedata;
     moth::ecs::World m_registry;
     moth::ecs::Entity m_player = moth::ecs::kNullEntity;
+
+    WorldViewTransform m_viewTransform;
 
     bool m_paused = false;
     bool m_behaviourEditorOpen = false;

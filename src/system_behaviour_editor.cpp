@@ -26,6 +26,21 @@ namespace {
         return false;
     }
 
+    // the waypoint the mouse has hold of, or -1
+    int FindWaypoint(std::vector<moth::gfx::FloatVec2> const& waypoints,
+                     moth::gfx::FloatVec2 const& position) {
+        int found = -1;
+        float bestDistance = WaypointHandleRadius;
+        for (int i = 0; i < static_cast<int>(waypoints.size()); ++i) {
+            auto const distance = moth::gfx::Length(waypoints[i] - position);
+            if (distance <= bestDistance) {
+                bestDistance = distance;
+                found = i;
+            }
+        }
+        return found;
+    }
+
     bool IsBehaviourComplete(BehaviourData const& data) {
         return !data.states.empty() &&
                std::all_of(data.states.begin(), data.states.end(), IsStateComplete);
@@ -50,8 +65,7 @@ namespace {
 }
 
 namespace imgui_ext {
-    void InputBehaviourStateData(BehaviourStateData& data, GameData const& gamedata,
-                                 moth::gfx::IGraphics& graphics) {
+    void InputBehaviourStateData(BehaviourStateData& data, int selectedWaypoint) {
         ImGui::PushID(&data);
         InputText("Label", data.label);
         ImGui::InputScalar("Duration", ImGuiDataType_U32, &data.duration);
@@ -68,7 +82,7 @@ namespace imgui_ext {
             for (int i = 0; i < static_cast<int>(data.waypoints.size()); /* skip */) {
                 ImGui::PushID(i);
 
-                ImGui::Text("Waypoint %d", i);
+                ImGui::Text("%s Waypoint %d", i == selectedWaypoint ? ">" : " ", i);
                 ImGui::SameLine();
                 ImGui::InputFloat2("##value", static_cast<float*>(data.waypoints[i].data));
                 ImGui::SameLine();
@@ -77,8 +91,6 @@ namespace imgui_ext {
                     ImGui::PopID();
                     continue;
                 }
-
-                DrawPath(graphics, data.waypoints, data.interpolation);
 
                 ImGui::PopID();
                 ++i;
@@ -121,17 +133,23 @@ namespace imgui_ext {
         ImGui::PopID();
     }
 
-    void InputBehaviourData(BehaviourData& data, GameData const& gamedata,
-                            moth::gfx::IGraphics& graphics) {
+    void InputBehaviourData(BehaviourData& data, int& selectedState, int selectedWaypoint) {
         EnumCombo("Space", data.space);
         ImGui::Text("States:");
         for (int i = 0; i < static_cast<int>(data.states.size()); /* skip */) {
             ImGui::PushID(i);
             ImGui::Text("%d.", i);
+            if (data.states[i].type == BehaviourType::Path) {
+                ImGui::SameLine();
+                ImGui::RadioButton("Edit in view", &selectedState, i);
+            }
             ImGui::Indent();
-            InputBehaviourStateData(data.states[i], gamedata, graphics);
+            InputBehaviourStateData(data.states[i], i == selectedState ? selectedWaypoint : -1);
             if (ImGui::Button("Delete")) {
                 data.states.erase(data.states.begin() + i);
+                if (selectedState >= static_cast<int>(data.states.size())) {
+                    selectedState = -1;
+                }
                 ImGui::PopID();
                 ImGui::Unindent();
                 continue;
@@ -143,9 +161,13 @@ namespace imgui_ext {
 
         static BehaviourStateData newStateData;
         ImGui::Text("New state:");
-        InputBehaviourStateData(newStateData, gamedata, graphics);
+        InputBehaviourStateData(newStateData, -1);
         if (ImGui::Button("Add")) {
             data.states.push_back(newStateData);
+            if (newStateData.type == BehaviourType::Path) {
+                // editing in the view follows the state that was just added
+                selectedState = static_cast<int>(data.states.size()) - 1;
+            }
             newStateData = {};
         }
     }
@@ -159,6 +181,9 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
     static std::string staticBehaviourName;
     static BehaviourData staticBehaviourData;
     static moth::gfx::FloatVec2 staticPosition;
+    static int staticSelectedState = -1;
+    static int staticSelectedWaypoint = -1;
+    static int staticDraggedWaypoint = -1;
 
     ImGui::Begin("Behaviour Editor");
     ImGui::InputFloat2("Position", static_cast<float*>(staticPosition.data));
@@ -186,10 +211,66 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
         // loading a named behaviour is a starting point for editing, not a live link to the database
         if (auto const* loaded = gamedata.Get<BehaviourData>(staticBehaviourName)) {
             staticBehaviourData = *loaded;
+            staticSelectedState = -1;
+            staticSelectedWaypoint = -1;
+            staticDraggedWaypoint = -1;
         }
     }
 
-    imgui_ext::InputBehaviourData(staticBehaviourData, gamedata, graphics);
+    imgui_ext::InputBehaviourData(staticBehaviourData, staticSelectedState, staticSelectedWaypoint);
 
     ImGui::End();
+
+    // waypoints of the state being edited are drawn into the game view and edited with the mouse there,
+    // because what is being judged is whether a movement feels right at the size the player sees it
+    BehaviourStateData* editedState = nullptr;
+    if (staticSelectedState >= 0 && staticSelectedState < static_cast<int>(staticBehaviourData.states.size())) {
+        auto& state = staticBehaviourData.states[staticSelectedState];
+        if (state.type == BehaviourType::Path) {
+            editedState = &state;
+        }
+    }
+    if (editedState == nullptr) {
+        staticDraggedWaypoint = -1;
+        return;
+    }
+
+    // a spawn-relative path is authored around wherever the enemy comes in, so it is drawn there too
+    auto const origin = staticBehaviourData.space == BehaviourSpace::SpawnRelative
+                            ? staticPosition
+                            : moth::gfx::FloatVec2{ 0, 0 };
+    auto& waypoints = editedState->waypoints;
+    auto const& io = ImGui::GetIO();
+    auto const mouseWorld =
+        world.GetViewTransform().WindowToWorld({ io.MousePos.x, io.MousePos.y }) - origin;
+
+    // a click that lands on the editor panel belongs to the panel, but a drag already under way carries on
+    if (!io.WantCaptureMouse) {
+        auto const hovered = FindWaypoint(waypoints, mouseWorld);
+        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+            if (hovered >= 0) {
+                staticSelectedWaypoint = hovered;
+                staticDraggedWaypoint = hovered;
+            } else {
+                waypoints.push_back(mouseWorld);
+                staticSelectedWaypoint = static_cast<int>(waypoints.size()) - 1;
+            }
+        } else if (ImGui::IsMouseClicked(ImGuiMouseButton_Right) && hovered >= 0) {
+            waypoints.erase(waypoints.begin() + hovered);
+            staticSelectedWaypoint = -1;
+            staticDraggedWaypoint = -1;
+        }
+    }
+
+    if (staticDraggedWaypoint >= 0) {
+        if (ImGui::IsMouseDown(ImGuiMouseButton_Left) &&
+            staticDraggedWaypoint < static_cast<int>(waypoints.size())) {
+            waypoints[staticDraggedWaypoint] = mouseWorld;
+        } else {
+            staticDraggedWaypoint = -1;
+        }
+    }
+
+    DrawPath(graphics, waypoints, editedState->interpolation, origin);
+    DrawWaypointHandles(graphics, waypoints, origin, staticSelectedWaypoint);
 }

@@ -41,6 +41,22 @@ void GameLayer::Draw() {
 
     // m_graphics.SetLogicalSize({1920,1080});
 
+    // where the world image will sit in the window. worked out before the world draws, so that the
+    // behaviour editor can place the mouse in the world on the frame it runs
+    {
+        auto const worldImage = m_gameWorld->GetWorldImage();
+        auto const worldSize = moth::gfx::FloatVec2{ worldImage.GetWidth(), worldImage.GetHeight() };
+        auto const windowRect =
+            moth::gfx::FloatVec2{ static_cast<float>(m_window.GetWidth()), static_cast<float>(m_window.GetHeight()) };
+        WorldViewTransform transform;
+        if (worldSize.x > 0.0f && worldSize.y > 0.0f) {
+            auto const worldScaling = windowRect / worldSize;
+            transform.m_scale = std::min(worldScaling.x, worldScaling.y);
+            transform.m_offset = (windowRect - (worldSize * transform.m_scale)) / 2;
+        }
+        m_gameWorld->SetViewTransform(transform);
+    }
+
     // background fill
     m_graphics.SetBlendMode(moth::gfx::BlendMode::Replace);
     m_graphics.SetColor(moth::gfx::BasicColors::Black);
@@ -58,11 +74,9 @@ void GameLayer::Draw() {
     m_graphics.SetBlendMode(moth::gfx::BlendMode::Replace);
     auto const worldImage = m_gameWorld->GetWorldImage();
     auto const worldRect = moth::gfx::FloatVec2{ worldImage.GetWidth(), worldImage.GetHeight() };
-    auto const windowRect = moth::gfx::FloatVec2{ m_window.GetWidth(), m_window.GetHeight() };
-    auto const worldScaling = windowRect / worldRect;
-    auto const scaling = std::min(worldScaling.x, worldScaling.y);
-    auto const destSize = worldRect * scaling;
-    auto const destPos = (windowRect - destSize) / 2;
+    auto const& transform = m_gameWorld->GetViewTransform();
+    auto const destSize = worldRect * transform.m_scale;
+    auto const destPos = transform.m_offset;
     auto const destRect = moth::gfx::IntRect{ static_cast<moth::gfx::IntVec2>(destPos),
                                            static_cast<moth::gfx::IntVec2>(destPos + destSize) };
     m_graphics.DrawImage(worldImage, destRect);
