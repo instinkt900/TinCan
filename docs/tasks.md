@@ -217,7 +217,7 @@ world with no sprite, no body and no health.
 - Choose an enemy and spawn: the enemy that appears is the one named, with its
   own sprite, radius and health, and it follows the edited behaviour.
 
-### [todo] T-002 Replace the movement types with a waypoint path state
+### [done] T-002 Replace the movement types with a waypoint path state
 
 **Review:** reviewed 2026-09-19
 
@@ -238,18 +238,18 @@ loses a behaviour it was using.
 Step 2 of [behaviour-paths-and-editor.md](behaviour-paths-and-editor.md).
 
 **Requirements:**
-- [ ] A movement state carries `waypoints`, `interpolation` (`Linear` or
+- [x] A movement state carries `waypoints`, `interpolation` (`Linear` or
       `CatmullRom`), `speed` and `duration`, where `duration: 0` means "until the
       path completes".
-- [ ] `space` (`SpawnRelative` or `World`) is a property of the behaviour, not of
+- [x] `space` (`SpawnRelative` or `World`) is a property of the behaviour, not of
       each state.
-- [ ] `BehaviourStateData` stays one struct holding the union of every type's
+- [x] `BehaviourStateData` stays one struct holding the union of every type's
       fields, with `from_json` branching per type as it does today.
-- [ ] One arc-length sampler serves both interpolations.
-- [ ] `Line`, `Wave` and `Spline` and their handlers are gone
+- [x] One arc-length sampler serves both interpolations.
+- [x] `Line`, `Wave` and `Spline` and their handlers are gone
       (`src/system_behaviour.cpp:123`–`269`, `src/gamedata_behaviour.h:6`).
-- [ ] `Target` and `Hold` are unchanged.
-- [ ] `data/behaviour_database.json` is rewritten: `basic` becomes a two-waypoint
+- [x] `Target` and `Hold` are unchanged.
+- [x] `data/behaviour_database.json` is rewritten: `basic` becomes a two-waypoint
       linear path, `chase_player` and `in_and_hold` behave as they do today.
 
 **Out of scope:**
@@ -278,10 +278,45 @@ commented out (`src/game_world.cpp:39`). Leave the file alone.
   pacing may shift and is checked by hand.
 
 **Notes:**
+`PathInterpolation` lives in `utils_paths.h` beside the sampler that gives it
+meaning, and `gamedata_behaviour.h` only adds its serialiser. `BuildArcLengthTable`
+and `SamplePathByDistance` take the interpolation, so the same table serves both.
+
+A state with no duration needed a way to end, so `BehaviourHandler` gained
+`IsFinished`, which the state machine asks only of a state with no duration. The
+path handler answers it by comparing the distance travelled with the length of
+its arc-length table. The loop around it was rewritten to end a state and enter
+the next one in the same pass rather than only when ticks were left over; a state
+whose duration runs out now hands over in the same frame instead of the next.
+
+`ComponentSplineCache` is renamed `ComponentPathCache`, and the editor preview's
+`DrawSpline` becomes `DrawPath` and takes the interpolation, since Spline is no
+longer a thing the game has.
+
+Assumption: `basic` becomes `[0,0]` to `[0,1200]` in spawn-relative space at
+speed 100. The old `Line` velocity was `[0,100]`, the world is 1080 high, so the
+motion is the same and the enemy still leaves the bottom of the world before the
+path completes.
+
+Observed: a path drives position directly and leaves velocity at zero, which is
+what the old `Spline` handler did too. `SystemMovement` runs after
+`SystemBehaviour` and overwrites `m_lastPosition`, so a path-driven entity looks
+stationary to the sweep tests for one frame. It was already so for splines, and
+it costs only sub-frame accuracy because the projectile's own sweep still covers
+the gap, so it is left alone rather than fixed inside this task.
 
 **Commits:**
+- eecc89c feat(T-002): replace the movement types with a waypoint path state
 
 **Manual verification:**
+- Play the star map. Enemies using `basic` fly down the screen as they did
+  before, at the pace the map's `speed` property asks for.
+- `chase_player` and `in_and_hold` behave as they did.
+- In the editor (F2), a Path state offers waypoints, an interpolation and a
+  speed, and the behaviour offers a space. Spawn one of each interpolation and
+  confirm the enemy flies the line drawn in the preview.
+- Spawn a path with `duration` 0 and confirm the enemy stops at the end of the
+  path rather than continuing.
 
 ### [todo] T-003 Add movement modifiers, starting with Wave
 
