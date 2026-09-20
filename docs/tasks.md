@@ -12,7 +12,7 @@ to [tasks-done.md](tasks-done.md).
 
 ## Tasks
 
-### [todo] T-015 Remove the dead spawner path
+### [done] T-015 Remove the dead spawner path
 
 **Review:** reviewed 2026-09-20
 
@@ -48,24 +48,24 @@ This task runs before T-011 to T-014 so that they are not written against code t
 never runs.
 
 **Requirements:**
-- [ ] `SystemEnemySpawner::CreateSpawner`, `SystemEnemySpawner::Update` and
+- [x] `SystemEnemySpawner::CreateSpawner`, `SystemEnemySpawner::Update` and
       `ComponentEnemySpawner` are removed, along with the `SystemEnemySpawner`
       entry in `GameWorld::Update` (`src/game_world.cpp:58`).
-- [ ] `SystemEnemySpawner::SpawnEnemy` stays, with its callers in `SpawnMapEnemy`
+- [x] `SystemEnemySpawner::SpawnEnemy` stays, with its callers in `SpawnMapEnemy`
       and the behaviour editor unchanged.
-- [ ] `SpawnerData`, `SpawnerType`, `EnemyKillType`, `BehaviourParameterList` and
+- [x] `SpawnerData`, `SpawnerType`, `EnemyKillType`, `BehaviourParameterList` and
       its `adl_serializer` specialisation are removed from
       `src/gamedata_spawner.h`, and the file goes if nothing is left in it.
-- [ ] `GameDataCategory::Spawners`, `Database<SpawnerData> m_spawnerDatabase`
+- [x] `GameDataCategory::Spawners`, `Database<SpawnerData> m_spawnerDatabase`
       (`src/gamedata.h:86`) and the `SpawnerData` branches of the `if constexpr`
       chains in `src/gamedata.h` are removed, as is the `SpawnerData` forward
       declaration in `src/gamedata_fwd.h`.
-- [ ] `data/spawner_database.json` is deleted.
-- [ ] The **Compatibility** section of `docs/task-profile.md` no longer lists
+- [x] `data/spawner_database.json` is deleted.
+- [x] The **Compatibility** section of `docs/task-profile.md` no longer lists
       `data/spawner_database.json`, in the same commit as the deletion.
-- [ ] `EnemyKillType` is only removed if nothing live uses it. `SpawnMapEnemy`
+- [x] `EnemyKillType` is only removed if nothing live uses it. `SpawnMapEnemy`
       applies `ComponentBounds` directly, so check before deleting.
-- [ ] The game still plays the star map exactly as it does today. Nothing live
+- [x] The game still plays the star map exactly as it does today. Nothing live
       changes behaviour.
 
 **Out of scope:**
@@ -80,10 +80,23 @@ behaviour editor. This task only deletes what is unreachable.
   Compatibility list is updated to match.
 
 **Notes:**
+`EnemyKillType` was checked before deleting: only the removed `Update` used it.
+`SpawnMapEnemy` builds its own `ComponentBounds`, so nothing live lost anything.
+Removing `gamedata_spawner.h` and the `system_enemy_spawner.h` include of it took
+transitive includes away from three translation units, so `system_behaviour.h` and
+`gamedata_weapon.h` were added to `src/game_world.cpp`, `gamedata_enemy.h` to
+`src/gamedata.cpp`, and `system_behaviour.h` to `src/system_enemy_spawner.h`. The
+includes in `src/system_enemy_spawner.cpp` that only the deleted code needed
+(`system_group.h`, `system_lifetime.h`, `system_world_bounds.h`, `game_world.h`,
+`spdlog`) went with it.
 
 **Commits:**
+- `b893c7d` refactor(T-015): remove the unreachable spawner path
 
 **Manual verification:**
+1. Play the star map and confirm enemies spawn, fly and die exactly as before.
+2. Open the behaviour editor with F2 and spawn an enemy from it; spawning still
+   works.
 
 ### [todo] T-011 Anchor behaviour paths on their first waypoint and rotate them at spawn
 
