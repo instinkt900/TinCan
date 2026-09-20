@@ -1,4 +1,5 @@
 #include "system_behaviour_editor.h"
+#include "behaviour_transform.h"
 #include "debug_draw_path.h"
 #include "system_enemy_spawner.h"
 #include "gamedata_behaviour.h"
@@ -243,18 +244,36 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
     static int staticDraggedWaypoint = -1;
     static float staticPreviewProgress = 0.0f;
     static bool staticPreviewPlaying = false;
+    static float staticSpawnRotation = 0.0f;
+    // whether the spawn position has been typed in by hand. until it has, it follows the anchor
+    static bool staticPositionEdited = false;
 
     ImGui::Begin("Behaviour Editor");
 
     // what to spawn, and where
     DatabaseCombo<EnemyData>("Enemy", gamedata, staticEnemyName);
-    ImGui::InputFloat2("Position (px)", static_cast<float*>(staticPosition.data));
+
+    // a spawn-relative path is re-anchored onto the spawn point when it spawns, so the spawn position
+    // follows the anchor and the enemy flies the line that was just drawn. a value typed in by hand means
+    // "fly this shape from somewhere else", and it stays put until another behaviour is loaded
+    auto const anchor = BehaviourAnchor(staticBehaviourData);
+    if (!anchor.has_value()) {
+        staticPositionEdited = false;
+    } else if (staticBehaviourData.space == BehaviourSpace::SpawnRelative && !staticPositionEdited) {
+        staticPosition = anchor.value();
+    }
+    if (ImGui::InputFloat2("Position (px)", static_cast<float*>(staticPosition.data))) {
+        staticPositionEdited = true;
+    }
 
     auto const* enemyData = staticEnemyName.empty() ? nullptr : gamedata.Get<EnemyData>(staticEnemyName);
     bool const canSpawn = enemyData != nullptr && IsBehaviourComplete(staticBehaviourData);
     ImGui::BeginDisabled(!canSpawn);
     if (ImGui::Button("Spawn")) {
-        SystemEnemySpawner::SpawnEnemy(registry, *enemyData, staticBehaviourData, staticPosition, gamedata);
+        // the enemy flies its own copy, anchored and turned the way a map spawn's copy would be
+        auto spawnData = staticBehaviourData;
+        TransformBehaviour(spawnData, staticSpawnRotation);
+        SystemEnemySpawner::SpawnEnemy(registry, *enemyData, spawnData, staticPosition, gamedata);
     }
     ImGui::EndDisabled();
     if (!canSpawn) {
@@ -266,6 +285,10 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
         }
     }
 
+    // the rotation feeds the spawn only: the path is authored unturned, and this is how a turned one is
+    // watched flying. ctrl+click on the slider types a value into it
+    ImGui::SliderFloat("Spawn rotation (deg, clockwise)", &staticSpawnRotation, -180.0f, 180.0f);
+
     ImGui::Separator();
 
     if (DatabaseCombo<BehaviourData>("Behaviour", gamedata, staticBehaviourName)) {
@@ -276,6 +299,7 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
             staticSelectedState = -1;
             staticSelectedWaypoint = -1;
             staticDraggedWaypoint = -1;
+            staticPositionEdited = false;
         }
     }
 
@@ -339,10 +363,9 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
 
     ImGui::End();
 
-    // a spawn-relative path is authored around wherever the enemy comes in, so it is drawn there too
-    auto const origin = staticBehaviourData.space == BehaviourSpace::SpawnRelative
-                            ? staticPosition
-                            : moth::gfx::FloatVec2{ 0, 0 };
+    // the canvas is pure authoring space: waypoints are drawn and picked at the coordinates they hold. a
+    // spawn-relative path is moved onto the spawn point when it spawns, not while it is being authored
+    moth::gfx::FloatVec2 const origin{ 0, 0 };
 
     // every other path in the behaviour is drawn faintly, so a path can be placed against the whole of it
     for (int i = 0; i < static_cast<int>(staticBehaviourData.states.size()); ++i) {
