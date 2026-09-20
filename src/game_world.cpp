@@ -3,9 +3,10 @@
 #include "component_entity.h"
 #include "component_passives.h"
 #include "gamedata_entity.h"
+#include "gamedata_weapon.h"
 #include "system_animation.h"
+#include "system_behaviour.h"
 #include "system_drawable.h"
-#include "system_enemy_spawner.h"
 #include "system_group.h"
 #include "component_health.h"
 #include "system_input.h"
@@ -55,7 +56,6 @@ void GameWorld::Update(uint32_t ticks) {
         SystemMap::Update(*this, ticks);
     }
     { MOTH_PROFILE_SCOPE("SystemLifetime"); SystemLifetime::Update(*this, ticks); }
-    { MOTH_PROFILE_SCOPE("SystemEnemySpawner"); SystemEnemySpawner::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemBehaviour"); SystemBehaviour::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemTargeting"); SystemTargeting::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemMovement"); SystemMovement::Update(*this, ticks); }

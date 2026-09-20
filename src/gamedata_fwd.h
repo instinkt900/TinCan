@@ -6,5 +6,4 @@ struct EnemyData;
 struct ProjectileData;
 struct WeaponData;
 struct PickupData;
-struct SpawnerData;
 struct BehaviourData;

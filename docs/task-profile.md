@@ -82,7 +82,7 @@ Everything else must still load:
   `tiled_project/tincan.tiled-project`,
 - `data/enemy_database.json`, `data/sprite_database.json`,
   `data/sprite_database_enemy.json`, `data/weapon_database_player.json`,
-  `data/weapon_database_enemy.json`, `data/projectile_database.json`,
-  `data/pickup_database.json` and `data/spawner_database.json`.
+  `data/weapon_database_enemy.json`, `data/projectile_database.json` and
+  `data/pickup_database.json`.
 
 A task that needs one of those to change is blocked, not a judgement call.
