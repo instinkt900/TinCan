@@ -202,7 +202,7 @@ rotation control that go with it.
 2. Spawn-relative behaviours authored with a first waypoint away from the origin
    now start on the spawn point rather than offset from it.
 
-### [todo] T-012 Let map spawns supply a behaviour rotation
+### [done] T-012 Let map spawns supply a behaviour rotation
 
 **Review:** reviewed 2026-09-20
 
@@ -230,22 +230,22 @@ two are independent controls: rotating the object in Tiled angles the arrangemen
 of the group, and the custom property angles the path each member flies.
 
 **Requirements:**
-- [ ] A typed override struct carries at least the speed and the rotation in
+- [x] A typed override struct carries at least the speed and the rotation in
       degrees. It is not a generic string-to-variant parameter map.
-- [ ] One function applies the override to a `BehaviourData` copy, using T-011's
+- [x] One function applies the override to a `BehaviourData` copy, using T-011's
       rotation function rather than its own copy of the maths.
-- [ ] The existing hardcoded `speed` override in `SpawnMapEnemy` is replaced by
+- [x] The existing hardcoded `speed` override in `SpawnMapEnemy` is replaced by
       that function, and the `speed` Tiled property keeps working as it does today,
       including being read as either an int or a float.
-- [ ] A map spawn sets the rotation through a custom property named
+- [x] A map spawn sets the rotation through a custom property named
       `behaviour_rotation`, read as either an int or a float.
-- [ ] A second custom property steps the rotation per spawn index, so a formation
+- [x] A second custom property steps the rotation per spawn index, so a formation
       fans out. It is an angle added per index, not a total spread divided across
       the group.
-- [ ] The properties are declared on the `EnemySpawn` class in
+- [x] The properties are declared on the `EnemySpawn` class in
       `tiled_project/tincan.tiled-project`, so they can be set in Tiled.
-- [ ] The object's native `rotation` is not read by this task.
-- [ ] Existing maps keep working without being edited. A spawn with neither
+- [x] The object's native `rotation` is not read by this task.
+- [x] Existing maps keep working without being edited. A spawn with neither
       property set behaves exactly as it does today.
 
 **Out of scope:**
@@ -265,10 +265,29 @@ The object's native `rotation` field, which belongs to T-010.
   formation? A: An angle added per index.
 
 **Notes:**
+`BehaviourOverride` and `ApplyBehaviourOverride` sit beside `TransformBehaviour`
+in `src/behaviour_transform.h`, so the override and the maths it uses stay
+together. `speed` is a `std::optional<float>`, so a spawn without the property
+leaves every state at its authored speed, as before.
+The step property is named `behaviour_rotation_step`, an angle added per spawn
+index. Because the rotation now varies along the formation, each member gets its
+own copy of the behaviour inside the spawn loop rather than one copy shared by
+the whole spawn. The index used is the same `phaseIndex` the `Phase` modifier
+uses.
+Both new properties are read through `GetFloatProperty`, which already accepts an
+int or a float, and both default to 0, so existing maps spawn exactly as before.
 
 **Commits:**
+- `3b88d0e` feat(T-012): let map spawns rotate the behaviour they use
 
 **Manual verification:**
+1. Play the star map: spawns with neither new property set fly as they did
+   before, and the `speed` property still overrides the behaviour's speed.
+2. In Tiled, set `behaviour_rotation` to 45 on an `EnemySpawn` and confirm the
+   enemy's path is turned clockwise by that much.
+3. Set `count` to 5 and `behaviour_rotation_step` to 10, and confirm the group
+   fans out, each member turned 10 degrees further than the one before.
+4. Confirm both properties appear on the `EnemySpawn` class in Tiled.
 
 ### [todo] T-013 Make the behaviour editor canvas an authoring space
 
