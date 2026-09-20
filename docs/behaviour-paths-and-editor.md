@@ -95,6 +95,35 @@ Catmull-Rom's endpoint padding moves into the sampler, where it applies to
 authored and loaded data alike. The sampler handles zero, one, two and three
 waypoints as defined cases rather than crashing or silently freezing.
 
+### Entering a state
+
+A path state also carries an **`entry`**, which says how the entity travels to
+the state's own start:
+
+- **`Snap`** — it is placed on the start of the path. This is the default, and
+  what happens when no `entry` is given.
+- **`Linear`** — it travels there in a straight line.
+- **`Spline`** — it curves there, leaving along the direction it was already
+  travelling and arriving along the direction the path sets off in.
+
+The approach runs **before the state's duration starts counting**, on its own
+clock, so a short duration cannot silently swallow it. It travels at
+`entry.speed`, or at the state's own speed when that is 0.
+
+The same rule covers the jump from the spawn point into the first state, since
+the first state has to reach its start like any other. The direction the entity
+is already travelling comes from the step it took last frame, which at a spawn
+is zero, so the approach then aims straight at the start.
+
+An entry that is already standing on the start of its path has nothing to do and
+is skipped. That is what makes a spawn-relative behaviour's *first* path state a
+special case: the whole behaviour is anchored on the first waypoint of its first
+path state, and that anchor is moved onto the spawn point, so the entity is
+already exactly where the first state begins. Its `entry` rule therefore never
+runs. Later path states are moved by the same anchor rather than onto the
+entity, so they do not begin where the entity is, and their `entry` rules run as
+written.
+
 ### Modifiers
 
 A movement state carries a list of modifiers, applied in the order given to the
