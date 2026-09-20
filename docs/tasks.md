@@ -75,7 +75,7 @@ only for the moved function.
   the same places as before, and that sprites, flashes and blend modes look
   unchanged.
 
-### [todo] T-020 Add a formation editor window
+### [done] T-020 Add a formation editor window
 
 **Review:** reviewed 2026-09-20
 
@@ -101,35 +101,35 @@ spawn applies. The preview goes through the shared `GetFormationOffsets` from
 T-019, so what is drawn is what a spawn would place.
 
 **Requirements:**
-- [ ] F2 toggles editor mode, which shows both the Behaviour Editor and the new
+- [x] F2 toggles editor mode, which shows both the Behaviour Editor and the new
       Formation Editor as separate ImGui windows.
-- [ ] Editor mode pauses the map update exactly as the behaviour editor does
+- [x] Editor mode pauses the map update exactly as the behaviour editor does
       today (`src/game_world.cpp:53`).
-- [ ] The most recently focused of the two windows owns the world view: its
+- [x] The most recently focused of the two windows owns the world view: its
       overlay is drawn there and the mouse edits its shape. The Behaviour Editor
       is the active one when editor mode opens.
-- [ ] Clicking in the world view does not change which window is active.
-- [ ] The behaviour editor keeps its current drawing and mouse editing, including
+- [x] Clicking in the world view does not change which window is active.
+- [x] The behaviour editor keeps its current drawing and mouse editing, including
       its guides, while it is the active window.
-- [ ] The Formation Editor has a combo over the formations the game knows: the
+- [x] The Formation Editor has a combo over the formations the game knows: the
       entries of `data/formation_database.json` and the built-in `line`, `column`,
       `v` and `grid`.
-- [ ] A built-in formation can be selected and previewed, using `spacing` rather
+- [x] A built-in formation can be selected and previewed, using `spacing` rather
       than scale, but has no slots to edit and cannot be saved.
-- [ ] A database formation's slots can be created and edited: click in the world
+- [x] A database formation's slots can be created and edited: click in the world
       view to add a slot, drag to move one, right-click to remove one, at the
       preview scale, stored in unit space.
-- [ ] The panel lists the slots as editable unit-space number pairs with a remove
+- [x] The panel lists the slots as editable unit-space number pairs with a remove
       button and an add button, as the waypoint list does.
-- [ ] The preview controls are a count, a per-axis scale and a rotation in
+- [x] The preview controls are a count, a per-axis scale and a rotation in
       degrees, and the preview is built with `GetFormationOffsets` from T-019.
-- [ ] Slots within the count are drawn differently from the slots beyond it, so a
+- [x] Slots within the count are drawn differently from the slots beyond it, so a
       shape can be judged at the count it will be spawned with.
-- [ ] A `Save as` name and a Save button write the formation back to
+- [x] A `Save as` name and a Save button write the formation back to
       `data/formation_database.json`, replacing an entry of that name or adding a
       new one, mirroring `SaveBehaviour`
       (`src/system_behaviour_editor.cpp:38`). Save is disabled for a built-in.
-- [ ] Any new `.cpp` is added to `SOURCES` in `CMakeLists.txt`.
+- [x] Any new `.cpp` is added to `SOURCES` in `CMakeLists.txt`.
 
 **Out of scope:**
 Drawing the enemy's sprite at a filled slot, which is T-021. This task draws slot
@@ -151,10 +151,42 @@ Changing how formations are spawned, what the built-in generators produce, or th
   slots and cannot be saved.
 
 **Notes:**
+Assumptions made: the preview is centred on the middle of the world, because a
+formation has no spawn point of its own in the editor; the default preview scale
+is 32 px per unit; the world view owner changes only while one of the two windows
+reports itself focused, so a click on the world, which focuses neither, leaves it
+alone.
+
+`GetFormationOffsets` gained an overload taking a `FormationData` rather than a
+name. The editor previews the entry it is editing, which is not in the database
+until it is saved, so a name lookup would show the saved shape instead of the
+edit. The database branch of the name version now calls the new overload, so
+there is still one code path; the built-in generators and the spawn path are
+unchanged. `FormationData` gained a `to_json` so the editor can write it back;
+its schema is unchanged.
 
 **Commits:**
+- 28e8f74 feat(T-020): add a formation editor window
 
 **Manual verification:**
+- Press F2 and check that both the Behaviour Editor and the Formation Editor
+  appear, that the map stops scrolling, and that the two can be docked together.
+- Check that the behaviour editor draws its paths, guides and handles and takes
+  the mouse when editor mode opens, and that clicking in the world view does not
+  hand the view to the formation editor.
+- Click the Formation Editor's title bar and check the behaviour overlay goes,
+  the formation markers appear, and the mouse now edits slots. Click back to the
+  Behaviour Editor and check the overlay swaps back.
+- Select a built-in (`line`, `column`, `v`, `grid`) and check it previews from the
+  count and the spacing, has no slot list, and that Save is disabled.
+- Select a database formation, then add slots by clicking in the world view, drag
+  one, and right-click one to remove it. Check the panel list matches, and that
+  the numbers there are unit space, not pixels.
+- Change the count and check that slots beyond it are drawn smaller and fainter.
+- Change the scale and rotation and check the preview follows, and that a slot
+  added afterwards still lands under the mouse.
+- Type a `Save as` name, press Save, and check `data/formation_database.json`
+  holds the shape and that restarting the game loads it.
 
 ### [todo] T-021 Fill the counted slots with the enemy's sprite
 
