@@ -7,6 +7,9 @@
 void KillOutOfBounds(moth::ecs::World& registry, moth::ecs::Entity entity, ComponentBounds const& bounds,
                      ComponentPosition& position) {
     registry.GetOrEmplace<DeadTag>(entity);
+    // leaving the play area is never the player's doing, so it counts as an escape and its group earns
+    // no drop for it
+    registry.GetOrEmplace<EscapedTag>(entity);
 }
 
 void LimitOutOfBounds(moth::ecs::World& registry, moth::ecs::Entity entity, ComponentBounds const& bounds,

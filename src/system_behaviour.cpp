@@ -120,6 +120,18 @@ public:
     }
 
     void Deinit(BehaviourTarget const& target) override {
+        // leave the entity travelling the way the path was heading at its end, so that a behaviour whose
+        // last state is a path carries on off the screen and is cleaned up by its bounds, rather than
+        // stopping dead wherever the waypoints ran out. A state that follows this one sets its own
+        // velocity in Init, so this only outlives the state when nothing comes after it. The direction is
+        // the geometry's tangent, not the step just taken, which a Wave modifier would have swinging
+        // across the path.
+        if (auto const* cacheData = target.registry.TryGet<ComponentPathCache>(target.entity)) {
+            auto const& state = *target.behaviourComponent.m_currentState;
+            auto const tangent = PathTangentAtDistance(state.waypoints, state.interpolation, cacheData->m_lut,
+                                                       cacheData->m_lut.distances.back());
+            target.velocityComponent.m_velocity = tangent * state.speed;
+        }
         target.registry.Remove<ComponentPathCache>(target.entity);
     }
 

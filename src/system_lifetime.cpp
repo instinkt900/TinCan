@@ -12,9 +12,7 @@ void UpdateLifetimes(moth::ecs::World& registry, uint32_t ticks, std::set<moth::
     for (auto [entity, lifetime] : view.each()) {
         if (lifetime.m_msLeft <= ticks) {
             deadEntities.insert(entity);
-            if (auto const* groupId = registry.TryGet<ComponentGroupId>(entity)) {
-                SystemGroup::RemoveMember(registry, groupId->m_group, entity, GroupEndCondition::Escaped);
-            }
+            registry.GetOrEmplace<EscapedTag>(entity);
         } else {
             lifetime.m_msLeft -= ticks;
             lifetime.m_msAlive += ticks;
@@ -55,9 +53,12 @@ void SystemLifetime::Update(GameWorld& world, uint32_t ticks) {
     UpdateDead(registry, deadEntities);
 
     for (auto entity : deadEntities) {
-        // notify any groups of a dead member
+        // notify any groups of a dead member. every route out of the world passes through here, so this is
+        // the one place a member is removed from its group, and EscapedTag says which of the two it was
         if (auto const* groupId = registry.TryGet<ComponentGroupId>(entity)) {
-            SystemGroup::RemoveMember(registry, groupId->m_group, entity, GroupEndCondition::Killed);
+            auto const condition = registry.Has<EscapedTag>(entity) ? GroupEndCondition::Escaped
+                                                                   : GroupEndCondition::Killed;
+            SystemGroup::RemoveMember(registry, groupId->m_group, entity, condition);
         }
         registry.Destroy(entity);
     }
