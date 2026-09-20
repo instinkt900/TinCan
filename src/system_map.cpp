@@ -89,6 +89,8 @@ namespace {
 
         BehaviourData behaviour;
         BehaviourData const* behaviourData = nullptr;
+        BehaviourOverride spawnOverride;
+        float rotationStep = 0.0f;
         int count = 1;
         std::string formation;
         float spacing = 32.0f;
@@ -106,17 +108,18 @@ namespace {
                 }
             }
 
-            // a speed property overrides the speed of every state in the behaviour. tiled may store it as an int or a float
+            // what this spawn changes about the behaviour it uses. tiled may store any of these as an int
+            // or a float, and a property that is not set leaves the behaviour as it was authored
             if (auto const it = spawn.properties.find("speed"); it != spawn.properties.end()) {
                 auto const* floatSpeed = std::get_if<float>(&it->second);
                 auto const* intSpeed = std::get_if<int>(&it->second);
                 if (floatSpeed != nullptr || intSpeed != nullptr) {
-                    auto const speed = floatSpeed != nullptr ? *floatSpeed : static_cast<float>(*intSpeed);
-                    for (auto& state : behaviour.states) {
-                        state.speed = speed;
-                    }
+                    spawnOverride.speed =
+                        floatSpeed != nullptr ? *floatSpeed : static_cast<float>(*intSpeed);
                 }
             }
+            spawnOverride.rotation = GetFloatProperty(spawn.properties, "behaviour_rotation", 0.0f);
+            rotationStep = GetFloatProperty(spawn.properties, "behaviour_rotation_step", 0.0f);
 
             count = std::max(1, moth::tilemap::GetProperty(spawn.properties, "count", 1));
             formation = moth::tilemap::GetProperty<std::string>(spawn.properties, "formation", "line");
@@ -132,10 +135,6 @@ namespace {
                 }
             }
         }
-
-        // the paths are anchored on their first waypoint and turned by the spawn's rotation, on this
-        // copy of the behaviour, so that the states of one behaviour keep their shape together
-        TransformBehaviour(behaviour, 0.0f);
 
         // the spawn's members share a group, so the drop appears once the whole formation has been killed
         auto group = moth::ecs::kNullEntity;
@@ -153,7 +152,15 @@ namespace {
         for (auto const& offset : offsets) {
             moth::gfx::FloatVec2 const position{ spawn.position.x + offset.x,
                                                  spawn.position.y - scroll.m_cameraTop + offset.y };
-            auto enemy = SystemEnemySpawner::SpawnEnemy(registry, *enemyData, behaviour, position, gamedata);
+            // each member gets its own copy of the behaviour, because the rotation steps along the
+            // formation so that a group fans out
+            auto memberBehaviour = behaviour;
+            auto memberOverride = spawnOverride;
+            memberOverride.rotation += rotationStep * static_cast<float>(phaseIndex);
+            ApplyBehaviourOverride(memberBehaviour, memberOverride);
+
+            auto enemy =
+                SystemEnemySpawner::SpawnEnemy(registry, *enemyData, memberBehaviour, position, gamedata);
 
             // a Phase modifier staggers the formation by each member's place in it
             registry.Get<ComponentBehaviour>(enemy).m_phaseIndex = phaseIndex++;

@@ -45,3 +45,22 @@ inline void TransformBehaviour(BehaviourData& data, float rotationDegrees) {
         }
     }
 }
+
+// What a spawn changes about the behaviour it uses. A typed struct rather than a map of named values: each
+// field is known here, so the places that set one can name it, and nothing has to be resolved by string.
+struct BehaviourOverride {
+    // unset leaves every state at the speed it was authored with
+    std::optional<float> speed;
+    // degrees, clockwise on screen, turned about the behaviour's anchor
+    float rotation{ 0.0f };
+};
+
+// Applies a spawn's override to its own copy of a behaviour.
+inline void ApplyBehaviourOverride(BehaviourData& data, BehaviourOverride const& spawnOverride) {
+    if (spawnOverride.speed.has_value()) {
+        for (auto& state : data.states) {
+            state.speed = spawnOverride.speed.value();
+        }
+    }
+    TransformBehaviour(data, spawnOverride.rotation);
+}

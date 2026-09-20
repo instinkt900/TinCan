@@ -55,6 +55,16 @@
                     "value": "basic"
                 },
                 {
+                    "name": "behaviour_rotation",
+                    "type": "float",
+                    "value": 0
+                },
+                {
+                    "name": "behaviour_rotation_step",
+                    "type": "float",
+                    "value": 0
+                },
+                {
                     "name": "count",
                     "type": "int",
                     "value": 1
