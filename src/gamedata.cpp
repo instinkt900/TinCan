@@ -2,6 +2,7 @@
 #include <fstream>
 #include "utils_serialization.h"
 #include "gamedata_enemy.h"
+#include "gamedata_formation.h"
 #include "gamedata_sprite.h"
 #include "gamedata_pickup.h"
 #include "gamedata_projectile.h"
@@ -74,6 +75,9 @@ bool GameData::Load(std::filesystem::path const& path, SerializeContext const& c
             break;
         case GameDataCategory::Enemies:
             m_enemyDatabase.Load(categoryJson);
+            break;
+        case GameDataCategory::Formations:
+            m_formationDatabase.Load(categoryJson);
             break;
         case GameDataCategory::Pickups:
             m_pickupDatabase.Load(categoryJson);

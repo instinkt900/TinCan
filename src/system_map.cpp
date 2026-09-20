@@ -1,6 +1,7 @@
 #include "system_map.h"
 #include "behaviour_transform.h"
 #include "game_world.h"
+#include "gamedata_formation.h"
 #include "system_drawable.h"
 #include "system_enemy_spawner.h"
 #include "system_group.h"
@@ -36,11 +37,24 @@ namespace {
     }
 
     // offsets of each formation member from the spawn point, in map pixels. the spawn point is the front of the
-    // formation and members further back are placed above it, so they scroll into view after the front
-    std::vector<moth::gfx::FloatVec2> GetFormationOffsets(std::string const& formation, int count, float spacing) {
+    // formation and members further back are placed above it, so they scroll into view after the front.
+    // A formation in the game data is a shape in unit space sized by scale; the built-in generators are
+    // built from a step and are sized by spacing instead, so the two never multiply together.
+    std::vector<moth::gfx::FloatVec2> GetFormationOffsets(GameData const& gamedata, std::string const& formation,
+                                                          int count, float spacing,
+                                                          moth::gfx::FloatVec2 const& scale, float rotation) {
         std::vector<moth::gfx::FloatVec2> offsets;
         offsets.reserve(static_cast<size_t>(count));
-        if (formation == "line") {
+        if (auto const* data = gamedata.Get<FormationData>()->Find(formation); data != nullptr) {
+            auto const slots = static_cast<int>(data->slots.size());
+            if (count > slots) {
+                spdlog::warn("Formation {} has {} slots, but {} were asked for", formation, slots, count);
+            }
+            for (int i = 0; i < std::min(count, slots); ++i) {
+                offsets.push_back({ data->slots[static_cast<size_t>(i)].x * scale.x,
+                                    data->slots[static_cast<size_t>(i)].y * scale.y });
+            }
+        } else if (formation == "line") {
             for (int i = 0; i < count; ++i) {
                 offsets.push_back({ (static_cast<float>(i) - static_cast<float>(count - 1) / 2.0f) * spacing, 0.0f });
             }
@@ -69,6 +83,14 @@ namespace {
             spdlog::error("Map spawn has unknown formation {}", formation);
             offsets.push_back({ 0.0f, 0.0f });
         }
+
+        // the object's own rotation staggers the whole arrangement on an angle, which is visible in tiled
+        // while the spawn is being placed
+        if (rotation != 0.0f) {
+            for (auto& offset : offsets) {
+                offset = moth::gfx::Rotate2D(offset, rotation);
+            }
+        }
         return offsets;
     }
 
@@ -94,6 +116,7 @@ namespace {
         int count = 1;
         std::string formation;
         float spacing = 32.0f;
+        moth::gfx::FloatVec2 scale{ 1.0f, 1.0f };
         DataRef<PickupData> drop;
         {
             // reading the spawn's tiled properties: string lookups, a behaviour copy and a data ref load
@@ -124,6 +147,9 @@ namespace {
             count = std::max(1, moth::tilemap::GetProperty(spawn.properties, "count", 1));
             formation = moth::tilemap::GetProperty<std::string>(spawn.properties, "formation", "line");
             spacing = GetFloatProperty(spawn.properties, "spacing", 32.0f);
+            // a formation from the game data is a shape, sized by scale rather than by spacing
+            scale = { GetFloatProperty(spawn.properties, "scale_x", 1.0f),
+                      GetFloatProperty(spawn.properties, "scale_y", 1.0f) };
 
             // "none" is the enum's way of saying no drop, since tiled cannot clear an enum property
             auto const dropName = moth::tilemap::GetProperty<std::string>(spawn.properties, "drop");
@@ -147,7 +173,7 @@ namespace {
         boundsRect.bottomRight += { SpawnMargin * 2.0f, SpawnMargin * 2.0f };
 
         uint32_t phaseIndex = 0;
-        auto const offsets = GetFormationOffsets(formation, count, spacing);
+        auto const offsets = GetFormationOffsets(gamedata, formation, count, spacing, scale, spawn.rotation);
         MOTH_PROFILE_SCOPE("Spawn formation");
         for (auto const& offset : offsets) {
             moth::gfx::FloatVec2 const position{ spawn.position.x + offset.x,

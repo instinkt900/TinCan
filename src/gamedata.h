@@ -11,6 +11,7 @@ enum class GameDataCategory {
     Projectiles,
     Weapons,
     Enemies,
+    Formations,
     Pickups,
     Behaviours,
 };
@@ -38,6 +39,8 @@ public:
             return &m_weaponDatabase;
         } else if constexpr (T::Category == GameDataCategory::Enemies) {
             return &m_enemyDatabase;
+        } else if constexpr (T::Category == GameDataCategory::Formations) {
+            return &m_formationDatabase;
         } else if constexpr (T::Category == GameDataCategory::Pickups) {
             return &m_pickupDatabase;
         } else if constexpr (T::Category == GameDataCategory::Behaviours) {
@@ -57,6 +60,8 @@ public:
             return m_weaponDatabase.Get(name);
         } else if constexpr (T::Category == GameDataCategory::Enemies) {
             return m_enemyDatabase.Get(name);
+        } else if constexpr (T::Category == GameDataCategory::Formations) {
+            return m_formationDatabase.Get(name);
         } else if constexpr (T::Category == GameDataCategory::Pickups) {
             return m_pickupDatabase.Get(name);
         } else if constexpr (T::Category == GameDataCategory::Behaviours) {
@@ -78,6 +83,7 @@ private:
     Database<ProjectileData> m_projectileDatabase;
     Database<WeaponData> m_weaponDatabase;
     Database<EnemyData> m_enemyDatabase;
+    Database<FormationData> m_formationDatabase;
     Database<PickupData> m_pickupDatabase;
     Database<BehaviourData> m_behaviourDatabase;
 };

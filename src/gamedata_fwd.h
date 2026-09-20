@@ -5,5 +5,6 @@ struct SpriteData;
 struct EnemyData;
 struct ProjectileData;
 struct WeaponData;
+struct FormationData;
 struct PickupData;
 struct BehaviourData;

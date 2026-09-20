@@ -88,6 +88,16 @@
                     "value": "line"
                 },
                 {
+                    "name": "scale_x",
+                    "type": "float",
+                    "value": 1
+                },
+                {
+                    "name": "scale_y",
+                    "type": "float",
+                    "value": 1
+                },
+                {
                     "name": "spacing",
                     "type": "float",
                     "value": 32

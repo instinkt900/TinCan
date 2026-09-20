@@ -7,6 +7,14 @@ const enums = [
     // "none" is not in the game data. it gives EnemySpawn.drop a way to say "no drop",
     // since tiled cannot clear an enum property
     { type: "pickup", file: "pickup_database.json", category: "pickups", extra: ["none"] },
+    // the built-in formations are generated in code rather than authored in the game data, so they are
+    // named here and the database adds the authored shapes after them
+    {
+        type: "formation",
+        file: "formation_database.json",
+        category: "formations",
+        extra: ["line", "column", "v", "grid"],
+    },
 ];
 
 function syncEnum(dataDir, { type, file, category, extra }) {

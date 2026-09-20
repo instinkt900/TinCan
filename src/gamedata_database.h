@@ -28,12 +28,17 @@ public:
     }
 
     T const* Get(std::string const& name) const {
-        auto entry = m_database.find(name);
-        if (entry == m_database.end()) {
+        auto const* entry = Find(name);
+        if (entry == nullptr) {
             spdlog::error("Unable to find data name {}", name);
-            return nullptr;
         }
-        return &entry->second;
+        return entry;
+    }
+
+    // A lookup for a caller that has somewhere else to look, so a name that is not here is not an error.
+    T const* Find(std::string const& name) const {
+        auto entry = m_database.find(name);
+        return entry == m_database.end() ? nullptr : &entry->second;
     }
 
     std::vector<std::string> Keys() const {
