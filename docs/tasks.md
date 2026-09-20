@@ -12,7 +12,7 @@ to [tasks-done.md](tasks-done.md).
 
 ## Tasks
 
-### [todo] T-019 Share the formation offsets and the single-sprite draw
+### [done] T-019 Share the formation offsets and the single-sprite draw
 
 **Review:** reviewed 2026-09-20
 
@@ -39,16 +39,16 @@ Nothing changes about what the game does. This task only moves code so that two
 callers can share it.
 
 **Requirements:**
-- [ ] `GetFormationOffsets` moves to a shared header, `src/formation_offsets.h`,
+- [x] `GetFormationOffsets` moves to a shared header, `src/formation_offsets.h`,
       with its current signature and behaviour unchanged.
-- [ ] `src/system_map.cpp` calls it from there, and spawning is unchanged.
-- [ ] The single-sprite draw is exposed as a function taking the graphics, a
+- [x] `src/system_map.cpp` calls it from there, and spawning is unchanged.
+- [x] The single-sprite draw is exposed as a function taking the graphics, a
       `ComponentSprite`, a position and an angle, and `SystemDrawable::Draw` uses
       it for each entry of its batch, so there is one draw path.
-- [ ] The batch, its z-order sort, the camera offset and the blend mode stay in
+- [x] The batch, its z-order sort, the camera offset and the blend mode stay in
       `SystemDrawable::Draw`. Only the draw of one sprite moves.
-- [ ] Any new `.cpp` is added to `SOURCES` in `CMakeLists.txt`.
-- [ ] The star map plays and draws exactly as it does today.
+- [x] Any new `.cpp` is added to `SOURCES` in `CMakeLists.txt`.
+- [x] The star map plays and draws exactly as it does today.
 
 **Out of scope:**
 Any editor change, and any change to how formations are chosen or sprites are
@@ -60,10 +60,20 @@ animated. This is a move, not a redesign.
   argument, as it does now.
 
 **Notes:**
+`GetFormationOffsets` is an `inline` function in the new header, so no `.cpp`
+was added and `SOURCES` did not change. `DrawSprite` now resolves the animated
+frame and does the whole-pixel snap itself; the batch stores the unsnapped
+world position and the entity angle, which draws the same picture as before.
+`src/system_map.cpp` no longer includes `gamedata_formation.h`, which it needed
+only for the moved function.
 
 **Commits:**
+- a6aee1f refactor(T-019): share the formation offsets and the single-sprite draw
 
 **Manual verification:**
+- Play the star map and check that enemies spawn in the same formations and at
+  the same places as before, and that sprites, flashes and blend modes look
+  unchanged.
 
 ### [todo] T-020 Add a formation editor window
 
