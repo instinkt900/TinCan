@@ -1,12 +1,15 @@
 #include "system_formation_editor.h"
 #include "debug_draw_path.h"
 #include "formation_offsets.h"
+#include "gamedata_enemy.h"
 #include "gamedata_formation.h"
+#include "system_drawable.h"
 #include "utils_imgui.h"
 #include <algorithm>
 #include <array>
 #include <fstream>
 #include <magic_enum.hpp>
+#include <optional>
 #include <spdlog/spdlog.h>
 
 namespace {
@@ -91,6 +94,23 @@ namespace {
         return changed;
     }
 
+    // Names one enemy. The formation editor keeps its own choice, separate from the behaviour editor's.
+    // Returns true on the frame the selection changes.
+    bool EnemyCombo(GameData const& gamedata, std::string& currentName) {
+        bool changed = false;
+        if (ImGui::BeginCombo("Enemy", currentName.c_str())) {
+            for (auto const& name : gamedata.Get<EnemyData>()->Keys()) {
+                bool const selected = name == currentName;
+                if (ImGui::Selectable(name.c_str(), selected) && !selected) {
+                    currentName = name;
+                    changed = true;
+                }
+            }
+            ImGui::EndCombo();
+        }
+        return changed;
+    }
+
     // the slot the mouse has hold of, or -1. picked in world units, where the handles are drawn
     int FindSlot(std::vector<moth::gfx::FloatVec2> const& positions, moth::gfx::FloatVec2 const& position) {
         int found = -1;
@@ -134,6 +154,7 @@ void SystemFormationEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
     static float staticRotationDegrees = 0.0f;
     static int staticSelectedSlot = -1;
     static int staticDraggedSlot = -1;
+    static std::string staticEnemyName;
 
     ImGui::Begin("Formation Editor");
 
@@ -153,6 +174,8 @@ void SystemFormationEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
         staticSelectedSlot = -1;
         staticDraggedSlot = -1;
     }
+
+    EnemyCombo(gamedata, staticEnemyName);
 
     bool const builtIn = staticFormationName.empty() ||
                          gamedata.Get<FormationData>()->Find(staticFormationName) == nullptr;
@@ -281,10 +304,25 @@ void SystemFormationEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
         }
     }
 
-    // a slot the count reaches is drawn as a full handle, and one beyond it faintly and smaller, so the
-    // shape can be judged at the count it will be spawned with
+    // The sprite the filled slots are drawn with. Nothing is spawned: this is the picture only, and it is
+    // built for the frame rather than kept, so that no texture outlives the graphics device.
+    std::optional<ComponentSprite> previewSprite;
+    if (auto const* enemyData = staticEnemyName.empty() ? nullptr : gamedata.Get<EnemyData>(staticEnemyName);
+        enemyData != nullptr && enemyData->sprite.valid()) {
+        previewSprite.emplace(*enemyData->sprite);
+    }
+
+    // A slot the count reaches is drawn as the enemy that would fill it, so that the shape is judged as it
+    // will look on the screen. One beyond the count keeps its marker, faint and small, so the whole shape
+    // is still visible at a smaller count, and a filled slot falls back to its own marker when there is no
+    // enemy to draw.
     for (int i = 0; i < static_cast<int>(positions.size()); ++i) {
         bool const filled = i < staticCount;
+        if (filled && previewSprite.has_value()) {
+            DrawSprite(graphics, *previewSprite, positions[i], 0.0f);
+            continue;
+        }
+        graphics.SetBlendMode(moth::gfx::BlendMode::Replace);
         if (i == staticSelectedSlot) {
             graphics.SetColor(moth::gfx::FromARGB(0xFF00FF00));
         } else {
