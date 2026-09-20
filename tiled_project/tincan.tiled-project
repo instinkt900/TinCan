@@ -131,7 +131,9 @@
                 "line",
                 "column",
                 "v",
-                "grid"
+                "grid",
+                "diamond",
+                "star"
             ],
             "valuesAsFlags": false
         },
