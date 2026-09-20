@@ -210,7 +210,12 @@ moth::gfx::IntVec2 SystemMap::InitMap(moth::ecs::World& registry, std::filesyste
         images.emplace(relativePath, moth::gfx::Image(std::move(texture)));
     };
     for (auto const& tileset : map.tilesets) {
+        // an image collection tileset has no atlas image of its own: each tile carries its own,
+        // which is how loose decoration images placed as tile objects reach the renderer
         loadImage(tileset.imagePath);
+        for (auto const& tileImage : tileset.tileImages) {
+            loadImage(tileImage.second.imagePath);
+        }
     }
     for (auto const& imageLayer : map.imageLayers) {
         loadImage(imageLayer.imagePath);
