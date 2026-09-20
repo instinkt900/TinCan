@@ -98,7 +98,7 @@ includes in `src/system_enemy_spawner.cpp` that only the deleted code needed
 2. Open the behaviour editor with F2 and spawn an enemy from it; spawning still
    works.
 
-### [todo] T-011 Anchor behaviour paths on their first waypoint and rotate them at spawn
+### [done] T-011 Anchor behaviour paths on their first waypoint and rotate them at spawn
 
 **Review:** reviewed 2026-09-20
 
@@ -144,22 +144,22 @@ it. Later path states are translated by the same anchor, so they do not start on
 the enemy and their `entry` rule still runs.
 
 **Requirements:**
-- [ ] A free function transforms a `BehaviourData` in place, given a rotation, and
+- [x] A free function transforms a `BehaviourData` in place, given a rotation, and
       is called at spawn time on the per-entity copy.
-- [ ] The anchor is the first waypoint of the first `Path` state in the behaviour,
+- [x] The anchor is the first waypoint of the first `Path` state in the behaviour,
       and is the pivot for every state in the behaviour.
-- [ ] A behaviour with no `Path` state has no anchor, and the transform is a no-op.
-- [ ] In both `BehaviourSpace::World` and `BehaviourSpace::SpawnRelative`, every
+- [x] A behaviour with no `Path` state has no anchor, and the transform is a no-op.
+- [x] In both `BehaviourSpace::World` and `BehaviourSpace::SpawnRelative`, every
       waypoint of every `Path` state is rotated about the anchor.
-- [ ] In `BehaviourSpace::SpawnRelative` only, every waypoint is then translated by
+- [x] In `BehaviourSpace::SpawnRelative` only, every waypoint is then translated by
       the negated anchor, so the first waypoint of the first path state lands on
       the spawn point.
-- [ ] The rotation is given in degrees, positive clockwise on screen, and converted
+- [x] The rotation is given in degrees, positive clockwise on screen, and converted
       to radians at the point of use.
-- [ ] `Target` states are not rotated and not translated. Their `point` stays
+- [x] `Target` states are not rotated and not translated. Their `point` stays
       absolute world.
-- [ ] `src/system_behaviour.cpp` is unchanged.
-- [ ] `data/behaviour_database.json` keeps working unedited. `basic` is anchored at
+- [x] `src/system_behaviour.cpp` is unchanged.
+- [x] `data/behaviour_database.json` keeps working unedited. `basic` is anchored at
       `[0, 0]`, so its translation is zero and it flies as it does today.
 
 **Out of scope:**
@@ -181,10 +181,26 @@ existing behaviour flying exactly as it does today.
   degrees on load, `moth/tilemap/tile_map.h:62`).
 
 **Notes:**
+`TransformBehaviour` and `BehaviourAnchor` live in the new header
+`src/behaviour_transform.h`. It is header-only, so `CMakeLists.txt` does not
+change; `SOURCES` lists only `.cpp` files.
+The anchor is the first waypoint of the first path state *that has waypoints*, so
+an empty path state part way through authoring does not swallow the anchor.
+Rotation uses `moth::gfx::Rotate2D` with `moth::gfx::DegToRad`. In the game's
+y-down space that matrix turns clockwise on screen, which is the convention the
+task asks for.
+Assumption: the call site is `SpawnMapEnemy` only, the game's spawn path. The
+behaviour editor's own spawn gets the call in T-013, together with the canvas and
+rotation control that go with it.
 
 **Commits:**
+- `a4a7923` feat(T-011): anchor behaviour paths and rotate them at spawn
 
 **Manual verification:**
+1. Play the star map. Enemies using `basic` fly exactly as they did before, since
+   its path is anchored at `[0, 0]`.
+2. Spawn-relative behaviours authored with a first waypoint away from the origin
+   now start on the spawn point rather than offset from it.
 
 ### [todo] T-012 Let map spawns supply a behaviour rotation
 
