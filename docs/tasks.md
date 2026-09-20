@@ -371,7 +371,7 @@ pressed, so nothing drawn is affected.
 6. Set the spawn rotation to 45 and press Spawn: the enemy flies a turned path
    while the drawn path, its handles and the scrubbed ghost stay where they are.
 
-### [todo] T-014 Load behaviours as read-only guides in the editor
+### [done] T-014 Load behaviours as read-only guides in the editor
 
 **Review:** reviewed 2026-09-20
 
@@ -394,18 +394,18 @@ A guide shows the version saved in the database, not unsaved edits, so loading t
 behaviour being edited as its own guide will not preview live work.
 
 **Requirements:**
-- [ ] The editor holds a list of guides, each with a behaviour name, a rotation in
+- [x] The editor holds a list of guides, each with a behaviour name, a rotation in
       degrees and an anchor position.
-- [ ] A guide can be added and removed, with no limit on how many are loaded.
-- [ ] Guides are held in editor state like the rest of the editor's statics. They
+- [x] A guide can be added and removed, with no limit on how many are loaded.
+- [x] Guides are held in editor state like the rest of the editor's statics. They
       are not saved anywhere and are gone when the app closes.
-- [ ] A guide's path draws in a colour distinct from both the edited path and
+- [x] A guide's path draws in a colour distinct from both the edited path and
       `ReferencePathColor()`, which already means "another state of the behaviour
       being edited".
-- [ ] A guide is read-only: it has no handles, and it is never hit by waypoint
+- [x] A guide is read-only: it has no handles, and it is never hit by waypoint
       picking, placement or dragging.
-- [ ] A guide's rotation uses T-011's function.
-- [ ] Guides are editor state only. They are never written into `BehaviourData`,
+- [x] A guide's rotation uses T-011's function.
+- [x] Guides are editor state only. They are never written into `BehaviourData`,
       `SaveBehaviour` or `data/behaviour_database.json`.
 
 **Open questions:**
@@ -415,10 +415,32 @@ behaviour being edited as its own guide will not preview live work.
   its own state today, and adding a format for it is not worth the task.
 
 **Notes:**
+The guides panel sits at the bottom of the editor window: a combo of database
+behaviours, an `Add guide` button, and per guide a rotation slider, an anchor
+field and a `Remove` button. `staticGuides` is a `std::vector<BehaviourGuide>`
+beside the other editor statics, so nothing about a guide is persisted.
+Guides draw first, so the behaviour being edited sits on top of them. Each is
+copied from the database, passed through `TransformBehaviour`, and drawn with
+`DrawFlownPath` in the new `GuidePathColor()` (purple), distinct from the edited
+path (yellow), `ReferencePathColor()` (grey) and `EntryPathColor()` (teal).
+Assumption: a guide's anchor places it the way a spawn position would, so it is
+applied to a spawn-relative guide and ignored for a `World` guide, whose path is
+absolute. That matches how the game places the two spaces.
+A guide naming a behaviour that is not in the database is skipped rather than
+logged, because the combo only offers names the database has.
 
 **Commits:**
+- `f442cd4` feat(T-014): load behaviours as read-only guides in the editor
 
 **Manual verification:**
+1. Open the editor with F2, add `basic` as a guide twice, and give the two
+   different rotations: the two purple paths show the fan.
+2. Confirm a guide has no handles, and that clicking or dragging on a guide's
+   line adds or moves a waypoint of the edited path instead of touching the
+   guide.
+3. Remove a guide and confirm it stops being drawn, and that the others stay.
+4. Save the behaviour being edited and confirm `data/behaviour_database.json`
+   holds no trace of the guides.
 
 ### [todo] T-010 Describe spawn formations in the game data
 
