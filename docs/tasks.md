@@ -648,4 +648,39 @@ the anchoring from T-011, which is done in this session.
 1. Read `docs/behaviour-paths-and-editor.md`, section "Entering a state", and
    confirm it matches how `entry` behaves in the editor.
 
+### [todo] T-018 Add a formation editor
+
+**Review:** unreviewed
+
+**Depends on:** T-010
+
+**Goal:**
+Add a formation editor that allows you to create and preview formation shapes and
+counts.
+
+T-010 put formations in the game data: `FormationData` entries in
+`data/formation_database.json`, an ordered list of slot offsets in unit space
+describing the largest version of a shape, which a spawn's `count` fills from the
+front. They are authored by hand in JSON today, and the only way to see one is to
+set it on a map spawn and play the map.
+
+**Requirements:**
+- [ ] A formation's shape can be created and edited in the editor.
+- [ ] A formation can be previewed at a given count.
+
+**Open questions:**
+- Q: Does this live in the behaviour editor panel, in a panel of its own behind
+  another key, or somewhere else?
+- Q: Does the editor save to `data/formation_database.json`, the way the behaviour
+  editor saves to `data/behaviour_database.json`?
+- Q: Is the preview drawn slot positions, spawned enemies, or both?
+- Q: Does the preview show the per-axis `scale` and the spawn object's rotation
+  that T-010 applies, or only the authored unit-space shape?
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
 ## Discovered
