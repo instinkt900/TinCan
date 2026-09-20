@@ -442,7 +442,7 @@ logged, because the combo only offers names the database has.
 4. Save the behaviour being edited and confirm `data/behaviour_database.json`
    holds no trace of the guides.
 
-### [todo] T-010 Describe spawn formations in the game data
+### [done] T-010 Describe spawn formations in the game data
 
 **Review:** reviewed 2026-09-20
 
@@ -476,32 +476,32 @@ T-015 deletes that path, so it is not there to copy from if this task runs after
 it. The pattern to follow is the other game data categories in `src/gamedata.h`.
 
 **Requirements:**
-- [ ] `FormationData` and `GameDataCategory::Formations` follow the pattern of
+- [x] `FormationData` and `GameDataCategory::Formations` follow the pattern of
       the other game data categories, loaded from `data/formation_database.json`.
-- [ ] A formation entry is an ordered list of slot offsets in unit space,
+- [x] A formation entry is an ordered list of slot offsets in unit space,
       describing the largest version of the shape.
-- [ ] The spawn's `count` fills the slots one by one from the front of the list.
-- [ ] Slots are placed where they are authored. The used subset is not
+- [x] The spawn's `count` fills the slots one by one from the front of the list.
+- [x] Slots are placed where they are authored. The used subset is not
       re-centred on the spawn point when the count is under the full size.
-- [ ] A `count` larger than the slot list spawns the slots that exist and logs a
+- [x] A `count` larger than the slot list spawns the slots that exist and logs a
       warning naming the formation, the requested count and the slot count.
-- [ ] `GetFormationOffsets` looks the formation name up in the database first
+- [x] `GetFormationOffsets` looks the formation name up in the database first
       and falls back to the built-in line, column, v and grid generators, which
       stay because they are not bounded by a count.
-- [ ] Existing maps keep working without being edited.
-- [ ] The offsets are rotated by the Tiled object's `rotation`
+- [x] Existing maps keep working without being edited.
+- [x] The offsets are rotated by the Tiled object's `rotation`
       (`moth::tilemap::MapObject::rotation`, radians clockwise), which
       `SpawnMapEnemy` currently ignores.
-- [ ] A database formation is sized by a per-axis `scale` property on the spawn
+- [x] A database formation is sized by a per-axis `scale` property on the spawn
       object, and ignores `spacing`. The built-in line, column, v and grid keep
       using `spacing` exactly as they do today and ignore `scale`.
-- [ ] `scale` defaults to 1 on both axes, so a formation with no scale set is
+- [x] `scale` defaults to 1 on both axes, so a formation with no scale set is
       used at the size it was authored.
-- [ ] The `formation` enum is no longer maintained by hand in
+- [x] The `formation` enum is no longer maintained by hand in
       `tiled_project/tincan.tiled-project`: it is synced by
       `tiled_project/extensions/game_data_enums.js` with
       `extra: ["line", "column", "v", "grid"]` for the built-ins.
-- [ ] `data/formation_database.json` ships with a diamond and a star.
+- [x] `data/formation_database.json` ships with a diamond and a star.
 
 **Out of scope:**
 The behaviour rotation from T-012, which uses its own `behaviour_rotation`
@@ -527,10 +527,37 @@ it and must keep working.
   data does not take part.
 
 **Notes:**
+`FormationData` is in the new `src/gamedata_formation.h` and follows the other
+categories. `Database` gained a `Find`, a lookup that does not log when a name is
+missing, because `GetFormationOffsets` asks the database first and a built-in
+name is not an error. `Get` now calls `Find` and logs, so nothing else changes.
+Assumption: the per-axis scale is two float properties, `scale_x` and `scale_y`,
+both defaulting to 1, rather than a Tiled class property, so it is read with the
+same `GetFloatProperty` as `spacing` and shows as two plain fields in Tiled.
+The rotation is applied to the finished offsets inside `GetFormationOffsets`, so
+it covers both the database shapes and the built-in generators. No `EnemySpawn`
+object in either map is rotated today, so no map moves.
+`data/formation_database.json` ships `diamond` and `star`. The `formation` enum in
+`tiled_project/tincan.tiled-project` is left as the four built-ins in the file;
+the extension rewrites it with the database shapes when Tiled next opens the
+project.
 
 **Commits:**
+- `8424b49` feat(T-010): describe spawn formations in the game data
 
 **Manual verification:**
+1. Play the star map: every existing spawn keeps its formation, spacing and
+   shape.
+2. Open the project in Tiled and confirm the `formation` enum now also offers
+   `diamond` and `star`, and that `scale_x` and `scale_y` appear on `EnemySpawn`.
+3. Set a spawn to `diamond` with `count` 9 and `scale_x`/`scale_y` around 40, and
+   confirm the shape appears and that `spacing` has no effect on it.
+4. Drop the count to 4 and confirm the first four slots are used where they were
+   authored, not re-centred.
+5. Set the count to 20 and confirm the log warns, naming the formation, the
+   count and the slot count, and that only the authored slots spawn.
+6. Rotate the spawn object in Tiled and confirm the whole arrangement turns with
+   it, for a database shape and for `line`.
 
 ### [todo] T-016 Guard the pickup system against a missing player
 
