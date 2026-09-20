@@ -17,6 +17,7 @@
 #include "system_projectile.h"
 #include "system_shield.h"
 #include "system_behaviour_editor.h"
+#include "system_formation_editor.h"
 #include "system_targeting.h"
 #include "system_weapon.h"
 #include "system_world_bounds.h"
@@ -51,7 +52,7 @@ void GameWorld::Update(uint32_t ticks) {
     if (m_paused) {
         return;
     }
-    if (!m_behaviourEditorOpen) {
+    if (!m_editorModeOpen) {
         MOTH_PROFILE_SCOPE("SystemMap::Update");
         SystemMap::Update(*this, ticks);
     }
@@ -76,8 +77,9 @@ void GameWorld::Draw() {
     m_graphics.Clear();
     m_graphics.SetBlendMode(moth::gfx::BlendMode::Replace);
     m_graphics.SetColor(moth::gfx::BasicColors::White);
-    if (m_behaviourEditorOpen) {
+    if (m_editorModeOpen) {
         SystemBehaviourEditor::Draw(*this, m_graphics);
+        SystemFormationEditor::Draw(*this, m_graphics);
     }
     { MOTH_PROFILE_SCOPE("SystemMap::Draw"); SystemMap::Draw(*this, m_graphics); }
     { MOTH_PROFILE_SCOPE("SystemDrawable"); SystemDrawable::Draw(*this, m_graphics); }

@@ -8,6 +8,13 @@
 #include <moth/ui/events/event_key.h>
 #include <moth/ui/events/event_listener.h>
 
+// The two editor windows. Editor mode shows both, but only one owns the world view at a time: it draws
+// its overlay there and the mouse edits its shape, so two sets of handles never share the same clicks.
+enum class EditorWindow {
+    Behaviour,
+    Formation,
+};
+
 class GameWorld : public moth::ui::IEventListener {
 public:
     GameWorld(moth::gfx::platform::Window& window, moth::gfx::IGraphics& graphics);
@@ -19,8 +26,18 @@ public:
     moth::ecs::Entity GetPlayerEntity() const { return m_player; }
     moth::gfx::IntVec2 const& GetWorldSize() const { return m_worldSize; }
 
-    // the behaviour editor freezes the map scroll while it is open, so spawns hold still while editing
-    void ToggleBehaviourEditor() { m_behaviourEditorOpen = !m_behaviourEditorOpen; }
+    // editor mode freezes the map scroll while it is open, so spawns hold still while editing. the
+    // behaviour editor owns the world view each time it opens
+    void ToggleEditorMode() {
+        m_editorModeOpen = !m_editorModeOpen;
+        if (m_editorModeOpen) {
+            m_activeEditorWindow = EditorWindow::Behaviour;
+        }
+    }
+
+    // the editor window that owns the world view: the most recently focused of the two
+    EditorWindow GetActiveEditorWindow() const { return m_activeEditorWindow; }
+    void SetActiveEditorWindow(EditorWindow window) { m_activeEditorWindow = window; }
 
     bool OnEvent(moth::ui::Event const& event) override;
     void Update(uint32_t ticks);
@@ -55,7 +72,8 @@ private:
     WorldViewTransform m_viewTransform;
 
     bool m_paused = false;
-    bool m_behaviourEditorOpen = false;
+    bool m_editorModeOpen = false;
+    EditorWindow m_activeEditorWindow = EditorWindow::Behaviour;
 
     // the world is a fixed height, its width comes from the loaded map
     static int constexpr WorldHeight = 1080;

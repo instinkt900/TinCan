@@ -129,7 +129,7 @@ bool GameLayer::OnKeyEvent(moth::ui::EventKey const& event) {
             return true;
         }
         if (event.GetKey() == moth::ui::Key::F2) {
-            m_gameWorld->ToggleBehaviourEditor();
+            m_gameWorld->ToggleEditorMode();
             return true;
         }
     }

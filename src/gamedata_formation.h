@@ -16,3 +16,7 @@ struct FormationData {
 inline void from_json(nlohmann::json const& json, FormationData& data) {
     DATA_REQUIRED(json, data, slots);
 }
+
+inline void to_json(nlohmann::json& json, FormationData const& data) {
+    json["slots"] = data.slots;
+}

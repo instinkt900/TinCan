@@ -27,6 +27,7 @@ set(SOURCES
 	src/system_world_bounds.cpp
 	src/system_animation.cpp
 	src/system_behaviour_editor.cpp
+	src/system_formation_editor.cpp
 	src/debug_draw_path.cpp
 )
 

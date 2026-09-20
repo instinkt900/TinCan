@@ -261,6 +261,12 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
 
     ImGui::Begin("Behaviour Editor");
 
+    // the most recently focused editor window owns the world view. a click in the world view lands on no
+    // imgui window, so it focuses neither and the owner does not change
+    if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows)) {
+        world.SetActiveEditorWindow(EditorWindow::Behaviour);
+    }
+
     // what to spawn, and where
     DatabaseCombo<EnemyData>("Enemy", gamedata, staticEnemyName);
 
@@ -396,6 +402,11 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
     }
 
     ImGui::End();
+
+    // the world view belongs to the other editor window: this one is a panel only until it is focused again
+    if (world.GetActiveEditorWindow() != EditorWindow::Behaviour) {
+        return;
+    }
 
     // guides are drawn first, so the behaviour being edited sits on top of them. each one is transformed
     // the way it would be at a spawn, so what is drawn is the path it would fly
