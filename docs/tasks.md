@@ -603,7 +603,40 @@ failed the check.
 2. While a player is alive, fly over a weapon pickup and a passive pickup and
    confirm both are still collected.
 
-### [todo] T-017 Document the path entry rule
+## Discovered`, and left unfixed because it was outside every task in that
+session.
+
+**Requirements:**
+- [x] The pickup loop does not run when there is no player, and nothing
+      dereferences the null `playerPosition`.
+- [x] Pickups behave exactly as they do today while a player exists.
+- [x] The error log is not made noisier. It should not log once per frame for the
+      rest of the run.
+
+**Out of scope:**
+Any other null-player path in another system. This task fixes the one that was
+found.
+
+**Notes:**
+The `[error] Unable to locate player` line is gone rather than rate-limited. A
+missing player is the normal state between the player dying and the next one, so
+there is nothing to report, and holding a "already warned" flag in a system
+static would be state the project keeps in components. `playerBody` is filled by
+the same view as `playerPosition`, so the one check covers both.
+The launch check was intermittently failing on this before the fix: a run in
+which the player died inside the five seconds filled the log with the error and
+failed the check.
+
+**Commits:**
+- `778bde3` fix(T-016): skip the pickup sweep when there is no player
+
+**Manual verification:**
+1. Play until the player dies with pickups on screen: the game keeps running and
+   the log holds no `Unable to locate player` lines.
+2. While a player is alive, fly over a weapon pickup and a passive pickup and
+   confirm both are still collected.
+
+### [in-progress] T-017 Document the path entry rule
 
 **Review:** reviewed 2026-09-20
 
