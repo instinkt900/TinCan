@@ -289,7 +289,7 @@ int or a float, and both default to 0, so existing maps spawn exactly as before.
    fans out, each member turned 10 degrees further than the one before.
 4. Confirm both properties appear on the `EnemySpawn` class in Tiled.
 
-### [todo] T-013 Make the behaviour editor canvas an authoring space
+### [done] T-013 Make the behaviour editor canvas an authoring space
 
 **Review:** reviewed 2026-09-20
 
@@ -316,23 +316,23 @@ that is drawn; it feeds the spawn, so a rotated enemy can be watched flying. Tha
 makes the editor exercise T-011's transform before the game does.
 
 **Requirements:**
-- [ ] For a spawn-relative behaviour, waypoints and their handles draw at their
+- [x] For a spawn-relative behaviour, waypoints and their handles draw at their
       literal authored coordinates, and mouse picking, placement and dragging work
       in that same space.
-- [ ] A spawn-relative path can be authored anywhere on screen, including travelling
+- [x] A spawn-relative path can be authored anywhere on screen, including travelling
       left or up from where it starts.
-- [ ] `Position (px)` follows the anchor until the user types a value into it, and
+- [x] `Position (px)` follows the anchor until the user types a value into it, and
       stays where the user put it from then on.
-- [ ] Loading a different behaviour, or clearing the one being edited, makes
+- [x] Loading a different behaviour, or clearing the one being edited, makes
       `Position (px)` follow the anchor again.
-- [ ] For a `World` behaviour, `Position (px)` keeps its current meaning.
-- [ ] A rotation control sits under the spawn controls, above the separator at
+- [x] For a `World` behaviour, `Position (px)` keeps its current meaning.
+- [x] A rotation control sits under the spawn controls, above the separator at
       `src/system_behaviour_editor.cpp:269`, as a slider in degrees that also
       accepts typed input. `ImGui::SliderFloat` gives both, because ctrl+click on a
       slider turns it into a text input.
-- [ ] The rotation applies to the spawned enemy only. It does not change the drawn
+- [x] The rotation applies to the spawned enemy only. It does not change the drawn
       path, the handles or the scrubbed ghost preview.
-- [ ] The rotation uses T-011's function, not its own copy of the maths.
+- [x] The rotation uses T-011's function, not its own copy of the maths.
 
 **Out of scope:**
 Guides. Loading another behaviour as a read-only reference is T-014.
@@ -343,10 +343,33 @@ Guides. Loading another behaviour as a read-only reference is T-014.
   starts following again when a different behaviour is loaded.
 
 **Notes:**
+The canvas origin is now always `{0, 0}`, which is what makes the drawing, the
+mouse picking, the placement and the dragging all work in authored coordinates.
+For a `World` behaviour that is what it already was, so nothing changed there.
+`Position (px)` follows `BehaviourAnchor` while the behaviour is spawn-relative
+and the field has not been typed into. It starts following again when another
+behaviour is loaded from the combo, and also when the behaviour has no path state
+to take an anchor from, which covers clearing the one being edited.
+The rotation control is `Spawn rotation (deg, clockwise)`, a `SliderFloat` over
+-180 to 180. It is applied with `TransformBehaviour` to a copy made when Spawn is
+pressed, so nothing drawn is affected.
 
 **Commits:**
+- `b2b6478` feat(T-013): make the behaviour editor canvas an authoring space
 
 **Manual verification:**
+1. Open the editor with F2, load `basic`, and confirm the path draws where its
+   waypoints say rather than at the spawn position.
+2. Author a spawn-relative path that travels left and up from its first point and
+   confirm it can be drawn and dragged anywhere on screen.
+3. Drag the first waypoint and confirm `Position (px)` follows it; type a value
+   into `Position (px)` and confirm it stops following.
+4. Load a different behaviour and confirm `Position (px)` follows the anchor
+   again.
+5. Switch Space to `World` and confirm `Position (px)` no longer follows, and the
+   path still draws at its literal coordinates.
+6. Set the spawn rotation to 45 and press Spawn: the enemy flies a turned path
+   while the drawn path, its handles and the scrubbed ghost stay where they are.
 
 ### [todo] T-014 Load behaviours as read-only guides in the editor
 
