@@ -603,40 +603,7 @@ failed the check.
 2. While a player is alive, fly over a weapon pickup and a passive pickup and
    confirm both are still collected.
 
-## Discovered`, and left unfixed because it was outside every task in that
-session.
-
-**Requirements:**
-- [x] The pickup loop does not run when there is no player, and nothing
-      dereferences the null `playerPosition`.
-- [x] Pickups behave exactly as they do today while a player exists.
-- [x] The error log is not made noisier. It should not log once per frame for the
-      rest of the run.
-
-**Out of scope:**
-Any other null-player path in another system. This task fixes the one that was
-found.
-
-**Notes:**
-The `[error] Unable to locate player` line is gone rather than rate-limited. A
-missing player is the normal state between the player dying and the next one, so
-there is nothing to report, and holding a "already warned" flag in a system
-static would be state the project keeps in components. `playerBody` is filled by
-the same view as `playerPosition`, so the one check covers both.
-The launch check was intermittently failing on this before the fix: a run in
-which the player died inside the five seconds filled the log with the error and
-failed the check.
-
-**Commits:**
-- `778bde3` fix(T-016): skip the pickup sweep when there is no player
-
-**Manual verification:**
-1. Play until the player dies with pickups on screen: the game keeps running and
-   the log holds no `Unable to locate player` lines.
-2. While a player is alive, fly over a weapon pickup and a passive pickup and
-   confirm both are still collected.
-
-### [in-progress] T-017 Document the path entry rule
+### [done] T-017 Document the path entry rule
 
 **Review:** reviewed 2026-09-20
 
@@ -655,22 +622,30 @@ is the document that describes the behaviour data format and the editor, and it
 does not mention `entry` at all.
 
 **Requirements:**
-- [ ] `docs/behaviour-paths-and-editor.md` describes the `entry` field: its three
+- [x] `docs/behaviour-paths-and-editor.md` describes the `entry` field: its three
       values, that it runs before the state's duration starts counting, and that
       it covers the spawn into the first state.
-- [ ] The document says how `entry` interacts with T-011's anchoring, once T-011
+- [x] The document says how `entry` interacts with T-011's anchoring, once T-011
       is done: a spawn-relative behaviour's first path state begins where the
       enemy already is, so its entry rule has nothing to do.
-- [ ] Prose is wrapped at about 85 columns, as the workspace `CLAUDE.md` asks.
-- [ ] No code changes.
+- [x] Prose is wrapped at about 85 columns, as the workspace `CLAUDE.md` asks.
+- [x] No code changes.
 
 **Out of scope:**
 Changing how `entry` works. This task only writes down what it already does.
 
 **Notes:**
+The description is a new `### Entering a state` subsection under `## The model`,
+between `### A path state` and `### Modifiers`, which is where the rest of a path
+state's fields are described. It covers the three values, the approach running on
+its own clock before the state's duration, the spawn into the first state, and
+the anchoring from T-011, which is done in this session.
 
 **Commits:**
+- `facd1ea` docs(T-017): describe the path entry rule
 
 **Manual verification:**
+1. Read `docs/behaviour-paths-and-editor.md`, section "Entering a state", and
+   confirm it matches how `entry` behaves in the editor.
 
 ## Discovered
