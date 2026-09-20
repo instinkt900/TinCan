@@ -35,6 +35,11 @@ inline moth::gfx::Color ReferencePathColor() { return moth::gfx::FromARGB(0xFF70
 // between the two can be seen
 inline moth::gfx::Color EntryPathColor() { return moth::gfx::FromARGB(0xFF338899); }
 
+// The colour a guide is drawn in: another behaviour loaded beside the one being edited, as a reference.
+// Distinct from both the edited path and ReferencePathColor(), which means another state of the behaviour
+// being edited.
+inline moth::gfx::Color GuidePathColor() { return moth::gfx::FromARGB(0xFFAA55CC); }
+
 // Draws what the state actually flies: the path with its modifiers applied, arrows along the direction of
 // travel, a tick for each second at the state's speed, and a ghost at the scrubbed point. progress is the
 // fraction of the path travelled, before any easing.

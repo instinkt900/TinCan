@@ -111,6 +111,15 @@ namespace {
                std::all_of(data.states.begin(), data.states.end(), IsStateComplete);
     }
 
+    // Another behaviour loaded beside the one being edited and drawn as a reference, so that paths can be
+    // put side by side. Read-only: the mouse code only ever touches the edited state's waypoints, so a
+    // guide is never picked, placed or dragged. It shows the version in the database, not unsaved edits.
+    struct BehaviourGuide {
+        std::string name;
+        float rotation{ 0.0f };
+        moth::gfx::FloatVec2 anchor{ 0, 0 };
+    };
+
     // Names one entry of a database. Returns true on the frame the selection changes.
     template <typename T>
     bool DatabaseCombo(char const* label, GameData const& gamedata, std::string& currentName) {
@@ -245,6 +254,8 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
     static float staticPreviewProgress = 0.0f;
     static bool staticPreviewPlaying = false;
     static float staticSpawnRotation = 0.0f;
+    static std::vector<BehaviourGuide> staticGuides;
+    static std::string staticGuideName;
     // whether the spawn position has been typed in by hand. until it has, it follows the anchor
     static bool staticPositionEdited = false;
 
@@ -361,7 +372,51 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
         }
     }
 
+    ImGui::Separator();
+    ImGui::TextUnformatted("Guides (drawn only, never edited or saved):");
+    DatabaseCombo<BehaviourData>("Guide behaviour", gamedata, staticGuideName);
+    ImGui::BeginDisabled(staticGuideName.empty());
+    if (ImGui::Button("Add guide")) {
+        staticGuides.push_back({ staticGuideName, 0.0f, { 0.0f, 0.0f } });
+    }
+    ImGui::EndDisabled();
+    for (int i = 0; i < static_cast<int>(staticGuides.size()); /* skip */) {
+        ImGui::PushID(i);
+        auto& guide = staticGuides[i];
+        ImGui::TextUnformatted(guide.name.c_str());
+        ImGui::SliderFloat("Rotation (deg, clockwise)", &guide.rotation, -180.0f, 180.0f);
+        ImGui::InputFloat2("Anchor (px)", static_cast<float*>(guide.anchor.data));
+        if (ImGui::SmallButton("Remove")) {
+            staticGuides.erase(staticGuides.begin() + i);
+            ImGui::PopID();
+            continue;
+        }
+        ImGui::PopID();
+        ++i;
+    }
+
     ImGui::End();
+
+    // guides are drawn first, so the behaviour being edited sits on top of them. each one is transformed
+    // the way it would be at a spawn, so what is drawn is the path it would fly
+    for (auto const& guide : staticGuides) {
+        auto const* loaded = gamedata.Get<BehaviourData>(guide.name);
+        if (loaded == nullptr) {
+            continue;
+        }
+        auto guideData = *loaded;
+        TransformBehaviour(guideData, guide.rotation);
+        auto const guideOrigin = guideData.space == BehaviourSpace::SpawnRelative
+                                     ? guide.anchor
+                                     : moth::gfx::FloatVec2{ 0, 0 };
+        for (auto const& state : guideData.states) {
+            if (state.type != BehaviourType::Path || state.waypoints.size() < 2) {
+                continue;
+            }
+            auto const lut = BuildArcLengthTable(state.waypoints, state.interpolation);
+            DrawFlownPath(graphics, state, lut, guideOrigin, GuidePathColor());
+        }
+    }
 
     // the canvas is pure authoring space: waypoints are drawn and picked at the coordinates they hold. a
     // spawn-relative path is moved onto the spawn point when it spawns, not while it is being authored
