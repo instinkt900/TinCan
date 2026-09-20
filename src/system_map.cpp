@@ -1,4 +1,5 @@
 #include "system_map.h"
+#include "behaviour_transform.h"
 #include "game_world.h"
 #include "system_drawable.h"
 #include "system_enemy_spawner.h"
@@ -131,6 +132,10 @@ namespace {
                 }
             }
         }
+
+        // the paths are anchored on their first waypoint and turned by the spawn's rotation, on this
+        // copy of the behaviour, so that the states of one behaviour keep their shape together
+        TransformBehaviour(behaviour, 0.0f);
 
         // the spawn's members share a group, so the drop appears once the whole formation has been killed
         auto group = moth::ecs::kNullEntity;
