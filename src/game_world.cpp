@@ -51,7 +51,7 @@ void GameWorld::Update(uint32_t ticks) {
         return;
     }
     if (!m_behaviourEditorOpen) {
-        MOTH_PROFILE_SCOPE("SystemMap");
+        MOTH_PROFILE_SCOPE("SystemMap::Update");
         SystemMap::Update(*this, ticks);
     }
     { MOTH_PROFILE_SCOPE("SystemLifetime"); SystemLifetime::Update(*this, ticks); }
@@ -79,7 +79,7 @@ void GameWorld::Draw() {
     if (m_behaviourEditorOpen) {
         SystemBehaviourEditor::Draw(*this, m_graphics);
     }
-    { MOTH_PROFILE_SCOPE("SystemMap"); SystemMap::Draw(*this, m_graphics); }
+    { MOTH_PROFILE_SCOPE("SystemMap::Draw"); SystemMap::Draw(*this, m_graphics); }
     { MOTH_PROFILE_SCOPE("SystemDrawable"); SystemDrawable::Draw(*this, m_graphics); }
     { MOTH_PROFILE_SCOPE("Reset target"); m_graphics.SetTarget(nullptr); }
 }

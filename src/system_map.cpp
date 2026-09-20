@@ -7,6 +7,7 @@
 #include "system_pickup.h"
 #include "system_world_bounds.h"
 #include <moth/graphics/utils/transform.h>
+#include <moth/profile/profiler.h>
 #include <moth/tilemap/tile_map_loader.h>
 #include <moth/tilemap/tile_map_renderer.h>
 #include <spdlog/spdlog.h>
@@ -71,6 +72,7 @@ namespace {
     }
 
     void SpawnMapEnemy(GameWorld& world, moth::tilemap::MapObject const& spawn, ComponentMapScroll const& scroll) {
+        MOTH_PROFILE_SCOPE("SpawnMapEnemy");
         auto& registry = world.GetRegistry();
         auto const& gamedata = world.GetGameData();
         auto const enemyType = moth::tilemap::GetProperty<std::string>(spawn.properties, "enemy_type");
@@ -86,40 +88,47 @@ namespace {
 
         BehaviourData behaviour;
         BehaviourData const* behaviourData = nullptr;
-        auto const behaviourName = moth::tilemap::GetProperty<std::string>(spawn.properties, "behaviour");
-        if (!behaviourName.empty()) {
-            behaviourData = gamedata.Get<BehaviourData>(behaviourName);
-            if (behaviourData == nullptr) {
-                spdlog::error("Map spawn references unknown behaviour {}", behaviourName);
-            } else {
-                behaviour = *behaviourData;
-            }
-        }
-
-        // a speed property overrides the speed of every state in the behaviour. tiled may store it as an int or a float
-        if (auto const it = spawn.properties.find("speed"); it != spawn.properties.end()) {
-            auto const* floatSpeed = std::get_if<float>(&it->second);
-            auto const* intSpeed = std::get_if<int>(&it->second);
-            if (floatSpeed != nullptr || intSpeed != nullptr) {
-                auto const speed = floatSpeed != nullptr ? *floatSpeed : static_cast<float>(*intSpeed);
-                for (auto& state : behaviour.states) {
-                    state.speed = speed;
+        int count = 1;
+        std::string formation;
+        float spacing = 32.0f;
+        DataRef<PickupData> drop;
+        {
+            // reading the spawn's tiled properties: string lookups, a behaviour copy and a data ref load
+            MOTH_PROFILE_SCOPE("Spawn properties");
+            auto const behaviourName = moth::tilemap::GetProperty<std::string>(spawn.properties, "behaviour");
+            if (!behaviourName.empty()) {
+                behaviourData = gamedata.Get<BehaviourData>(behaviourName);
+                if (behaviourData == nullptr) {
+                    spdlog::error("Map spawn references unknown behaviour {}", behaviourName);
+                } else {
+                    behaviour = *behaviourData;
                 }
             }
-        }
 
-        auto const count = std::max(1, moth::tilemap::GetProperty(spawn.properties, "count", 1));
-        auto const formation = moth::tilemap::GetProperty<std::string>(spawn.properties, "formation", "line");
-        auto const spacing = GetFloatProperty(spawn.properties, "spacing", 32.0f);
+            // a speed property overrides the speed of every state in the behaviour. tiled may store it as an int or a float
+            if (auto const it = spawn.properties.find("speed"); it != spawn.properties.end()) {
+                auto const* floatSpeed = std::get_if<float>(&it->second);
+                auto const* intSpeed = std::get_if<int>(&it->second);
+                if (floatSpeed != nullptr || intSpeed != nullptr) {
+                    auto const speed = floatSpeed != nullptr ? *floatSpeed : static_cast<float>(*intSpeed);
+                    for (auto& state : behaviour.states) {
+                        state.speed = speed;
+                    }
+                }
+            }
 
-        DataRef<PickupData> drop;
-        // "none" is the enum's way of saying no drop, since tiled cannot clear an enum property
-        auto const dropName = moth::tilemap::GetProperty<std::string>(spawn.properties, "drop");
-        if (!dropName.empty() && dropName != "none") {
-            if (gamedata.Get<PickupData>(dropName) == nullptr) {
-                spdlog::error("Map spawn references unknown pickup {}", dropName);
-            } else {
-                drop.load_ref(dropName, gamedata);
+            count = std::max(1, moth::tilemap::GetProperty(spawn.properties, "count", 1));
+            formation = moth::tilemap::GetProperty<std::string>(spawn.properties, "formation", "line");
+            spacing = GetFloatProperty(spawn.properties, "spacing", 32.0f);
+
+            // "none" is the enum's way of saying no drop, since tiled cannot clear an enum property
+            auto const dropName = moth::tilemap::GetProperty<std::string>(spawn.properties, "drop");
+            if (!dropName.empty() && dropName != "none") {
+                if (gamedata.Get<PickupData>(dropName) == nullptr) {
+                    spdlog::error("Map spawn references unknown pickup {}", dropName);
+                } else {
+                    drop.load_ref(dropName, gamedata);
+                }
             }
         }
 
@@ -134,7 +143,9 @@ namespace {
         boundsRect.bottomRight += { SpawnMargin * 2.0f, SpawnMargin * 2.0f };
 
         uint32_t phaseIndex = 0;
-        for (auto const& offset : GetFormationOffsets(formation, count, spacing)) {
+        auto const offsets = GetFormationOffsets(formation, count, spacing);
+        MOTH_PROFILE_SCOPE("Spawn formation");
+        for (auto const& offset : offsets) {
             moth::gfx::FloatVec2 const position{ spawn.position.x + offset.x,
                                                  spawn.position.y - scroll.m_cameraTop + offset.y };
             auto enemy = SystemEnemySpawner::SpawnEnemy(registry, *enemyData, behaviour, position, gamedata);
@@ -160,6 +171,7 @@ namespace {
     }
 
     void SpawnMapPickup(GameWorld& world, moth::tilemap::MapObject const& spawn, ComponentMapScroll const& scroll) {
+        MOTH_PROFILE_SCOPE("SpawnMapPickup");
         auto& registry = world.GetRegistry();
         auto const& gamedata = world.GetGameData();
         auto const pickupName = moth::tilemap::GetProperty<std::string>(spawn.properties, "pickup");
@@ -240,7 +252,14 @@ void SystemMap::Update(GameWorld& world, uint32_t ticks) {
         scroll.m_cameraTop = std::max(0.0f, scroll.m_cameraTop - scroll.m_scrollSpeed * dt);
 
         auto& spawns = scroll.m_pendingSpawns;
-        while (!spawns.empty() && spawns.back().position.y >= scroll.m_cameraTop - SpawnMargin) {
+        auto const spawnLine = scroll.m_cameraTop - SpawnMargin;
+        auto const spawnDue = [&]() { return !spawns.empty() && spawns.back().position.y >= spawnLine; };
+        // only timed on the frames that actually spawn, so the profiler shows the spike and not a row of zeroes
+        if (!spawnDue()) {
+            continue;
+        }
+        MOTH_PROFILE_SCOPE("Map spawns");
+        while (spawnDue()) {
             if (spawns.back().type == "PickupSpawn") {
                 SpawnMapPickup(world, spawns.back(), scroll);
             } else {
@@ -274,7 +293,10 @@ void SystemMap::Draw(GameWorld& world, moth::gfx::IGraphics& graphics) {
             return it != images.end() ? it->second : moth::gfx::Image{};
         };
         graphics.PushTransform(moth::gfx::FloatMat4x4::Translation({ shake.x, shake.y - top }));
-        moth::tilemap::DrawTileMap(graphics, scroll.m_map, resolveImage, viewRect, 0, cameraCentre);
+        {
+            MOTH_PROFILE_SCOPE("DrawTileMap");
+            moth::tilemap::DrawTileMap(graphics, scroll.m_map, resolveImage, viewRect, 0, cameraCentre);
+        }
         graphics.PopTransform();
     }
 }

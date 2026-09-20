@@ -1,9 +1,9 @@
 #include <moth/graphics/platform/glfw/glfw_platform.h>
-#include <moth/bridge/application.h>
+#include "game_application.h"
 #include "game_layer.h"
 
 void start(moth::gfx::platform::IPlatform& platform) {
-    auto application = std::make_unique<moth::bridge::Application>(platform, "TinCan", 640, 480);
+    auto application = std::make_unique<GameApplication>(platform, "TinCan", 640, 480);
     application->Init();
     auto* uiWindow = application->GetUiWindow();
     auto& mothContext = uiWindow->GetMothContext();

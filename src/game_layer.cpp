@@ -31,8 +31,6 @@ void GameLayer::Update(uint32_t ticks) {
 }
 
 void GameLayer::Draw() {
-    // a profiler frame runs from one draw to the next, so it also covers the updates in between
-    MOTH_PROFILE_FRAME();
     {
         MOTH_PROFILE_SCOPE("Profiler panel");
         m_profilerPanel.Draw();
