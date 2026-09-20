@@ -188,7 +188,7 @@ its schema is unchanged.
 - Type a `Save as` name, press Save, and check `data/formation_database.json`
   holds the shape and that restarting the game loads it.
 
-### [todo] T-021 Fill the counted slots with the enemy's sprite
+### [done] T-021 Fill the counted slots with the enemy's sprite
 
 **Review:** reviewed 2026-09-20
 
@@ -205,14 +205,14 @@ The draw goes through the single-sprite function exposed in T-019, so a slot
 looks the way the game draws that enemy.
 
 **Requirements:**
-- [ ] The Formation Editor has its own combo over the enemy database, independent
+- [x] The Formation Editor has its own combo over the enemy database, independent
       of the behaviour editor's.
-- [ ] Each slot within the count draws that enemy's sprite, through the function
+- [x] Each slot within the count draws that enemy's sprite, through the function
       exposed in T-019.
-- [ ] Slots beyond the count keep their marker, so the whole shape is still
+- [x] Slots beyond the count keep their marker, so the whole shape is still
       visible while a smaller count is previewed.
-- [ ] No entities are created for the preview.
-- [ ] With no enemy chosen, the slots fall back to the markers from T-020 rather
+- [x] No entities are created for the preview.
+- [x] With no enemy chosen, the slots fall back to the markers from T-020 rather
       than drawing nothing.
 
 **Out of scope:**
@@ -226,9 +226,31 @@ task draws the enemy standing in its slot.
 - Q: Where does the enemy come from? A: The formation editor's own enemy combo.
 
 **Notes:**
+Assumptions made: only the enemy's own sprite is drawn, not the sprites of its
+sections, because a slot stands for one enemy; the preview sprite is drawn
+upright, at no angle, since how the enemy flies is out of scope; an enemy that
+has no sprite of its own falls back to the markers, as an unchosen one does.
+
+The preview `ComponentSprite` is built for the frame rather than kept in a
+static. A static would hold a texture past the graphics device at exit. Building
+it is one animator allocation a frame, and it is built once for the whole shape,
+not once a slot.
+
+The selected-slot highlight is not drawn on a slot that has a sprite, because the
+sprite replaces the marker there.
 
 **Commits:**
+- 07b921b feat(T-021): draw the enemy's sprite in the counted slots
 
 **Manual verification:**
+- Open the Formation Editor, choose an enemy, and check that the slots within the
+  count draw that enemy's sprite and the slots beyond it stay markers.
+- Lower and raise the count and check the sprites and markers swap over at the
+  right slot.
+- Change the enemy and check the sprites change with it.
+- Clear the enemy choice, or pick an enemy that has no sprite, and check every
+  slot falls back to a marker.
+- Check that nothing is added to the world: no enemy flies, shoots or is hit
+  while the preview is up, and leaving editor mode leaves nothing behind.
 
 ## Discovered
