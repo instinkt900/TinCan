@@ -2,6 +2,10 @@
 #include <magic_enum.hpp>
 
 namespace imgui_ext {
+    // The entry an editor combo offers beside the database's own, which starts a blank one. Without it a
+    // database with no entries in it cannot be added to.
+    inline constexpr char const* NewEntryLabel = "<new>";
+
     namespace {
         template <typename E>
         bool EnumComboGetter(void* /*data*/, int idx, const char** out_text) {

@@ -120,11 +120,19 @@ namespace {
         moth::gfx::FloatVec2 anchor{ 0, 0 };
     };
 
-    // Names one entry of a database. Returns true on the frame the selection changes.
+    // Names one entry of a database, and with includeNew the blank entry that starts a new one. Returns
+    // true on the frame the selection changes, and every time the blank entry is picked, so that it can be
+    // used to clear the form again.
     template <typename T>
-    bool DatabaseCombo(char const* label, GameData const& gamedata, std::string& currentName) {
+    bool DatabaseCombo(char const* label, GameData const& gamedata, std::string& currentName,
+                       bool includeNew = false) {
         bool changed = false;
         if (ImGui::BeginCombo(label, currentName.c_str())) {
+            if (includeNew &&
+                ImGui::Selectable(imgui_ext::NewEntryLabel, currentName == imgui_ext::NewEntryLabel)) {
+                currentName = imgui_ext::NewEntryLabel;
+                changed = true;
+            }
             for (auto const& name : gamedata.Get<T>()->Keys()) {
                 bool const selected = name == currentName;
                 if (ImGui::Selectable(name.c_str(), selected) && !selected) {
@@ -308,11 +316,20 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
 
     ImGui::Separator();
 
-    if (DatabaseCombo<BehaviourData>("Behaviour", gamedata, staticBehaviourName)) {
-        // loading a named behaviour is a starting point for editing, not a live link to the database
-        if (auto const* loaded = gamedata.Get<BehaviourData>(staticBehaviourName)) {
+    if (DatabaseCombo<BehaviourData>("Behaviour", gamedata, staticBehaviourName, true)) {
+        // loading a named behaviour is a starting point for editing, not a live link to the database, and
+        // the blank entry is the same starting point with nothing in it
+        bool loadedSomething = false;
+        if (staticBehaviourName == imgui_ext::NewEntryLabel) {
+            staticBehaviourData = BehaviourData{};
+            staticSaveName.clear();
+            loadedSomething = true;
+        } else if (auto const* loaded = gamedata.Get<BehaviourData>(staticBehaviourName)) {
             staticBehaviourData = *loaded;
             staticSaveName = staticBehaviourName;
+            loadedSomething = true;
+        }
+        if (loadedSomething) {
             staticSelectedState = -1;
             staticSelectedWaypoint = -1;
             staticDraggedWaypoint = -1;

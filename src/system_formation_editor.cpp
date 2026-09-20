@@ -17,12 +17,6 @@ namespace {
     // to edit, and their size comes from a spacing instead of a scale
     constexpr std::array<char const*, 4> BuiltInFormations{ "line", "column", "v", "grid" };
 
-    bool IsBuiltIn(std::string const& name) {
-        return std::find_if(BuiltInFormations.begin(), BuiltInFormations.end(), [&name](char const* builtIn) {
-                   return name == builtIn;
-               }) != BuiltInFormations.end();
-    }
-
     // where the formations the editor saves are kept. the whole file is read, the named formation is
     // replaced or added, and the file is written back, so its formatting and ordering are not preserved
     char const* const FormationDatabasePath = "data/formation_database.json";
@@ -66,11 +60,16 @@ namespace {
         return true;
     }
 
-    // Names one formation: the entries of the database, then the built-in generators that no entry has
-    // taken the name of. Returns true on the frame the selection changes.
+    // Names one formation: the blank entry that starts a new one, then the entries of the database, then
+    // the built-in generators that no entry has taken the name of. Returns true on the frame the selection
+    // changes, and every time the blank entry is picked, so that it can be used to clear the form again.
     bool FormationCombo(GameData const& gamedata, std::string& currentName) {
         bool changed = false;
         if (ImGui::BeginCombo("Formation", currentName.c_str())) {
+            if (ImGui::Selectable(imgui_ext::NewEntryLabel, currentName == imgui_ext::NewEntryLabel)) {
+                currentName = imgui_ext::NewEntryLabel;
+                changed = true;
+            }
             auto const keys = gamedata.Get<FormationData>()->Keys();
             for (auto const& name : keys) {
                 bool const selected = name == currentName;
@@ -154,6 +153,9 @@ void SystemFormationEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
     static float staticRotationDegrees = 0.0f;
     static int staticSelectedSlot = -1;
     static int staticDraggedSlot = -1;
+    // whether the selection is a shape with slots, which is a database entry or a new one, rather than a
+    // built-in generator. a new formation is not in the database, so a lookup cannot answer this
+    static bool staticEditable = false;
     static std::string staticEnemyName;
 
     ImGui::Begin("Formation Editor");
@@ -165,20 +167,22 @@ void SystemFormationEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
     }
 
     if (FormationCombo(gamedata, staticFormationName)) {
-        // loading a named formation is a starting point for editing, not a live link to the database
+        // loading a named formation is a starting point for editing, not a live link to the database, and
+        // the blank entry is the same starting point with no slots in it
         staticFormationData = FormationData{};
-        if (auto const* loaded = gamedata.Get<FormationData>()->Find(staticFormationName)) {
+        auto const* loaded = gamedata.Get<FormationData>()->Find(staticFormationName);
+        if (loaded != nullptr) {
             staticFormationData = *loaded;
         }
-        staticSaveName = IsBuiltIn(staticFormationName) ? std::string() : staticFormationName;
+        staticEditable = loaded != nullptr || staticFormationName == imgui_ext::NewEntryLabel;
+        staticSaveName = loaded != nullptr ? staticFormationName : std::string();
         staticSelectedSlot = -1;
         staticDraggedSlot = -1;
     }
 
     EnemyCombo(gamedata, staticEnemyName);
 
-    bool const builtIn = staticFormationName.empty() ||
-                         gamedata.Get<FormationData>()->Find(staticFormationName) == nullptr;
+    bool const builtIn = !staticEditable;
 
     // the three things a map spawn applies to a formation, so that what is previewed is what it would place
     ImGui::InputInt("Count", &staticCount);
@@ -191,7 +195,7 @@ void SystemFormationEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
     ImGui::SliderFloat("Rotation (deg, clockwise)", &staticRotationDegrees, -180.0f, 180.0f);
 
     if (staticFormationName.empty()) {
-        ImGui::TextUnformatted("Choose a formation to preview or edit");
+        ImGui::TextUnformatted("Choose a formation to preview or edit, or <new> to start one");
     } else if (builtIn) {
         ImGui::TextUnformatted("A built-in formation is generated from the count and the spacing, so it\n"
                                "has no slots to edit and cannot be saved");
