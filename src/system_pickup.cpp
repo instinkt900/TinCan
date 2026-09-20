@@ -140,7 +140,9 @@ void SystemPickup::Update(GameWorld& world, uint32_t ticks) {
     }
 
     if (playerPosition == nullptr) {
-        spdlog::error("Unable to locate player");
+        // there is no player for a pickup to reach, which is the normal state between the player dying
+        // and the next one. nothing to do, and nothing worth a line of log a frame
+        return;
     }
 
     auto view = registry.View<ComponentPickup, ComponentEntity, ComponentBody, ComponentPosition>();
