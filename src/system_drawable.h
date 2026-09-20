@@ -50,6 +50,13 @@ struct ComponentSprite {
 // for states the sprite does not define (which log a warning).
 void SetSpriteState(ComponentSprite& sprite, std::string_view state);
 
+// Draws one sprite the way the game draws it: the animator's current frame and
+// pivot for an animated sprite, its image otherwise, with the sprite's blend
+// mode, colour, flash and scale. The position is snapped to whole pixels, and
+// the angle is added to the sprite's own rotation.
+void DrawSprite(moth::gfx::IGraphics& graphics, ComponentSprite const& sprite,
+                moth::gfx::FloatVec2 const& position, float angle);
+
 class SystemDrawable {
 public:
     static void Update(GameWorld& world, uint32_t ticks);

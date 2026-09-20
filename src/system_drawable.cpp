@@ -64,12 +64,40 @@ moth::ecs::Entity SystemDrawable::CreateOneShotSprite(moth::ecs::World& registry
 
 struct DrawImage {
     ComponentSprite const* m_sprite = nullptr;
-    moth::gfx::Image m_frame;
-    moth::gfx::IntVec2 m_position;
+    moth::gfx::FloatVec2 m_position;
     float m_angle = 0;
-    moth::gfx::FloatVec2 m_pivot{ 0.5f, 0.5f };
-    bool m_flipX = false;
 };
+
+void DrawSprite(moth::gfx::IGraphics& graphics, ComponentSprite const& sprite,
+                moth::gfx::FloatVec2 const& position, float angle) {
+    moth::gfx::Image frame = sprite.m_image;
+    moth::gfx::FloatVec2 pivot{ 0.5f, 0.5f };
+    bool flipX = false;
+    if (sprite.m_animator) {
+        auto const& sp = sprite.m_animator->GetSprite();
+        auto const sourceRect = sp.GetCurrentFrameRect();
+        auto const framePivot = sp.GetCurrentFramePivot();
+        frame = moth::gfx::Image(sp.GetImage().GetTexture(), sourceRect);
+        pivot = { static_cast<float>(framePivot.x) / static_cast<float>(sp.GetWidth()),
+                  static_cast<float>(framePivot.y) / static_cast<float>(sp.GetHeight()) };
+        flipX = sp.GetFlipX();
+    }
+
+    auto color = sprite.m_color;
+    if (sprite.m_flashTime > 0) {
+        moth::gfx::Color const flashColor{ 1.0, 1.0f, 1.0f, 1.0f };
+        float const maxFlashTime = 0.2f;
+        float const flashFactor = sprite.m_flashTime / maxFlashTime;
+        color = (color + flashColor * moth::gfx::Interp(0.0f, 1.0f, flashFactor, moth::gfx::InterpType::Linear));
+    }
+    graphics.SetBlendMode(sprite.m_blendMode);
+    graphics.SetColor(color);
+
+    // sprites are drawn on whole pixels so that a moving entity does not shimmer
+    auto const snapped = static_cast<moth::gfx::FloatVec2>(static_cast<moth::gfx::IntVec2>(position));
+    moth::gfx::Transform2D const transform{ snapped, angle + sprite.m_rotation, sprite.m_scale };
+    graphics.DrawImage(frame, transform, pivot, flipX);
+}
 
 CameraShake::CameraShake(float intensity, uint32_t duration)
     : m_intensity(intensity)
@@ -172,24 +200,11 @@ void SystemDrawable::Draw(GameWorld& world, moth::gfx::IGraphics& graphics) {
         if (auto const* details = registry.TryGet<ComponentEntity>(entity)) {
             angle = details->m_angle;
         }
-        auto const fullAngle = angle + sprite.m_rotation;
-        auto position = static_cast<moth::gfx::IntVec2>(pos.m_position + cameraOffset);
 
         DrawImage draw;
         draw.m_sprite = &sprite;
-        draw.m_position = position;
-        draw.m_angle = fullAngle;
-        if (sprite.m_animator) {
-            auto const& sp = sprite.m_animator->GetSprite();
-            auto const sourceRect = sp.GetCurrentFrameRect();
-            auto const pivot = sp.GetCurrentFramePivot();
-            draw.m_frame = moth::gfx::Image(sp.GetImage().GetTexture(), sourceRect);
-            draw.m_pivot = { static_cast<float>(pivot.x) / static_cast<float>(sp.GetWidth()),
-                             static_cast<float>(pivot.y) / static_cast<float>(sp.GetHeight()) };
-            draw.m_flipX = sp.GetFlipX();
-        } else {
-            draw.m_frame = sprite.m_image;
-        }
+        draw.m_position = pos.m_position + cameraOffset;
+        draw.m_angle = angle;
         m_blendedDraws.push_back(draw);
     }
 
@@ -198,19 +213,7 @@ void SystemDrawable::Draw(GameWorld& world, moth::gfx::IGraphics& graphics) {
     });
 
     for (auto& draw : m_blendedDraws) {
-        auto color = draw.m_sprite->m_color;
-        if (draw.m_sprite->m_flashTime > 0) {
-            moth::gfx::Color const flashColor{ 1.0, 1.0f, 1.0f, 1.0f };
-            float const maxFlashTime = 0.2f;
-            float const flashFactor = draw.m_sprite->m_flashTime / maxFlashTime;
-            color =
-                (color + flashColor * moth::gfx::Interp(0.0f, 1.0f, flashFactor, moth::gfx::InterpType::Linear));
-        }
-        graphics.SetBlendMode(draw.m_sprite->m_blendMode);
-        graphics.SetColor(color);
-        moth::gfx::Transform2D const transform{ static_cast<moth::gfx::FloatVec2>(draw.m_position), draw.m_angle,
-                                                draw.m_sprite->m_scale };
-        graphics.DrawImage(draw.m_frame, transform, draw.m_pivot, draw.m_flipX);
+        DrawSprite(graphics, *draw.m_sprite, draw.m_position, draw.m_angle);
     }
 
     DrawDebugs(registry, graphics);
