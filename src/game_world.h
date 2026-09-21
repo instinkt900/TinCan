@@ -49,6 +49,9 @@ public:
     void SetViewTransform(WorldViewTransform const& transform) { m_viewTransform = transform; }
     WorldViewTransform const& GetViewTransform() const { return m_viewTransform; }
 
+    // the key bindings the world loaded, for the game shell to read its own actions from
+    InputData const& GetInputBindings() const;
+
     float GetPlayerHealth() const;
     float GetPlayerPower() const;
 
@@ -66,6 +69,7 @@ private:
     std::unique_ptr<moth::gfx::ITarget> m_worldSurface;
 
     GameData m_gamedata;
+    InputData const* m_input = nullptr;
     moth::ecs::World m_registry;
     moth::ecs::Entity m_player = moth::ecs::kNullEntity;
 

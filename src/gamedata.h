@@ -15,6 +15,7 @@ enum class GameDataCategory {
     Pickups,
     Behaviours,
     Players,
+    Input,
 };
 
 struct SerializeContext {
@@ -48,6 +49,8 @@ public:
             return &m_behaviourDatabase;
         } else if constexpr (T::Category == GameDataCategory::Players) {
             return &m_playerDatabase;
+        } else if constexpr (T::Category == GameDataCategory::Input) {
+            return &m_inputDatabase;
         } else {
             return nullptr;
         }
@@ -71,6 +74,8 @@ public:
             return m_behaviourDatabase.Get(name);
         } else if constexpr (T::Category == GameDataCategory::Players) {
             return m_playerDatabase.Get(name);
+        } else if constexpr (T::Category == GameDataCategory::Input) {
+            return m_inputDatabase.Get(name);
         } else {
             return nullptr;
         }
@@ -79,6 +84,9 @@ public:
     // The game has a single player, so the name of its entry is a convention
     // rather than something a caller should have to know.
     PlayerData const* GetPlayer() const;
+
+    // The key bindings are a single entry by the same convention as the player.
+    InputData const* GetInput() const;
 
     GameData(const GameData&) = delete;
     GameData(GameData&&) = delete;
@@ -96,5 +104,6 @@ private:
     Database<PickupData> m_pickupDatabase;
     Database<BehaviourData> m_behaviourDatabase;
     Database<PlayerData> m_playerDatabase;
+    Database<InputData> m_inputDatabase;
 };
 

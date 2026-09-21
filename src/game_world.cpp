@@ -4,6 +4,7 @@
 #include "component_passives.h"
 #include "gamedata_entity.h"
 #include "gamedata_weapon.h"
+#include "gamedata_input.h"
 #include "gamedata_player.h"
 #include "system_animation.h"
 #include "system_behaviour.h"
@@ -33,6 +34,7 @@ GameWorld::GameWorld(moth::gfx::platform::Window& window, moth::gfx::IGraphics& 
     , m_graphics(graphics) {
     SerializeContext serializeContext{ m_gamedata, m_window.GetSurfaceContext() };
     m_gamedata.LoadDirectory("data", serializeContext);
+    m_input = m_gamedata.GetInput();
 
     // m_worldSize = SystemMap::InitMap(m_registry, "tiled_project/maps/test.tmj", "tiled_project/tincan.tiled-project",
     m_worldSize = SystemMap::InitMap(m_registry, "tiled_project/maps/stars.tmj", "tiled_project/tincan.tiled-project",
@@ -51,8 +53,11 @@ bool GameWorld::OnEvent(moth::ui::Event const& event) {
 
 void GameWorld::Update(uint32_t ticks) {
     if (m_paused) {
+        // the presses still have to be cleared, or they fire on the frame the pause lifts
+        SystemInput::EndFrame(*this);
         return;
     }
+    { MOTH_PROFILE_SCOPE("SystemInput"); SystemInput::Update(*this, ticks); }
     if (!m_editorModeOpen) {
         MOTH_PROFILE_SCOPE("SystemMap::Update");
         SystemMap::Update(*this, ticks);
@@ -70,6 +75,7 @@ void GameWorld::Update(uint32_t ticks) {
     { MOTH_PROFILE_SCOPE("SystemWorldBounds"); SystemWorldBounds::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemAnimation"); SystemAnimation::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemDrawable"); SystemDrawable::Update(*this, ticks); }
+    SystemInput::EndFrame(*this);
 }
 
 void GameWorld::Draw() {
@@ -101,11 +107,20 @@ float GameWorld::GetPlayerPower() const {
     return 0.0f;
 }
 
+InputData const& GameWorld::GetInputBindings() const {
+    // A missing input database is reported when it is looked up. Nothing is bound in that case, so
+    // the game takes no input rather than every caller needing a null check.
+    static InputData const unbound;
+    return m_input != nullptr ? *m_input : unbound;
+}
+
 bool GameWorld::OnKeyEvent(moth::ui::EventKey const& event) {
-    if (event.GetAction() == moth::ui::KeyAction::Down && event.GetKey() == moth::ui::Key::P) {
+    auto const& bindings = GetInputBindings();
+    if (event.GetAction() == moth::ui::KeyAction::Down
+        && bindings.IsBound(InputAction::Pause, event.GetKey())) {
         m_paused = !m_paused;
     }
-    SystemInput::OnKey(m_registry, event);
+    SystemInput::OnKey(m_registry, bindings, event);
     return false;
 }
 

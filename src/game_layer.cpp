@@ -1,4 +1,5 @@
 #include "game_layer.h"
+#include "gamedata_input.h"
 #include <moth/graphics/events/event_window.h>
 #include <moth/graphics/platform/window.h>
 #include <cmath>
@@ -120,15 +121,16 @@ bool GameLayer::OnRequestQuitEvent(moth::gfx::EventRequestQuit const& event) {
 
 bool GameLayer::OnKeyEvent(moth::ui::EventKey const& event) {
     if (event.GetAction() == moth::ui::KeyAction::Up) {
-        if (event.GetKey() == moth::ui::Key::Escape) {
+        auto const& bindings = m_gameWorld->GetInputBindings();
+        if (bindings.IsBound(InputAction::Quit, event.GetKey())) {
             FireEvent(moth::gfx::EventQuit());
             return true;
         }
-        if (event.GetKey() == moth::ui::Key::F1) {
+        if (bindings.IsBound(InputAction::ToggleProfiler, event.GetKey())) {
             m_profilerPanel.ToggleOpen();
             return true;
         }
-        if (event.GetKey() == moth::ui::Key::F2) {
+        if (bindings.IsBound(InputAction::ToggleEditor, event.GetKey())) {
             m_gameWorld->ToggleEditorMode();
             return true;
         }

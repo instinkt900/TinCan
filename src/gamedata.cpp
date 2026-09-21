@@ -9,6 +9,7 @@
 #include "gamedata_weapon.h"
 #include "gamedata_behaviour.h"
 #include "gamedata_player.h"
+#include "gamedata_input.h"
 
 MAGIC_SERIALIZE_ENUM(GameDataCategory);
 
@@ -24,6 +25,10 @@ GameData::~GameData() = default;
 
 PlayerData const* GameData::GetPlayer() const {
     return m_playerDatabase.Get(kDefaultPlayerName);
+}
+
+InputData const* GameData::GetInput() const {
+    return m_inputDatabase.Get(kDefaultInputName);
 }
 
 void GameData::LoadDirectory(std::filesystem::path const& directory, SerializeContext const& context) {
@@ -92,6 +97,9 @@ bool GameData::Load(std::filesystem::path const& path, SerializeContext const& c
             break;
         case GameDataCategory::Players:
             m_playerDatabase.Load(categoryJson);
+            break;
+        case GameDataCategory::Input:
+            m_inputDatabase.Load(categoryJson);
             break;
         default:
             break;

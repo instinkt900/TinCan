@@ -1,0 +1,17 @@
+{
+    "input": {
+        "default": {
+            "MoveUp": ["Up"],
+            "MoveDown": ["Down"],
+            "MoveLeft": ["Left"],
+            "MoveRight": ["Right"],
+            "Fire": ["Lctrl", "Rctrl", "Space"],
+            "PowerWeapon": ["Z"],
+            "SwapAffinity": ["X"],
+            "Pause": ["P"],
+            "ToggleProfiler": ["F1"],
+            "ToggleEditor": ["F2"],
+            "Quit": ["Escape"]
+        }
+    }
+}

@@ -120,19 +120,19 @@ namespace {
     // The velocity the input is asking for, closed on at the rate the entity's
     // tuning allows. An acceleration of zero or less arrives at once, which is
     // the weightless movement this started out with.
-    moth::gfx::FloatVec2 SteerVelocity(ComponentInput& input, ComponentMovement const& movement,
+    moth::gfx::FloatVec2 SteerVelocity(ComponentInput const& input, ComponentMovement const& movement,
                                        moth::gfx::FloatVec2 const& velocity, float dt) {
         moth::gfx::FloatVec2 direction{ 0.0f, 0.0f };
-        if (input.m_state[moth::ui::Key::Up]) {
+        if (input.Held(InputAction::MoveUp)) {
             direction.y -= 1.0f;
         }
-        if (input.m_state[moth::ui::Key::Down]) {
+        if (input.Held(InputAction::MoveDown)) {
             direction.y += 1.0f;
         }
-        if (input.m_state[moth::ui::Key::Left]) {
+        if (input.Held(InputAction::MoveLeft)) {
             direction.x -= 1.0f;
         }
-        if (input.m_state[moth::ui::Key::Right]) {
+        if (input.Held(InputAction::MoveRight)) {
             direction.x += 1.0f;
         }
 
@@ -174,7 +174,7 @@ namespace {
         auto& registry = world.GetRegistry();
         auto view = registry.View<ComponentPosition, ComponentVelocity>(moth::ecs::Exclude<DeadTag, ComponentParenting>);
         for (auto [entity, pos, vel] : view.each()) {
-            if (auto* input = registry.TryGet<ComponentInput>(entity)) {
+            if (auto const* input = registry.TryGet<ComponentInput>(entity)) {
                 // An input entity carrying no tuning of its own keeps the
                 // defaults, which move it the way it moved before.
                 static ComponentMovement const defaultMovement;

@@ -9,3 +9,4 @@ struct FormationData;
 struct PickupData;
 struct BehaviourData;
 struct PlayerData;
+struct InputData;
