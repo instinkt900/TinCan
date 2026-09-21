@@ -2,6 +2,7 @@
 
 #include <moth/ecs/world.h>
 #include <moth/graphics/utils/vector.h>
+#include "gamedata_movement.h"
 
 class GameWorld;
 
@@ -25,6 +26,18 @@ struct ComponentPosition {
 
 struct ComponentVelocity {
     moth::gfx::FloatVec2 m_velocity;
+};
+
+struct ComponentMovement {
+    float m_maxSpeed = 400.0f;
+    float m_acceleration = 0.0f;
+    float m_deceleration = 0.0f;
+
+    ComponentMovement() = default;
+    explicit ComponentMovement(MovementData const& data)
+        : m_maxSpeed(data.max_speed)
+        , m_acceleration(data.acceleration)
+        , m_deceleration(data.deceleration) {}
 };
 
 class SystemMovement {

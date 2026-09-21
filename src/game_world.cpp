@@ -4,6 +4,7 @@
 #include "component_passives.h"
 #include "gamedata_entity.h"
 #include "gamedata_weapon.h"
+#include "gamedata_player.h"
 #include "system_animation.h"
 #include "system_behaviour.h"
 #include "system_drawable.h"
@@ -109,20 +110,29 @@ bool GameWorld::OnKeyEvent(moth::ui::EventKey const& event) {
 }
 
 void GameWorld::CreatePlayer() {
+    auto const* playerData = m_gamedata.GetPlayer();
+    if (playerData == nullptr) {
+        // GetPlayer logs the missing entry. Without it there is nothing to build
+        // the player from, so leave m_player null rather than guessing values.
+        return;
+    }
+
     m_player = m_registry.Create();
 
-    m_registry.Emplace<ComponentEntity>(m_player, Team::Player, Affinity::Light);
+    m_registry.Emplace<ComponentEntity>(m_player, Team::Player, playerData->affinity);
 
     auto const position = moth::gfx::FloatVec2(m_worldSize.x / 2, m_worldSize.y - 160);
     m_registry.Emplace<ComponentPosition>(m_player, position);
-    m_registry.Emplace<ComponentBody>(m_player, 5);
+    m_registry.Emplace<ComponentBody>(m_player, playerData->radius);
 
-    auto const* spriteData = m_gamedata.Get<SpriteData>("player_ship");
-    m_registry.Emplace<ComponentSprite>(m_player, *spriteData);
-    m_registry.Emplace<ComponentHealth>(m_player, 100);
+    if (playerData->sprite.valid()) {
+        m_registry.Emplace<ComponentSprite>(m_player, *playerData->sprite);
+    }
+    m_registry.Emplace<ComponentHealth>(m_player, playerData->health);
 
     auto& velocity = m_registry.Emplace<ComponentVelocity>(m_player);
     velocity.m_velocity = { 0, 0 };
+    m_registry.Emplace<ComponentMovement>(m_player, playerData->movement);
 
     m_registry.Emplace<ComponentInput>(m_player);
 
@@ -131,8 +141,9 @@ void GameWorld::CreatePlayer() {
 
     m_registry.Emplace<ComponentPassives>(m_player);
 
-    auto const* weaponData = m_gamedata.Get<WeaponData>("player_weapon_01");
-    SystemWeapon::InitWeapon(m_registry, m_player, *weaponData, m_gamedata);
+    if (playerData->weapon.valid()) {
+        SystemWeapon::InitWeapon(m_registry, m_player, *playerData->weapon, m_gamedata);
+    }
     SystemPowerWeapon::InitWeapon(m_registry, m_player, "dummy", m_gamedata);
 
     m_registry.Emplace<PlayerTag>(m_player);
@@ -143,13 +154,12 @@ void GameWorld::CreatePlayer() {
     bounds.m_bounds =
         moth::gfx::MakeRect(0.0f, 0.0f, static_cast<float>(m_worldSize.x), static_cast<float>(m_worldSize.y));
 
-    {
+    if (playerData->shield_sprite.valid()) {
         auto shield = m_registry.Create();
         m_registry.Emplace<ComponentShield>(shield);
         m_registry.Emplace<ComponentPosition>(shield, position);
-        m_registry.Emplace<ComponentBody>(shield, 45.0f);
+        m_registry.Emplace<ComponentBody>(shield, playerData->shield_radius);
         m_registry.Emplace<ComponentParenting>(shield, m_player);
-        auto const* spriteData = m_gamedata.Get<SpriteData>("player_shield");
-        m_registry.Emplace<ComponentSprite>(shield, *spriteData);
+        m_registry.Emplace<ComponentSprite>(shield, *playerData->shield_sprite);
     }
 }

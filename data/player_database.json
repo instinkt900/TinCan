@@ -1,0 +1,18 @@
+{
+    "players": {
+        "default": {
+            "affinity": "Light",
+            "sprite": "player_ship",
+            "radius": 5,
+            "health": 100,
+            "movement": {
+                "max_speed": 800,
+                "acceleration": 4500,
+                "deceleration": 3000
+            },
+            "weapon": "player_weapon_01",
+            "shield_sprite": "player_shield",
+            "shield_radius": 45
+        }
+    }
+}

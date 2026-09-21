@@ -117,27 +117,72 @@ namespace {
         }
     }
 
+    // The velocity the input is asking for, closed on at the rate the entity's
+    // tuning allows. An acceleration of zero or less arrives at once, which is
+    // the weightless movement this started out with.
+    moth::gfx::FloatVec2 SteerVelocity(ComponentInput& input, ComponentMovement const& movement,
+                                       moth::gfx::FloatVec2 const& velocity, float dt) {
+        moth::gfx::FloatVec2 direction{ 0.0f, 0.0f };
+        if (input.m_state[moth::ui::Key::Up]) {
+            direction.y -= 1.0f;
+        }
+        if (input.m_state[moth::ui::Key::Down]) {
+            direction.y += 1.0f;
+        }
+        if (input.m_state[moth::ui::Key::Left]) {
+            direction.x -= 1.0f;
+        }
+        if (input.m_state[moth::ui::Key::Right]) {
+            direction.x += 1.0f;
+        }
+
+        bool const steering = moth::gfx::LengthSq(direction) > 0;
+        auto const target = steering ? moth::gfx::Normalized(direction) * movement.m_maxSpeed
+                                     : moth::gfx::FloatVec2{ 0.0f, 0.0f };
+        auto const rate = steering ? movement.m_acceleration : movement.m_deceleration;
+        if (rate <= 0.0f) {
+            return target;
+        }
+
+        // Turning back on an axis drops the speed already held that way instead
+        // of braking through it, so weight is felt getting up to speed but a
+        // reversal stays sharp. A product below zero is the sign change, and an
+        // axis with no input is left for the deceleration rate to bring down.
+        auto current = velocity;
+        if (direction.x * current.x < 0.0f) {
+            current.x = 0.0f;
+        }
+        if (direction.y * current.y < 0.0f) {
+            current.y = 0.0f;
+        }
+
+        // Stepping by distance rather than by axis keeps the closing rate the
+        // same in every direction, and stopping at the target avoids overshoot
+        // at low frame rates.
+        auto const delta = target - current;
+        auto const distance = moth::gfx::Length(delta);
+        auto const step = rate * dt;
+        if (step >= distance) {
+            return target;
+        }
+        return current + (delta / distance) * step;
+    }
+
     void UpdatePosition(GameWorld& world, uint32_t ticks) {
         // update positions based on velocity
         auto const dt = static_cast<float>(ticks) / 1000.0f;
         auto& registry = world.GetRegistry();
         auto view = registry.View<ComponentPosition, ComponentVelocity>(moth::ecs::Exclude<DeadTag, ComponentParenting>);
         for (auto [entity, pos, vel] : view.each()) {
-            auto velocity = vel.m_velocity;
             if (auto* input = registry.TryGet<ComponentInput>(entity)) {
-                if (input->m_state[moth::ui::Key::Up]) {
-                    velocity.y -= 400.0f;
-                }
-                if (input->m_state[moth::ui::Key::Down]) {
-                    velocity.y += 400.0f;
-                }
-                if (input->m_state[moth::ui::Key::Left]) {
-                    velocity.x -= 400.0f;
-                }
-                if (input->m_state[moth::ui::Key::Right]) {
-                    velocity.x += 400.0f;
-                }
+                // An input entity carrying no tuning of its own keeps the
+                // defaults, which move it the way it moved before.
+                static ComponentMovement const defaultMovement;
+                auto const* movement = registry.TryGet<ComponentMovement>(entity);
+                vel.m_velocity = SteerVelocity(*input, movement != nullptr ? *movement : defaultMovement,
+                                               vel.m_velocity, dt);
             }
+            auto const velocity = vel.m_velocity;
 
             if (auto* sprite = registry.TryGet<ComponentSprite>(entity)) {
                 if (velocity.x < -10.0f) {

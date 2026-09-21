@@ -8,6 +8,7 @@
 #include "gamedata_projectile.h"
 #include "gamedata_weapon.h"
 #include "gamedata_behaviour.h"
+#include "gamedata_player.h"
 
 MAGIC_SERIALIZE_ENUM(GameDataCategory);
 
@@ -20,6 +21,10 @@ std::string ToLower(std::string str) {
 
 GameData::GameData() = default;
 GameData::~GameData() = default;
+
+PlayerData const* GameData::GetPlayer() const {
+    return m_playerDatabase.Get(kDefaultPlayerName);
+}
 
 void GameData::LoadDirectory(std::filesystem::path const& directory, SerializeContext const& context) {
     for (const auto& entry : std::filesystem::directory_iterator(directory)) {
@@ -84,6 +89,9 @@ bool GameData::Load(std::filesystem::path const& path, SerializeContext const& c
             break;
         case GameDataCategory::Behaviours:
             m_behaviourDatabase.Load(categoryJson);
+            break;
+        case GameDataCategory::Players:
+            m_playerDatabase.Load(categoryJson);
             break;
         default:
             break;

@@ -15,13 +15,29 @@ void KillOutOfBounds(moth::ecs::World& registry, moth::ecs::Entity entity, Compo
 void LimitOutOfBounds(moth::ecs::World& registry, moth::ecs::Entity entity, ComponentBounds const& bounds,
                       ComponentPosition& position) {
     auto delta = position.m_position - position.m_lastPosition;
-    if (position.m_position.x < bounds.m_bounds.left() || position.m_position.x > bounds.m_bounds.right()) {
+    bool const blockedX =
+        position.m_position.x < bounds.m_bounds.left() || position.m_position.x > bounds.m_bounds.right();
+    bool const blockedY =
+        position.m_position.y < bounds.m_bounds.top() || position.m_position.y > bounds.m_bounds.bottom();
+    if (blockedX) {
         delta.x = 0;
     }
-    if (position.m_position.y < bounds.m_bounds.top() || position.m_position.y > bounds.m_bounds.bottom()) {
+    if (blockedY) {
         delta.y = 0;
     }
     position.m_position = position.m_lastPosition + delta;
+
+    // Held against an edge the entity keeps no speed in the direction it cannot
+    // travel, so leaving the edge starts from a stop rather than from whatever
+    // it had built up pressing into it.
+    if (auto* velocity = registry.TryGet<ComponentVelocity>(entity)) {
+        if (blockedX) {
+            velocity->m_velocity.x = 0;
+        }
+        if (blockedY) {
+            velocity->m_velocity.y = 0;
+        }
+    }
 }
 
 void HandleOutOfBounds(moth::ecs::World& registry, moth::ecs::Entity entity, ComponentBounds const& bounds,
