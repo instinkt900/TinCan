@@ -17,7 +17,18 @@ const enums = [
     },
 ];
 
-function syncEnum(dataDir, { type, file, category, extra }) {
+// Tiled resolves an enum property to the index of its value when a map is loaded and
+// back to the name when it is saved, so the position of a value in the enum is what a
+// map really stores. Two rules keep an already open map meaning what it says:
+// the order of values already in the project never changes, and values are only
+// dropped by the explicit menu action, never behind the user's back.
+function mergeValues(existing, names, prune) {
+    const kept = prune ? existing.filter((name) => names.indexOf(name) !== -1) : existing.slice();
+    const added = names.filter((name) => kept.indexOf(name) === -1);
+    return kept.concat(added);
+}
+
+function syncEnum(dataDir, { type, file, category, extra }, prune) {
     const path = FileInfo.joinPaths(dataDir, file);
     if (!File.exists(path)) {
         tiled.error(`Game data not found at ${path}`);
@@ -44,25 +55,40 @@ function syncEnum(dataDir, { type, file, category, extra }) {
         return;
     }
 
-    if (enumType.values.join("\n") !== names.join("\n")) {
-        enumType.values = names;
-        tiled.log(`Updated enum ${type} with ${names.length} values`);
+    const existing = enumType.values;
+    const merged = mergeValues(existing, names, prune);
+    if (merged.join("\n") !== existing.join("\n")) {
+        enumType.values = merged;
+        tiled.log(`Updated enum ${type} with ${merged.length} values`);
     }
 }
 
-function syncAll() {
+function syncAll(prune) {
     if (!tiled.projectFilePath) {
         return;
     }
     const dataDir = FileInfo.cleanPath(FileInfo.joinPaths(FileInfo.path(tiled.projectFilePath), "../data"));
     for (const entry of enums) {
-        syncEnum(dataDir, entry);
+        syncEnum(dataDir, entry, prune);
     }
 }
 
-const action = tiled.registerAction("SyncGameDataEnums", syncAll);
+// Dropping a value shifts every value after it, so a map that is already open would
+// keep the index it loaded and mean the wrong entry. Only do it on request, and say
+// what the open maps need.
+function syncAndPrune() {
+    syncAll(true);
+    tiled.log("Sync Game Data Enums: values removed from the game data are gone from the enums. "
+        + "Reload any map that was already open (File > Reload) before saving it.");
+}
+
+const action = tiled.registerAction("SyncGameDataEnums", syncAndPrune);
 action.text = "Sync Game Data Enums";
 tiled.extendMenu("Map", [{ separator: true }, { action: "SyncGameDataEnums" }]);
 
-// keep the enums current as the game data changes between edits
-tiled.assetOpened.connect(syncAll);
+// Pick up new game data before the session restores its maps, so their enum
+// properties resolve against the enums the data describes.
+syncAll(false);
+
+// and keep them current as the game data changes between edits
+tiled.assetOpened.connect(() => syncAll(false));
