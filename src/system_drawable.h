@@ -39,11 +39,17 @@ struct ComponentSprite {
     moth::gfx::BlendMode m_blendMode = moth::gfx::BlendMode::Replace;
     moth::gfx::Color m_color = moth::gfx::BasicColors::White;
     float m_rotation = 0;
+    // radians per second: the sprite's own rate, scaled by whatever spawned it
+    float m_spin = 0;
+    // how far this instance has turned, kept per entity so instances of one sprite can be out of phase
+    float m_spinAngle = 0;
     int32_t m_zOrder = 0;
 
     float m_flashTime = 0;
 
-    explicit ComponentSprite(SpriteData const& data);
+    // spinScale multiplies the sprite's authored spin rate, so a sprite with no spin never turns no
+    // matter what scale it is given.
+    explicit ComponentSprite(SpriteData const& data, float spinScale = 1.0f);
 };
 
 // Switches an animated sprite to a named state; a no-op for static sprites and
@@ -53,7 +59,7 @@ void SetSpriteState(ComponentSprite& sprite, std::string_view state);
 // Draws one sprite the way the game draws it: the animator's current frame and
 // pivot for an animated sprite, its image otherwise, with the sprite's blend
 // mode, colour, flash and scale. The position is snapped to whole pixels, and
-// the angle is added to the sprite's own rotation.
+// the angle is added to the sprite's own rotation and to however far it has spun.
 void DrawSprite(moth::gfx::IGraphics& graphics, ComponentSprite const& sprite,
                 moth::gfx::FloatVec2 const& position, float angle);
 

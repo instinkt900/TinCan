@@ -11,13 +11,17 @@
 #include "utils.h"
 #include "utils_paths.h"
 
-ComponentSprite::ComponentSprite(SpriteData const& data)
+ComponentSprite::ComponentSprite(SpriteData const& data, float spinScale)
     : m_image(data.image)
     , m_scale(data.scale)
     , m_blendMode(data.blend_mode)
     , m_color(data.color)
     , m_rotation(data.rotation)
+    , m_spin(data.spin * spinScale)
     , m_zOrder(data.z_order) {
+    if (data.spin_random_phase && m_spin != 0.0f) {
+        m_spinAngle = Random(0.0f, moth::gfx::F_PI * 2.0f);
+    }
     if (data.animSet) {
         auto const& set = *data.animSet;
         for (auto const& state : set.states) {
@@ -95,7 +99,8 @@ void DrawSprite(moth::gfx::IGraphics& graphics, ComponentSprite const& sprite,
 
     // sprites are drawn on whole pixels so that a moving entity does not shimmer
     auto const snapped = static_cast<moth::gfx::FloatVec2>(static_cast<moth::gfx::IntVec2>(position));
-    moth::gfx::Transform2D const transform{ snapped, angle + sprite.m_rotation, sprite.m_scale };
+    moth::gfx::Transform2D const transform{ snapped, angle + sprite.m_rotation + sprite.m_spinAngle,
+                                            sprite.m_scale };
     graphics.DrawImage(frame, transform, pivot, flipX);
 }
 
@@ -176,6 +181,10 @@ void SystemDrawable::Update(GameWorld& world, uint32_t ticks) {
     for (auto [entity, sprite] : view.each()) {
         if (sprite.m_flashTime > 0) {
             sprite.m_flashTime -= dt;
+        }
+        if (sprite.m_spin != 0.0f) {
+            // wrapped so that a long-lived sprite does not lose precision in its angle
+            sprite.m_spinAngle = std::fmod(sprite.m_spinAngle + (sprite.m_spin * dt), moth::gfx::F_PI * 2.0f);
         }
     }
 }

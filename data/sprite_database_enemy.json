@@ -1,5 +1,29 @@
 {
     "sprites": {
+        "asteroid_1": {
+            "sheet": "assets/sprites/asteroid.json",
+            "spin": 200,
+            "clip": "idle1",
+            "blend_mode": "Alpha"
+        },
+        "asteroid_2": {
+            "sheet": "assets/sprites/asteroid.json",
+            "spin": 200,
+            "clip": "idle2",
+            "blend_mode": "Alpha"
+        },
+        "asteroid_3": {
+            "sheet": "assets/sprites/asteroid.json",
+            "spin": 200,
+            "clip": "idle3",
+            "blend_mode": "Alpha"
+        },
+        "asteroid_4": {
+            "sheet": "assets/sprites/asteroid.json",
+            "spin": 200,
+            "clip": "idle4",
+            "blend_mode": "Alpha"
+        },
         "enemy_danger_1_light": {
             "sheet": "assets/sprites/enemy_danger.json",
             "clip": "danger_1_light",

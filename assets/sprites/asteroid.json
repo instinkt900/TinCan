@@ -1,0 +1,79 @@
+{
+  "clips": [
+    {
+      "frames": [
+        {
+          "duration_ms": 100,
+          "frame": 0
+        }
+      ],
+      "loop": "stop",
+      "name": "idle1"
+    },
+    {
+      "frames": [
+        {
+          "duration_ms": 100,
+          "frame": 1
+        }
+      ],
+      "loop": "stop",
+      "name": "idle2"
+    },
+    {
+      "frames": [
+        {
+          "duration_ms": 100,
+          "frame": 2
+        }
+      ],
+      "loop": "stop",
+      "name": "idle3"
+    },
+    {
+      "frames": [
+        {
+          "duration_ms": 100,
+          "frame": 3
+        }
+      ],
+      "loop": "stop",
+      "name": "idle4"
+    }
+  ],
+  "frames": [
+    {
+      "h": 32,
+      "pivot_x": 17,
+      "pivot_y": 16,
+      "w": 34,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "h": 32,
+      "pivot_x": 17,
+      "pivot_y": 16,
+      "w": 34,
+      "x": 34,
+      "y": 0
+    },
+    {
+      "h": 32,
+      "pivot_x": 17,
+      "pivot_y": 16,
+      "w": 34,
+      "x": 68,
+      "y": 0
+    },
+    {
+      "h": 20,
+      "pivot_x": 10,
+      "pivot_y": 10,
+      "w": 20,
+      "x": 102,
+      "y": 0
+    }
+  ],
+  "image": "../images/sheets/spritesheet_asteroid.png"
+}

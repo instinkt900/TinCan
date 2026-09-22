@@ -28,6 +28,10 @@
             "storageType": "string",
             "type": "enum",
             "values": [
+                "asteroid_1",
+                "asteroid_2",
+                "asteroid_3",
+                "asteroid_4",
                 "danger_1_dark",
                 "danger_1_light",
                 "danger_2_dark",
@@ -79,7 +83,7 @@
                     "name": "enemy_type",
                     "propertyType": "enemy_type",
                     "type": "string",
-                    "value": "danger_1_dark"
+                    "value": "asteroid_1"
                 },
                 {
                     "name": "formation",

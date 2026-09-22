@@ -1,5 +1,37 @@
 {
     "enemies": {
+        "asteroid_1": {
+            "affinity": "Light",
+            "spin_scale": 1.0,
+            "health": 80,
+            "radius": 32,
+            "sprite": "asteroid_1",
+            "death_sprite": "explosion_01"
+        },
+        "asteroid_2": {
+            "affinity": "Light",
+            "spin_scale": -0.7,
+            "health": 80,
+            "radius": 32,
+            "sprite": "asteroid_2",
+            "death_sprite": "explosion_01"
+        },
+        "asteroid_3": {
+            "affinity": "Light",
+            "spin_scale": 1.4,
+            "health": 80,
+            "radius": 32,
+            "sprite": "asteroid_3",
+            "death_sprite": "explosion_01"
+        },
+        "asteroid_4": {
+            "affinity": "Light",
+            "spin_scale": -1.1,
+            "health": 80,
+            "radius": 32,
+            "sprite": "asteroid_4",
+            "death_sprite": "explosion_01"
+        },
         "danger_1_light": {
             "affinity": "Light",
             "health": 40,

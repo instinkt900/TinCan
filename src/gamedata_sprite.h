@@ -26,6 +26,12 @@ struct SpriteData {
     moth::gfx::BlendMode blend_mode = moth::gfx::BlendMode::Replace;
     moth::gfx::Color color = moth::gfx::BasicColors::White;
     float rotation = 0;
+    // How fast the sprite turns, in degrees per second, clockwise on screen. This is the sprite's own
+    // rate: a spawn can only scale it, so a sprite authored with no spin never turns.
+    float spin = 0;
+    // Whether each instance starts at its own angle, so a formation of one sprite does not turn in
+    // lockstep. Off for a spin meant to stay in step with the sprite's static rotation.
+    bool spin_random_phase = true;
     int32_t z_order = 0;
 };
 
@@ -108,7 +114,10 @@ inline void from_json(nlohmann::json const& json, SpriteData& data) {
     DATA_OPTIONAL(json, data, blend_mode);
     DATA_OPTIONAL(json, data, color);
     DATA_OPTIONAL(json, data, rotation);
+    DATA_OPTIONAL(json, data, spin);
+    DATA_OPTIONAL(json, data, spin_random_phase);
     DATA_OPTIONAL(json, data, z_order);
 
     data.rotation = moth::gfx::DegToRad(data.rotation);
+    data.spin = moth::gfx::DegToRad(data.spin);
 }

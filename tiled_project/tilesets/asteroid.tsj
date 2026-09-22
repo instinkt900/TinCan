@@ -26,12 +26,40 @@
          "probability":0.1
         }, 
         {
+         "id":51,
+         "probability":0.3
+        }, 
+        {
+         "id":52,
+         "probability":0.3
+        }, 
+        {
+         "id":67,
+         "probability":0.3
+        }, 
+        {
+         "id":68,
+         "probability":0.3
+        }, 
+        {
+         "id":83,
+         "probability":0.3
+        }, 
+        {
+         "id":84,
+         "probability":0.3
+        }, 
+        {
          "id":98,
          "probability":0.2
         }, 
         {
          "id":114,
          "probability":0.2
+        }, 
+        {
+         "id":244,
+         "probability":0.1
         }],
  "tilewidth":32,
  "type":"tileset",
@@ -108,6 +136,30 @@
                  "wangid":[0, 2, 0, 2, 0, 2, 0, 2]
                 }, 
                 {
+                 "tileid":51,
+                 "wangid":[0, 2, 0, 2, 0, 2, 0, 2]
+                }, 
+                {
+                 "tileid":52,
+                 "wangid":[0, 2, 0, 2, 0, 2, 0, 2]
+                }, 
+                {
+                 "tileid":67,
+                 "wangid":[0, 2, 0, 2, 0, 2, 0, 2]
+                }, 
+                {
+                 "tileid":68,
+                 "wangid":[0, 2, 0, 2, 0, 2, 0, 2]
+                }, 
+                {
+                 "tileid":83,
+                 "wangid":[0, 2, 0, 2, 0, 2, 0, 2]
+                }, 
+                {
+                 "tileid":84,
+                 "wangid":[0, 2, 0, 2, 0, 2, 0, 2]
+                }, 
+                {
                  "tileid":98,
                  "wangid":[0, 1, 0, 1, 0, 2, 0, 1]
                 }, 
@@ -134,6 +186,26 @@
                 {
                  "tileid":148,
                  "wangid":[0, 2, 0, 1, 0, 2, 0, 2]
+                }, 
+                {
+                 "tileid":240,
+                 "wangid":[0, 2, 0, 2, 0, 2, 0, 2]
+                }, 
+                {
+                 "tileid":241,
+                 "wangid":[0, 2, 0, 2, 0, 2, 0, 2]
+                }, 
+                {
+                 "tileid":242,
+                 "wangid":[0, 2, 0, 2, 0, 2, 0, 2]
+                }, 
+                {
+                 "tileid":244,
+                 "wangid":[0, 2, 0, 2, 0, 2, 0, 2]
+                }, 
+                {
+                 "tileid":247,
+                 "wangid":[0, 2, 0, 2, 0, 2, 0, 2]
                 }]
         }]
 }

@@ -30,7 +30,7 @@ moth::ecs::Entity SystemEnemySpawner::SpawnEnemy(moth::ecs::World& registry, Ene
     }
 
     if (data.sprite.valid()) {
-        registry.Emplace<ComponentSprite>(rootEntity, *data.sprite);
+        registry.Emplace<ComponentSprite>(rootEntity, *data.sprite, data.spin_scale);
     }
 
     if (data.weapon.valid()) {
@@ -57,6 +57,8 @@ moth::ecs::Entity SystemEnemySpawner::SpawnEnemy(moth::ecs::World& registry, Ene
                 registry.Emplace<ComponentHealth>(childEntity, section.health);
             }
             if (section.sprite.valid()) {
+                // a section spins only if its own sprite asks for it: sections are parented by offset
+                // and draw at angle 0, so the root's spin scale would set them turning on their own
                 registry.Emplace<ComponentSprite>(childEntity, *section.sprite);
             }
 
