@@ -5,6 +5,7 @@
 #include "gamedata_entity.h"
 #include "gamedata_sprite.h"
 #include "gamedata_weapon.h"
+#include <optional>
 
 struct EnemySection {
     DataRef<SpriteData> sprite;
@@ -13,6 +14,7 @@ struct EnemySection {
     float health = 1.0f;
     DataRef<WeaponData> weapon;
     DataRef<SpriteData> death_sprite;
+    std::optional<ContactData> contact;
 };
 
 inline void from_json(nlohmann::json const& json, EnemySection& data) {
@@ -22,6 +24,7 @@ inline void from_json(nlohmann::json const& json, EnemySection& data) {
     DATA_OPTIONAL(json, data, health);
     DATA_OPTIONAL(json, data, weapon);
     DATA_OPTIONAL(json, data, death_sprite);
+    DATA_OPTIONAL(json, data, contact);
 }
 
 struct EnemyData {
@@ -37,6 +40,7 @@ struct EnemyData {
     float health = 0.0f;
     DataRef<WeaponData> weapon;
     DataRef<SpriteData> death_sprite;
+    std::optional<ContactData> contact;
     std::map<std::string, EnemySection> sections;
 };
 
@@ -48,6 +52,7 @@ inline void from_json(nlohmann::json const& json, EnemyData& data) {
     DATA_OPTIONAL(json, data, health);
     DATA_OPTIONAL(json, data, weapon);
     DATA_OPTIONAL(json, data, death_sprite);
+    DATA_OPTIONAL(json, data, contact);
     DATA_OPTIONAL(json, data, sections);
 }
 

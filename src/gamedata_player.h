@@ -6,6 +6,7 @@
 #include "gamedata_movement.h"
 #include "gamedata_sprite.h"
 #include "gamedata_weapon.h"
+#include <optional>
 
 inline constexpr char kDefaultPlayerName[] = "default";
 
@@ -20,6 +21,7 @@ struct PlayerData {
     DataRef<WeaponData> weapon;
     DataRef<SpriteData> shield_sprite;
     float shield_radius = 45.0f;
+    std::optional<ContactData> contact;
 };
 
 inline void from_json(nlohmann::json const& json, PlayerData& data) {
@@ -31,4 +33,5 @@ inline void from_json(nlohmann::json const& json, PlayerData& data) {
     DATA_REQUIRED(json, data, weapon);
     DATA_OPTIONAL(json, data, shield_sprite);
     DATA_OPTIONAL(json, data, shield_radius);
+    DATA_OPTIONAL(json, data, contact);
 }

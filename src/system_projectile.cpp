@@ -1,22 +1,17 @@
 #include "system_projectile.h"
 #include "utils_collision.h"
 #include "component_body.h"
-#include "component_death_sprite.h"
-#include "component_drop.h"
 #include "component_entity.h"
-#include "component_health.h"
 #include "gamedata_projectile.h"
-#include "gamedata_pickup.h"
+#include "system_damage.h"
 #include "system_drawable.h"
 #include "system_lifetime.h"
 #include "system_movement.h"
-#include "system_pickup.h"
 #include "system_targeting.h"
 #include "system_world_bounds.h"
 #include "tags.h"
 #include <moth/ecs/world.h>
 #include <moth/ui/utils/vector_utils.h>
-#include <spdlog/spdlog.h>
 #include "game_world.h"
 #include "utils_entity.h"
 
@@ -56,40 +51,11 @@ namespace {
                 registry.GetOrEmplace<DeadTag>(projectile.entity);
 
                 // apply damage
-                if (auto* entityHealth = registry.TryGet<ComponentHealth>(target.entity)) {
-                    auto damage = projectile.projectileDetails.m_damage;
-                    if (projectile.entityDetails.m_affinity != target.entityDetails.m_affinity) {
-                        damage *= ComplimentAffinityMult;
-                    }
-                    if (entityHealth->m_currentHealth > 0) {
-                        entityHealth->m_currentHealth -= damage;
-                        if (entityHealth->m_currentHealth <= 0) {
-                            SystemDrawable::StartCameraShake(registry, 0.5f, 500);
-                            registry.Emplace<DeadTag>(target.entity);
-
-                            if (auto const* deathSprite = registry.TryGet<ComponentDeathSprite>(target.entity);
-                                deathSprite != nullptr && deathSprite->m_sprite != nullptr) {
-                                SystemDrawable::CreateOneShotSprite(registry, *deathSprite->m_sprite,
-                                                                    target.position.m_position);
-                            }
-
-                            if (auto const* dropComponent = registry.TryGet<ComponentDrop>(target.entity)) {
-                                auto const* pickupData = gamedata.Get<PickupData>(dropComponent->m_name);
-                                if (pickupData == nullptr) {
-                                    spdlog::error("Unknown pickup {}", dropComponent->m_name);
-                                    return;
-                                }
-                                SystemPickup::CreatePickup(registry, target.position.m_position, *pickupData,
-                                                           gamedata);
-                            }
-                        }
-                    }
-
-                    // flash damage indicator
-                    if (auto* sprite = registry.TryGet<ComponentSprite>(target.entity)) {
-                        sprite->m_flashTime = 0.2f;
-                    }
+                auto damage = projectile.projectileDetails.m_damage;
+                if (projectile.entityDetails.m_affinity != target.entityDetails.m_affinity) {
+                    damage *= ComplimentAffinityMult;
                 }
+                SystemDamage::ApplyDamage(registry, target.entity, damage, gamedata);
             }
         }
     }

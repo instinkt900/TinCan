@@ -6,7 +6,11 @@
             "health": 80,
             "radius": 32,
             "sprite": "asteroid_1",
-            "death_sprite": "explosion_01"
+            "death_sprite": "explosion_01",
+            "contact": {
+                "damage": 25,
+                "self_damage": 1000
+            }
         },
         "asteroid_2": {
             "affinity": "Light",
@@ -14,7 +18,11 @@
             "health": 80,
             "radius": 32,
             "sprite": "asteroid_2",
-            "death_sprite": "explosion_01"
+            "death_sprite": "explosion_01",
+            "contact": {
+                "damage": 25,
+                "self_damage": 1000
+            }
         },
         "asteroid_3": {
             "affinity": "Light",
@@ -22,7 +30,11 @@
             "health": 80,
             "radius": 32,
             "sprite": "asteroid_3",
-            "death_sprite": "explosion_01"
+            "death_sprite": "explosion_01",
+            "contact": {
+                "damage": 25,
+                "self_damage": 1000
+            }
         },
         "asteroid_4": {
             "affinity": "Light",
@@ -30,7 +42,11 @@
             "health": 80,
             "radius": 32,
             "sprite": "asteroid_4",
-            "death_sprite": "explosion_01"
+            "death_sprite": "explosion_01",
+            "contact": {
+                "damage": 25,
+                "self_damage": 1000
+            }
         },
         "danger_1_light": {
             "affinity": "Light",

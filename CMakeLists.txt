@@ -11,6 +11,8 @@ set(SOURCES
 	src/game_world.cpp
 	src/main.cpp
 	src/system_behaviour.cpp
+	src/system_contact.cpp
+	src/system_damage.cpp
 	src/system_drawable.cpp
 	src/system_enemy_spawner.cpp
 	src/system_group.cpp

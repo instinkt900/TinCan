@@ -12,7 +12,11 @@
             },
             "weapon": "player_weapon_01",
             "shield_sprite": "player_shield",
-            "shield_radius": 45
+            "shield_radius": 45,
+            "contact": {
+                "damage": 0,
+                "cooldown": 1000
+            }
         }
     }
 }

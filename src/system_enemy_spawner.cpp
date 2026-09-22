@@ -1,5 +1,6 @@
 #include "system_enemy_spawner.h"
 #include "component_body.h"
+#include "component_contact.h"
 #include "component_death_sprite.h"
 #include "component_entity.h"
 #include "component_health.h"
@@ -41,6 +42,10 @@ moth::ecs::Entity SystemEnemySpawner::SpawnEnemy(moth::ecs::World& registry, Ene
         registry.Emplace<ComponentDeathSprite>(rootEntity, data.death_sprite.get());
     }
 
+    if (data.contact.has_value()) {
+        registry.Emplace<ComponentContact>(rootEntity, *data.contact);
+    }
+
     {
         MOTH_PROFILE_SCOPE("Enemy sections");
         for (auto const& [sectionName, section] : data.sections) {
@@ -68,6 +73,10 @@ moth::ecs::Entity SystemEnemySpawner::SpawnEnemy(moth::ecs::World& registry, Ene
 
             if (section.death_sprite.valid()) {
                 registry.Emplace<ComponentDeathSprite>(childEntity, section.death_sprite.get());
+            }
+
+            if (section.contact.has_value()) {
+                registry.Emplace<ComponentContact>(childEntity, *section.contact);
             }
 
             rootDetails.m_children.insert(childEntity);

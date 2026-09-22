@@ -1,5 +1,6 @@
 #include "game_world.h"
 #include "component_body.h"
+#include "component_contact.h"
 #include "component_entity.h"
 #include "component_passives.h"
 #include "gamedata_entity.h"
@@ -8,6 +9,7 @@
 #include "gamedata_player.h"
 #include "system_animation.h"
 #include "system_behaviour.h"
+#include "system_contact.h"
 #include "system_drawable.h"
 #include "system_group.h"
 #include "component_health.h"
@@ -70,6 +72,7 @@ void GameWorld::Update(uint32_t ticks) {
     { MOTH_PROFILE_SCOPE("SystemPowerWeapon"); SystemPowerWeapon::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemShield"); SystemShield::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemProjectile"); SystemProjectile::Update(*this, ticks); }
+    { MOTH_PROFILE_SCOPE("SystemContact"); SystemContact::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemPickup"); SystemPickup::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemGroup"); SystemGroup::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemWorldBounds"); SystemWorldBounds::Update(*this, ticks); }
@@ -160,6 +163,10 @@ void GameWorld::CreatePlayer() {
         SystemWeapon::InitWeapon(m_registry, m_player, *playerData->weapon, m_gamedata);
     }
     SystemPowerWeapon::InitWeapon(m_registry, m_player, "dummy", m_gamedata);
+
+    if (playerData->contact.has_value()) {
+        m_registry.Emplace<ComponentContact>(m_player, *playerData->contact);
+    }
 
     m_registry.Emplace<PlayerTag>(m_player);
     m_registry.Emplace<TargetTag>(m_player);
