@@ -23,21 +23,21 @@
   ],
   "frames": [
     {
-      "h": 12,
+      "h": 15,
       "pivot_x": 2,
-      "pivot_y": 6,
-      "w": 4,
+      "pivot_y": 7,
+      "w": 5,
       "x": 0,
       "y": 0
     },
     {
-      "h": 12,
+      "h": 15,
       "pivot_x": 2,
-      "pivot_y": 6,
-      "w": 4,
-      "x": 4,
+      "pivot_y": 7,
+      "w": 5,
+      "x": 5,
       "y": 0
     }
   ],
-  "image": "../images/sheets/spritesheet_laser.png"
+  "image": "../images/sheets/spritesheet_laser_new.png"
 }
