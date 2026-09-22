@@ -1,6 +1,7 @@
 #include "game_world.h"
 #include "component_body.h"
 #include "component_contact.h"
+#include "component_death_sprite.h"
 #include "component_entity.h"
 #include "component_passives.h"
 #include "gamedata_entity.h"
@@ -147,6 +148,10 @@ void GameWorld::CreatePlayer() {
         m_registry.Emplace<ComponentSprite>(m_player, *playerData->sprite);
     }
     m_registry.Emplace<ComponentHealth>(m_player, playerData->health);
+
+    if (playerData->death_sprite.valid()) {
+        m_registry.Emplace<ComponentDeathSprite>(m_player, playerData->death_sprite.get());
+    }
 
     auto& velocity = m_registry.Emplace<ComponentVelocity>(m_player);
     velocity.m_velocity = { 0, 0 };

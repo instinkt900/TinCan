@@ -21,6 +21,7 @@ struct PlayerData {
     DataRef<WeaponData> weapon;
     DataRef<SpriteData> shield_sprite;
     float shield_radius = 45.0f;
+    DataRef<SpriteData> death_sprite;
     std::optional<ContactData> contact;
 };
 
@@ -33,5 +34,6 @@ inline void from_json(nlohmann::json const& json, PlayerData& data) {
     DATA_REQUIRED(json, data, weapon);
     DATA_OPTIONAL(json, data, shield_sprite);
     DATA_OPTIONAL(json, data, shield_radius);
+    DATA_OPTIONAL(json, data, death_sprite);
     DATA_OPTIONAL(json, data, contact);
 }

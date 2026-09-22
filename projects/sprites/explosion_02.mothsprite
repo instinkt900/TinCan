@@ -55,7 +55,7 @@
       "name": "explode"
     }
   ],
-  "export_path": "../../assets/sprites/explosion2.json",
+  "export_path": "../../assets/sprites/explosion_02.json",
   "frames": [
     {
       "h": 100,

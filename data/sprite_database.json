@@ -27,6 +27,11 @@
             "clip": "explode",
             "blend_mode": "Alpha"
         },
+        "explosion_02": {
+            "sheet": "assets/sprites/explosion_02.json",
+            "clip": "explode",
+            "blend_mode": "Alpha"
+        },
         "pickup_power": {
             "sheet": "assets/sprites/pickup_power.json",
             "clip": "idle",
