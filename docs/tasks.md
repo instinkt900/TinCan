@@ -253,4 +253,83 @@ sprite replaces the marker there.
 - Check that nothing is added to the world: no enemy flies, shoots or is hit
   while the preview is up, and leaving editor mode leaves nothing behind.
 
+### [todo] T-022 Give the player multiple lives
+
+**Review:** unreviewed
+
+**Goal:**
+Add multiple lives for the player.
+
+**Requirements:**
+- [ ] The player has more than one life.
+
+**Open questions:**
+- Q: How many lives does the player start with, and is that a data value?
+- Q: What happens when a life is lost: respawn where, after what delay, with
+  what invulnerability if any?
+- Q: What is kept and what is lost on death (weapons, power-ups, score)?
+- Q: What happens when the last life is lost, and how does the game show the
+  lives remaining?
+- Q: Can lives be gained during play?
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
+### [todo] T-023 Pause the map scroll
+
+**Review:** unreviewed
+
+**Goal:**
+Add map scroll pause support. Some areas might want to pause for a time or for
+some kind of trigger, for example boss fights.
+
+**Requirements:**
+- [ ] The map scroll can be paused for a time.
+- [ ] The map scroll can be paused until a trigger releases it.
+
+**Open questions:**
+- Q: How is a pause authored in the map data: a point on the map, a spawn, or
+  something else?
+- Q: What kinds of trigger release a pause (all spawned enemies dead, a named
+  enemy dead, a timer, a script)?
+- Q: Does anything else stop while the scroll is paused, for example the
+  background layers, the parallax or the spawning?
+- Q: Can a map hold several pauses, and can a pause be skipped?
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
+### [todo] T-024 Add intro and exit animations
+
+**Review:** unreviewed
+
+**Goal:**
+Add intro/exit animation support. The player flying in and out, or something
+like that.
+
+**Requirements:**
+- [ ] A map can play an intro animation, such as the player flying in.
+- [ ] A map can play an exit animation, such as the player flying out.
+
+**Open questions:**
+- Q: Where does an intro or exit animation start and end: the map, a level, the
+  whole game, or all of these?
+- Q: Is the animation authored in data, or is it code?
+- Q: What does the player control during the animation, and what happens to the
+  scroll, the spawning and the enemies while it plays?
+- Q: Does it also cover death and respawn (see T-022), or only entering and
+  leaving a map?
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
 ## Discovered
