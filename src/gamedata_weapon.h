@@ -1,6 +1,5 @@
 #pragma once
 
-#include "gamedata_pickup.h"
 #include "gamedata_projectile.h"
 #include <moth/graphics/utils/vector.h>
 
@@ -25,7 +24,6 @@ struct WeaponData {
     int32_t burst_delay;
     bool player_tracking;
     DataRef<ProjectileData> projectile;
-    DataRef<PickupData> pickup;
     std::string fire_state; // sprite animation state entered on each shot; empty for none
     std::vector<BarrelData> barrels;
 };
@@ -37,7 +35,6 @@ inline void from_json(nlohmann::json const& json, WeaponData& data) {
     DATA_REQUIRED(json, data, burst_delay);
     DATA_REQUIRED(json, data, player_tracking);
     DATA_REQUIRED(json, data, projectile);
-    DATA_OPTIONAL(json, data, pickup);
     DATA_OPTIONAL(json, data, fire_state);
     DATA_REQUIRED(json, data, barrels);
 }

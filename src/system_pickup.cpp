@@ -23,11 +23,6 @@ float const PickupRadius = 30.0f;
 // pickups drift with the map. without a map entity they fall at this speed instead
 float const PickupFallbackSpeed = 100.0f;
 
-// a swapped out weapon drops somewhere in this ring around the player. the inner edge clears the
-// player so the drop is not collected again the moment it appears
-float const DropMinDistance = 80.0f;
-float const DropMaxDistance = 140.0f;
-
 // a pickup travels at the map's scroll speed, so it stays over the ground it appeared on
 float MapScrollSpeed(moth::ecs::World& registry) {
     auto view = registry.View<ComponentMapScroll>();
@@ -62,28 +57,22 @@ moth::ecs::Entity SystemPickup::CreatePickup(moth::ecs::World& registry, moth::g
 
 void PlayerPickupWeapon(PickupData const& pickup, moth::gfx::FloatVec2 const& position,
                         moth::ecs::World& registry, GameData const& gamedata) {
-    // spawn the current weapon as a pickup if it has one defined
     moth::ecs::Entity playerEntity = moth::ecs::kNullEntity;
-    ComponentWeapon* currentWeapon = nullptr;
-    auto view = registry.View<ComponentWeapon, PlayerTag>();
-    for (auto [entity, weapon] : view.each()) {
+    auto view = registry.View<PlayerTag>();
+    for (auto entity : view) {
         playerEntity = entity;
-        currentWeapon = &weapon;
     }
-    if (currentWeapon != nullptr && currentWeapon->m_pickup.valid()) {
-        auto const angle = Random(0.0f, moth::gfx::F_PI * 2.0f);
-        auto const distance = Random(DropMinDistance, DropMaxDistance);
-        moth::gfx::FloatVec2 const offset{ std::cos(angle) * distance, std::sin(angle) * distance };
-        SystemPickup::CreatePickup(registry, position + offset, *currentWeapon->m_pickup, gamedata);
+    if (playerEntity == moth::ecs::kNullEntity) {
+        return;
     }
 
-    // replace the current weapon
+    // the weapon joins the ones the player already carries
     auto const* weaponData = gamedata.Get<WeaponData>(pickup.name);
     if (weaponData == nullptr) {
         spdlog::error("Unknown weapon {}", pickup.name);
         return;
     }
-    SystemWeapon::InitWeapon(registry, playerEntity, *weaponData, gamedata);
+    SystemWeapon::AddWeapon(registry, playerEntity, pickup.name, *weaponData, gamedata);
 }
 
 void PlayerPickupPassive(PickupData const& pickup, moth::gfx::FloatVec2 const& position,

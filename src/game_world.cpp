@@ -165,7 +165,8 @@ void GameWorld::CreatePlayer() {
     m_registry.Emplace<ComponentPassives>(m_player);
 
     if (playerData->weapon.valid()) {
-        SystemWeapon::InitWeapon(m_registry, m_player, *playerData->weapon, m_gamedata);
+        SystemWeapon::InitWeapon(m_registry, m_player, playerData->weapon.ref_name(), *playerData->weapon,
+                                 m_gamedata);
     }
     SystemPowerWeapon::InitWeapon(m_registry, m_player, "dummy", m_gamedata);
 

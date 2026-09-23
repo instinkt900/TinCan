@@ -32,8 +32,10 @@ void SystemInput::Update(GameWorld& world, uint32_t ticks) {
     auto view = registry.View<ComponentInput>();
 
     for (auto [entity, input] : view.each()) {
-        if (auto* weapon = registry.TryGet<ComponentWeapon>(entity)) {
-            weapon->m_active = input.Held(InputAction::Fire);
+        if (auto* weapons = registry.TryGet<ComponentWeapon>(entity)) {
+            for (auto& weapon : weapons->m_weapons) {
+                weapon.m_active = input.Held(InputAction::Fire);
+            }
         }
 
         if (auto* weapon = registry.TryGet<ComponentPowerWeapon>(entity)) {

@@ -35,7 +35,8 @@ moth::ecs::Entity SystemEnemySpawner::SpawnEnemy(moth::ecs::World& registry, Ene
     }
 
     if (data.weapon.valid()) {
-        SystemWeapon::InitWeapon(registry, rootEntity, *data.weapon, gamedata, true);
+        SystemWeapon::InitWeapon(registry, rootEntity, data.weapon.ref_name(), *data.weapon, gamedata,
+                                 true);
     }
 
     if (data.death_sprite.valid()) {
@@ -68,7 +69,8 @@ moth::ecs::Entity SystemEnemySpawner::SpawnEnemy(moth::ecs::World& registry, Ene
             }
 
             if (section.weapon.valid()) {
-                SystemWeapon::InitWeapon(registry, childEntity, *section.weapon, gamedata, true);
+                SystemWeapon::InitWeapon(registry, childEntity, section.weapon.ref_name(), *section.weapon,
+                                         gamedata, true);
             }
 
             if (section.death_sprite.valid()) {

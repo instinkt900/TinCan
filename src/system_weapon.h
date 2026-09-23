@@ -2,10 +2,11 @@
 
 #include "gamedata.h"
 #include "gamedata_projectile.h"
-#include "gamedata_pickup.h"
 #include <moth/ecs/world.h>
 #include <moth/graphics/graphics/surface_context.h>
 #include <moth/graphics/utils/vector.h>
+#include <string>
+#include <vector>
 
 class GameWorld;
 
@@ -16,9 +17,9 @@ struct Barrel {
 
 using BarrelGroup = std::vector<Barrel>;
 
-struct ComponentWeapon {
+struct Weapon {
     bool m_active = false;
-    DataRef<PickupData> m_pickup; // if this weapon is dropped, this pickup is dropped
+    std::string m_name; // the weapon's name in the database, used to spot one already carried
     float m_damage = 0;
     int32_t m_cooldown = 0;
     int32_t m_maxCooldown = 1000;
@@ -33,15 +34,22 @@ struct ComponentWeapon {
     std::vector<int32_t> m_barrelGroupIds;
     std::map<int32_t, BarrelGroup> m_barrelGroups;
 
-    ComponentWeapon(WeaponData const& weapon);
+    Weapon(std::string name, WeaponData const& weapon);
 };
 
-ComponentWeapon InitWeapon(WeaponData const& data);
+// an entity fires every weapon it carries at once
+struct ComponentWeapon {
+    std::vector<Weapon> m_weapons;
+};
 
 class SystemWeapon {
 public:
-    static ComponentWeapon* InitWeapon(moth::ecs::World& registry, moth::ecs::Entity entity,
-                                       WeaponData const& weaponData, GameData const& gamedata,
-                                       bool active = false);
+    // replaces whatever the entity carries with this single weapon
+    static Weapon* InitWeapon(moth::ecs::World& registry, moth::ecs::Entity entity, std::string const& name,
+                              WeaponData const& weaponData, GameData const& gamedata, bool active = false);
+    // adds a weapon alongside the ones the entity already carries. a weapon it already has is left
+    // alone rather than added twice
+    static Weapon* AddWeapon(moth::ecs::World& registry, moth::ecs::Entity entity, std::string const& name,
+                             WeaponData const& weaponData, GameData const& gamedata, bool active = false);
     static void Update(GameWorld& world, uint32_t ticks);
 };
