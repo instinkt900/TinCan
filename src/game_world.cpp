@@ -19,6 +19,7 @@
 #include "system_map.h"
 #include "system_movement.h"
 #include "system_pickup.h"
+#include "system_player_editor.h"
 #include "system_projectile.h"
 #include "system_shield.h"
 #include "system_behaviour_editor.h"
@@ -91,6 +92,7 @@ void GameWorld::Draw() {
     if (m_editorModeOpen) {
         SystemBehaviourEditor::Draw(*this, m_graphics);
         SystemFormationEditor::Draw(*this, m_graphics);
+        SystemPlayerEditor::Draw(*this);
     }
     { MOTH_PROFILE_SCOPE("SystemMap::Draw"); SystemMap::Draw(*this, m_graphics); }
     { MOTH_PROFILE_SCOPE("SystemDrawable"); SystemDrawable::Draw(*this, m_graphics); }
