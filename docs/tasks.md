@@ -332,4 +332,122 @@ like that.
 
 **Manual verification:**
 
+### [todo] T-025 Let a spawn enter from any screen edge
+
+**Review:** unreviewed
+
+**Goal:**
+Enemies can only enter from the top of the screen. A spawn is placed at its Tiled
+position when that position comes within `SpawnMargin` of the top of the screen,
+and a `SpawnRelative` behaviour is anchored there. A `World` behaviour can start
+elsewhere, but it throws away the formation offsets, so every member of a
+formation follows the same path. The example wanted: a line of 5 enemies that
+flies in from the bottom of the screen, hovers, fires and then moves off screen.
+
+Add an `edge` property (`Top`, `Bottom`, `Left`, `Right`) to `EnemySpawn`. The
+Tiled y position still sets when the spawn triggers, and the edge sets where the
+formation appears. The edge also rotates both the formation offsets and the
+behaviour, so every behaviour is authored once as "enter from the top" and works
+from any edge.
+
+**Requirements:**
+- [ ] `EnemySpawn` has an `edge` property with `Top`, `Bottom`, `Left` and
+  `Right`. `Top` is the default and behaves as today.
+- [ ] The Tiled y position still sets when the spawn triggers, whatever the edge.
+- [ ] The formation appears just outside the chosen edge.
+- [ ] The edge rotates the formation offsets and the behaviour, so a behaviour
+  authored as entering from the top enters from the chosen edge.
+- [ ] Enemies spawned at the new positions are not killed straight away by their
+  bounds.
+
+**Open questions:**
+- Q: For `Left` and `Right`, what sets the position down the screen? The Tiled y
+  is already used for timing, so this needs another property.
+- Q: How does the edge rotation combine with an existing `behaviour_rotation`
+  and the spawn's own rotation: added together, or does one replace the other?
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
+### [todo] T-026 Fire enemy weapons only in chosen behaviour states
+
+**Review:** unreviewed
+
+**Goal:**
+Enemy weapons fire from the moment the enemy spawns until it dies, whatever its
+behaviour is doing. It is active from `InitWeapon`, and nothing turns it off. So
+an enemy cannot fly in quietly, hover and shoot, and then leave quietly. It also
+fires while it is still off screen, which gives shots the player cannot see
+coming.
+
+Let a behaviour state say whether the enemy fires during it, for example a `fire`
+flag on each state. The behaviour system turns the weapon on when a state that
+fires starts, and off when it ends.
+
+**Requirements:**
+- [ ] A behaviour state can say whether the enemy's weapons fire during it.
+- [ ] Enemy weapons fire only during states that allow it.
+
+**Open questions:**
+- Q: What is the default for a state that does not say: fire (as today, so
+  existing behaviours are unchanged) or do not fire?
+- Q: Do the weapons on enemy sections follow the root's behaviour state too?
+- Q: Should the behaviour editor show and edit the flag?
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
+### [todo] T-027 Spawn enemies when an enemy is killed
+
+**Review:** unreviewed
+
+**Goal:**
+Split a large asteroid into several smaller ones when it is killed, handled
+generically on the data side rather than as an asteroid feature. Asteroids today
+are plain enemies with no weapon.
+
+The approach discussed: `EnemyData` gets a `death_spawns` list. Each entry
+describes a spawn with the same fields as a Tiled `EnemySpawn` (enemy, behaviour,
+count, formation, spacing, scale, speed, `behaviour_rotation`,
+`behaviour_rotation_step`, drop). `behaviour_rotation_step` fans the pieces out,
+so one short "drift out" behaviour gives pieces heading in different directions.
+Large to medium to small is a chain of entries, and the same field covers carriers
+that release fighters, mines that burst, and similar.
+
+The spawn logic in `SpawnMapEnemy` (`src/system_map.cpp`) would be split into a
+spawn description struct and a function that spawns from it, shared by map spawns
+and death spawns, so pieces get bounds, rotated behaviours and phase index the same
+way map spawns do.
+
+The spawns would trigger in `SystemLifetime`, which already tells killed entities
+from escaped ones, and not in `SystemDamage::ApplyDamage`, which runs inside view
+loops over the pools a new enemy adds to.
+
+**Requirements:**
+- [ ] An enemy's data can list spawns that happen when it is killed.
+- [ ] A death spawn uses the same fields as a map spawn.
+- [ ] Death spawns happen only when the enemy is killed, not when it escapes.
+- [ ] A large asteroid splits into smaller asteroids, and those can split again.
+
+**Open questions:**
+- Q: If the parent is in a group with a drop, do the pieces join that group, so
+  the drop waits until the last piece is killed?
+- Q: Does an enemy that dies by ramming the player (contact `self_damage`) spawn
+  its pieces too?
+- Q: Does `EnemySection` get `death_spawns` as well?
+- Q: Do pieces carry on with any of the parent's movement, or only follow their
+  own behaviour?
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
 ## Discovered
