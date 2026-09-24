@@ -1,7 +1,9 @@
 #include "system_behaviour.h"
+#include "component_entity.h"
 #include "game_world.h"
 #include "system_lifetime.h"
 #include "system_movement.h"
+#include "system_weapon.h"
 #include "tags.h"
 #include <magic_enum.hpp>
 #include <spdlog/spdlog.h>
@@ -17,6 +19,24 @@ namespace {
             return u * u * (3.0f - (2.0f * u));
         }
         return u;
+    }
+
+    // switches the weapons of an entity and of all its sections on or off. a weapon switched off finishes a
+    // burst it has started, and its cooldown keeps running
+    void SetWeaponsActive(moth::ecs::World& registry, moth::ecs::Entity entity, bool active) {
+        auto const setActive = [&registry, active](moth::ecs::Entity target) {
+            if (auto* weapons = registry.TryGet<ComponentWeapon>(target); weapons != nullptr) {
+                for (auto& weapon : weapons->m_weapons) {
+                    weapon.m_active = active;
+                }
+            }
+        };
+        setActive(entity);
+        if (auto const* details = registry.TryGet<ComponentEntity>(entity); details != nullptr) {
+            for (auto const child : details->m_children) {
+                setActive(child);
+            }
+        }
     }
 }
 
@@ -317,6 +337,9 @@ void SystemBehaviour::Update(GameWorld& world, uint32_t ticks) {
                     break;
                 }
                 behaviour.m_currentState = &behaviour.m_data.states[behaviour.m_stateIdx];
+                // each state says whether the entity fires while it runs. the last state's setting stays
+                // after the behaviour ends
+                SetWeaponsActive(registry, entity, behaviour.m_currentState->fire);
                 if (auto* handler = FindHandler(behaviour.m_currentState->type); handler != nullptr) {
                     handler->Init(target);
                 }

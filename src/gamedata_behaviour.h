@@ -121,6 +121,8 @@ struct BehaviourStateData {
     float speed{ 0 };
     BehaviourTransitionData entry;
     std::vector<BehaviourModifierData> modifiers;
+    // whether the entity's weapons fire while this state runs
+    bool fire{ true };
 };
 
 struct BehaviourData {
@@ -134,6 +136,7 @@ inline void from_json(nlohmann::json const& json, BehaviourStateData& data) {
     DATA_REQUIRED(json, data, type);
     DATA_OPTIONAL(json, data, label);
     DATA_OPTIONAL(json, data, duration);
+    DATA_OPTIONAL(json, data, fire);
 
     if (data.type == BehaviourType::Path) {
         DATA_REQUIRED(json, data, waypoints);
@@ -160,6 +163,9 @@ inline void to_json(nlohmann::json& json, BehaviourStateData const& data) {
     }
     if (data.duration > 0) {
         json["duration"] = data.duration;
+    }
+    if (!data.fire) {
+        json["fire"] = data.fire;
     }
 
     if (data.type == BehaviourType::Path) {

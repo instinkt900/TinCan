@@ -151,6 +151,7 @@ namespace imgui_ext {
         ImGui::PushID(&data);
         InputText("Label", data.label);
         ImGui::InputScalar("Duration (ms, 0 = until it completes)", ImGuiDataType_U32, &data.duration);
+        ImGui::Checkbox("Fire", &data.fire);
         EnumCombo("Type", data.type);
 
         if (data.type == BehaviourType::Hold) {
