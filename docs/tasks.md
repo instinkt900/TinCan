@@ -276,8 +276,9 @@ bursts.
 5. Untick "Fire" on the last state as well. The enemy stops firing when that
    state starts and stays silent after the behaviour ends. A burst already
    under way when the state starts still finishes.
-6. Use an enemy with sections that carry weapons (for example a
-   `danger_*` enemy with sections). The section weapons follow the same states.
+6. No enemy in `data/enemy_database.json` has a section with a weapon yet. To
+   check sections, give a section of a test enemy a weapon. The section's
+   weapon follows the same states as the root.
 7. Reload the behaviour in the editor. The unticked boxes are still unticked.
 
 ### [todo] T-027 Spawn enemies when an enemy is killed
