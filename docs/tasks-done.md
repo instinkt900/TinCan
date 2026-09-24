@@ -1545,3 +1545,193 @@ sprite replaces the marker there.
   slot falls back to a marker.
 - Check that nothing is added to the world: no enemy flies, shoots or is hit
   while the preview is up, and leaving editor mode leaves nothing behind.
+
+### [done] T-025 Let a spawn enter from any screen edge
+
+**Review:** reviewed 2026-09-24
+
+**Depends on:** none
+
+**Goal:**
+Enemies can only enter from the top of the screen. A spawn is placed at its Tiled
+position when that position comes within `SpawnMargin` of the top of the screen,
+and a `SpawnRelative` behaviour is anchored there. A `World` behaviour can start
+elsewhere, but it throws away the formation offsets, so every member of a
+formation follows the same path. The example wanted: a line of 5 enemies that
+flies in from the bottom of the screen, hovers, fires and then moves off screen.
+
+Add an `edge` property (`Top`, `Bottom`, `Left`, `Right`) to `EnemySpawn`. The
+Tiled position of the object only governs *when* the spawn triggers. *Where* the
+formation appears comes from a separate screen position on the spawn, snapped to
+just outside the chosen edge. The edge also rotates both the formation offsets and
+the behaviour, so every behaviour is authored once as "enter from the top" and
+works from any edge.
+
+**Requirements:**
+- [x] `tiled_project/tincan.tiled-project` gains a hand-authored enum `edge` with
+  the values `Top`, `Bottom`, `Left`, `Right`, in that order, and `EnemySpawn`
+  gains the members `edge` (default `Top`), `use_position` (bool, default
+  `false`), `position_x` and `position_y` (floats, default 0). This change is
+  allowed despite the profile's Compatibility section, because it is additive:
+  no existing type, member or value is changed or reordered. The `edge` enum is
+  not added to `tiled_project/extensions/game_data_enums.js`, because it does not
+  come from the game data.
+- [x] The Tiled y position of the object still sets when the spawn triggers,
+  whatever the edge, exactly as today.
+- [x] With `use_position` set, `position_x`/`position_y` is a point in screen
+  pixels. The formation appears just outside the chosen edge (by `SpawnMargin`),
+  level with that point: `Top` and `Bottom` use `position_x`, `Left` and `Right`
+  use `position_y`. The other coordinate is ignored.
+- [x] With `use_position` unset, the point is the object's Tiled x and the middle
+  of the screen height. A `Top` spawn with `use_position` unset behaves exactly
+  as today, so the existing maps play unchanged.
+- [x] The edge adds a rotation (`Top` 0, and a quarter or half turn for the others,
+  so that "moving down the screen" becomes "moving in from that edge"). It is
+  added to the Tiled object rotation for the formation offsets, and to
+  `behaviour_rotation` (plus `behaviour_rotation_step` per member) for the
+  behaviour.
+- [x] A `World`-space behaviour's path is not rotated by the edge. The edge still
+  places the formation and rotates its offsets, and `behaviour_rotation` still
+  applies to it as today.
+- [x] Enemies spawned at the new positions are not killed straight away by their
+  bounds, including formation members whose rotated offset puts them further
+  outside the screen.
+
+**Out of scope:**
+Editing the maps in `tiled_project/maps/`: no spawn is added or changed. Showing
+the edge in the behaviour or formation editors. T-026's firing flag. An enemy with
+no behaviour still drifts with the map scroll as today, so from a non-`Top` edge
+it may never come on screen; that is accepted.
+
+**Open questions:**
+- Q: For `Left` and `Right`, what sets the position down the screen? A: The Tiled
+  object's position only sets when the spawn triggers. Where it appears is a
+  separate x,y screen point on the spawn (`position_x`, `position_y`), snapped to
+  just outside the edge: Top/Bottom use x, Left/Right use y.
+- Q: How do existing spawns, which have no x,y, keep working? A: A `use_position`
+  bool, default false. Unset uses the Tiled x, so existing maps are unchanged.
+- Q: How does the edge rotation combine with an existing `behaviour_rotation`
+  and the spawn's own rotation? A: They are all added together.
+- Q: What does the edge do to a `World`-space behaviour? A: It places the
+  formation and rotates its offsets, but does not rotate the path.
+- Q: May the session change `tincan.tiled-project`? A: Yes, additively only, as
+  in the first requirement. Maps are not edited.
+
+**Notes:**
+- The edge rotations are `Top` 0, `Bottom` 180, `Left` -90 and `Right` 90
+  degrees, clockwise on screen, so "down the screen" becomes "in from the edge".
+- A `Top` spawn keeps the y it has today (its Tiled y less the camera top), with
+  or without `use_position`. At the moment it triggers that is `SpawnMargin`
+  above the screen, but a spawn that is already in view when the map starts
+  still appears where it was placed, as today.
+- `Bottom`, `Left` and `Right` place the front of the formation exactly
+  `SpawnMargin` outside the edge, whenever the spawn triggers.
+- Bounds: the edge side of each member's bounds moves out by its rotated offset
+  along the edge normal, the same rule that already applied to the top edge. The
+  other sides keep the screen plus `2 * SpawnMargin`.
+- An `edge` value that is not one of the four logs an error and falls back to
+  `Top`.
+- `behaviour.space` decides the edge rotation. A spawn with no behaviour has the
+  default `SpawnRelative`, but with no path there is nothing to rotate.
+
+**Commits:**
+- 1dcf1d2 feat(T-025): let a map spawn enter from any screen edge
+
+**Manual verification:**
+1. Open `tiled_project/tincan.tiled-project` in Tiled. The `edge` enum lists
+   `Top`, `Bottom`, `Left`, `Right`, and an `EnemySpawn` object shows `edge`,
+   `use_position`, `position_x` and `position_y` with their defaults. Existing
+   maps open with no changes.
+2. Play the existing maps. Every spawn enters from the top as before.
+3. On a scratch copy of a map, add a spawn with `edge` `Bottom`, `count` 5,
+   formation `line` and a spawn-relative behaviour such as `in_and_hold`. The
+   five enemies appear in a line below the screen when the camera reaches the
+   object's y, fly up into the screen and follow the behaviour turned upside
+   down. None dies straight away.
+4. Repeat with `Left` and `Right`. The line enters from that side, at the middle
+   of the screen height, heading across the screen.
+5. Set `use_position` and a `position_y` (for `Left`/`Right`) or `position_x`
+   (for `Top`/`Bottom`). The formation enters level with that point.
+6. Use a `column` formation from `Left`. The members behind the front start
+   further off screen to the left and are not killed before they enter.
+7. With a `World`-space behaviour and `edge` `Right`, the formation starts off
+   the right edge, but each member follows the path as authored (not turned).
+
+### [done] T-026 Fire enemy weapons only in chosen behaviour states
+
+**Review:** reviewed 2026-09-24
+
+**Depends on:** none
+
+**Goal:**
+Enemy weapons fire from the moment the enemy spawns until it dies, whatever its
+behaviour is doing. It is active from `InitWeapon`, and nothing turns it off. So
+an enemy cannot fly in quietly, hover and shoot, and then leave quietly. It also
+fires while it is still off screen, which gives shots the player cannot see
+coming.
+
+Let each behaviour state say whether the enemy fires during it, with a `fire`
+flag. The behaviour system turns the weapons on when a state that fires starts,
+and off when one that does not starts. The existing `Weapon::m_active` switch is
+the mechanism: a weapon switched off finishes a burst already under way, and its
+cooldown keeps running, so it can fire as soon as it is switched back on.
+
+**Requirements:**
+- [x] `BehaviourStateData` has a `fire` flag, for every state type, read as an
+  optional field that defaults to `true`, so existing behaviours fire as today.
+  `to_json` writes it only when it is `false`.
+- [x] When a state starts, the enemy's weapons are switched on or off to match its
+  `fire` flag: the root entity's weapon and the weapons of all its sections.
+- [x] After the last state ends, the weapons keep the last state's setting. An
+  enemy with no behaviour fires as today.
+- [x] The behaviour editor shows the flag as a checkbox on each state, and saving a
+  behaviour keeps it.
+
+**Out of scope:**
+The player's weapons. A general rule against firing while off screen: authors set
+`fire: false` on the entry state instead. Changing weapon timing, cooldowns or
+bursts.
+
+**Open questions:**
+- Q: What is the default for a state that does not say: fire (as today, so
+  existing behaviours are unchanged) or do not fire? A: Fire.
+- Q: Do the weapons on enemy sections follow the root's behaviour state too?
+  A: Yes.
+- Q: What happens after the last state, or with no behaviour? A: The last state's
+  setting stays; an enemy with no behaviour fires as today.
+- Q: Should this task stop firing while off screen? A: No, `fire: false` on the
+  entry state covers it.
+- Q: Should the behaviour editor show and edit the flag? A: Yes.
+
+**Notes:**
+- The weapons are switched in `SystemBehaviour::Update` at the point where a
+  state is entered, before its handler's `Init`. Map spawns, the behaviour
+  system and the weapon system run in that order in one frame, so an entry state
+  with `fire: false` stops the enemy firing before its weapon first updates.
+- Sections are found through the root's `ComponentEntity::m_children`, which
+  `SystemLifetime` keeps free of destroyed sections.
+- The editor checkbox is labelled "Fire" and sits under the duration, for every
+  state type.
+- No behaviour in `data/behaviour_database.json` was changed, so every existing
+  behaviour fires as before.
+
+**Commits:**
+- 0652d35 feat(T-026): fire enemy weapons only in behaviour states that allow it
+
+**Manual verification:**
+1. Play a map with armed enemies. They fire as before (no behaviour sets
+   `fire: false` yet).
+2. Open the behaviour editor (F2) and load a behaviour with several states,
+   such as `in_and_hold`. Each state shows a "Fire" checkbox, ticked.
+3. Untick "Fire" on the first state and save. In
+   `data/behaviour_database.json` that state has `"fire": false`, and the other
+   states have no `fire` key.
+4. Play a map that spawns an armed enemy with that behaviour. It does not fire
+   while it flies in, and starts firing when the next state starts.
+5. Untick "Fire" on the last state as well. The enemy stops firing when that
+   state starts and stays silent after the behaviour ends. A burst already
+   under way when the state starts still finishes.
+6. No enemy in `data/enemy_database.json` has a section with a weapon yet. To
+   check sections, give a section of a test enemy a weapon. The section's
+   weapon follows the same states as the root.
+7. Reload the behaviour in the editor. The unticked boxes are still unticked.
