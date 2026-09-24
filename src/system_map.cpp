@@ -36,6 +36,47 @@ namespace {
         return fallback;
     }
 
+    // the screen edge a spawn enters from. behaviours and formations are authored entering from the top,
+    // and the other edges turn them so that "down the screen" becomes "in from that edge"
+    enum class SpawnEdge {
+        Top,
+        Bottom,
+        Left,
+        Right,
+    };
+
+    SpawnEdge GetSpawnEdge(moth::tilemap::Properties const& properties) {
+        auto const edgeName = moth::tilemap::GetProperty<std::string>(properties, "edge", "Top");
+        if (edgeName == "Bottom") {
+            return SpawnEdge::Bottom;
+        }
+        if (edgeName == "Left") {
+            return SpawnEdge::Left;
+        }
+        if (edgeName == "Right") {
+            return SpawnEdge::Right;
+        }
+        if (edgeName != "Top") {
+            spdlog::error("Map spawn has unknown edge {}", edgeName);
+        }
+        return SpawnEdge::Top;
+    }
+
+    // degrees, clockwise on screen, that turn "down the screen" into "in from the edge"
+    float GetEdgeRotation(SpawnEdge edge) {
+        switch (edge) {
+        case SpawnEdge::Bottom:
+            return 180.0f;
+        case SpawnEdge::Left:
+            return -90.0f;
+        case SpawnEdge::Right:
+            return 90.0f;
+        case SpawnEdge::Top:
+            break;
+        }
+        return 0.0f;
+    }
+
     void SpawnMapEnemy(GameWorld& world, moth::tilemap::MapObject const& spawn, ComponentMapScroll const& scroll) {
         MOTH_PROFILE_SCOPE("SpawnMapEnemy");
         auto& registry = world.GetRegistry();
@@ -60,6 +101,8 @@ namespace {
         float spacing = 32.0f;
         moth::gfx::FloatVec2 scale{ 1.0f, 1.0f };
         DataRef<PickupData> drop;
+        auto edge = SpawnEdge::Top;
+        moth::gfx::FloatVec2 point{ 0.0f, 0.0f };
         {
             // reading the spawn's tiled properties: string lookups, a behaviour copy and a data ref load
             MOTH_PROFILE_SCOPE("Spawn properties");
@@ -102,6 +145,15 @@ namespace {
                     drop.load_ref(dropName, gamedata);
                 }
             }
+
+            // the tiled position only says when the spawn triggers. where it appears is a point on the screen,
+            // which by default is the object's x and the middle of the screen height
+            edge = GetSpawnEdge(spawn.properties);
+            auto const usePosition = moth::tilemap::GetProperty(spawn.properties, "use_position", false);
+            point = usePosition ? moth::gfx::FloatVec2{ GetFloatProperty(spawn.properties, "position_x", 0.0f),
+                                                        GetFloatProperty(spawn.properties, "position_y", 0.0f) }
+                                : moth::gfx::FloatVec2{ spawn.position.x,
+                                                        static_cast<float>(world.GetWorldSize().y) / 2.0f };
         }
 
         // the spawn's members share a group, so the drop appears once the whole formation has been killed
@@ -114,12 +166,38 @@ namespace {
         boundsRect.topLeft -= { SpawnMargin * 2.0f, SpawnMargin * 2.0f };
         boundsRect.bottomRight += { SpawnMargin * 2.0f, SpawnMargin * 2.0f };
 
+        // the front of the formation sits just outside its edge, level with the point. a top spawn keeps its
+        // tiled height, which is where it triggered
+        auto const worldSize = static_cast<moth::gfx::FloatVec2>(world.GetWorldSize());
+        moth::gfx::FloatVec2 origin{ 0.0f, 0.0f };
+        switch (edge) {
+        case SpawnEdge::Top:
+            origin = { point.x, spawn.position.y - scroll.m_cameraTop };
+            break;
+        case SpawnEdge::Bottom:
+            origin = { point.x, worldSize.y + SpawnMargin };
+            break;
+        case SpawnEdge::Left:
+            origin = { -SpawnMargin, point.y };
+            break;
+        case SpawnEdge::Right:
+            origin = { worldSize.x + SpawnMargin, point.y };
+            break;
+        }
+
+        // the edge turns the formation, and the path of a spawn-relative behaviour. a world behaviour's path
+        // is fixed in the world, so the edge only places it
+        auto const edgeRotation = GetEdgeRotation(edge);
+        if (behaviour.space == BehaviourSpace::SpawnRelative) {
+            spawnOverride.rotation += edgeRotation;
+        }
+
         uint32_t phaseIndex = 0;
-        auto const offsets = GetFormationOffsets(gamedata, formation, count, spacing, scale, spawn.rotation);
+        auto const offsets = GetFormationOffsets(gamedata, formation, count, spacing, scale,
+                                                 spawn.rotation + moth::gfx::DegToRad(edgeRotation));
         MOTH_PROFILE_SCOPE("Spawn formation");
         for (auto const& offset : offsets) {
-            moth::gfx::FloatVec2 const position{ spawn.position.x + offset.x,
-                                                 spawn.position.y - scroll.m_cameraTop + offset.y };
+            auto const position = origin + offset;
             // each member gets its own copy of the behaviour, because the rotation steps along the
             // formation so that a group fans out
             auto memberBehaviour = behaviour;
@@ -138,10 +216,23 @@ namespace {
                 registry.Get<ComponentVelocity>(enemy).m_velocity = { 0.0f, scroll.m_scrollSpeed };
             }
 
-            // members behind the front spawn further above the screen, so their bounds reach up that far too
+            // members behind the front spawn further outside the edge, so their bounds reach out that far too
             auto& bounds = registry.Emplace<ComponentBounds>(enemy);
             bounds.m_bounds = boundsRect;
-            bounds.m_bounds.topLeft.y += offset.y;
+            switch (edge) {
+            case SpawnEdge::Top:
+                bounds.m_bounds.topLeft.y += offset.y;
+                break;
+            case SpawnEdge::Bottom:
+                bounds.m_bounds.bottomRight.y += offset.y;
+                break;
+            case SpawnEdge::Left:
+                bounds.m_bounds.topLeft.x += offset.x;
+                break;
+            case SpawnEdge::Right:
+                bounds.m_bounds.bottomRight.x += offset.x;
+                break;
+            }
             bounds.m_behaviour = BoundsBehaviour::Kill;
 
             if (group != moth::ecs::kNullEntity) {

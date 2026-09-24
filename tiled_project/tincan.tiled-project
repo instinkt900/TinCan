@@ -23,6 +23,19 @@
             "valuesAsFlags": false
         },
         {
+            "id": 7,
+            "name": "edge",
+            "storageType": "string",
+            "type": "enum",
+            "values": [
+                "Top",
+                "Bottom",
+                "Left",
+                "Right"
+            ],
+            "valuesAsFlags": false
+        },
+        {
             "id": 2,
             "name": "enemy_type",
             "storageType": "string",
@@ -80,6 +93,12 @@
                     "value": "none"
                 },
                 {
+                    "name": "edge",
+                    "propertyType": "edge",
+                    "type": "string",
+                    "value": "Top"
+                },
+                {
                     "name": "enemy_type",
                     "propertyType": "enemy_type",
                     "type": "string",
@@ -90,6 +109,16 @@
                     "propertyType": "formation",
                     "type": "string",
                     "value": "line"
+                },
+                {
+                    "name": "position_x",
+                    "type": "float",
+                    "value": 0
+                },
+                {
+                    "name": "position_y",
+                    "type": "float",
+                    "value": 0
                 },
                 {
                     "name": "scale_x",
@@ -110,6 +139,11 @@
                     "name": "speed",
                     "type": "float",
                     "value": 100
+                },
+                {
+                    "name": "use_position",
+                    "type": "bool",
+                    "value": false
                 }
             ],
             "name": "EnemySpawn",
