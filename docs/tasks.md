@@ -91,7 +91,7 @@ like that.
 
 **Manual verification:**
 
-### [todo] T-025 Let a spawn enter from any screen edge
+### [done] T-025 Let a spawn enter from any screen edge
 
 **Review:** reviewed 2026-09-24
 
@@ -113,7 +113,7 @@ the behaviour, so every behaviour is authored once as "enter from the top" and
 works from any edge.
 
 **Requirements:**
-- [ ] `tiled_project/tincan.tiled-project` gains a hand-authored enum `edge` with
+- [x] `tiled_project/tincan.tiled-project` gains a hand-authored enum `edge` with
   the values `Top`, `Bottom`, `Left`, `Right`, in that order, and `EnemySpawn`
   gains the members `edge` (default `Top`), `use_position` (bool, default
   `false`), `position_x` and `position_y` (floats, default 0). This change is
@@ -121,24 +121,24 @@ works from any edge.
   no existing type, member or value is changed or reordered. The `edge` enum is
   not added to `tiled_project/extensions/game_data_enums.js`, because it does not
   come from the game data.
-- [ ] The Tiled y position of the object still sets when the spawn triggers,
+- [x] The Tiled y position of the object still sets when the spawn triggers,
   whatever the edge, exactly as today.
-- [ ] With `use_position` set, `position_x`/`position_y` is a point in screen
+- [x] With `use_position` set, `position_x`/`position_y` is a point in screen
   pixels. The formation appears just outside the chosen edge (by `SpawnMargin`),
   level with that point: `Top` and `Bottom` use `position_x`, `Left` and `Right`
   use `position_y`. The other coordinate is ignored.
-- [ ] With `use_position` unset, the point is the object's Tiled x and the middle
+- [x] With `use_position` unset, the point is the object's Tiled x and the middle
   of the screen height. A `Top` spawn with `use_position` unset behaves exactly
   as today, so the existing maps play unchanged.
-- [ ] The edge adds a rotation (`Top` 0, and a quarter or half turn for the others,
+- [x] The edge adds a rotation (`Top` 0, and a quarter or half turn for the others,
   so that "moving down the screen" becomes "moving in from that edge"). It is
   added to the Tiled object rotation for the formation offsets, and to
   `behaviour_rotation` (plus `behaviour_rotation_step` per member) for the
   behaviour.
-- [ ] A `World`-space behaviour's path is not rotated by the edge. The edge still
+- [x] A `World`-space behaviour's path is not rotated by the edge. The edge still
   places the formation and rotates its offsets, and `behaviour_rotation` still
   applies to it as today.
-- [ ] Enemies spawned at the new positions are not killed straight away by their
+- [x] Enemies spawned at the new positions are not killed straight away by their
   bounds, including formation members whose rotated offset puts them further
   outside the screen.
 
@@ -163,10 +163,44 @@ it may never come on screen; that is accepted.
   in the first requirement. Maps are not edited.
 
 **Notes:**
+- The edge rotations are `Top` 0, `Bottom` 180, `Left` -90 and `Right` 90
+  degrees, clockwise on screen, so "down the screen" becomes "in from the edge".
+- A `Top` spawn keeps the y it has today (its Tiled y less the camera top), with
+  or without `use_position`. At the moment it triggers that is `SpawnMargin`
+  above the screen, but a spawn that is already in view when the map starts
+  still appears where it was placed, as today.
+- `Bottom`, `Left` and `Right` place the front of the formation exactly
+  `SpawnMargin` outside the edge, whenever the spawn triggers.
+- Bounds: the edge side of each member's bounds moves out by its rotated offset
+  along the edge normal, the same rule that already applied to the top edge. The
+  other sides keep the screen plus `2 * SpawnMargin`.
+- An `edge` value that is not one of the four logs an error and falls back to
+  `Top`.
+- `behaviour.space` decides the edge rotation. A spawn with no behaviour has the
+  default `SpawnRelative`, but with no path there is nothing to rotate.
 
 **Commits:**
+- 1dcf1d2 feat(T-025): let a map spawn enter from any screen edge
 
 **Manual verification:**
+1. Open `tiled_project/tincan.tiled-project` in Tiled. The `edge` enum lists
+   `Top`, `Bottom`, `Left`, `Right`, and an `EnemySpawn` object shows `edge`,
+   `use_position`, `position_x` and `position_y` with their defaults. Existing
+   maps open with no changes.
+2. Play the existing maps. Every spawn enters from the top as before.
+3. On a scratch copy of a map, add a spawn with `edge` `Bottom`, `count` 5,
+   formation `line` and a spawn-relative behaviour such as `in_and_hold`. The
+   five enemies appear in a line below the screen when the camera reaches the
+   object's y, fly up into the screen and follow the behaviour turned upside
+   down. None dies straight away.
+4. Repeat with `Left` and `Right`. The line enters from that side, at the middle
+   of the screen height, heading across the screen.
+5. Set `use_position` and a `position_y` (for `Left`/`Right`) or `position_x`
+   (for `Top`/`Bottom`). The formation enters level with that point.
+6. Use a `column` formation from `Left`. The members behind the front start
+   further off screen to the left and are not killed before they enter.
+7. With a `World`-space behaviour and `edge` `Right`, the formation starts off
+   the right edge, but each member follows the path as authored (not turned).
 
 ### [todo] T-026 Fire enemy weapons only in chosen behaviour states
 
@@ -268,3 +302,7 @@ loops over the pools a new enemy adds to.
 **Manual verification:**
 
 ## Discovered
+
+- `SystemMap::Update` (`src/system_map.cpp`, the `m_cameraTop` line) has a
+  `readability-math-missing-parentheses` clang-tidy finding that was there
+  before the 2026-09-24 session.
