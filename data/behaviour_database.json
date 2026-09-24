@@ -4,33 +4,88 @@
             "space": "SpawnRelative",
             "states": [
                 {
-                    "type": "Path",
                     "interpolation": "Linear",
                     "speed": 100,
-                    "waypoints": [[0, 0], [0, 100]]
+                    "type": "Path",
+                    "waypoints": [
+                        [
+                            0,
+                            0
+                        ],
+                        [
+                            0,
+                            100
+                        ]
+                    ]
                 }
             ]
         },
         "chase_player": {
             "states": [
                 {
-                    "type": "Target",
+                    "speed": 60,
                     "target": "Player",
-                    "speed": 60
+                    "type": "Target"
                 }
             ]
         },
         "in_and_hold": {
             "states": [
                 {
-                    "type": "Target",
+                    "duration": 2000,
+                    "point": [
+                        0,
+                        100
+                    ],
                     "target": "Point",
-                    "point": [0, 100],
-                    "duration": 2000
+                    "type": "Target"
                 },
                 {
-                    "type": "Hold",
-                    "duration": 2000
+                    "duration": 2000,
+                    "type": "Hold"
+                }
+            ]
+        },
+        "in_n_out": {
+            "space": "SpawnRelative",
+            "states": [
+                {
+                    "duration": 3000,
+                    "fire": false,
+                    "interpolation": "Linear",
+                    "speed": 100.0,
+                    "type": "Path",
+                    "waypoints": [
+                        [
+                            100.0,
+                            -32.0
+                        ],
+                        [
+                            100.0,
+                            200.0
+                        ]
+                    ]
+                },
+                {
+                    "duration": 2000,
+                    "type": "Hold"
+                },
+                {
+                    "duration": 3000,
+                    "fire": false,
+                    "interpolation": "Linear",
+                    "speed": 100.0,
+                    "type": "Path",
+                    "waypoints": [
+                        [
+                            100.0,
+                            200.0
+                        ],
+                        [
+                            100.0,
+                            -32.0
+                        ]
+                    ]
                 }
             ]
         }

@@ -18,7 +18,8 @@
             "values": [
                 "basic",
                 "chase_player",
-                "in_and_hold"
+                "in_and_hold",
+                "in_n_out"
             ],
             "valuesAsFlags": false
         },
