@@ -328,6 +328,43 @@ loops over the pools a new enemy adds to.
 
 **Manual verification:**
 
+### [todo] T-028 Add a facing property to EnemySpawn
+
+**Review:** unreviewed
+
+**Goal:**
+Add a facing property to `EnemySpawn` so a spawned enemy can be rotated, for
+example turned 180 degrees when it comes in from the bottom (T-025's `edge`).
+
+Context from the conversation: spawns are Tiled point objects, and Tiled cannot
+rotate a point, so the object's own rotation is always 0 and cannot be used for
+this. An enemy's sprite is drawn at `ComponentEntity::m_angle`, which starts at 0
+and is changed only by targeting, so today an enemy spawned from the bottom still
+faces down. Barrels fire along `m_angle` too, so the facing also sets the
+direction the enemy fires in. Sections are placed by an unrotated offset and
+drawn at angle 0.
+
+**Requirements:**
+- [ ] `EnemySpawn` has a facing property that rotates the spawned enemy.
+
+**Open questions:**
+- Q: What units and values does the property take: degrees, or a set of named
+  directions?
+- Q: Should the facing default from the spawn's `edge`, with the property as an
+  override, or does it apply only when set?
+- Q: Do the enemy's sections rotate with it, both their offsets and their
+  sprites?
+- Q: Should the facing also turn the direction the weapons fire, which follows
+  from `m_angle` today?
+- Q: Does the facing stay fixed, or follow the direction of travel along the
+  behaviour?
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
 ## Discovered
 
 - `SystemMap::Update` (`src/system_map.cpp`, the `m_cameraTop` line) has a
