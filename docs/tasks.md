@@ -202,7 +202,7 @@ it may never come on screen; that is accepted.
 7. With a `World`-space behaviour and `edge` `Right`, the formation starts off
    the right edge, but each member follows the path as authored (not turned).
 
-### [todo] T-026 Fire enemy weapons only in chosen behaviour states
+### [done] T-026 Fire enemy weapons only in chosen behaviour states
 
 **Review:** reviewed 2026-09-24
 
@@ -222,14 +222,14 @@ the mechanism: a weapon switched off finishes a burst already under way, and its
 cooldown keeps running, so it can fire as soon as it is switched back on.
 
 **Requirements:**
-- [ ] `BehaviourStateData` has a `fire` flag, for every state type, read as an
+- [x] `BehaviourStateData` has a `fire` flag, for every state type, read as an
   optional field that defaults to `true`, so existing behaviours fire as today.
   `to_json` writes it only when it is `false`.
-- [ ] When a state starts, the enemy's weapons are switched on or off to match its
+- [x] When a state starts, the enemy's weapons are switched on or off to match its
   `fire` flag: the root entity's weapon and the weapons of all its sections.
-- [ ] After the last state ends, the weapons keep the last state's setting. An
+- [x] After the last state ends, the weapons keep the last state's setting. An
   enemy with no behaviour fires as today.
-- [ ] The behaviour editor shows the flag as a checkbox on each state, and saving a
+- [x] The behaviour editor shows the flag as a checkbox on each state, and saving a
   behaviour keeps it.
 
 **Out of scope:**
@@ -249,10 +249,36 @@ bursts.
 - Q: Should the behaviour editor show and edit the flag? A: Yes.
 
 **Notes:**
+- The weapons are switched in `SystemBehaviour::Update` at the point where a
+  state is entered, before its handler's `Init`. Map spawns, the behaviour
+  system and the weapon system run in that order in one frame, so an entry state
+  with `fire: false` stops the enemy firing before its weapon first updates.
+- Sections are found through the root's `ComponentEntity::m_children`, which
+  `SystemLifetime` keeps free of destroyed sections.
+- The editor checkbox is labelled "Fire" and sits under the duration, for every
+  state type.
+- No behaviour in `data/behaviour_database.json` was changed, so every existing
+  behaviour fires as before.
 
 **Commits:**
+- 0652d35 feat(T-026): fire enemy weapons only in behaviour states that allow it
 
 **Manual verification:**
+1. Play a map with armed enemies. They fire as before (no behaviour sets
+   `fire: false` yet).
+2. Open the behaviour editor (F2) and load a behaviour with several states,
+   such as `in_and_hold`. Each state shows a "Fire" checkbox, ticked.
+3. Untick "Fire" on the first state and save. In
+   `data/behaviour_database.json` that state has `"fire": false`, and the other
+   states have no `fire` key.
+4. Play a map that spawns an armed enemy with that behaviour. It does not fire
+   while it flies in, and starts firing when the next state starts.
+5. Untick "Fire" on the last state as well. The enemy stops firing when that
+   state starts and stays silent after the behaviour ends. A burst already
+   under way when the state starts still finishes.
+6. Use an enemy with sections that carry weapons (for example a
+   `danger_*` enemy with sections). The section weapons follow the same states.
+7. Reload the behaviour in the editor. The unticked boxes are still unticked.
 
 ### [todo] T-027 Spawn enemies when an enemy is killed
 
