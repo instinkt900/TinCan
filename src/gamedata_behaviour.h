@@ -31,6 +31,16 @@ enum class BehaviourSpace {
 };
 MAGIC_SERIALIZE_ENUM(BehaviourSpace);
 
+// The screen edge a behaviour enters from. Paths are authored as they play from that edge; the edge only
+// decides where a spawn places the formation, and which way the formation's offsets turn.
+enum class BehaviourEdge {
+    Top,
+    Bottom,
+    Left,
+    Right,
+};
+MAGIC_SERIALIZE_ENUM(BehaviourEdge);
+
 // What a modifier does to the position a path produced. A fixed, small set of numbers: modifiers do not
 // read the world, do not branch and cannot be nested.
 enum class ModifierType {
@@ -129,6 +139,7 @@ struct BehaviourData {
     static constexpr GameDataCategory Category = GameDataCategory::Behaviours;
 
     BehaviourSpace space{ BehaviourSpace::SpawnRelative };
+    BehaviourEdge edge{ BehaviourEdge::Top };
     std::vector<BehaviourStateData> states;
 };
 
@@ -153,6 +164,7 @@ inline void from_json(nlohmann::json const& json, BehaviourStateData& data) {
 
 inline void from_json(nlohmann::json const& json, BehaviourData& data) {
     DATA_OPTIONAL(json, data, space);
+    DATA_OPTIONAL(json, data, edge);
     DATA_REQUIRED(json, data, states);
 }
 
@@ -187,5 +199,8 @@ inline void to_json(nlohmann::json& json, BehaviourStateData const& data) {
 
 inline void to_json(nlohmann::json& json, BehaviourData const& data) {
     json["space"] = data.space;
+    if (data.edge != BehaviourEdge::Top) {
+        json["edge"] = data.edge;
+    }
     json["states"] = data.states;
 }

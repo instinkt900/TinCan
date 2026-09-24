@@ -217,6 +217,7 @@ namespace imgui_ext {
 
     void InputBehaviourData(BehaviourData& data, int& selectedState, int selectedWaypoint) {
         EnumCombo("Space", data.space);
+        EnumCombo("Edge", data.edge);
         ImGui::Text("States:");
         for (int i = 0; i < static_cast<int>(data.states.size()); /* skip */) {
             ImGui::PushID(i);

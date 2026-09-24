@@ -88,6 +88,50 @@
                     ]
                 }
             ]
+        },
+        "in_n_out_bottom": {
+            "edge": "Bottom",
+            "space": "SpawnRelative",
+            "states": [
+                {
+                    "duration": 3000,
+                    "fire": false,
+                    "interpolation": "Linear",
+                    "speed": 100.0,
+                    "type": "Path",
+                    "waypoints": [
+                        [
+                            100.0,
+                            1112.0
+                        ],
+                        [
+                            100.0,
+                            880.0
+                        ]
+                    ]
+                },
+                {
+                    "duration": 2000,
+                    "type": "Hold"
+                },
+                {
+                    "duration": 3000,
+                    "fire": false,
+                    "interpolation": "Linear",
+                    "speed": 100.0,
+                    "type": "Path",
+                    "waypoints": [
+                        [
+                            100.0,
+                            880.0
+                        ],
+                        [
+                            100.0,
+                            1112.0
+                        ]
+                    ]
+                }
+            ]
         }
     }
 }

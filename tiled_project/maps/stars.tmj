@@ -479,12 +479,6 @@
                          "value":"none"
                         }, 
                         {
-                         "name":"edge",
-                         "propertytype":"edge",
-                         "type":"string",
-                         "value":"Top"
-                        }, 
-                        {
                          "name":"enemy_type",
                          "propertytype":"enemy_type",
                          "type":"string",
@@ -539,7 +533,7 @@
                          "name":"behaviour",
                          "propertytype":"behaviour",
                          "type":"string",
-                         "value":"in_n_out"
+                         "value":"in_n_out_bottom"
                         }, 
                         {
                          "name":"count",
@@ -551,12 +545,6 @@
                          "propertytype":"pickup",
                          "type":"string",
                          "value":"none"
-                        }, 
-                        {
-                         "name":"edge",
-                         "propertytype":"edge",
-                         "type":"string",
-                         "value":"Bottom"
                         }, 
                         {
                          "name":"enemy_type",

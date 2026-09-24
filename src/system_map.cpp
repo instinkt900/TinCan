@@ -36,42 +36,16 @@ namespace {
         return fallback;
     }
 
-    // the screen edge a spawn enters from. behaviours and formations are authored entering from the top,
-    // and the other edges turn them so that "down the screen" becomes "in from that edge"
-    enum class SpawnEdge {
-        Top,
-        Bottom,
-        Left,
-        Right,
-    };
-
-    SpawnEdge GetSpawnEdge(moth::tilemap::Properties const& properties) {
-        auto const edgeName = moth::tilemap::GetProperty<std::string>(properties, "edge", "Top");
-        if (edgeName == "Bottom") {
-            return SpawnEdge::Bottom;
-        }
-        if (edgeName == "Left") {
-            return SpawnEdge::Left;
-        }
-        if (edgeName == "Right") {
-            return SpawnEdge::Right;
-        }
-        if (edgeName != "Top") {
-            spdlog::error("Map spawn has unknown edge {}", edgeName);
-        }
-        return SpawnEdge::Top;
-    }
-
-    // degrees, clockwise on screen, that turn "down the screen" into "in from the edge"
-    float GetEdgeRotation(SpawnEdge edge) {
+    // degrees, clockwise on screen, that turn a formation authored for the top edge to face in from the edge
+    float GetEdgeRotation(BehaviourEdge edge) {
         switch (edge) {
-        case SpawnEdge::Bottom:
+        case BehaviourEdge::Bottom:
             return 180.0f;
-        case SpawnEdge::Left:
+        case BehaviourEdge::Left:
             return -90.0f;
-        case SpawnEdge::Right:
+        case BehaviourEdge::Right:
             return 90.0f;
-        case SpawnEdge::Top:
+        case BehaviourEdge::Top:
             break;
         }
         return 0.0f;
@@ -101,7 +75,7 @@ namespace {
         float spacing = 32.0f;
         moth::gfx::FloatVec2 scale{ 1.0f, 1.0f };
         DataRef<PickupData> drop;
-        auto edge = SpawnEdge::Top;
+        auto edge = BehaviourEdge::Top;
         moth::gfx::FloatVec2 point{ 0.0f, 0.0f };
         {
             // reading the spawn's tiled properties: string lookups, a behaviour copy and a data ref load
@@ -146,9 +120,10 @@ namespace {
                 }
             }
 
-            // the tiled position only says when the spawn triggers. where it appears is a point on the screen,
-            // which by default is the object's x and the middle of the screen height
-            edge = GetSpawnEdge(spawn.properties);
+            // the behaviour says which edge it enters from, and a spawn without one enters from the top.
+            // the tiled position only says when the spawn triggers. where it appears is a point on the
+            // screen, which by default is the object's x and the middle of the screen height
+            edge = behaviour.edge;
             auto const usePosition = moth::tilemap::GetProperty(spawn.properties, "use_position", false);
             point = usePosition ? moth::gfx::FloatVec2{ GetFloatProperty(spawn.properties, "position_x", 0.0f),
                                                         GetFloatProperty(spawn.properties, "position_y", 0.0f) }
@@ -171,26 +146,23 @@ namespace {
         auto const worldSize = static_cast<moth::gfx::FloatVec2>(world.GetWorldSize());
         moth::gfx::FloatVec2 origin{ 0.0f, 0.0f };
         switch (edge) {
-        case SpawnEdge::Top:
+        case BehaviourEdge::Top:
             origin = { point.x, spawn.position.y - scroll.m_cameraTop };
             break;
-        case SpawnEdge::Bottom:
+        case BehaviourEdge::Bottom:
             origin = { point.x, worldSize.y + SpawnMargin };
             break;
-        case SpawnEdge::Left:
+        case BehaviourEdge::Left:
             origin = { -SpawnMargin, point.y };
             break;
-        case SpawnEdge::Right:
+        case BehaviourEdge::Right:
             origin = { worldSize.x + SpawnMargin, point.y };
             break;
         }
 
-        // the edge turns the formation, and the path of a spawn-relative behaviour. a world behaviour's path
-        // is fixed in the world, so the edge only places it
+        // the edge turns the formation. the behaviour's path is authored as it plays from its edge, so the
+        // edge does not turn it
         auto const edgeRotation = GetEdgeRotation(edge);
-        if (behaviour.space == BehaviourSpace::SpawnRelative) {
-            spawnOverride.rotation += edgeRotation;
-        }
 
         uint32_t phaseIndex = 0;
         auto const offsets = GetFormationOffsets(gamedata, formation, count, spacing, scale,
@@ -220,16 +192,16 @@ namespace {
             auto& bounds = registry.Emplace<ComponentBounds>(enemy);
             bounds.m_bounds = boundsRect;
             switch (edge) {
-            case SpawnEdge::Top:
+            case BehaviourEdge::Top:
                 bounds.m_bounds.topLeft.y += offset.y;
                 break;
-            case SpawnEdge::Bottom:
+            case BehaviourEdge::Bottom:
                 bounds.m_bounds.bottomRight.y += offset.y;
                 break;
-            case SpawnEdge::Left:
+            case BehaviourEdge::Left:
                 bounds.m_bounds.topLeft.x += offset.x;
                 break;
-            case SpawnEdge::Right:
+            case BehaviourEdge::Right:
                 bounds.m_bounds.bottomRight.x += offset.x;
                 break;
             }
