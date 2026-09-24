@@ -294,6 +294,56 @@ behaviour state, rather than from the spawn. Plan the two tasks together.
 
 **Manual verification:**
 
+### [todo] T-030 Make every behaviour absolute
+
+**Review:** unreviewed
+
+**Goal:**
+Remove the spawn-relative behaviour space, so that every behaviour is absolute
+and its paths play exactly as they are drawn in the behaviour editor. A map
+spawn gets an offset vector that shifts the authored path, and formations get
+an offset step, so that each member is shifted from the one before.
+
+Context from the conversation: the editor canvas is already in screen
+coordinates. Spawn-relative mode now only moves the first waypoint onto the
+spawn point (`TransformBehaviour`). `behaviour_rotation` turns a path about its
+first waypoint in either space, so rotation keeps working. The spawn-relative
+behaviours today are `basic`, `in_n_out` and `in_n_out_bottom`.
+`tiled_project/maps/stars.tmj` and `tiled_project/maps/desert.tmj` have two
+enemy spawns each, so migrating the data is a small job.
+
+**Requirements:**
+- [ ] Behaviours have no spawn-relative space. Every behaviour plays its paths
+  at the coordinates they were authored with.
+- [ ] A map spawn has an offset vector that shifts the authored path.
+- [ ] A formation can shift each member from the one before by an offset step.
+
+**Open questions:**
+- Q: Is the behaviour `edge` from T-029 removed? With absolute paths, the first
+  waypoint already says where the enemy enters. Turning the formation offsets
+  and extending the bounds could come from the direction of the first path
+  segment instead.
+- Q: How does a behaviour that starts with a Target or Hold state get a start
+  point? For example, `chase_player` and `in_and_hold` have no first waypoint,
+  and `desert.tmj` uses `chase_player`. The options discussed are to require
+  the first state to be a path, or to treat the spawn offset as an absolute
+  position when there is no path.
+- Q: The Tiled object's x no longer places a top spawn, and the offset takes
+  its place. Is it acceptable that the object's position only sets when the
+  spawn triggers?
+- Q: Is the offset step a separate spawn field, or a new built-in formation
+  (for example `step`, with `step_x` and `step_y`)? Formations are already
+  per-member offsets, and the built-in ones are a step times `spacing`, so a
+  separate field could multiply with them.
+- Q: What happens to `use_position`, `position_x` and `position_y` on
+  `EnemySpawn` when the spawn has an offset?
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
 ## Discovered
 
 - `SystemMap::Update` (`src/system_map.cpp`, the `m_cameraTop` line) has a
