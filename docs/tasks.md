@@ -12,247 +12,6 @@ to [tasks-done.md](tasks-done.md).
 
 ## Tasks
 
-### [done] T-019 Share the formation offsets and the single-sprite draw
-
-**Review:** reviewed 2026-09-20
-
-**Depends on:** none
-
-**Goal:**
-Preparation for the formation editor (T-020, T-021). Both pieces of code it needs
-are private to a `.cpp` today.
-
-`GetFormationOffsets` (`src/system_map.cpp:38`) turns a formation name, a count, a
-spacing, a per-axis scale and a rotation into the offsets of each member, asking
-`data/formation_database.json` first and falling back to the built-in `line`,
-`column`, `v` and `grid` generators. It sits in the anonymous namespace of
-`src/system_map.cpp`, so the editor cannot call it, and a second copy of it in the
-editor would let the preview drift away from what the game spawns.
-
-The per-sprite draw sits inside the batch loop in `SystemDrawable::Draw`
-(`src/system_drawable.cpp:155`), which reads a `ComponentSprite` off an entity,
-resolves the animated case to a frame and a pivot, and draws it. T-021 draws the
-selected enemy's sprite at each filled slot with no entity behind it, and should
-get the same picture the game draws rather than its own call to `DrawImage`.
-
-Nothing changes about what the game does. This task only moves code so that two
-callers can share it.
-
-**Requirements:**
-- [x] `GetFormationOffsets` moves to a shared header, `src/formation_offsets.h`,
-      with its current signature and behaviour unchanged.
-- [x] `src/system_map.cpp` calls it from there, and spawning is unchanged.
-- [x] The single-sprite draw is exposed as a function taking the graphics, a
-      `ComponentSprite`, a position and an angle, and `SystemDrawable::Draw` uses
-      it for each entry of its batch, so there is one draw path.
-- [x] The batch, its z-order sort, the camera offset and the blend mode stay in
-      `SystemDrawable::Draw`. Only the draw of one sprite moves.
-- [x] Any new `.cpp` is added to `SOURCES` in `CMakeLists.txt`.
-- [x] The star map plays and draws exactly as it does today.
-
-**Out of scope:**
-Any editor change, and any change to how formations are chosen or sprites are
-animated. This is a move, not a redesign.
-
-**Open questions:**
-- Q: Where does the shared formation helper live? A: `src/formation_offsets.h`,
-  beside the other small shared headers. It takes `GameData const&` as its first
-  argument, as it does now.
-
-**Notes:**
-`GetFormationOffsets` is an `inline` function in the new header, so no `.cpp`
-was added and `SOURCES` did not change. `DrawSprite` now resolves the animated
-frame and does the whole-pixel snap itself; the batch stores the unsnapped
-world position and the entity angle, which draws the same picture as before.
-`src/system_map.cpp` no longer includes `gamedata_formation.h`, which it needed
-only for the moved function.
-
-**Commits:**
-- a6aee1f refactor(T-019): share the formation offsets and the single-sprite draw
-
-**Manual verification:**
-- Play the star map and check that enemies spawn in the same formations and at
-  the same places as before, and that sprites, flashes and blend modes look
-  unchanged.
-
-### [done] T-020 Add a formation editor window
-
-**Review:** reviewed 2026-09-20
-
-**Depends on:** T-019
-
-**Goal:**
-Formations are authored by hand in `data/formation_database.json` and the only way
-to see one is to set it on a map spawn and play the map. Give them an editor, the
-way behaviours have one.
-
-F2 becomes editor mode rather than "the behaviour editor is open". It shows both
-the existing Behaviour Editor window and a new Formation Editor window. They are
-separate ImGui windows so they can be docked together, and the most recently
-focused of the two owns the world view: its overlay draws there and the mouse
-edits its own shape. Without that rule two sets of handles would share the screen
-and fight over the same clicks.
-
-A formation entry is an ordered list of slot offsets in unit space describing the
-largest version of the shape, which a spawn's `count` fills from the front
-(`FormationData`, `src/gamedata_formation.h`). The editor authors that list and
-previews it at a count, a per-axis scale and a rotation: the three things a map
-spawn applies. The preview goes through the shared `GetFormationOffsets` from
-T-019, so what is drawn is what a spawn would place.
-
-**Requirements:**
-- [x] F2 toggles editor mode, which shows both the Behaviour Editor and the new
-      Formation Editor as separate ImGui windows.
-- [x] Editor mode pauses the map update exactly as the behaviour editor does
-      today (`src/game_world.cpp:53`).
-- [x] The most recently focused of the two windows owns the world view: its
-      overlay is drawn there and the mouse edits its shape. The Behaviour Editor
-      is the active one when editor mode opens.
-- [x] Clicking in the world view does not change which window is active.
-- [x] The behaviour editor keeps its current drawing and mouse editing, including
-      its guides, while it is the active window.
-- [x] The Formation Editor has a combo over the formations the game knows: the
-      entries of `data/formation_database.json` and the built-in `line`, `column`,
-      `v` and `grid`.
-- [x] A built-in formation can be selected and previewed, using `spacing` rather
-      than scale, but has no slots to edit and cannot be saved.
-- [x] A database formation's slots can be created and edited: click in the world
-      view to add a slot, drag to move one, right-click to remove one, at the
-      preview scale, stored in unit space.
-- [x] The panel lists the slots as editable unit-space number pairs with a remove
-      button and an add button, as the waypoint list does.
-- [x] The preview controls are a count, a per-axis scale and a rotation in
-      degrees, and the preview is built with `GetFormationOffsets` from T-019.
-- [x] Slots within the count are drawn differently from the slots beyond it, so a
-      shape can be judged at the count it will be spawned with.
-- [x] A `Save as` name and a Save button write the formation back to
-      `data/formation_database.json`, replacing an entry of that name or adding a
-      new one, mirroring `SaveBehaviour`
-      (`src/system_behaviour_editor.cpp:38`). Save is disabled for a built-in.
-- [x] Any new `.cpp` is added to `SOURCES` in `CMakeLists.txt`.
-
-**Out of scope:**
-Drawing the enemy's sprite at a filled slot, which is T-021. This task draws slot
-markers only.
-
-Changing how formations are spawned, what the built-in generators produce, or the
-`FormationData` schema.
-
-**Open questions:**
-- Q: Where does the formation editor live: its own panel behind another key, or
-  part of the behaviour editor? A: Its own ImGui window, shown by the same F2,
-  which becomes editor mode. Separate windows so the two can be docked together.
-- Q: Does it save to `data/formation_database.json`? A: Yes, the way the behaviour
-  editor saves behaviours.
-- Q: How is the active window decided? A: The most recently focused one, which
-  keeps the world view until the other window is focused.
-- Q: Can the built-in formations be edited? A: No. They can be selected and
-  previewed, but they are generated from a count and a spacing, so they have no
-  slots and cannot be saved.
-
-**Notes:**
-Assumptions made: the preview is centred on the middle of the world, because a
-formation has no spawn point of its own in the editor; the default preview scale
-is 32 px per unit; the world view owner changes only while one of the two windows
-reports itself focused, so a click on the world, which focuses neither, leaves it
-alone.
-
-`GetFormationOffsets` gained an overload taking a `FormationData` rather than a
-name. The editor previews the entry it is editing, which is not in the database
-until it is saved, so a name lookup would show the saved shape instead of the
-edit. The database branch of the name version now calls the new overload, so
-there is still one code path; the built-in generators and the spawn path are
-unchanged. `FormationData` gained a `to_json` so the editor can write it back;
-its schema is unchanged.
-
-**Commits:**
-- 28e8f74 feat(T-020): add a formation editor window
-
-**Manual verification:**
-- Press F2 and check that both the Behaviour Editor and the Formation Editor
-  appear, that the map stops scrolling, and that the two can be docked together.
-- Check that the behaviour editor draws its paths, guides and handles and takes
-  the mouse when editor mode opens, and that clicking in the world view does not
-  hand the view to the formation editor.
-- Click the Formation Editor's title bar and check the behaviour overlay goes,
-  the formation markers appear, and the mouse now edits slots. Click back to the
-  Behaviour Editor and check the overlay swaps back.
-- Select a built-in (`line`, `column`, `v`, `grid`) and check it previews from the
-  count and the spacing, has no slot list, and that Save is disabled.
-- Select a database formation, then add slots by clicking in the world view, drag
-  one, and right-click one to remove it. Check the panel list matches, and that
-  the numbers there are unit space, not pixels.
-- Change the count and check that slots beyond it are drawn smaller and fainter.
-- Change the scale and rotation and check the preview follows, and that a slot
-  added afterwards still lands under the mouse.
-- Type a `Save as` name, press Save, and check `data/formation_database.json`
-  holds the shape and that restarting the game loads it.
-
-### [done] T-021 Fill the counted slots with the enemy's sprite
-
-**Review:** reviewed 2026-09-20
-
-**Depends on:** T-020
-
-**Goal:**
-A formation is judged by what it looks like when it is on the screen, so the
-slots inside the count should be drawn as the enemy that will fill them rather
-than as markers. Sprites, not spawned entities: nothing is added to the world, so
-there is nothing to clean up when the count or the shape changes, and the preview
-holds still while it is being edited.
-
-The draw goes through the single-sprite function exposed in T-019, so a slot
-looks the way the game draws that enemy.
-
-**Requirements:**
-- [x] The Formation Editor has its own combo over the enemy database, independent
-      of the behaviour editor's.
-- [x] Each slot within the count draws that enemy's sprite, through the function
-      exposed in T-019.
-- [x] Slots beyond the count keep their marker, so the whole shape is still
-      visible while a smaller count is previewed.
-- [x] No entities are created for the preview.
-- [x] With no enemy chosen, the slots fall back to the markers from T-020 rather
-      than drawing nothing.
-
-**Out of scope:**
-Animating the preview sprites, and anything to do with how the enemy flies. This
-task draws the enemy standing in its slot.
-
-**Open questions:**
-- Q: Is the preview drawn markers, spawned enemies, or both? A: Markers for every
-  slot, with the slots inside the count drawn as the selected enemy's sprite.
-  Sprites rather than real spawns.
-- Q: Where does the enemy come from? A: The formation editor's own enemy combo.
-
-**Notes:**
-Assumptions made: only the enemy's own sprite is drawn, not the sprites of its
-sections, because a slot stands for one enemy; the preview sprite is drawn
-upright, at no angle, since how the enemy flies is out of scope; an enemy that
-has no sprite of its own falls back to the markers, as an unchosen one does.
-
-The preview `ComponentSprite` is built for the frame rather than kept in a
-static. A static would hold a texture past the graphics device at exit. Building
-it is one animator allocation a frame, and it is built once for the whole shape,
-not once a slot.
-
-The selected-slot highlight is not drawn on a slot that has a sprite, because the
-sprite replaces the marker there.
-
-**Commits:**
-- 07b921b feat(T-021): draw the enemy's sprite in the counted slots
-
-**Manual verification:**
-- Open the Formation Editor, choose an enemy, and check that the slots within the
-  count draw that enemy's sprite and the slots beyond it stay markers.
-- Lower and raise the count and check the sprites and markers swap over at the
-  right slot.
-- Change the enemy and check the sprites change with it.
-- Clear the enemy choice, or pick an enemy that has no sprite, and check every
-  slot falls back to a marker.
-- Check that nothing is added to the world: no enemy flies, shoots or is hit
-  while the preview is up, and leaving editor mode leaves nothing behind.
-
 ### [todo] T-022 Give the player multiple lives
 
 **Review:** unreviewed
@@ -334,7 +93,9 @@ like that.
 
 ### [todo] T-025 Let a spawn enter from any screen edge
 
-**Review:** unreviewed
+**Review:** reviewed 2026-09-24
+
+**Depends on:** none
 
 **Goal:**
 Enemies can only enter from the top of the screen. A spawn is placed at its Tiled
@@ -345,26 +106,61 @@ formation follows the same path. The example wanted: a line of 5 enemies that
 flies in from the bottom of the screen, hovers, fires and then moves off screen.
 
 Add an `edge` property (`Top`, `Bottom`, `Left`, `Right`) to `EnemySpawn`. The
-Tiled y position still sets when the spawn triggers, and the edge sets where the
-formation appears. The edge also rotates both the formation offsets and the
-behaviour, so every behaviour is authored once as "enter from the top" and works
-from any edge.
+Tiled position of the object only governs *when* the spawn triggers. *Where* the
+formation appears comes from a separate screen position on the spawn, snapped to
+just outside the chosen edge. The edge also rotates both the formation offsets and
+the behaviour, so every behaviour is authored once as "enter from the top" and
+works from any edge.
 
 **Requirements:**
-- [ ] `EnemySpawn` has an `edge` property with `Top`, `Bottom`, `Left` and
-  `Right`. `Top` is the default and behaves as today.
-- [ ] The Tiled y position still sets when the spawn triggers, whatever the edge.
-- [ ] The formation appears just outside the chosen edge.
-- [ ] The edge rotates the formation offsets and the behaviour, so a behaviour
-  authored as entering from the top enters from the chosen edge.
+- [ ] `tiled_project/tincan.tiled-project` gains a hand-authored enum `edge` with
+  the values `Top`, `Bottom`, `Left`, `Right`, in that order, and `EnemySpawn`
+  gains the members `edge` (default `Top`), `use_position` (bool, default
+  `false`), `position_x` and `position_y` (floats, default 0). This change is
+  allowed despite the profile's Compatibility section, because it is additive:
+  no existing type, member or value is changed or reordered. The `edge` enum is
+  not added to `tiled_project/extensions/game_data_enums.js`, because it does not
+  come from the game data.
+- [ ] The Tiled y position of the object still sets when the spawn triggers,
+  whatever the edge, exactly as today.
+- [ ] With `use_position` set, `position_x`/`position_y` is a point in screen
+  pixels. The formation appears just outside the chosen edge (by `SpawnMargin`),
+  level with that point: `Top` and `Bottom` use `position_x`, `Left` and `Right`
+  use `position_y`. The other coordinate is ignored.
+- [ ] With `use_position` unset, the point is the object's Tiled x and the middle
+  of the screen height. A `Top` spawn with `use_position` unset behaves exactly
+  as today, so the existing maps play unchanged.
+- [ ] The edge adds a rotation (`Top` 0, and a quarter or half turn for the others,
+  so that "moving down the screen" becomes "moving in from that edge"). It is
+  added to the Tiled object rotation for the formation offsets, and to
+  `behaviour_rotation` (plus `behaviour_rotation_step` per member) for the
+  behaviour.
+- [ ] A `World`-space behaviour's path is not rotated by the edge. The edge still
+  places the formation and rotates its offsets, and `behaviour_rotation` still
+  applies to it as today.
 - [ ] Enemies spawned at the new positions are not killed straight away by their
-  bounds.
+  bounds, including formation members whose rotated offset puts them further
+  outside the screen.
+
+**Out of scope:**
+Editing the maps in `tiled_project/maps/`: no spawn is added or changed. Showing
+the edge in the behaviour or formation editors. T-026's firing flag. An enemy with
+no behaviour still drifts with the map scroll as today, so from a non-`Top` edge
+it may never come on screen; that is accepted.
 
 **Open questions:**
-- Q: For `Left` and `Right`, what sets the position down the screen? The Tiled y
-  is already used for timing, so this needs another property.
+- Q: For `Left` and `Right`, what sets the position down the screen? A: The Tiled
+  object's position only sets when the spawn triggers. Where it appears is a
+  separate x,y screen point on the spawn (`position_x`, `position_y`), snapped to
+  just outside the edge: Top/Bottom use x, Left/Right use y.
+- Q: How do existing spawns, which have no x,y, keep working? A: A `use_position`
+  bool, default false. Unset uses the Tiled x, so existing maps are unchanged.
 - Q: How does the edge rotation combine with an existing `behaviour_rotation`
-  and the spawn's own rotation: added together, or does one replace the other?
+  and the spawn's own rotation? A: They are all added together.
+- Q: What does the edge do to a `World`-space behaviour? A: It places the
+  formation and rotates its offsets, but does not rotate the path.
+- Q: May the session change `tincan.tiled-project`? A: Yes, additively only, as
+  in the first requirement. Maps are not edited.
 
 **Notes:**
 
@@ -374,7 +170,9 @@ from any edge.
 
 ### [todo] T-026 Fire enemy weapons only in chosen behaviour states
 
-**Review:** unreviewed
+**Review:** reviewed 2026-09-24
+
+**Depends on:** none
 
 **Goal:**
 Enemy weapons fire from the moment the enemy spawns until it dies, whatever its
@@ -383,19 +181,38 @@ an enemy cannot fly in quietly, hover and shoot, and then leave quietly. It also
 fires while it is still off screen, which gives shots the player cannot see
 coming.
 
-Let a behaviour state say whether the enemy fires during it, for example a `fire`
-flag on each state. The behaviour system turns the weapon on when a state that
-fires starts, and off when it ends.
+Let each behaviour state say whether the enemy fires during it, with a `fire`
+flag. The behaviour system turns the weapons on when a state that fires starts,
+and off when one that does not starts. The existing `Weapon::m_active` switch is
+the mechanism: a weapon switched off finishes a burst already under way, and its
+cooldown keeps running, so it can fire as soon as it is switched back on.
 
 **Requirements:**
-- [ ] A behaviour state can say whether the enemy's weapons fire during it.
-- [ ] Enemy weapons fire only during states that allow it.
+- [ ] `BehaviourStateData` has a `fire` flag, for every state type, read as an
+  optional field that defaults to `true`, so existing behaviours fire as today.
+  `to_json` writes it only when it is `false`.
+- [ ] When a state starts, the enemy's weapons are switched on or off to match its
+  `fire` flag: the root entity's weapon and the weapons of all its sections.
+- [ ] After the last state ends, the weapons keep the last state's setting. An
+  enemy with no behaviour fires as today.
+- [ ] The behaviour editor shows the flag as a checkbox on each state, and saving a
+  behaviour keeps it.
+
+**Out of scope:**
+The player's weapons. A general rule against firing while off screen: authors set
+`fire: false` on the entry state instead. Changing weapon timing, cooldowns or
+bursts.
 
 **Open questions:**
 - Q: What is the default for a state that does not say: fire (as today, so
-  existing behaviours are unchanged) or do not fire?
+  existing behaviours are unchanged) or do not fire? A: Fire.
 - Q: Do the weapons on enemy sections follow the root's behaviour state too?
-- Q: Should the behaviour editor show and edit the flag?
+  A: Yes.
+- Q: What happens after the last state, or with no behaviour? A: The last state's
+  setting stays; an enemy with no behaviour fires as today.
+- Q: Should this task stop firing while off screen? A: No, `fire: false` on the
+  entry state covers it.
+- Q: Should the behaviour editor show and edit the flag? A: Yes.
 
 **Notes:**
 
