@@ -235,7 +235,7 @@ behaviours in `data/behaviour_database.json`.
 1. Start the game on the stars map. After about 5 s, the `danger_1_light`
    line comes in from the top at x 544, holds, and leaves back up.
 2. At the same time, the `danger_1_dark` line comes up from the bottom at
-   x 544, holds about 232 px above the bottom, and goes back down. Its
+   x 544, holds about 170 px above the bottom, and goes back down. Its
    formation is laid out below the front member, not above it.
 3. Other spawns (for example the angled `danger_3` waves and asteroids) move
    as before.
