@@ -8,7 +8,7 @@
             "movement": {
                 "max_speed": 800,
                 "acceleration": 4500,
-                "deceleration": 3000
+                "deceleration": 3500
             },
             "weapon": "player_weapon_01",
             "shield_sprite": "player_shield",

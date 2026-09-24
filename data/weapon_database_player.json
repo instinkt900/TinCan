@@ -40,6 +40,26 @@
                 }
             ]
         },
+        "player_weapon_03": {
+            "damage": 5,
+            "cooldown": 100,
+            "burst": 1,
+            "burst_delay": 0,
+            "player_tracking": false,
+            "projectile": "player_basic_bullet",
+            "barrels": [
+                {
+                    "offset": [ -20, -4 ],
+                    "group": 0,
+                    "angle": 0
+                },
+                {
+                    "offset": [ 20, -4 ],
+                    "group": 0,
+                    "angle": 0
+                }
+            ]
+        },
         "player_weapon_homing_01": {
             "damage": 20,
             "cooldown": 500,
@@ -49,14 +69,14 @@
             "projectile": "player_homing_bullet",
             "barrels": [
                 {
-                    "offset": [ 0, 0 ],
+                    "offset": [ -30, -5 ],
                     "group": 0,
-                    "angle": 45
+                    "angle": 0
                 },
                 {
-                    "offset": [ 0, 0 ],
+                    "offset": [ 30, 5 ],
                     "group": 0,
-                    "angle": -45
+                    "angle": 0
                 }
             ]
         }
