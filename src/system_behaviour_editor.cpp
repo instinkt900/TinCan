@@ -221,9 +221,17 @@ namespace imgui_ext {
         ImGui::Text("States:");
         for (int i = 0; i < static_cast<int>(data.states.size()); /* skip */) {
             ImGui::PushID(i);
-            ImGui::Text("%d.", i);
+            // the heading follows the label, but the section is known by its place in the list, so renaming a
+            // state keeps it open and two states with the same label open and close on their own
+            auto const& label = data.states[i].label;
+            auto const heading = (label.empty() ? "Step " + std::to_string(i) : label) + "###step";
+            if (!ImGui::CollapsingHeader(heading.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+                ImGui::PopID();
+                ++i;
+                continue;
+            }
+            ImGui::Indent();
             if (data.states[i].type == BehaviourType::Path) {
-                ImGui::SameLine();
                 // one state at most is edited in view. turning it on here takes it from the state that had
                 // it, and turning it off leaves none
                 bool editInView = i == selectedState;
@@ -231,7 +239,6 @@ namespace imgui_ext {
                     selectedState = editInView ? i : -1;
                 }
             }
-            ImGui::Indent();
             InputBehaviourStateData(data.states[i], i == selectedState ? selectedWaypoint : -1);
             if (ImGui::Button("Delete")) {
                 data.states.erase(data.states.begin() + i);
