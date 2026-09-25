@@ -232,7 +232,7 @@ enemy spawns each, so migrating the data is a small job.
 
 **Manual verification:**
 
-### [todo] T-031 Make "edit in view" a toggle in the behaviour editor
+### [done] T-031 Make "edit in view" a toggle in the behaviour editor
 
 **Review:** reviewed 2026-09-25
 
@@ -247,11 +247,11 @@ It is an `ImGui::RadioButton` on `selectedState` in
 radio button can only be turned on.
 
 **Requirements:**
-- [ ] "Edit in view" on a path step is a toggle. Turning it off on the step it
+- [x] "Edit in view" on a path step is a toggle. Turning it off on the step it
   is on for leaves no step edited in view.
-- [ ] Only one step is edited in view at a time. Turning it on for a step turns
+- [x] Only one step is edited in view at a time. Turning it on for a step turns
   it off for the step that had it, as today.
-- [ ] Turning it off clears the selected and dragged waypoint, as loading a
+- [x] Turning it off clears the selected and dragged waypoint, as loading a
   behaviour does. With no step edited in view, the canvas does not add, move
   or delete waypoints, and every path is drawn as a faint reference path.
 
@@ -260,10 +260,26 @@ The collapsible step sections (T-032). Any other change to the editor canvas,
 preview or guides.
 
 **Notes:**
+- The radio button is now an `ImGui::Checkbox` whose value is `i == selectedState`.
+  Ticking it sets `selectedState` to that step, which takes it from any other step.
+  Unticking it sets `selectedState` to -1.
+- The selected waypoint is cleared wherever no path step is edited in view, next to
+  the existing clear of the dragged waypoint. This also covers deleting the edited
+  step, or changing its type away from Path.
+- Assumption: switching "Edit in view" straight from one step to another keeps the
+  selected waypoint index, as it did before. The requirement covers turning it off only.
 
 **Commits:**
+- 541abd4 feat(T-031): make edit in view a toggle in the behaviour editor
 
 **Manual verification:**
+1. Start the game, press F2, and load a behaviour that has two or more path steps.
+2. Tick "Edit in view" on step 0. Its waypoints show handles in the game view.
+3. Tick it on step 1. Step 0 unticks, and step 1's handles show.
+4. Untick it on step 1. No step is ticked, no waypoint shows `>` in the panel, and
+   every path is drawn faint with no handles.
+5. With nothing ticked, left-click and right-click in the game view. No waypoint is
+   added, moved or deleted.
 
 ### [todo] T-032 Make behaviour steps collapsible sections
 
