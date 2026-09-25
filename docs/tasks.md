@@ -281,7 +281,7 @@ preview or guides.
 5. With nothing ticked, left-click and right-click in the game view. No waypoint is
    added, moved or deleted.
 
-### [todo] T-032 Make behaviour steps collapsible sections
+### [done] T-032 Make behaviour steps collapsible sections
 
 **Review:** reviewed 2026-09-25
 
@@ -297,14 +297,14 @@ The steps are listed in `imgui_ext::InputBehaviourData`
 fields.
 
 **Requirements:**
-- [ ] Each behaviour step in the behaviour editor is a collapsible section.
-- [ ] The section heading is the step's label.
-- [ ] If the label is empty, the heading is "Step N", where N is the step's
+- [x] Each behaviour step in the behaviour editor is a collapsible section.
+- [x] The section heading is the step's label.
+- [x] If the label is empty, the heading is "Step N", where N is the step's
   index counted from 0 (the first step is "Step 0").
-- [ ] Sections start open.
-- [ ] The step's controls, including the "Edit in view" toggle and "Delete",
+- [x] Sections start open.
+- [x] The step's controls, including the "Edit in view" toggle and "Delete",
   stay inside the section.
-- [ ] Editing a step's label changes its heading without collapsing or
+- [x] Editing a step's label changes its heading without collapsing or
   resetting the section, and two steps with the same label open and close
   on their own.
 
@@ -319,10 +319,29 @@ Renaming "States:" and "Add state" in the editor, or "state" in code, to
   A: Open, with the controls inside the section.
 
 **Notes:**
+- Each step is an `ImGui::CollapsingHeader` with `ImGuiTreeNodeFlags_DefaultOpen`.
+  Its label is `<label or "Step N">###step` inside the existing `PushID(i)`, so the
+  heading text changes with the label while the ID stays the step's index.
+- The "Edit in view" checkbox is no longer on the same line as the `N.` number. It
+  is now the first control inside the section, indented with the other fields.
+- Assumption: a section's open state belongs to its place in the list. When a step
+  is deleted, the steps after it take on the open state of the step before them.
+- Assumption: a label that contains `##` or `###` is shown as ImGui treats such a
+  label. The text after the marker is hidden. Labels like that are not expected.
 
 **Commits:**
+- 5e9df33 feat(T-032): show behaviour steps as collapsible sections
 
 **Manual verification:**
+1. Start the game, press F2, and load a behaviour that has several steps.
+2. Every step is an open section. A step with a label is headed by that label. A
+   step with no label is headed "Step N", counted from 0.
+3. Each section holds the step's "Edit in view" toggle (path steps only), its
+   fields and "Delete". Collapse a section and check that all of them are hidden.
+4. Type in a step's Label field. The heading follows the text, and the section
+   stays open and keeps focus in the field.
+5. Give two steps the same label. Collapse one, and the other stays open.
+6. Clear a label. The heading goes back to "Step N".
 
 ### [todo] T-033 Keep editor keypresses out of the game
 
