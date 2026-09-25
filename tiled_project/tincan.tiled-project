@@ -19,7 +19,8 @@
                 "basic",
                 "chase_player",
                 "in_and_hold",
-                "in_n_out"
+                "in_n_out",
+                "in_n_out_bottom"
             ],
             "valuesAsFlags": false
         },
