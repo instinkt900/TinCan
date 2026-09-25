@@ -135,7 +135,7 @@ behaviour state, rather than from the spawn. Plan the two tasks together.
 
 **Manual verification:**
 
-### [todo] T-034 Rename the spawn position properties to spawn_x and spawn_y
+### [done] T-034 Rename the spawn position properties to spawn_x and spawn_y
 
 **Review:** reviewed 2026-09-25
 
@@ -157,13 +157,13 @@ No map in `tiled_project/maps/` sets `use_position`, `position_x` or
 profile otherwise lists as must-still-load.
 
 **Requirements:**
-- [ ] The `EnemySpawn` class in `tiled_project/tincan.tiled-project` has
+- [x] The `EnemySpawn` class in `tiled_project/tincan.tiled-project` has
   `use_spawn`, `spawn_x` and `spawn_y` in place of `use_position`, `position_x`
   and `position_y`, with the same types and defaults.
-- [ ] The game reads `use_spawn`, `spawn_x` and `spawn_y`. When `use_spawn` is
+- [x] The game reads `use_spawn`, `spawn_x` and `spawn_y`. When `use_spawn` is
   on, the enemy or formation spawns at those screen coordinates, as
   `use_position` does today.
-- [ ] Both maps still load and play as before.
+- [x] Both maps still load and play as before.
 
 **Out of scope:**
 - Loading the old names. Nothing uses them.
@@ -178,10 +178,22 @@ profile otherwise lists as must-still-load.
   names do not need to load.
 
 **Notes:**
+- The class members stay in Tiled's alphabetical order, so `spawn_x` and
+  `spawn_y` sit between `spacing` and `speed`.
+- No map sets the old names (checked with grep), so nothing was migrated.
 
 **Commits:**
+- 7df22bb refactor(T-034): rename spawn position properties to use_spawn,
+  spawn_x and spawn_y
 
 **Manual verification:**
+1. Open `tiled_project/tincan.tiled-project` in Tiled and check that an
+   `EnemySpawn` object shows `use_spawn`, `spawn_x` and `spawn_y`, with no
+   `use_position`, `position_x` or `position_y`.
+2. On a spawn, set `use_spawn` on and give `spawn_x`/`spawn_y` a screen point.
+   Play the map and check that the enemy appears at that point, level with it on
+   its entry edge, as `use_position` did before.
+3. Play both maps without changes and check they play as before.
 
 ### [todo] T-035 Replace the behaviour edge with a formation rotation
 
