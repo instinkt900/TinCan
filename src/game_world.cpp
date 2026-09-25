@@ -89,13 +89,16 @@ void GameWorld::Draw() {
     m_graphics.Clear();
     m_graphics.SetBlendMode(moth::gfx::BlendMode::Replace);
     m_graphics.SetColor(moth::gfx::BasicColors::White);
+    { MOTH_PROFILE_SCOPE("SystemMap::Draw"); SystemMap::Draw(*this, m_graphics); }
+    { MOTH_PROFILE_SCOPE("SystemDrawable"); SystemDrawable::Draw(*this, m_graphics); }
+    // the editors draw their paths and markers over the world, so nothing in the map or on it hides them
     if (m_editorModeOpen) {
+        m_graphics.SetBlendMode(moth::gfx::BlendMode::Replace);
+        m_graphics.SetColor(moth::gfx::BasicColors::White);
         SystemBehaviourEditor::Draw(*this, m_graphics);
         SystemFormationEditor::Draw(*this, m_graphics);
         SystemPlayerEditor::Draw(*this);
     }
-    { MOTH_PROFILE_SCOPE("SystemMap::Draw"); SystemMap::Draw(*this, m_graphics); }
-    { MOTH_PROFILE_SCOPE("SystemDrawable"); SystemDrawable::Draw(*this, m_graphics); }
     { MOTH_PROFILE_SCOPE("Reset target"); m_graphics.SetTarget(nullptr); }
 }
 
