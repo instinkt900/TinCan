@@ -533,6 +533,47 @@ for that.
 
 **Manual verification:**
 
+### [todo] T-037 Set a path step's speed from its duration
+
+**Review:** unreviewed
+
+**Goal:**
+Remove the speed value from the step, and instead the speed is determined by the
+duration. If a path step takes 3 seconds, the enemy takes 3 seconds to travel to
+the final point.
+
+Context from the conversation: today a path step moves at its `speed`
+(`BehaviourStateData::speed`), and the duration only decides when the step ends.
+A duration of 0 ends the step at the last waypoint. A longer duration holds the
+enemy at the last waypoint until it runs out. A shorter one cuts the path off
+partway. The entry approach runs before the duration starts counting. The
+editor preview's "seconds along the path" comes from length and speed.
+
+**Requirements:**
+- [ ] A path step has no speed value.
+- [ ] A path step's speed is determined by its duration, so the enemy reaches
+  the final waypoint when the duration runs out.
+
+**Open questions:**
+- Q: What does a path step with a duration of 0 do, now that 0 means "until it
+  completes" and the path cannot complete without a speed? Is a duration
+  required on path steps?
+- Q: Does this apply only to path steps, or also to Target steps, which have a
+  speed too?
+- Q: The entry transition's speed falls back to "this state's" speed when it is
+  0. What does it fall back to once a path step has no speed?
+- Q: When the last step is a path, the enemy leaves its end at the step's speed.
+  Is that speed now length ÷ duration?
+- Q: Are the existing behaviours in `data/behaviour_database.json` converted
+  (duration from length ÷ speed), or rewritten by hand? The file is disposable
+  test data.
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
 ## Discovered
 
 - `SystemMap::Update` (`src/system_map.cpp`, the `m_cameraTop` line) has a
