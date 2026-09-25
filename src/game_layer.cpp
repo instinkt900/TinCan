@@ -3,6 +3,7 @@
 #include <moth/graphics/events/event_window.h>
 #include <moth/graphics/platform/window.h>
 #include <cmath>
+#include <imgui.h>
 #include <moth/ui/events/event_dispatch.h>
 #include <moth/ui/events/event_key.h>
 #include <moth/ui/layers/layer_stack.h>
@@ -120,6 +121,20 @@ bool GameLayer::OnRequestQuitEvent(moth::gfx::EventRequestQuit const& event) {
 }
 
 bool GameLayer::OnKeyEvent(moth::ui::EventKey const& event) {
+    // while an editor text field is active the keys are the field's. a press is kept from the game
+    // entirely, but a release still reaches the world so that a game key held before typing started
+    // is let go. a key pressed while typing fires no binding when it comes up, even once the field has
+    // closed, so that the Escape that ends an edit does not also quit
+    bool const typing = ImGui::GetIO().WantTextInput;
+    if (event.GetAction() == moth::ui::KeyAction::Down) {
+        if (typing) {
+            m_keysPressedWhileTyping.insert(event.GetKey());
+            return true;
+        }
+    } else if (m_keysPressedWhileTyping.erase(event.GetKey()) > 0 || typing) {
+        return false;
+    }
+
     if (event.GetAction() == moth::ui::KeyAction::Up) {
         auto const& bindings = m_gameWorld->GetInputBindings();
         if (bindings.IsBound(InputAction::Quit, event.GetKey())) {

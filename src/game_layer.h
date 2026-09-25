@@ -7,6 +7,7 @@
 #include <moth/ui/layers/layer.h>
 #include <moth/ecs/world.h>
 #include <moth/profile/imgui/profiler_panel.h>
+#include <unordered_set>
 
 class GameLayer : public moth::ui::Layer {
 public:
@@ -37,4 +38,6 @@ private:
     std::unique_ptr<GameWorld> m_gameWorld;
     std::unique_ptr<moth::gfx::IFont> m_font;
     moth::profile::ProfilerPanel m_profilerPanel;
+    // keys that went down while an editor text field was active, and have not come up yet
+    std::unordered_set<moth::ui::Key> m_keysPressedWhileTyping;
 };
