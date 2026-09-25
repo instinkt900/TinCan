@@ -69,7 +69,7 @@
             "health": 40,
             "radius": 32,
             "sprite": "enemy_danger_2_light",
-            "weapon": "enemy_danger_1_weapon",
+            "weapon": "enemy_danger_2_weapon",
             "death_sprite": "explosion_01"
         },
         "danger_2_dark": {
@@ -77,7 +77,7 @@
             "health": 40,
             "radius": 32,
             "sprite": "enemy_danger_2_dark",
-            "weapon": "enemy_danger_1_weapon",
+            "weapon": "enemy_danger_2_weapon",
             "death_sprite": "explosion_01"
         },
         "danger_3_light": {

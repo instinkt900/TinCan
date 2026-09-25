@@ -14,6 +14,21 @@
                     "angle": 0
                 }
             ]
+        },
+        "enemy_danger_2_weapon": {
+            "damage": 10,
+            "cooldown": 4000,
+            "burst": 4,
+            "burst_delay": 150,
+            "player_tracking": false,
+            "projectile": "enemy_projectile",
+            "barrels": [
+                {
+                    "offset": [0, 0],
+                    "group": 0,
+                    "angle": 180
+                }
+            ]
         }
     }
 }
