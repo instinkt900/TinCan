@@ -7,10 +7,10 @@
 class GameWorld;
 
 struct ComponentPowerWeapon {
-    bool m_activated;
-    float m_damage;
+    bool m_activated = false;
+    float m_damage = 0;
     std::string m_projectileName;
-    float m_powerPerProjectile;
+    float m_powerPerProjectile = 0;
     float m_muzzleSpeed = 0;
 };
 

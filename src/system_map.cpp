@@ -297,7 +297,7 @@ void SystemMap::Update(GameWorld& world, uint32_t ticks) {
     auto const dt = static_cast<float>(ticks) / 1000.0f;
     auto view = registry.View<ComponentMapScroll>();
     for (auto [entity, scroll] : view.each()) {
-        scroll.m_cameraTop = std::max(0.0f, scroll.m_cameraTop - scroll.m_scrollSpeed * dt);
+        scroll.m_cameraTop = std::max(0.0f, scroll.m_cameraTop - (scroll.m_scrollSpeed * dt));
 
         auto& spawns = scroll.m_pendingSpawns;
         auto const spawnLine = scroll.m_cameraTop - SpawnMargin;

@@ -576,6 +576,3 @@ editor preview's "seconds along the path" comes from length and speed.
 
 ## Discovered
 
-- `SystemMap::Update` (`src/system_map.cpp`, the `m_cameraTop` line) has a
-  `readability-math-missing-parentheses` clang-tidy finding that was there
-  before the 2026-09-24 session.
