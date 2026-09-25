@@ -10,6 +10,7 @@
 #include "tags.h"
 #include <algorithm>
 #include <moth/ecs/world.h>
+#include <moth/graphics/utils/math_utils.h>
 #include <moth/ui/utils/vector_utils.h>
 #include <spdlog/spdlog.h>
 #include "game_world.h"
@@ -34,7 +35,8 @@ Weapon::Weapon(std::string name, WeaponData const& weapon)
     m_barrelGroups.clear();
     m_barrelGroupIds.clear();
     for (auto const& barrel : weapon.barrels) {
-        m_barrelGroups[barrel.group].push_back({ barrel.offset, barrel.angle });
+        // barrel angles are written in degrees, and entity angles are held in radians
+        m_barrelGroups[barrel.group].push_back({ barrel.offset, moth::gfx::DegToRad(barrel.angle) });
     }
     for (auto const& [id, group] : m_barrelGroups) {
         m_barrelGroupIds.push_back(id);
