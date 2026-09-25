@@ -343,7 +343,7 @@ Renaming "States:" and "Add state" in the editor, or "state" in code, to
 5. Give two steps the same label. Collapse one, and the other stays open.
 6. Clear a label. The heading goes back to "Step N".
 
-### [todo] T-033 Keep editor keypresses out of the game
+### [done] T-033 Keep editor keypresses out of the game
 
 **Review:** reviewed 2026-09-25
 
@@ -360,14 +360,14 @@ power weapon and affinity swap. So Escape in a text field quits the game, and
 the arrow keys move the player.
 
 **Requirements:**
-- [ ] While an ImGui text field is active (`io.WantTextInput`), a key press
+- [x] While an ImGui text field is active (`io.WantTextInput`), a key press
   triggers no game binding: not Quit, ToggleProfiler, ToggleEditor, Pause or
   any `SystemInput` action.
-- [ ] While an editor window only has focus and no text field is active, keys
+- [x] While an editor window only has focus and no text field is active, keys
   reach the game as today.
-- [ ] A game key that is held when a text field becomes active is still
+- [x] A game key that is held when a text field becomes active is still
   released when the key comes up. It does not stay held.
-- [ ] The fix is in TinCan. moth_toolkit is not changed.
+- [x] The fix is in TinCan. moth_toolkit is not changed.
 
 **Out of scope:**
 Mouse input. Blocking keys whenever an ImGui window has focus
@@ -380,10 +380,37 @@ Mouse input. Blocking keys whenever an ImGui window has focus
   Escape, P, F1 and F2, so Escape cancels the edit rather than quitting.
 
 **Notes:**
+- The filter is at the top of `GameLayer::OnKeyEvent`, which runs before the event
+  is dispatched to `GameWorld`. While `ImGui::GetIO().WantTextInput` is set, a key-down
+  is marked handled, so neither the layer bindings, Pause nor `SystemInput` see it.
+- A key-up always reaches `GameWorld`, so `SystemInput::OnKey` releases a key that
+  was held before the text field became active. The layer bindings (Quit,
+  ToggleProfiler, ToggleEditor act on key-up) are skipped for a key-up while typing.
+- `GameLayer::m_keysPressedWhileTyping` remembers keys that went down while typing.
+  Their key-up fires no layer binding even after the field has closed. Without
+  this, the Escape that cancels an edit would quit on release, because ImGui closes
+  the field on the key-down.
+- Marking the key-down handled cannot starve ImGui. The GLFW backend is set up with
+  `install_callbacks = true`, so ImGui reads keys from GLFW, not from layer events,
+  and GameLayer is the only layer on the stack.
+- `WantTextInput` is the value from the last ImGui frame. A key pressed on the same
+  frame that a field is clicked can still reach the game.
 
 **Commits:**
+- c035d4e fix(T-033): keep keypresses in editor text fields out of the game
 
 **Manual verification:**
+1. Start the game and press F2 to open the editors.
+2. Click into a text field, for example "Save as" in the Behaviour Editor.
+3. Press the arrow keys, fire, P, F1 and F2. Text changes in the field only. The
+   player does not move or fire, the game does not pause, and the profiler and
+   editors do not toggle.
+4. Press Escape. The edit ends and the game does not quit. Press Escape again,
+   with no field active, and the game quits.
+5. Restart. Hold an arrow key so the player moves, click into a text field with the
+   mouse while holding it, then let go. The player stops moving.
+6. Click on an editor window but not in a text field (for example on a combo or
+   empty space). The arrow keys, P, F1 and F2 work as before.
 
 ### [todo] T-034 Rename the spawn position properties to spawn_x and spawn_y
 
