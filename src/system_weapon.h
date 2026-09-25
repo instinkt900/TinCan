@@ -30,6 +30,7 @@ struct Weapon {
     bool m_playerTracking = false;
     std::string m_fireState;
     ProjectileData m_projectile;
+    float m_muzzleSpeed = 0;
     int32_t m_barrelGroupIndex = 0;
     std::vector<int32_t> m_barrelGroupIds;
     std::map<int32_t, BarrelGroup> m_barrelGroups;

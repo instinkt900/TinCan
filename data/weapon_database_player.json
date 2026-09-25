@@ -7,6 +7,7 @@
             "burst_delay": 0,
             "player_tracking": false,
             "projectile": "player_basic_bullet",
+            "muzzle_speed": 1500.0,
             "barrels": [
                 {
                     "offset": [ -4, 0 ],
@@ -27,6 +28,7 @@
             "burst_delay": 0,
             "player_tracking": false,
             "projectile": "player_basic_bullet",
+            "muzzle_speed": 1500.0,
             "barrels": [
                 {
                     "offset": [ -12, 0 ],
@@ -47,6 +49,7 @@
             "burst_delay": 0,
             "player_tracking": false,
             "projectile": "player_basic_bullet",
+            "muzzle_speed": 1500.0,
             "barrels": [
                 {
                     "offset": [ -20, -4 ],
@@ -67,6 +70,7 @@
             "burst_delay": 0,
             "player_tracking": false,
             "projectile": "player_homing_bullet",
+            "muzzle_speed": 200.0,
             "barrels": [
                 {
                     "offset": [ -30, -5 ],

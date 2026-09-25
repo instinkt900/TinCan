@@ -76,8 +76,8 @@ namespace {
 
 moth::ecs::Entity SystemProjectile::CreateProjectile(moth::ecs::World& registry, ProjectileData const& data,
                                                 moth::ecs::Entity source, moth::gfx::FloatVec2 const& position,
-                                                moth::gfx::FloatVec2 const& direction, float rotation,
-                                                float damage) {
+                                                moth::gfx::FloatVec2 const& direction, float speed,
+                                                float rotation, float damage) {
     auto const* sourceEntityData = GetEntityDetails(registry, source);
     if (sourceEntityData == nullptr) {
         return moth::ecs::kNullEntity;
@@ -93,7 +93,7 @@ moth::ecs::Entity SystemProjectile::CreateProjectile(moth::ecs::World& registry,
     projectileComp.m_source = source;
     projectileComp.m_damage = damage;
 
-    projectileVel.m_velocity = direction * -data.speed; // -speed because we want -y as up
+    projectileVel.m_velocity = direction * -speed; // -speed because we want -y as up
 
     auto const& spriteData =
         sourceEntityData->m_affinity == Affinity::Light ? data.white_sprite : data.black_sprite;

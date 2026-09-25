@@ -12,6 +12,7 @@ void SystemPowerWeapon::InitWeapon(moth::ecs::World& registry, moth::ecs::Entity
     powerWeapon.m_activated = false;
     powerWeapon.m_projectileName = "player_homing_bullet";
     powerWeapon.m_powerPerProjectile = 10.0f;
+    powerWeapon.m_muzzleSpeed = 200.0f;
     powerWeapon.m_damage = 50.0f;
 }
 
@@ -56,7 +57,7 @@ void SystemPowerWeapon::Update(GameWorld& world, uint32_t ticks) {
             auto const angle = startAngle + (anglePerProjectile * static_cast<float>(i));
             auto const direction = moth::gfx::Rotate2D({ 0.0f, 1.0f }, angle);
             SystemProjectile::CreateProjectile(registry, *projectileData, entity, position.m_position,
-                                               direction, angle, weapon.m_damage);
+                                               direction, weapon.m_muzzleSpeed, angle, weapon.m_damage);
         }
     }
 }

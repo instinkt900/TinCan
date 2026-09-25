@@ -11,6 +11,7 @@ struct ComponentPowerWeapon {
     float m_damage;
     std::string m_projectileName;
     float m_powerPerProjectile;
+    float m_muzzleSpeed = 0;
 };
 
 class SystemPowerWeapon {

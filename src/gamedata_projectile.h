@@ -37,7 +37,6 @@ struct ProjectileData {
     DataRef<SpriteData> white_sprite;
     DataRef<SpriteData> black_sprite;
     float radius = 0;
-    float speed = 0;
     std::optional<HomingDetails> homing_details;
 };
 
@@ -45,6 +44,5 @@ inline void from_json(nlohmann::json const& json, ProjectileData& data) {
     DATA_REQUIRED(json, data, white_sprite);
     DATA_REQUIRED(json, data, black_sprite);
     DATA_REQUIRED(json, data, radius);
-    DATA_REQUIRED(json, data, speed);
     DATA_OPTIONAL(json, data, homing_details);
 }

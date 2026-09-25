@@ -31,7 +31,8 @@ Weapon::Weapon(std::string name, WeaponData const& weapon)
     , m_maxBurstCooldown(weapon.burst_delay)
     , m_playerTracking(weapon.player_tracking)
     , m_fireState(weapon.fire_state)
-    , m_projectile(*weapon.projectile) {
+    , m_projectile(*weapon.projectile)
+    , m_muzzleSpeed(weapon.muzzle_speed) {
     m_barrelGroups.clear();
     m_barrelGroupIds.clear();
     for (auto const& barrel : weapon.barrels) {
@@ -184,7 +185,7 @@ void SystemWeapon::Update(GameWorld& world, uint32_t ticks) {
                         if (projectileData != nullptr) {
                             auto const projectileEntity = SystemProjectile::CreateProjectile(
                                 registry, *projectileData, entity, position.m_position + offset, direction,
-                                barrelAngle, damage);
+                                weapon.m_muzzleSpeed, barrelAngle, damage);
                             auto& projectileBounds = registry.Emplace<ComponentBounds>(projectileEntity);
                             projectileBounds.m_bounds = static_cast<moth::gfx::FloatRect>(moth::gfx::MakeRect(
                                 -ProjectileBorder, -ProjectileBorder, world.GetWorldSize().x + ProjectileBorder,
