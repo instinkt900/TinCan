@@ -3,6 +3,7 @@
 #include "gamedata_pickup.h"
 #include <moth/ecs/world.h>
 #include <moth/graphics/utils/vector.h>
+#include <vector>
 
 class GameWorld;
 
@@ -20,8 +21,10 @@ struct ComponentGroup {
     DataRef<PickupData> m_drop;
 };
 
+// the groups an entity is a member of. a death spawn's pieces join their parent's groups, and a group of
+// their own when their spawn has a drop
 struct ComponentGroupId {
-    moth::ecs::Entity m_group;
+    std::vector<moth::ecs::Entity> m_groups;
 };
 
 class SystemGroup {

@@ -2,10 +2,14 @@
 
 #include "dataref.h"
 #include "gamedata.h"
+#include "gamedata_behaviour.h"
 #include "gamedata_entity.h"
+#include "gamedata_pickup.h"
 #include "gamedata_sprite.h"
 #include "gamedata_weapon.h"
 #include <optional>
+#include <string>
+#include <vector>
 
 struct EnemySection {
     DataRef<SpriteData> sprite;
@@ -27,6 +31,38 @@ inline void from_json(nlohmann::json const& json, EnemySection& data) {
     DATA_OPTIONAL(json, data, contact);
 }
 
+// Enemies spawned where an enemy is killed. The fields are those of a map's EnemySpawn, apart from where it
+// spawns: the pieces are placed around the enemy that died. The enemy is named rather than a DataRef,
+// because a DataRef holds its data by value and an enemy cannot hold an enemy.
+struct EnemyDeathSpawn {
+    std::string enemy_type;
+    DataRef<BehaviourData> behaviour;
+    int count = 1;
+    std::string formation = "line";
+    float spacing = 32.0f;
+    float scale_x = 1.0f;
+    float scale_y = 1.0f;
+    // unset leaves the behaviour at the speed it was authored with
+    std::optional<float> speed;
+    float behaviour_rotation = 0.0f;
+    float behaviour_rotation_step = 0.0f;
+    DataRef<PickupData> drop;
+};
+
+inline void from_json(nlohmann::json const& json, EnemyDeathSpawn& data) {
+    DATA_REQUIRED(json, data, enemy_type);
+    DATA_OPTIONAL(json, data, behaviour);
+    DATA_OPTIONAL(json, data, count);
+    DATA_OPTIONAL(json, data, formation);
+    DATA_OPTIONAL(json, data, spacing);
+    DATA_OPTIONAL(json, data, scale_x);
+    DATA_OPTIONAL(json, data, scale_y);
+    DATA_OPTIONAL(json, data, speed);
+    DATA_OPTIONAL(json, data, behaviour_rotation);
+    DATA_OPTIONAL(json, data, behaviour_rotation_step);
+    DATA_OPTIONAL(json, data, drop);
+}
+
 struct EnemyData {
     static constexpr GameDataCategory Category = GameDataCategory::Enemies;
 
@@ -44,6 +80,8 @@ struct EnemyData {
     std::map<std::string, EnemySection> sections;
     // Milliseconds the enemy may live before it counts as escaped and is removed, whatever it is doing.
     uint32_t lifetime = 15000;
+    // spawned where the enemy is killed, and not when it escapes
+    std::vector<EnemyDeathSpawn> death_spawns;
 };
 
 inline void from_json(nlohmann::json const& json, EnemyData& data) {
@@ -57,5 +95,6 @@ inline void from_json(nlohmann::json const& json, EnemyData& data) {
     DATA_OPTIONAL(json, data, contact);
     DATA_OPTIONAL(json, data, sections);
     DATA_OPTIONAL(json, data, lifetime);
+    DATA_OPTIONAL(json, data, death_spawns);
 }
 

@@ -35,8 +35,7 @@ moth::ecs::Entity SystemGroup::CreateGroup(moth::ecs::World& registry, DataRef<P
 
 void SystemGroup::AddMember(moth::ecs::World& registry, moth::ecs::Entity group, moth::ecs::Entity member) {
     if (auto* groupComp = registry.TryGet<ComponentGroup>(group)) {
-        auto& groupRef = registry.Emplace<ComponentGroupId>(member);
-        groupRef.m_group = group;
+        registry.GetOrEmplace<ComponentGroupId>(member).m_groups.push_back(group);
         groupComp->m_memberCount++;
     }
 }

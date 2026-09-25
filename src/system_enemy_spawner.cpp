@@ -4,9 +4,11 @@
 #include "component_death_sprite.h"
 #include "component_entity.h"
 #include "component_health.h"
+#include "formation_offsets.h"
 #include "system_behaviour.h"
 #include "system_movement.h"
 #include "system_drawable.h"
+#include "system_group.h"
 #include "system_lifetime.h"
 #include "system_weapon.h"
 #include "system_world_bounds.h"
@@ -53,6 +55,10 @@ moth::ecs::Entity SystemEnemySpawner::SpawnEnemy(moth::ecs::World& registry, Ene
         registry.Emplace<ComponentContact>(rootEntity, *data.contact);
     }
 
+    if (!data.death_spawns.empty()) {
+        registry.Emplace<ComponentDeathSpawns>(rootEntity, &data.death_spawns);
+    }
+
     {
         MOTH_PROFILE_SCOPE("Enemy sections");
         for (auto const& [sectionName, section] : data.sections) {
@@ -94,4 +100,50 @@ moth::ecs::Entity SystemEnemySpawner::SpawnEnemy(moth::ecs::World& registry, Ene
     registry.Emplace<ComponentBehaviour>(rootEntity, behaviour);
 
     return rootEntity;
+}
+
+void SystemEnemySpawner::SpawnFormation(moth::ecs::World& registry, GameData const& gamedata,
+                                        EnemySpawnDescription const& spawn,
+                                        moth::gfx::FloatVec2 const& origin, float rotation,
+                                        moth::gfx::FloatVec2 const& idleVelocity,
+                                        std::vector<moth::ecs::Entity> const& extraGroups) {
+    MOTH_PROFILE_SCOPE("Spawn formation");
+    if (spawn.enemy == nullptr) {
+        return;
+    }
+
+    // the members share a group, so the drop appears once the whole formation has been killed
+    auto group = moth::ecs::kNullEntity;
+    if (spawn.count > 1 || spawn.drop.valid()) {
+        group = SystemGroup::CreateGroup(registry, spawn.drop);
+    }
+
+    uint32_t phaseIndex = 0;
+    auto const offsets =
+        GetFormationOffsets(gamedata, spawn.formation, spawn.count, spawn.spacing, spawn.scale, rotation);
+    for (auto const& offset : offsets) {
+        auto const position = origin + offset;
+        // each member gets its own copy of the behaviour, because the rotation steps along the formation so
+        // that a group fans out
+        auto memberBehaviour = spawn.behaviour != nullptr ? *spawn.behaviour : BehaviourData{};
+        auto memberOverride = spawn.behaviourOverride;
+        memberOverride.rotation += spawn.rotationStep * static_cast<float>(phaseIndex);
+        ApplyBehaviourOverride(memberBehaviour, memberOverride);
+
+        auto enemy = SpawnEnemy(registry, *spawn.enemy, memberBehaviour, position, gamedata);
+
+        // a Phase modifier staggers the formation by each member's place in it
+        registry.Get<ComponentBehaviour>(enemy).m_phaseIndex = phaseIndex++;
+
+        if (spawn.behaviour == nullptr) {
+            registry.Get<ComponentVelocity>(enemy).m_velocity = idleVelocity;
+        }
+
+        if (group != moth::ecs::kNullEntity) {
+            SystemGroup::AddMember(registry, group, enemy);
+        }
+        for (auto const extraGroup : extraGroups) {
+            SystemGroup::AddMember(registry, extraGroup, enemy);
+        }
+    }
 }

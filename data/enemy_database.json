@@ -10,7 +10,17 @@
             "contact": {
                 "damage": 25,
                 "self_damage": 1000
-            }
+            },
+            "death_spawns": [
+                {
+                    "enemy_type": "asteroid_2",
+                    "behaviour": "drift_out",
+                    "count": 3,
+                    "spacing": 64,
+                    "behaviour_rotation": 60,
+                    "behaviour_rotation_step": -60
+                }
+            ]
         },
         "asteroid_2": {
             "affinity": "Light",
@@ -22,7 +32,17 @@
             "contact": {
                 "damage": 25,
                 "self_damage": 1000
-            }
+            },
+            "death_spawns": [
+                {
+                    "enemy_type": "asteroid_3",
+                    "behaviour": "drift_out",
+                    "count": 2,
+                    "spacing": 64,
+                    "behaviour_rotation": 45,
+                    "behaviour_rotation_step": -90
+                }
+            ]
         },
         "asteroid_3": {
             "affinity": "Light",

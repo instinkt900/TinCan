@@ -456,6 +456,32 @@
                  "width":0,
                  "x":632.672332389046,
                  "y":7002.8328611898
+                }, 
+                {
+                 "height":0,
+                 "id":17,
+                 "name":"",
+                 "opacity":1,
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"behaviour",
+                         "propertytype":"behaviour",
+                         "type":"string",
+                         "value":"constant_speed"
+                        }, 
+                        {
+                         "name":"enemy_type",
+                         "propertytype":"enemy_type",
+                         "type":"string",
+                         "value":"asteroid_1"
+                        }],
+                 "rotation":0,
+                 "type":"EnemySpawn",
+                 "visible":true,
+                 "width":0,
+                 "x":960,
+                 "y":9300
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -480,7 +506,7 @@
          "y":0
         }],
  "nextlayerid":6,
- "nextobjectid":17,
+ "nextobjectid":18,
  "orientation":"orthogonal",
  "properties":[
         {

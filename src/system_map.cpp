@@ -1,10 +1,8 @@
 #include "system_map.h"
 #include "behaviour_transform.h"
-#include "formation_offsets.h"
 #include "game_world.h"
 #include "system_drawable.h"
 #include "system_enemy_spawner.h"
-#include "system_group.h"
 #include "system_movement.h"
 #include "system_pickup.h"
 #include <moth/graphics/utils/transform.h>
@@ -130,12 +128,6 @@ namespace {
                                                      static_cast<float>(world.GetWorldSize().y) / 2.0f };
         }
 
-        // the spawn's members share a group, so the drop appears once the whole formation has been killed
-        auto group = moth::ecs::kNullEntity;
-        if (count > 1 || drop.valid()) {
-            group = SystemGroup::CreateGroup(registry, drop);
-        }
-
         // the front of the formation sits just outside its edge, level with the point. a top spawn keeps its
         // tiled height, which is where it triggered
         auto const worldSize = static_cast<moth::gfx::FloatVec2>(world.GetWorldSize());
@@ -159,34 +151,20 @@ namespace {
         // edge does not turn it
         auto const edgeRotation = GetEdgeRotation(edge);
 
-        uint32_t phaseIndex = 0;
-        auto const offsets = GetFormationOffsets(gamedata, formation, count, spacing, scale,
-                                                 spawn.rotation + moth::gfx::DegToRad(edgeRotation));
-        MOTH_PROFILE_SCOPE("Spawn formation");
-        for (auto const& offset : offsets) {
-            auto const position = origin + offset;
-            // each member gets its own copy of the behaviour, because the rotation steps along the
-            // formation so that a group fans out
-            auto memberBehaviour = behaviour;
-            auto memberOverride = spawnOverride;
-            memberOverride.rotation += rotationStep * static_cast<float>(phaseIndex);
-            ApplyBehaviourOverride(memberBehaviour, memberOverride);
-
-            auto enemy =
-                SystemEnemySpawner::SpawnEnemy(registry, *enemyData, memberBehaviour, position, gamedata);
-
-            // a Phase modifier staggers the formation by each member's place in it
-            registry.Get<ComponentBehaviour>(enemy).m_phaseIndex = phaseIndex++;
-
-            if (behaviourData == nullptr) {
-                // move with the map so the enemy stays where it was placed
-                registry.Get<ComponentVelocity>(enemy).m_velocity = { 0.0f, scroll.m_scrollSpeed };
-            }
-
-            if (group != moth::ecs::kNullEntity) {
-                SystemGroup::AddMember(registry, group, enemy);
-            }
-        }
+        EnemySpawnDescription description;
+        description.enemy = enemyData;
+        description.behaviour = behaviourData;
+        description.behaviourOverride = spawnOverride;
+        description.rotationStep = rotationStep;
+        description.count = count;
+        description.formation = formation;
+        description.spacing = spacing;
+        description.scale = scale;
+        description.drop = drop;
+        // members with no behaviour move with the map, so each stays where it was placed
+        SystemEnemySpawner::SpawnFormation(registry, gamedata, description, origin,
+                                           spawn.rotation + moth::gfx::DegToRad(edgeRotation),
+                                           { 0.0f, scroll.m_scrollSpeed }, {});
     }
 
     void SpawnMapPickup(GameWorld& world, moth::tilemap::MapObject const& spawn, ComponentMapScroll const& scroll) {

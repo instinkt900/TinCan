@@ -29,6 +29,26 @@
                 }
             ]
         },
+        "drift_out": {
+            "space": "SpawnRelative",
+            "states": [
+                {
+                    "interpolation": "Linear",
+                    "speed": 90.0,
+                    "type": "Path",
+                    "waypoints": [
+                        [
+                            0.0,
+                            0.0
+                        ],
+                        [
+                            0.0,
+                            200.0
+                        ]
+                    ]
+                }
+            ]
+        },
         "in_and_loop_left": {
             "space": "SpawnRelative",
             "states": [
