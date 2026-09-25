@@ -565,3 +565,13 @@ scale, so the asteroid chain is shown with the existing asteroid entries.
 
 ## Discovered
 
+- The `EnemySpawn` class default for `behaviour` is `basic`, which is not in
+  `data/behaviour_database.json`. A spawn that leaves `behaviour` unset logs
+  "Map spawn references unknown behaviour basic" and gets no behaviour.
+  (Session 2026-09-25.)
+- The Tiled `enemy_type` enum lacks `enemy_basic`, which `desert.tmj` spawns,
+  and the `behaviour` enum lacks the new `drift_out`. (Session 2026-09-25.)
+- `tools/smoke_launch.sh` failed once in eight runs: the game did not exit
+  within 15 seconds of the close request and was killed (exit 137), with no
+  shutdown lines and no warnings in the log. It passed every other time.
+  (Session 2026-09-25.)
