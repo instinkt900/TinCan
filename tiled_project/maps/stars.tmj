@@ -456,7 +456,7 @@
                 }, 
                 {
                  "height":0,
-                 "id":2,
+                 "id":43,
                  "name":"",
                  "opacity":1,
                  "point":true,
@@ -465,18 +465,12 @@
                          "name":"behaviour",
                          "propertytype":"behaviour",
                          "type":"string",
-                         "value":"in_n_out"
+                         "value":"in_and_loop_right"
                         }, 
                         {
                          "name":"count",
                          "type":"int",
-                         "value":5
-                        }, 
-                        {
-                         "name":"drop",
-                         "propertytype":"pickup",
-                         "type":"string",
-                         "value":"none"
+                         "value":1
                         }, 
                         {
                          "name":"enemy_type",
@@ -488,17 +482,7 @@
                          "name":"formation",
                          "propertytype":"formation",
                          "type":"string",
-                         "value":"line"
-                        }, 
-                        {
-                         "name":"position_x",
-                         "type":"float",
-                         "value":544
-                        }, 
-                        {
-                         "name":"position_y",
-                         "type":"float",
-                         "value":0
+                         "value":"column"
                         }, 
                         {
                          "name":"spacing",
@@ -508,23 +492,18 @@
                         {
                          "name":"speed",
                          "type":"float",
-                         "value":100
-                        }, 
-                        {
-                         "name":"use_position",
-                         "type":"bool",
-                         "value":true
+                         "value":200
                         }],
                  "rotation":0,
                  "type":"EnemySpawn",
                  "visible":true,
                  "width":0,
-                 "x":952,
-                 "y":4936
+                 "x":128,
+                 "y":4944
                 }, 
                 {
                  "height":0,
-                 "id":42,
+                 "id":44,
                  "name":"",
                  "opacity":1,
                  "point":true,
@@ -533,18 +512,200 @@
                          "name":"behaviour",
                          "propertytype":"behaviour",
                          "type":"string",
-                         "value":"in_n_out_bottom"
+                         "value":"in_and_loop_right"
                         }, 
                         {
                          "name":"count",
                          "type":"int",
-                         "value":5
+                         "value":1
                         }, 
                         {
-                         "name":"drop",
-                         "propertytype":"pickup",
+                         "name":"enemy_type",
+                         "propertytype":"enemy_type",
                          "type":"string",
-                         "value":"none"
+                         "value":"danger_1_light"
+                        }, 
+                        {
+                         "name":"formation",
+                         "propertytype":"formation",
+                         "type":"string",
+                         "value":"column"
+                        }, 
+                        {
+                         "name":"spacing",
+                         "type":"float",
+                         "value":64
+                        }, 
+                        {
+                         "name":"speed",
+                         "type":"float",
+                         "value":200
+                        }],
+                 "rotation":0,
+                 "type":"EnemySpawn",
+                 "visible":true,
+                 "width":0,
+                 "x":128,
+                 "y":4848
+                }, 
+                {
+                 "height":0,
+                 "id":45,
+                 "name":"",
+                 "opacity":1,
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"behaviour",
+                         "propertytype":"behaviour",
+                         "type":"string",
+                         "value":"in_and_loop_right"
+                        }, 
+                        {
+                         "name":"count",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"enemy_type",
+                         "propertytype":"enemy_type",
+                         "type":"string",
+                         "value":"danger_1_light"
+                        }, 
+                        {
+                         "name":"formation",
+                         "propertytype":"formation",
+                         "type":"string",
+                         "value":"column"
+                        }, 
+                        {
+                         "name":"spacing",
+                         "type":"float",
+                         "value":64
+                        }, 
+                        {
+                         "name":"speed",
+                         "type":"float",
+                         "value":200
+                        }],
+                 "rotation":0,
+                 "type":"EnemySpawn",
+                 "visible":true,
+                 "width":0,
+                 "x":128,
+                 "y":4896
+                }, 
+                {
+                 "height":0,
+                 "id":46,
+                 "name":"",
+                 "opacity":1,
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"behaviour",
+                         "propertytype":"behaviour",
+                         "type":"string",
+                         "value":"in_and_loop_right"
+                        }, 
+                        {
+                         "name":"count",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"enemy_type",
+                         "propertytype":"enemy_type",
+                         "type":"string",
+                         "value":"danger_1_light"
+                        }, 
+                        {
+                         "name":"formation",
+                         "propertytype":"formation",
+                         "type":"string",
+                         "value":"column"
+                        }, 
+                        {
+                         "name":"spacing",
+                         "type":"float",
+                         "value":64
+                        }, 
+                        {
+                         "name":"speed",
+                         "type":"float",
+                         "value":200
+                        }],
+                 "rotation":0,
+                 "type":"EnemySpawn",
+                 "visible":true,
+                 "width":0,
+                 "x":128,
+                 "y":4800
+                }, 
+                {
+                 "height":0,
+                 "id":47,
+                 "name":"",
+                 "opacity":1,
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"behaviour",
+                         "propertytype":"behaviour",
+                         "type":"string",
+                         "value":"in_and_loop_right"
+                        }, 
+                        {
+                         "name":"count",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"enemy_type",
+                         "propertytype":"enemy_type",
+                         "type":"string",
+                         "value":"danger_1_light"
+                        }, 
+                        {
+                         "name":"formation",
+                         "propertytype":"formation",
+                         "type":"string",
+                         "value":"column"
+                        }, 
+                        {
+                         "name":"spacing",
+                         "type":"float",
+                         "value":64
+                        }, 
+                        {
+                         "name":"speed",
+                         "type":"float",
+                         "value":200
+                        }],
+                 "rotation":0,
+                 "type":"EnemySpawn",
+                 "visible":true,
+                 "width":0,
+                 "x":128,
+                 "y":4752
+                }, 
+                {
+                 "height":0,
+                 "id":48,
+                 "name":"",
+                 "opacity":1,
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"behaviour",
+                         "propertytype":"behaviour",
+                         "type":"string",
+                         "value":"in_and_loop_left"
+                        }, 
+                        {
+                         "name":"count",
+                         "type":"int",
+                         "value":1
                         }, 
                         {
                          "name":"enemy_type",
@@ -556,17 +717,7 @@
                          "name":"formation",
                          "propertytype":"formation",
                          "type":"string",
-                         "value":"line"
-                        }, 
-                        {
-                         "name":"position_x",
-                         "type":"float",
-                         "value":544
-                        }, 
-                        {
-                         "name":"position_y",
-                         "type":"float",
-                         "value":0
+                         "value":"column"
                         }, 
                         {
                          "name":"spacing",
@@ -576,19 +727,202 @@
                         {
                          "name":"speed",
                          "type":"float",
-                         "value":100
-                        }, 
-                        {
-                         "name":"use_position",
-                         "type":"bool",
-                         "value":true
+                         "value":200
                         }],
                  "rotation":0,
                  "type":"EnemySpawn",
                  "visible":true,
                  "width":0,
-                 "x":816,
-                 "y":4936
+                 "x":960,
+                 "y":4544
+                }, 
+                {
+                 "height":0,
+                 "id":49,
+                 "name":"",
+                 "opacity":1,
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"behaviour",
+                         "propertytype":"behaviour",
+                         "type":"string",
+                         "value":"in_and_loop_left"
+                        }, 
+                        {
+                         "name":"count",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"enemy_type",
+                         "propertytype":"enemy_type",
+                         "type":"string",
+                         "value":"danger_1_dark"
+                        }, 
+                        {
+                         "name":"formation",
+                         "propertytype":"formation",
+                         "type":"string",
+                         "value":"column"
+                        }, 
+                        {
+                         "name":"spacing",
+                         "type":"float",
+                         "value":64
+                        }, 
+                        {
+                         "name":"speed",
+                         "type":"float",
+                         "value":200
+                        }],
+                 "rotation":0,
+                 "type":"EnemySpawn",
+                 "visible":true,
+                 "width":0,
+                 "x":960,
+                 "y":4448
+                }, 
+                {
+                 "height":0,
+                 "id":50,
+                 "name":"",
+                 "opacity":1,
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"behaviour",
+                         "propertytype":"behaviour",
+                         "type":"string",
+                         "value":"in_and_loop_left"
+                        }, 
+                        {
+                         "name":"count",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"enemy_type",
+                         "propertytype":"enemy_type",
+                         "type":"string",
+                         "value":"danger_1_dark"
+                        }, 
+                        {
+                         "name":"formation",
+                         "propertytype":"formation",
+                         "type":"string",
+                         "value":"column"
+                        }, 
+                        {
+                         "name":"spacing",
+                         "type":"float",
+                         "value":64
+                        }, 
+                        {
+                         "name":"speed",
+                         "type":"float",
+                         "value":200
+                        }],
+                 "rotation":0,
+                 "type":"EnemySpawn",
+                 "visible":true,
+                 "width":0,
+                 "x":960,
+                 "y":4496
+                }, 
+                {
+                 "height":0,
+                 "id":51,
+                 "name":"",
+                 "opacity":1,
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"behaviour",
+                         "propertytype":"behaviour",
+                         "type":"string",
+                         "value":"in_and_loop_left"
+                        }, 
+                        {
+                         "name":"count",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"enemy_type",
+                         "propertytype":"enemy_type",
+                         "type":"string",
+                         "value":"danger_1_dark"
+                        }, 
+                        {
+                         "name":"formation",
+                         "propertytype":"formation",
+                         "type":"string",
+                         "value":"column"
+                        }, 
+                        {
+                         "name":"spacing",
+                         "type":"float",
+                         "value":64
+                        }, 
+                        {
+                         "name":"speed",
+                         "type":"float",
+                         "value":200
+                        }],
+                 "rotation":0,
+                 "type":"EnemySpawn",
+                 "visible":true,
+                 "width":0,
+                 "x":960,
+                 "y":4400
+                }, 
+                {
+                 "height":0,
+                 "id":52,
+                 "name":"",
+                 "opacity":1,
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"behaviour",
+                         "propertytype":"behaviour",
+                         "type":"string",
+                         "value":"in_and_loop_left"
+                        }, 
+                        {
+                         "name":"count",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"enemy_type",
+                         "propertytype":"enemy_type",
+                         "type":"string",
+                         "value":"danger_1_dark"
+                        }, 
+                        {
+                         "name":"formation",
+                         "propertytype":"formation",
+                         "type":"string",
+                         "value":"column"
+                        }, 
+                        {
+                         "name":"spacing",
+                         "type":"float",
+                         "value":64
+                        }, 
+                        {
+                         "name":"speed",
+                         "type":"float",
+                         "value":200
+                        }],
+                 "rotation":0,
+                 "type":"EnemySpawn",
+                 "visible":true,
+                 "width":0,
+                 "x":960,
+                 "y":4352
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -615,7 +949,7 @@
          "y":0
         }],
  "nextlayerid":9,
- "nextobjectid":43,
+ "nextobjectid":53,
  "orientation":"orthogonal",
  "properties":[
         {

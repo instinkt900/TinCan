@@ -1,25 +1,5 @@
 {
     "behaviours": {
-        "basic": {
-            "space": "SpawnRelative",
-            "states": [
-                {
-                    "interpolation": "Linear",
-                    "speed": 100,
-                    "type": "Path",
-                    "waypoints": [
-                        [
-                            0,
-                            0
-                        ],
-                        [
-                            0,
-                            100
-                        ]
-                    ]
-                }
-            ]
-        },
         "chase_player": {
             "states": [
                 {
@@ -49,162 +29,59 @@
                 }
             ]
         },
-        "in_and_hold": {
-            "states": [
-                {
-                    "duration": 2000,
-                    "point": [
-                        0,
-                        100
-                    ],
-                    "target": "Point",
-                    "type": "Target"
-                },
-                {
-                    "duration": 2000,
-                    "type": "Hold"
-                }
-            ]
-        },
-        "in_chase_out": {
-            "space": "World",
-            "states": [
-                {
-                    "duration": 3000,
-                    "fire": false,
-                    "interpolation": "Linear",
-                    "label": "in",
-                    "speed": 100.0,
-                    "type": "Path",
-                    "waypoints": [
-                        [
-                            544.0,
-                            0.0
-                        ],
-                        [
-                            544.0,
-                            300.0
-                        ]
-                    ]
-                },
-                {
-                    "duration": 3000,
-                    "fire": false,
-                    "label": "chase",
-                    "point": [
-                        0.0,
-                        0.0
-                    ],
-                    "speed": 100.0,
-                    "target": "Player",
-                    "type": "Target"
-                },
-                {
-                    "duration": 4000,
-                    "entry": {
-                        "speed": 100.0,
-                        "type": "Linear"
-                    },
-                    "fire": false,
-                    "interpolation": "Linear",
-                    "label": "out",
-                    "speed": 100.0,
-                    "type": "Path",
-                    "waypoints": [
-                        [
-                            544.0,
-                            600.0
-                        ],
-                        [
-                            544.0,
-                            1080.0
-                        ]
-                    ]
-                }
-            ]
-        },
-        "in_n_out": {
+        "in_and_loop_left": {
             "space": "SpawnRelative",
             "states": [
                 {
-                    "duration": 3000,
-                    "fire": false,
-                    "interpolation": "Linear",
-                    "speed": 100.0,
+                    "interpolation": "CatmullRom",
+                    "label": "loop",
+                    "speed": 200.0,
                     "type": "Path",
                     "waypoints": [
                         [
-                            544.0,
-                            -32.0
+                            230.0,
+                            -64.0
                         ],
                         [
-                            544.0,
-                            200.0
-                        ]
-                    ]
-                },
-                {
-                    "duration": 2000,
-                    "type": "Hold"
-                },
-                {
-                    "duration": 3000,
-                    "fire": false,
-                    "interpolation": "Linear",
-                    "speed": 100.0,
-                    "type": "Path",
-                    "waypoints": [
-                        [
-                            544.0,
-                            200.0
+                            220.0,
+                            800.0
                         ],
                         [
-                            544.0,
-                            -32.0
+                            70.0,
+                            800.0
+                        ],
+                        [
+                            60.0,
+                            -64.0
                         ]
                     ]
                 }
             ]
         },
-        "in_n_out_bottom": {
-            "edge": "Bottom",
+        "in_and_loop_right": {
             "space": "SpawnRelative",
             "states": [
                 {
-                    "duration": 3000,
-                    "fire": false,
-                    "interpolation": "Linear",
-                    "speed": 100.0,
+                    "interpolation": "CatmullRom",
+                    "label": "loop",
+                    "speed": 200.0,
                     "type": "Path",
                     "waypoints": [
                         [
-                            544.0,
-                            1112.0
+                            60.0,
+                            -64.0
                         ],
                         [
-                            544.0,
-                            880.0
-                        ]
-                    ]
-                },
-                {
-                    "duration": 2000,
-                    "type": "Hold"
-                },
-                {
-                    "duration": 3000,
-                    "fire": false,
-                    "interpolation": "Linear",
-                    "speed": 100.0,
-                    "type": "Path",
-                    "waypoints": [
-                        [
-                            544.0,
-                            880.0
+                            70.0,
+                            800.0
                         ],
                         [
-                            544.0,
-                            1112.0
+                            220.0,
+                            800.0
+                        ],
+                        [
+                            230.0,
+                            -64.0
                         ]
                     ]
                 }

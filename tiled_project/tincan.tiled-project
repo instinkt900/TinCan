@@ -20,7 +20,12 @@
                 "chase_player",
                 "in_and_hold",
                 "in_n_out",
-                "in_n_out_bottom"
+                "in_n_out_bottom",
+                "constant_speed",
+                "in_chase_out",
+                "in_and_loop",
+                "in_and_loop_left",
+                "in_and_loop_right"
             ],
             "valuesAsFlags": false
         },
