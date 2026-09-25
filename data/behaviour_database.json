@@ -106,6 +106,56 @@
                     ]
                 }
             ]
+        },
+        "zigzag_left": {
+            "loop_from": 0,
+            "space": "SpawnRelative",
+            "states": [
+                {
+                    "interpolation": "Linear",
+                    "speed": 150.0,
+                    "type": "Path",
+                    "waypoints": [
+                        [
+                            544.0,
+                            100.0
+                        ],
+                        [
+                            444.0,
+                            200.0
+                        ],
+                        [
+                            544.0,
+                            300.0
+                        ]
+                    ]
+                }
+            ]
+        },
+        "zigzag_right": {
+            "loop_from": 0,
+            "space": "SpawnRelative",
+            "states": [
+                {
+                    "interpolation": "Linear",
+                    "speed": 150.0,
+                    "type": "Path",
+                    "waypoints": [
+                        [
+                            544.0,
+                            100.0
+                        ],
+                        [
+                            644.0,
+                            200.0
+                        ],
+                        [
+                            544.0,
+                            300.0
+                        ]
+                    ]
+                }
+            ]
         }
     }
 }

@@ -16,16 +16,13 @@
             "storageType": "string",
             "type": "enum",
             "values": [
-                "basic",
                 "chase_player",
-                "in_and_hold",
-                "in_n_out",
-                "in_n_out_bottom",
                 "constant_speed",
-                "in_chase_out",
-                "in_and_loop",
                 "in_and_loop_left",
-                "in_and_loop_right"
+                "in_and_loop_right",
+                "drift_out",
+                "zigzag_left",
+                "zigzag_right"
             ],
             "valuesAsFlags": false
         },
@@ -63,7 +60,7 @@
                     "name": "behaviour",
                     "propertyType": "behaviour",
                     "type": "string",
-                    "value": "basic"
+                    "value": "constant_speed"
                 },
                 {
                     "name": "behaviour_rotation",

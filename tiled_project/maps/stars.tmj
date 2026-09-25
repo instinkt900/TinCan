@@ -499,7 +499,7 @@
                  "visible":true,
                  "width":0,
                  "x":128,
-                 "y":4944
+                 "y":3960
                 }, 
                 {
                  "height":0,
@@ -546,7 +546,7 @@
                  "visible":true,
                  "width":0,
                  "x":128,
-                 "y":4848
+                 "y":3864
                 }, 
                 {
                  "height":0,
@@ -593,7 +593,7 @@
                  "visible":true,
                  "width":0,
                  "x":128,
-                 "y":4896
+                 "y":3912
                 }, 
                 {
                  "height":0,
@@ -640,7 +640,7 @@
                  "visible":true,
                  "width":0,
                  "x":128,
-                 "y":4800
+                 "y":3816
                 }, 
                 {
                  "height":0,
@@ -687,7 +687,7 @@
                  "visible":true,
                  "width":0,
                  "x":128,
-                 "y":4752
+                 "y":3768
                 }, 
                 {
                  "height":0,
@@ -734,7 +734,7 @@
                  "visible":true,
                  "width":0,
                  "x":960,
-                 "y":4544
+                 "y":3560
                 }, 
                 {
                  "height":0,
@@ -781,7 +781,7 @@
                  "visible":true,
                  "width":0,
                  "x":960,
-                 "y":4448
+                 "y":3464
                 }, 
                 {
                  "height":0,
@@ -828,7 +828,7 @@
                  "visible":true,
                  "width":0,
                  "x":960,
-                 "y":4496
+                 "y":3512
                 }, 
                 {
                  "height":0,
@@ -875,7 +875,7 @@
                  "visible":true,
                  "width":0,
                  "x":960,
-                 "y":4400
+                 "y":3416
                 }, 
                 {
                  "height":0,
@@ -922,7 +922,67 @@
                  "visible":true,
                  "width":0,
                  "x":960,
-                 "y":4352
+                 "y":3368
+                }, 
+                {
+                 "height":0,
+                 "id":54,
+                 "name":"",
+                 "opacity":1,
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"enemy_type",
+                         "propertytype":"enemy_type",
+                         "type":"string",
+                         "value":"danger_1_light"
+                        }],
+                 "rotation":0,
+                 "type":"EnemySpawn",
+                 "visible":true,
+                 "width":0,
+                 "x":544,
+                 "y":5408
+                }, 
+                {
+                 "height":0,
+                 "id":55,
+                 "name":"",
+                 "opacity":1,
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"enemy_type",
+                         "propertytype":"enemy_type",
+                         "type":"string",
+                         "value":"danger_1_light"
+                        }],
+                 "rotation":0,
+                 "type":"EnemySpawn",
+                 "visible":true,
+                 "width":0,
+                 "x":288,
+                 "y":5248
+                }, 
+                {
+                 "height":0,
+                 "id":56,
+                 "name":"",
+                 "opacity":1,
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"enemy_type",
+                         "propertytype":"enemy_type",
+                         "type":"string",
+                         "value":"danger_1_light"
+                        }],
+                 "rotation":0,
+                 "type":"EnemySpawn",
+                 "visible":true,
+                 "width":0,
+                 "x":800,
+                 "y":5248
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -949,7 +1009,7 @@
          "y":0
         }],
  "nextlayerid":9,
- "nextobjectid":53,
+ "nextobjectid":57,
  "orientation":"orthogonal",
  "properties":[
         {
