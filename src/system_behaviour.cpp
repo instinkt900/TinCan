@@ -7,6 +7,7 @@
 #include "tags.h"
 #include <magic_enum.hpp>
 #include <spdlog/spdlog.h>
+#include <optional>
 
 namespace {
     float ApplyEase(EaseType ease, float u) {
@@ -295,6 +296,8 @@ void SystemBehaviour::Update(GameWorld& world, uint32_t ticks) {
         if (behaviour.m_stateIdx < behaviour.m_data.states.size()) {
             BehaviourTarget const target{ registry, entity, behaviour, position, velocity };
             auto pendingTicks = ticks;
+            // the ticks that were left when the loop state was entered during this update, if it was
+            std::optional<uint32_t> loopEnteredTicks;
             while (pendingTicks > 0) {
                 if (behaviour.m_currentState != nullptr) {
                     auto* entering = FindHandler(behaviour.m_currentState->type);
@@ -332,11 +335,29 @@ void SystemBehaviour::Update(GameWorld& world, uint32_t ticks) {
                     behaviour.m_stateTime = 0;
                 }
 
-                // enter the next state
+                // enter the next state, or go round again from the loop state after the last one
                 if (behaviour.m_stateIdx >= behaviour.m_data.states.size()) {
-                    break;
+                    auto const loopFrom = behaviour.m_data.loop_from;
+                    if (loopFrom < 0 || loopFrom >= static_cast<int>(behaviour.m_data.states.size())) {
+                        break;
+                    }
+                    // a spawn-relative behaviour moves its origin by how far the pass took the entity, so the
+                    // next pass starts where this one ended rather than replaying in the same place
+                    if (behaviour.m_data.space == BehaviourSpace::SpawnRelative) {
+                        behaviour.m_origin += position.m_position - behaviour.m_loopStart;
+                    }
+                    behaviour.m_stateIdx = static_cast<uint32_t>(loopFrom);
+                    // a pass that used no time would go round forever inside this update, so the next pass
+                    // waits for the next update
+                    if (loopEnteredTicks == pendingTicks) {
+                        break;
+                    }
                 }
                 behaviour.m_currentState = &behaviour.m_data.states[behaviour.m_stateIdx];
+                if (static_cast<int>(behaviour.m_stateIdx) == behaviour.m_data.loop_from) {
+                    behaviour.m_loopStart = position.m_position;
+                    loopEnteredTicks = pendingTicks;
+                }
                 // each state says whether the entity fires while it runs. the last state's setting stays
                 // after the behaviour ends
                 SetWeaponsActive(registry, entity, behaviour.m_currentState->fire);

@@ -141,6 +141,9 @@ struct BehaviourData {
     BehaviourSpace space{ BehaviourSpace::SpawnRelative };
     BehaviourEdge edge{ BehaviourEdge::Top };
     std::vector<BehaviourStateData> states;
+    // The index of the state the behaviour goes back to after its last state, forever, or -1 for none.
+    // Looping from a later state lets the states before it play once as an intro.
+    int loop_from{ -1 };
 };
 
 inline void from_json(nlohmann::json const& json, BehaviourStateData& data) {
@@ -166,6 +169,7 @@ inline void from_json(nlohmann::json const& json, BehaviourData& data) {
     DATA_OPTIONAL(json, data, space);
     DATA_OPTIONAL(json, data, edge);
     DATA_REQUIRED(json, data, states);
+    DATA_OPTIONAL(json, data, loop_from);
 }
 
 inline void to_json(nlohmann::json& json, BehaviourStateData const& data) {
@@ -203,4 +207,7 @@ inline void to_json(nlohmann::json& json, BehaviourData const& data) {
         json["edge"] = data.edge;
     }
     json["states"] = data.states;
+    if (data.loop_from >= 0) {
+        json["loop_from"] = data.loop_from;
+    }
 }

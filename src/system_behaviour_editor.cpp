@@ -215,16 +215,45 @@ namespace imgui_ext {
         ImGui::PopID();
     }
 
+    // the name a state is shown by, which is its label or else its place in the list
+    std::string StateHeading(BehaviourData const& data, int index) {
+        auto const& label = data.states[index].label;
+        return label.empty() ? "Step " + std::to_string(index) : label;
+    }
+
+    void InputLoopFrom(BehaviourData& data) {
+        auto const stateCount = static_cast<int>(data.states.size());
+        auto const current = data.loop_from >= 0 && data.loop_from < stateCount
+                                 ? StateHeading(data, data.loop_from)
+                                 : std::string("None");
+        if (ImGui::BeginCombo("Loop from", current.c_str())) {
+            if (ImGui::Selectable("None", data.loop_from < 0)) {
+                data.loop_from = -1;
+            }
+            for (int i = 0; i < stateCount; ++i) {
+                ImGui::PushID(i);
+                if (ImGui::Selectable(StateHeading(data, i).c_str(), i == data.loop_from)) {
+                    data.loop_from = i;
+                }
+                ImGui::PopID();
+            }
+            ImGui::EndCombo();
+        }
+        if (data.loop_from >= 0 && data.space == BehaviourSpace::SpawnRelative && !LoopPassShift(data)) {
+            ImGui::TextUnformatted("Repeats are drawn only when the pass starts and ends on a path");
+        }
+    }
+
     void InputBehaviourData(BehaviourData& data, int& selectedState, int selectedWaypoint) {
         EnumCombo("Space", data.space);
         EnumCombo("Edge", data.edge);
+        InputLoopFrom(data);
         ImGui::Text("States:");
         for (int i = 0; i < static_cast<int>(data.states.size()); /* skip */) {
             ImGui::PushID(i);
             // the heading follows the label, but the section is known by its place in the list, so renaming a
             // state keeps it open and two states with the same label open and close on their own
-            auto const& label = data.states[i].label;
-            auto const heading = (label.empty() ? "Step " + std::to_string(i) : label) + "###step";
+            auto const heading = StateHeading(data, i) + "###step";
             if (!ImGui::CollapsingHeader(heading.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
                 ImGui::PopID();
                 ++i;
@@ -242,6 +271,12 @@ namespace imgui_ext {
             InputBehaviourStateData(data.states[i], i == selectedState ? selectedWaypoint : -1);
             if (ImGui::Button("Delete")) {
                 data.states.erase(data.states.begin() + i);
+                // the loop keeps pointing at the same state, or loses it when that is the one deleted
+                if (data.loop_from == i) {
+                    data.loop_from = -1;
+                } else if (data.loop_from > i) {
+                    --data.loop_from;
+                }
                 if (selectedState >= static_cast<int>(data.states.size())) {
                     selectedState = -1;
                 }
@@ -474,6 +509,11 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
         auto const lut = BuildArcLengthTable(state.waypoints, state.interpolation);
         DrawFlownPath(graphics, state, lut, origin, ReferencePathColor());
         DrawEntryApproach(graphics, staticBehaviourData, i, origin, ReferencePathColor());
+    }
+
+    // a looping behaviour's next passes, each shifted as it would be in flight
+    if (auto const shift = LoopPassShift(staticBehaviourData); shift.has_value()) {
+        DrawLoopRepeats(graphics, staticBehaviourData, origin, shift.value(), 3, LoopRepeatColor());
     }
 
     if (editedState == nullptr) {

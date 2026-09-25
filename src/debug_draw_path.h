@@ -3,6 +3,7 @@
 #include "system_behaviour.h"
 #include "utils_paths.h"
 #include <moth/graphics/graphics/igraphics.h>
+#include <optional>
 
 // draws the path the game would fly, so the preview and the movement use the same sampler
 void DrawPath(moth::gfx::IGraphics& graphics, std::vector<moth::gfx::FloatVec2> const& points,
@@ -31,6 +32,9 @@ void DrawEntryApproach(moth::gfx::IGraphics& graphics, BehaviourData const& beha
 // bright line instead of a faint one.
 inline moth::gfx::Color ReferencePathColor() { return moth::gfx::FromARGB(0xFF707070); }
 
+// the colour the repeats of a looping behaviour are drawn in, so they read apart from its first pass
+inline moth::gfx::Color LoopRepeatColor() { return moth::gfx::FromARGB(0xFF4F8F4F); }
+
 // the colour an approach into a state being edited is drawn in, dimmer than the path so that the join
 // between the two can be seen
 inline moth::gfx::Color EntryPathColor() { return moth::gfx::FromARGB(0xFF338899); }
@@ -45,3 +49,14 @@ inline moth::gfx::Color GuidePathColor() { return moth::gfx::FromARGB(0xFFAA55CC
 // fraction of the path travelled, before any easing.
 void DrawPathStatePreview(moth::gfx::IGraphics& graphics, BehaviourStateData const& state,
                           ArcLengthLUT const& lut, moth::gfx::FloatVec2 const& offset, float progress);
+
+// How far one pass of a looping spawn-relative behaviour moves its origin, measured as the game measures
+// it: from where the entity enters the loop state to where the last state ends. Nothing when the
+// behaviour does not loop, is in world space and so does not move, or when either end settles only at
+// run time because the state before the loop, or the last state, is not a path.
+std::optional<moth::gfx::FloatVec2> LoopPassShift(BehaviourData const& behaviour);
+
+// Draws the states of the loop `repeats` more times, each shifted by one more pass.
+void DrawLoopRepeats(moth::gfx::IGraphics& graphics, BehaviourData const& behaviour,
+                     moth::gfx::FloatVec2 const& origin, moth::gfx::FloatVec2 const& shift, int repeats,
+                     moth::gfx::Color const& color);

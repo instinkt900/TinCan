@@ -29,6 +29,9 @@ struct ComponentBehaviour {
     // its states from here, so that the states hold the shape they were authored in, rather than each one
     // starting from wherever the state before it happened to end
     moth::gfx::FloatVec2 m_origin{ 0, 0 };
+    // where the entity was when it last entered the state the behaviour loops from. how far it has come
+    // since then is how far a spawn-relative behaviour's origin moves each time it loops
+    moth::gfx::FloatVec2 m_loopStart{ 0, 0 };
     bool m_init = false;
     // place in the formation this entity was spawned with, which is what a Phase modifier multiplies its
     // offset by so that members of one formation do not move in lockstep

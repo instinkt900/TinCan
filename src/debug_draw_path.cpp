@@ -1,4 +1,5 @@
 #include "debug_draw_path.h"
+#include "behaviour_transform.h"
 
 namespace {
     void DrawCross(moth::gfx::IGraphics& graphics, moth::gfx::FloatVec2 const& pos, float size) {
@@ -157,4 +158,52 @@ void DrawEntryApproach(moth::gfx::IGraphics& graphics, BehaviourData const& beha
         graphics.DrawLineF(points[i - 1], points[i]);
     }
     DrawArrow(graphics, to, PathTangentAtDistance(state.waypoints, state.interpolation, lut, 0.0f), 10.0f);
+}
+
+std::optional<moth::gfx::FloatVec2> LoopPassShift(BehaviourData const& behaviour) {
+    auto const loopFrom = behaviour.loop_from;
+    auto const stateCount = static_cast<int>(behaviour.states.size());
+    if (loopFrom < 0 || loopFrom >= stateCount || behaviour.space != BehaviourSpace::SpawnRelative) {
+        return std::nullopt;
+    }
+
+    auto const pathEnd = [](BehaviourStateData const& state) -> std::optional<moth::gfx::FloatVec2> {
+        if (state.type != BehaviourType::Path || state.waypoints.size() < 2) {
+            return std::nullopt;
+        }
+        return FlownAt(state, BuildArcLengthTable(state.waypoints, state.interpolation), 1.0f);
+    };
+
+    // looping from the first state starts the pass at the spawn point, which is where the anchor lands
+    auto const start = loopFrom == 0 ? BehaviourAnchor(behaviour) : pathEnd(behaviour.states[loopFrom - 1]);
+    auto const end = pathEnd(behaviour.states.back());
+    if (!start.has_value() || !end.has_value()) {
+        return std::nullopt;
+    }
+    return end.value() - start.value();
+}
+
+void DrawLoopRepeats(moth::gfx::IGraphics& graphics, BehaviourData const& behaviour,
+                     moth::gfx::FloatVec2 const& origin, moth::gfx::FloatVec2 const& shift, int repeats,
+                     moth::gfx::Color const& color) {
+    auto const stateCount = static_cast<int>(behaviour.states.size());
+    if (behaviour.loop_from < 0 || behaviour.loop_from >= stateCount) {
+        return;
+    }
+    for (int repeat = 1; repeat <= repeats; ++repeat) {
+        auto const offset = origin + (shift * static_cast<float>(repeat));
+        for (int i = behaviour.loop_from; i < stateCount; ++i) {
+            auto const& state = behaviour.states[i];
+            if (state.type != BehaviourType::Path || state.waypoints.size() < 2) {
+                continue;
+            }
+            auto const lut = BuildArcLengthTable(state.waypoints, state.interpolation);
+            DrawFlownPath(graphics, state, lut, offset, color);
+            // the approach into the loop state comes from the last state of the pass before, which
+            // DrawEntryApproach cannot see, so only the approaches inside a pass are drawn
+            if (i > behaviour.loop_from) {
+                DrawEntryApproach(graphics, behaviour, i, offset, color);
+            }
+        }
+    }
 }
