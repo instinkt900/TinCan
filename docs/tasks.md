@@ -138,118 +138,6 @@ loops over the pools a new enemy adds to.
 
 **Manual verification:**
 
-### [done] T-029 Move the spawn edge into the behaviour
-
-**Review:** reviewed 2026-09-24
-
-**Depends on:** none
-
-**Goal:**
-Move the entry edge from `EnemySpawn` (added in T-025) into the behaviour, so
-the behaviour itself designs how the enemy enters and behaves. The user is not
-sure it is better, but it seems to make more sense as part of the behaviour.
-
-With the edge on the spawn, a behaviour is authored once entering from the top
-and rotated for other edges, so what plays is not what the behaviour editor
-shows. With the edge on the behaviour, paths are authored as they play and
-nothing is rotated. The spawn reads the edge from its behaviour to place the
-formation just outside that edge, turn the formation offsets and extend the
-bounds, all as T-025 does today. `use_position`, `position_x` and `position_y`
-stay on the spawn, since where along the edge is a level design choice. The
-cost is one behaviour per edge for the same move, with the spawn's
-`behaviour_rotation` still available for variations.
-
-The behaviour editor canvas is already authoring space: waypoints are drawn at
-the screen coordinates they hold, and a spawn-relative path's first waypoint is
-moved onto the spawn point at spawn. So a path drawn coming up from the bottom
-already plays as drawn, and the preview needs no change.
-
-**Requirements:**
-- [x] `BehaviourData` has an `edge` field (`Top`, `Bottom`, `Left`, `Right`,
-  in that order), read as an optional field that defaults to `Top`. `to_json`
-  writes it only when it is not `Top`.
-- [x] A map spawn takes its edge from its behaviour. A spawn with no behaviour,
-  or an unknown one, enters from `Top`. Placement, the `use_position` point,
-  the formation offset rotation and the bounds work as T-025 made them, driven
-  by the behaviour's edge.
-- [x] The edge no longer rotates the behaviour's path, for any behaviour
-  space. `behaviour_rotation` and `behaviour_rotation_step` on the spawn still
-  apply as today.
-- [x] A `World`-space behaviour's edge places the formation and turns its
-  offsets, as T-025 does today.
-- [x] `tiled_project/tincan.tiled-project` no longer has the `edge` member on
-  `EnemySpawn` or the `edge` enum type. Everything else in it is unchanged.
-- [x] The behaviour editor shows and edits the edge as a combo on the
-  behaviour, and saving a behaviour keeps it.
-- [x] `data/behaviour_database.json` gains a Bottom version of `in_n_out`
-  (for example `in_n_out_bottom`): `edge` `Bottom`, its paths mirrored to come
-  up from the bottom of the screen and go back down, with the same states,
-  durations and `fire` flags.
-- [x] In `tiled_project/maps/stars.tmj`, the spawn that uses `edge` `Bottom`
-  uses the new Bottom behaviour, and neither spawn has an `edge` property.
-  Nothing else in the map changes.
-
-**Out of scope:**
-T-028's facing. Any change to the behaviour editor's preview, guides or spawn
-button. `tiled_project/maps/desert.tmj`, which has no `edge` property. Other
-behaviours in `data/behaviour_database.json`.
-
-**Open questions:**
-- Q: Is the edge removed from `EnemySpawn`, or kept as an override? A: Removed,
-  with the `edge` enum type. The behaviour is the only source. This removal
-  from the Tiled project is approved despite the profile's Compatibility
-  section.
-- Q: Are a behaviour's paths authored as they play from its edge (no rotation),
-  or authored from the top and rotated by the behaviour's edge? A: As they
-  play. The edge only places the formation and turns its offsets.
-- Q: What does a spawn with no behaviour, or a `World`-space behaviour, do
-  about the edge? A: No behaviour enters from `Top`. A `World`-space behaviour's
-  edge places the formation and turns its offsets.
-- Q: Should the behaviour editor show and edit the edge, and preview the path
-  from it? A: It shows and edits it. The preview needs no change, because the
-  canvas already shows paths as they play.
-- Q: Is the edge per behaviour, or per state? A: Per behaviour.
-- Q: Are the stars map test spawns updated as part of this task? A: Yes. The
-  session adds a Bottom `in_n_out` behaviour, points the Bottom spawn at it and
-  removes `edge` from both spawns.
-
-**Notes:**
-- The enum is `BehaviourEdge`, next to `BehaviourSpace` in
-  `src/gamedata_behaviour.h`. The editor's combo sits under "Space".
-- `in_n_out_bottom` mirrors `in_n_out` about the world height (1080 px), so its
-  waypoints are y 1112 to 880 and back. A spawn-relative path's first waypoint
-  is moved onto the spawn point, so only the shape matters at play time.
-- `in_n_out_bottom` is not in the `behaviour` enum in
-  `tiled_project/tincan.tiled-project`, because the requirement keeps
-  everything but `edge` in that file unchanged. The enum stores strings, so
-  the game reads the name, but Tiled does not offer it in the combo. Adding it
-  is a follow-up (see Discovered).
-- The launch check passed with the default 5 s and with 20 s, which covers
-  both stars edge spawns (they trigger about 5.3 s in) and their full
-  in/hold/out.
-
-**Commits:**
-- 075bc22 feat(T-029): move the spawn entry edge into the behaviour
-
-**Manual verification:**
-1. Start the game on the stars map. After about 5 s, the `danger_1_light`
-   line comes in from the top at x 544, holds, and leaves back up.
-2. At the same time, the `danger_1_dark` line comes up from the bottom at
-   x 544, holds about 170 px above the bottom, and goes back down. Its
-   formation is laid out below the front member, not above it.
-3. Other spawns (for example the angled `danger_3` waves and asteroids) move
-   as before.
-4. Press F2. Load `in_n_out_bottom`: the Edge combo shows `Bottom`, and the
-   paths are drawn near the bottom of the canvas. Load `in_n_out`: Edge shows
-   `Top`.
-5. Change a behaviour's Edge, save it under a new name, restart, and load it
-   again: the Edge is kept. Check that the saved entry in
-   `data/behaviour_database.json` has `"edge"` only when it is not `Top`, then
-   remove the test entry.
-6. Open `tiled_project/tincan.tiled-project` in Tiled. `EnemySpawn` has no
-   `edge` member, and there is no `edge` enum. The stars map loads without
-   property-type warnings.
-
 ### [todo] T-028 Add a facing property to EnemySpawn
 
 **Review:** unreviewed
@@ -346,15 +234,30 @@ enemy spawns each, so migrating the data is a small job.
 
 ### [todo] T-031 Make "edit in view" a toggle in the behaviour editor
 
-**Review:** unreviewed
+**Review:** reviewed 2026-09-25
+
+**Depends on:** none
 
 **Goal:**
 In the behaviour editor, "edit in view" should be a toggle. Today, once it is
 turned on, it cannot be turned off again without selecting another step.
 
+It is an `ImGui::RadioButton` on `selectedState` in
+`imgui_ext::InputBehaviourData` (`src/system_behaviour_editor.cpp`), and a
+radio button can only be turned on.
+
 **Requirements:**
-- [ ] "Edit in view" can be turned off again on the same step it was turned on
-  for.
+- [ ] "Edit in view" on a path step is a toggle. Turning it off on the step it
+  is on for leaves no step edited in view.
+- [ ] Only one step is edited in view at a time. Turning it on for a step turns
+  it off for the step that had it, as today.
+- [ ] Turning it off clears the selected and dragged waypoint, as loading a
+  behaviour does. With no step edited in view, the canvas does not add, move
+  or delete waypoints, and every path is drawn as a faint reference path.
+
+**Out of scope:**
+The collapsible step sections (T-032). Any other change to the editor canvas,
+preview or guides.
 
 **Notes:**
 
@@ -364,19 +267,40 @@ turned on, it cannot be turned off again without selecting another step.
 
 ### [todo] T-032 Make behaviour steps collapsible sections
 
-**Review:** unreviewed
+**Review:** reviewed 2026-09-25
+
+**Depends on:** T-031
 
 **Goal:**
 The behaviour steps should be collapsible sections using the input label as a
 heading, or "Step N" if empty.
 
+The "input label" is the step's `Label` field (`BehaviourStateData::label`).
+The steps are listed in `imgui_ext::InputBehaviourData`
+(`src/system_behaviour_editor.cpp`), each as `N.` followed by its indented
+fields.
+
 **Requirements:**
 - [ ] Each behaviour step in the behaviour editor is a collapsible section.
-- [ ] The section heading is the step's input label.
-- [ ] If the label is empty, the heading is "Step N".
+- [ ] The section heading is the step's label.
+- [ ] If the label is empty, the heading is "Step N", where N is the step's
+  index counted from 0 (the first step is "Step 0").
+- [ ] Sections start open.
+- [ ] The step's controls, including the "Edit in view" toggle and "Delete",
+  stay inside the section.
+- [ ] Editing a step's label changes its heading without collapsing or
+  resetting the section, and two steps with the same label open and close
+  on their own.
+
+**Out of scope:**
+Renaming "States:" and "Add state" in the editor, or "state" in code, to
+"step". The waypoint and modifier lists inside a step. The canvas.
 
 **Open questions:**
-- Q: Is N counted from 1 or from 0?
+- Q: Is N counted from 1 or from 0? A: From 0, matching the waypoint numbering
+  and the state index that log warnings print.
+- Q: Do sections start open or collapsed, and where do the step's controls go?
+  A: Open, with the controls inside the section.
 
 **Notes:**
 
@@ -386,13 +310,39 @@ heading, or "Step N" if empty.
 
 ### [todo] T-033 Keep editor keypresses out of the game
 
-**Review:** unreviewed
+**Review:** reviewed 2026-09-25
+
+**Depends on:** none
 
 **Goal:**
 When typing in an editor field, keypresses should not go through to the game.
 
+Today nothing filters key events for ImGui, in TinCan or in moth_toolkit.
+`GameLayer::OnKeyEvent` acts on Quit (Escape), ToggleProfiler (F1) and
+ToggleEditor (F2) on key-up. `GameWorld::OnKeyEvent` toggles Pause (P) and
+passes every key to `SystemInput::OnKey`, which drives movement, fire, the
+power weapon and affinity swap. So Escape in a text field quits the game, and
+the arrow keys move the player.
+
 **Requirements:**
-- [ ] Keypresses made while typing in an editor field do not reach the game.
+- [ ] While an ImGui text field is active (`io.WantTextInput`), a key press
+  triggers no game binding: not Quit, ToggleProfiler, ToggleEditor, Pause or
+  any `SystemInput` action.
+- [ ] While an editor window only has focus and no text field is active, keys
+  reach the game as today.
+- [ ] A game key that is held when a text field becomes active is still
+  released when the key comes up. It does not stay held.
+- [ ] The fix is in TinCan. moth_toolkit is not changed.
+
+**Out of scope:**
+Mouse input. Blocking keys whenever an ImGui window has focus
+(`io.WantCaptureKeyboard`).
+
+**Open questions:**
+- Q: Does the game stop getting keys only while a text field is active, or
+  whenever an ImGui window has focus? A: Only while a text field is active.
+- Q: Which bindings are blocked while typing? A: All of them, including
+  Escape, P, F1 and F2, so Escape cancels the edit rather than quitting.
 
 **Notes:**
 
@@ -526,6 +476,3 @@ for that.
 - `SystemMap::Update` (`src/system_map.cpp`, the `m_cameraTop` line) has a
   `readability-math-missing-parentheses` clang-tidy finding that was there
   before the 2026-09-24 session.
-- The `behaviour` enum in `tiled_project/tincan.tiled-project` does not list
-  `in_n_out_bottom` (added by T-029), so Tiled does not offer it in the
-  `EnemySpawn` behaviour combo. The enum is kept by hand.
