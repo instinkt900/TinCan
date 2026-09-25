@@ -124,11 +124,11 @@ namespace {
             // the tiled position only says when the spawn triggers. where it appears is a point on the
             // screen, which by default is the object's x and the middle of the screen height
             edge = behaviour.edge;
-            auto const usePosition = moth::tilemap::GetProperty(spawn.properties, "use_position", false);
-            point = usePosition ? moth::gfx::FloatVec2{ GetFloatProperty(spawn.properties, "position_x", 0.0f),
-                                                        GetFloatProperty(spawn.properties, "position_y", 0.0f) }
-                                : moth::gfx::FloatVec2{ spawn.position.x,
-                                                        static_cast<float>(world.GetWorldSize().y) / 2.0f };
+            auto const useSpawn = moth::tilemap::GetProperty(spawn.properties, "use_spawn", false);
+            point = useSpawn ? moth::gfx::FloatVec2{ GetFloatProperty(spawn.properties, "spawn_x", 0.0f),
+                                                     GetFloatProperty(spawn.properties, "spawn_y", 0.0f) }
+                             : moth::gfx::FloatVec2{ spawn.position.x,
+                                                     static_cast<float>(world.GetWorldSize().y) / 2.0f };
         }
 
         // the spawn's members share a group, so the drop appears once the whole formation has been killed

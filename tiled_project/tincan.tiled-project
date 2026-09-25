@@ -99,16 +99,6 @@
                     "value": "line"
                 },
                 {
-                    "name": "position_x",
-                    "type": "float",
-                    "value": 0
-                },
-                {
-                    "name": "position_y",
-                    "type": "float",
-                    "value": 0
-                },
-                {
                     "name": "scale_x",
                     "type": "float",
                     "value": 1
@@ -124,12 +114,22 @@
                     "value": 32
                 },
                 {
+                    "name": "spawn_x",
+                    "type": "float",
+                    "value": 0
+                },
+                {
+                    "name": "spawn_y",
+                    "type": "float",
+                    "value": 0
+                },
+                {
                     "name": "speed",
                     "type": "float",
                     "value": 100
                 },
                 {
-                    "name": "use_position",
+                    "name": "use_spawn",
                     "type": "bool",
                     "value": false
                 }
