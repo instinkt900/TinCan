@@ -91,53 +91,6 @@ like that.
 
 **Manual verification:**
 
-### [todo] T-027 Spawn enemies when an enemy is killed
-
-**Review:** unreviewed
-
-**Goal:**
-Split a large asteroid into several smaller ones when it is killed, handled
-generically on the data side rather than as an asteroid feature. Asteroids today
-are plain enemies with no weapon.
-
-The approach discussed: `EnemyData` gets a `death_spawns` list. Each entry
-describes a spawn with the same fields as a Tiled `EnemySpawn` (enemy, behaviour,
-count, formation, spacing, scale, speed, `behaviour_rotation`,
-`behaviour_rotation_step`, drop). `behaviour_rotation_step` fans the pieces out,
-so one short "drift out" behaviour gives pieces heading in different directions.
-Large to medium to small is a chain of entries, and the same field covers carriers
-that release fighters, mines that burst, and similar.
-
-The spawn logic in `SpawnMapEnemy` (`src/system_map.cpp`) would be split into a
-spawn description struct and a function that spawns from it, shared by map spawns
-and death spawns, so pieces get bounds, rotated behaviours and phase index the same
-way map spawns do.
-
-The spawns would trigger in `SystemLifetime`, which already tells killed entities
-from escaped ones, and not in `SystemDamage::ApplyDamage`, which runs inside view
-loops over the pools a new enemy adds to.
-
-**Requirements:**
-- [ ] An enemy's data can list spawns that happen when it is killed.
-- [ ] A death spawn uses the same fields as a map spawn.
-- [ ] Death spawns happen only when the enemy is killed, not when it escapes.
-- [ ] A large asteroid splits into smaller asteroids, and those can split again.
-
-**Open questions:**
-- Q: If the parent is in a group with a drop, do the pieces join that group, so
-  the drop waits until the last piece is killed?
-- Q: Does an enemy that dies by ramming the player (contact `self_damage`) spawn
-  its pieces too?
-- Q: Does `EnemySection` get `death_spawns` as well?
-- Q: Do pieces carry on with any of the parent's movement, or only follow their
-  own behaviour?
-
-**Notes:**
-
-**Commits:**
-
-**Manual verification:**
-
 ### [todo] T-028 Add a facing property to EnemySpawn
 
 **Review:** unreviewed
@@ -182,264 +135,47 @@ behaviour state, rather than from the spawn. Plan the two tasks together.
 
 **Manual verification:**
 
-### [todo] T-030 Make every behaviour absolute
-
-**Review:** unreviewed
-
-**Goal:**
-Remove the spawn-relative behaviour space, so that every behaviour is absolute
-and its paths play exactly as they are drawn in the behaviour editor. A map
-spawn gets an offset vector that shifts the authored path, and formations get
-an offset step, so that each member is shifted from the one before.
-
-Context from the conversation: the editor canvas is already in screen
-coordinates. Spawn-relative mode now only moves the first waypoint onto the
-spawn point (`TransformBehaviour`). `behaviour_rotation` turns a path about its
-first waypoint in either space, so rotation keeps working. The spawn-relative
-behaviours today are `basic`, `in_n_out` and `in_n_out_bottom`.
-`tiled_project/maps/stars.tmj` and `tiled_project/maps/desert.tmj` have two
-enemy spawns each, so migrating the data is a small job.
-
-**Requirements:**
-- [ ] Behaviours have no spawn-relative space. Every behaviour plays its paths
-  at the coordinates they were authored with.
-- [ ] A map spawn has an offset vector that shifts the authored path.
-- [ ] A formation can shift each member from the one before by an offset step.
-
-**Open questions:**
-- Q: Is the behaviour `edge` from T-029 removed? With absolute paths, the first
-  waypoint already says where the enemy enters. Turning the formation offsets
-  and extending the bounds could come from the direction of the first path
-  segment instead.
-- Q: How does a behaviour that starts with a Target or Hold state get a start
-  point? For example, `chase_player` and `in_and_hold` have no first waypoint,
-  and `desert.tmj` uses `chase_player`. The options discussed are to require
-  the first state to be a path, or to treat the spawn offset as an absolute
-  position when there is no path.
-- Q: The Tiled object's x no longer places a top spawn, and the offset takes
-  its place. Is it acceptable that the object's position only sets when the
-  spawn triggers?
-- Q: Is the offset step a separate spawn field, or a new built-in formation
-  (for example `step`, with `step_x` and `step_y`)? Formations are already
-  per-member offsets, and the built-in ones are a step times `spacing`, so a
-  separate field could multiply with them.
-- Q: What happens to `use_position`, `position_x` and `position_y` on
-  `EnemySpawn` when the spawn has an offset?
-
-**Notes:**
-
-**Commits:**
-
-**Manual verification:**
-
-### [done] T-031 Make "edit in view" a toggle in the behaviour editor
-
-**Review:** reviewed 2026-09-25
-
-**Depends on:** none
-
-**Goal:**
-In the behaviour editor, "edit in view" should be a toggle. Today, once it is
-turned on, it cannot be turned off again without selecting another step.
-
-It is an `ImGui::RadioButton` on `selectedState` in
-`imgui_ext::InputBehaviourData` (`src/system_behaviour_editor.cpp`), and a
-radio button can only be turned on.
-
-**Requirements:**
-- [x] "Edit in view" on a path step is a toggle. Turning it off on the step it
-  is on for leaves no step edited in view.
-- [x] Only one step is edited in view at a time. Turning it on for a step turns
-  it off for the step that had it, as today.
-- [x] Turning it off clears the selected and dragged waypoint, as loading a
-  behaviour does. With no step edited in view, the canvas does not add, move
-  or delete waypoints, and every path is drawn as a faint reference path.
-
-**Out of scope:**
-The collapsible step sections (T-032). Any other change to the editor canvas,
-preview or guides.
-
-**Notes:**
-- The radio button is now an `ImGui::Checkbox` whose value is `i == selectedState`.
-  Ticking it sets `selectedState` to that step, which takes it from any other step.
-  Unticking it sets `selectedState` to -1.
-- The selected waypoint is cleared wherever no path step is edited in view, next to
-  the existing clear of the dragged waypoint. This also covers deleting the edited
-  step, or changing its type away from Path.
-- Assumption: switching "Edit in view" straight from one step to another keeps the
-  selected waypoint index, as it did before. The requirement covers turning it off only.
-
-**Commits:**
-- 541abd4 feat(T-031): make edit in view a toggle in the behaviour editor
-
-**Manual verification:**
-1. Start the game, press F2, and load a behaviour that has two or more path steps.
-2. Tick "Edit in view" on step 0. Its waypoints show handles in the game view.
-3. Tick it on step 1. Step 0 unticks, and step 1's handles show.
-4. Untick it on step 1. No step is ticked, no waypoint shows `>` in the panel, and
-   every path is drawn faint with no handles.
-5. With nothing ticked, left-click and right-click in the game view. No waypoint is
-   added, moved or deleted.
-
-### [done] T-032 Make behaviour steps collapsible sections
-
-**Review:** reviewed 2026-09-25
-
-**Depends on:** T-031
-
-**Goal:**
-The behaviour steps should be collapsible sections using the input label as a
-heading, or "Step N" if empty.
-
-The "input label" is the step's `Label` field (`BehaviourStateData::label`).
-The steps are listed in `imgui_ext::InputBehaviourData`
-(`src/system_behaviour_editor.cpp`), each as `N.` followed by its indented
-fields.
-
-**Requirements:**
-- [x] Each behaviour step in the behaviour editor is a collapsible section.
-- [x] The section heading is the step's label.
-- [x] If the label is empty, the heading is "Step N", where N is the step's
-  index counted from 0 (the first step is "Step 0").
-- [x] Sections start open.
-- [x] The step's controls, including the "Edit in view" toggle and "Delete",
-  stay inside the section.
-- [x] Editing a step's label changes its heading without collapsing or
-  resetting the section, and two steps with the same label open and close
-  on their own.
-
-**Out of scope:**
-Renaming "States:" and "Add state" in the editor, or "state" in code, to
-"step". The waypoint and modifier lists inside a step. The canvas.
-
-**Open questions:**
-- Q: Is N counted from 1 or from 0? A: From 0, matching the waypoint numbering
-  and the state index that log warnings print.
-- Q: Do sections start open or collapsed, and where do the step's controls go?
-  A: Open, with the controls inside the section.
-
-**Notes:**
-- Each step is an `ImGui::CollapsingHeader` with `ImGuiTreeNodeFlags_DefaultOpen`.
-  Its label is `<label or "Step N">###step` inside the existing `PushID(i)`, so the
-  heading text changes with the label while the ID stays the step's index.
-- The "Edit in view" checkbox is no longer on the same line as the `N.` number. It
-  is now the first control inside the section, indented with the other fields.
-- Assumption: a section's open state belongs to its place in the list. When a step
-  is deleted, the steps after it take on the open state of the step before them.
-- Assumption: a label that contains `##` or `###` is shown as ImGui treats such a
-  label. The text after the marker is hidden. Labels like that are not expected.
-
-**Commits:**
-- 5e9df33 feat(T-032): show behaviour steps as collapsible sections
-
-**Manual verification:**
-1. Start the game, press F2, and load a behaviour that has several steps.
-2. Every step is an open section. A step with a label is headed by that label. A
-   step with no label is headed "Step N", counted from 0.
-3. Each section holds the step's "Edit in view" toggle (path steps only), its
-   fields and "Delete". Collapse a section and check that all of them are hidden.
-4. Type in a step's Label field. The heading follows the text, and the section
-   stays open and keeps focus in the field.
-5. Give two steps the same label. Collapse one, and the other stays open.
-6. Clear a label. The heading goes back to "Step N".
-
-### [done] T-033 Keep editor keypresses out of the game
-
-**Review:** reviewed 2026-09-25
-
-**Depends on:** none
-
-**Goal:**
-When typing in an editor field, keypresses should not go through to the game.
-
-Today nothing filters key events for ImGui, in TinCan or in moth_toolkit.
-`GameLayer::OnKeyEvent` acts on Quit (Escape), ToggleProfiler (F1) and
-ToggleEditor (F2) on key-up. `GameWorld::OnKeyEvent` toggles Pause (P) and
-passes every key to `SystemInput::OnKey`, which drives movement, fire, the
-power weapon and affinity swap. So Escape in a text field quits the game, and
-the arrow keys move the player.
-
-**Requirements:**
-- [x] While an ImGui text field is active (`io.WantTextInput`), a key press
-  triggers no game binding: not Quit, ToggleProfiler, ToggleEditor, Pause or
-  any `SystemInput` action.
-- [x] While an editor window only has focus and no text field is active, keys
-  reach the game as today.
-- [x] A game key that is held when a text field becomes active is still
-  released when the key comes up. It does not stay held.
-- [x] The fix is in TinCan. moth_toolkit is not changed.
-
-**Out of scope:**
-Mouse input. Blocking keys whenever an ImGui window has focus
-(`io.WantCaptureKeyboard`).
-
-**Open questions:**
-- Q: Does the game stop getting keys only while a text field is active, or
-  whenever an ImGui window has focus? A: Only while a text field is active.
-- Q: Which bindings are blocked while typing? A: All of them, including
-  Escape, P, F1 and F2, so Escape cancels the edit rather than quitting.
-
-**Notes:**
-- The filter is at the top of `GameLayer::OnKeyEvent`, which runs before the event
-  is dispatched to `GameWorld`. While `ImGui::GetIO().WantTextInput` is set, a key-down
-  is marked handled, so neither the layer bindings, Pause nor `SystemInput` see it.
-- A key-up always reaches `GameWorld`, so `SystemInput::OnKey` releases a key that
-  was held before the text field became active. The layer bindings (Quit,
-  ToggleProfiler, ToggleEditor act on key-up) are skipped for a key-up while typing.
-- `GameLayer::m_keysPressedWhileTyping` remembers keys that went down while typing.
-  Their key-up fires no layer binding even after the field has closed. Without
-  this, the Escape that cancels an edit would quit on release, because ImGui closes
-  the field on the key-down.
-- Marking the key-down handled cannot starve ImGui. The GLFW backend is set up with
-  `install_callbacks = true`, so ImGui reads keys from GLFW, not from layer events,
-  and GameLayer is the only layer on the stack.
-- `WantTextInput` is the value from the last ImGui frame. A key pressed on the same
-  frame that a field is clicked can still reach the game.
-
-**Commits:**
-- c035d4e fix(T-033): keep keypresses in editor text fields out of the game
-
-**Manual verification:**
-1. Start the game and press F2 to open the editors.
-2. Click into a text field, for example "Save as" in the Behaviour Editor.
-3. Press the arrow keys, fire, P, F1 and F2. Text changes in the field only. The
-   player does not move or fire, the game does not pause, and the profiler and
-   editors do not toggle.
-4. Press Escape. The edit ends and the game does not quit. Press Escape again,
-   with no field active, and the game quits.
-5. Restart. Hold an arrow key so the player moves, click into a text field with the
-   mouse while holding it, then let go. The player stops moving.
-6. Click on an editor window but not in a text field (for example on a combo or
-   empty space). The arrow keys, P, F1 and F2 work as before.
-
 ### [todo] T-034 Rename the spawn position properties to spawn_x and spawn_y
 
-**Review:** unreviewed
+**Review:** reviewed 2026-09-25
+
+**Depends on:** none
 
 **Goal:**
 Change the `position_x` and `position_y` properties in Tiled objects to
-`spawn_x` and `spawn_y`. This better explains what they do. When they are
-present (or when a `use_spawn` toggle is enabled, if absence cannot be
-checked), the enemy or formation spawns at those screen coordinates.
+`spawn_x` and `spawn_y`. This better explains what they do. When the `use_spawn`
+toggle is on, the enemy or formation spawns at those screen coordinates.
 
 Context: `EnemySpawn` has `use_position`, `position_x` and `position_y` today
-(see T-029). T-030 also has an open question about what happens to these
-fields.
+(see T-029), read in `SpawnMapEnemy` (`src/system_map.cpp`). The tilemap loader
+fills in class defaults for properties Tiled did not write, so the game cannot
+tell an unset `spawn_x` from one set to its default. A toggle is needed.
+
+No map in `tiled_project/maps/` sets `use_position`, `position_x` or
+`position_y`, so no map data needs migrating. This task is allowed to change the
+`EnemySpawn` class in `tiled_project/tincan.tiled-project`, which the task
+profile otherwise lists as must-still-load.
 
 **Requirements:**
-- [ ] The Tiled object properties `position_x` and `position_y` are renamed to
-  `spawn_x` and `spawn_y`.
-- [ ] When `spawn_x` and `spawn_y` are present (or `use_spawn` is enabled, if
-  absence cannot be checked), the enemy or formation spawns at those screen
-  coordinates.
+- [ ] The `EnemySpawn` class in `tiled_project/tincan.tiled-project` has
+  `use_spawn`, `spawn_x` and `spawn_y` in place of `use_position`, `position_x`
+  and `position_y`, with the same types and defaults.
+- [ ] The game reads `use_spawn`, `spawn_x` and `spawn_y`. When `use_spawn` is
+  on, the enemy or formation spawns at those screen coordinates, as
+  `use_position` does today.
+- [ ] Both maps still load and play as before.
+
+**Out of scope:**
+- Loading the old names. Nothing uses them.
 
 **Open questions:**
 - Q: Can the game tell that `spawn_x` and `spawn_y` are absent, or is a
   `use_spawn` toggle needed? If it is needed, does it replace `use_position`?
+  A: A toggle is needed, because the loader fills in class defaults.
+  `use_spawn` replaces `use_position`.
 - Q: Are the existing maps migrated to the new names, and must the old names
-  still load?
-- Q: How does this relate to T-030, which may replace these fields with a
-  spawn offset?
+  still load? A: No map uses them, so there is nothing to migrate, and the old
+  names do not need to load.
 
 **Notes:**
 
@@ -461,9 +197,8 @@ just outside a screen side. It turns the formation offsets by 0, 180, -90 or 90
 degrees (`GetEdgeRotation`). And it pushes each member's kill bounds out on the
 entry side. It does not turn the path. An angle covers the offset rotation
 directly, but it does not say which screen side to place the formation at or
-which side to push the bounds out on. T-030's absolute paths would place the
-formation from the path. The bounds could be pushed out by the offset length
-on every side.
+which side to push the bounds out on. The bounds could be pushed out by the
+offset length on every side.
 
 **Requirements:**
 - [ ] The behaviour's `edge` enum is replaced by a number that rotates the
@@ -476,7 +211,7 @@ discussed and deliberately left for later.
 
 **Open questions:**
 - Q: Where is the formation placed, and which side do the bounds reach out on,
-  once there is no edge? Does this task depend on T-030?
+  once there is no edge?
 - Q: Is the number in degrees, and what is the field called?
 - Q: What happens to existing behaviours that have `edge` set, for example
   `in_n_out_bottom`?
@@ -489,7 +224,9 @@ discussed and deliberately left for later.
 
 ### [todo] T-036 Add lifetime and screen-exit rules for escaping enemies
 
-**Review:** unreviewed
+**Review:** reviewed 2026-09-25
+
+**Depends on:** none
 
 **Goal:**
 In relation to T-035, add rules for how enemies get culled or "escaped". When
@@ -505,18 +242,37 @@ decides which side each member's kill bounds are pushed out on so that members
 still waiting off screen are not removed. These rules would replace the need
 for that.
 
+Context from planning: every enemy is created by `SystemEnemySpawner::SpawnEnemy`
+(map spawns and the behaviour editor's Spawn button), so the rules can be set up
+there. `ComponentLifetime` (`src/system_lifetime.h`) already exists and nothing
+uses it yet. An escape already reaches groups through `EscapedTag`, so an
+escaped member cancels its group's drop as today. Enemies spawned from the
+behaviour editor have no bounds today and live until killed; under these rules
+they expire too.
+
+At `scroll_speed` 60 on the 1080 px screen, an enemy with no behaviour takes
+about 19 seconds to cross the screen, so the 15-second default removes it before
+it reaches the bottom. That is accepted: enemies used that way set a longer
+lifetime in their data.
+
 **Requirements:**
-- [ ] Each enemy's data defines a lifetime.
+- [ ] Each enemy's data can set a `lifetime` in milliseconds. It defaults to
+  15000 when not set. `data/enemy_database.json` still loads unchanged.
 - [ ] An enemy that lives longer than its lifetime is escaped and removed.
-- [ ] An enemy becomes active when it enters the visible screen area.
-- [ ] An active enemy that leaves the visible area plus a small hardcoded
-  border is escaped and removed.
+- [ ] An enemy becomes active when its position is inside the visible screen.
+- [ ] An active enemy whose position leaves the visible screen grown by 64 px
+  on every side is escaped and removed.
+- [ ] An enemy that has never been active is removed only by its lifetime.
 - [ ] The lifetime keeps counting while the enemy is active.
-- [ ] The lifetime is in milliseconds, and defaults to 15000 (15 seconds) when
-  an enemy's data does not set it.
-- [ ] These rules replace all existing enemy culling.
-- [ ] All enemies follow these rules, including those spawned with no
-  behaviour.
+- [ ] An escaped enemy's sections are removed with it.
+- [ ] These rules replace all existing enemy culling. `SpawnMapEnemy` no longer
+  gives enemies kill bounds.
+- [ ] All enemies follow these rules, including those spawned with no behaviour
+  and those spawned from the behaviour editor.
+
+**Out of scope:**
+- Projectile and pickup culling.
+- Changing any enemy's lifetime in `data/enemy_database.json`.
 
 **Open questions:**
 - Q: What units is the lifetime in, and what happens when an enemy's data does
@@ -526,6 +282,11 @@ for that.
   existing enemy culling.
 - Q: Does an enemy spawned with no behaviour, which moves with the map, follow
   the same rules? A: Yes. All enemies follow the same cull rules.
+- Q: The 15-second default removes map-drifting enemies before they cross the
+  screen. What should happen? A: Keep the 15-second default. Enemies used that
+  way set a longer lifetime per enemy.
+- Q: What counts as entering the screen, and how big is the border? A: The
+  enemy's position (its centre) is inside the screen. The border is 64 px.
 
 **Notes:**
 
@@ -533,40 +294,146 @@ for that.
 
 **Manual verification:**
 
-### [todo] T-037 Set a path step's speed from its duration
+### [todo] T-038 Loop behaviours from a chosen state
 
-**Review:** unreviewed
+**Review:** reviewed 2026-09-25
+
+**Depends on:** none
 
 **Goal:**
-Remove the speed value from the step, and instead the speed is determined by the
-duration. If a path step takes 3 seconds, the enemy takes 3 seconds to travel to
-the final point.
+Let a behaviour repeat, so repeating movement does not have to be authored for
+the whole length of the screen. A zigzag down the screen should be one short
+left-right segment set to loop, and other repeating patterns should work the
+same way, such as travelling straight for a time, chasing the player for a time,
+then travelling straight again.
 
-Context from the conversation: today a path step moves at its `speed`
-(`BehaviourStateData::speed`), and the duration only decides when the step ends.
-A duration of 0 ends the step at the last waypoint. A longer duration holds the
-enemy at the last waypoint until it runs out. A shorter one cuts the path off
-partway. The entry approach runs before the duration starts counting. The
-editor preview's "seconds along the path" comes from length and speed.
+A behaviour gets an optional state to loop from. After its last state finishes,
+it goes back to that state and repeats, forever. Looping from the first state is
+a plain loop; looping from a later one allows an intro (fly in from the edge)
+before the repeating part.
+
+Spawn-relative states are all measured from the spawn origin, so a naive loop
+would replay the same segment in the same place. Each time the behaviour loops,
+the origin moves by how far the entity travelled over the last pass (its position
+when it entered the loop's first state compared with now). A segment such as
+`(0,0) → (60,40) → (0,80)` then keeps travelling down the screen, and a
+straight/chase/straight cycle carries on from wherever the chase left the enemy
+instead of snapping back towards the spawn point. World-space behaviours do not
+move their origin, so a looping world path is a fixed patrol.
+
+Context from planning: the state sequencing is in `SystemBehaviour::Update`
+(`src/system_behaviour.cpp`), and the origin is `ComponentBehaviour::m_origin`
+(`src/system_behaviour.h`). A behaviour that loops forever and never leaves the
+screen is removed by the enemy lifetime from T-036, when that is done.
+`data/behaviour_database.json` is disposable test data, so its schema may
+change.
 
 **Requirements:**
-- [ ] A path step has no speed value.
-- [ ] A path step's speed is determined by its duration, so the enemy reaches
-  the final waypoint when the duration runs out.
+- [ ] A behaviour can name a state to loop from. With none, it behaves as today,
+  and behaviours without one still load.
+- [ ] After the last state, a looping behaviour continues from that state,
+  indefinitely.
+- [ ] A spawn-relative behaviour's origin moves by the entity's displacement over
+  each pass, so each pass starts where the last one ended.
+- [ ] A world-space behaviour's origin does not move when it loops.
+- [ ] A loop whose pass uses no time does not spin forever within one update.
+- [ ] The behaviour editor can set the state to loop from, and can clear it.
+- [ ] Deleting a state in the editor keeps the loop pointing at the same state,
+  or clears it when that state is the one deleted.
+- [ ] The editor preview shows three repeats of the loop, shifted as they would
+  be in game.
+- [ ] The behaviour is saved and loaded with its loop state.
+
+**Out of scope:**
+- A repeat count (loop N times, then continue). Deferred until a behaviour needs
+  it.
+- A triangle waveform for the `Wave` modifier.
 
 **Open questions:**
-- Q: What does a path step with a duration of 0 do, now that 0 means "until it
-  completes" and the path cannot complete without a speed? Is a duration
-  required on path steps?
-- Q: Does this apply only to path steps, or also to Target steps, which have a
-  speed too?
-- Q: The entry transition's speed falls back to "this state's" speed when it is
-  0. What does it fall back to once a path step has no speed?
-- Q: When the last step is a path, the enemy leaves its end at the step's speed.
-  Is that speed now length ÷ duration?
-- Q: Are the existing behaviours in `data/behaviour_database.json` converted
-  (duration from length ÷ speed), or rewritten by hand? The file is disposable
-  test data.
+- Q: A triangle waveform option for the `Wave` modifier would give a sharp
+  zigzag without looping. Is that part of this task, or a separate one?
+  A: Neither. Looping covers the zigzag, so it is dropped.
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
+### [todo] T-027 Spawn enemies when an enemy is killed
+
+**Review:** reviewed 2026-09-25
+
+**Depends on:** T-036
+
+**Goal:**
+Split a large asteroid into several smaller ones when it is killed, handled
+generically on the data side rather than as an asteroid feature. Asteroids today
+are plain enemies with no weapon.
+
+The approach discussed: `EnemyData` gets a `death_spawns` list. Each entry
+describes a spawn with the same fields as a Tiled `EnemySpawn` (enemy, behaviour,
+count, formation, spacing, scale, speed, `behaviour_rotation`,
+`behaviour_rotation_step`, drop). `behaviour_rotation_step` fans the pieces out,
+so one short "drift out" behaviour gives pieces heading in different directions.
+Large to medium to small is a chain of entries, and the same field covers carriers
+that release fighters, mines that burst, and similar.
+
+The spawn logic in `SpawnMapEnemy` (`src/system_map.cpp`) would be split into a
+spawn description struct and a function that spawns from it, shared by map spawns
+and death spawns, so pieces get rotated behaviours and phase index the same way
+map spawns do.
+
+The spawns would trigger in `SystemLifetime`, which already tells killed entities
+from escaped ones, and not in `SystemDamage::ApplyDamage`, which runs inside view
+loops over the pools a new enemy adds to.
+
+Context from planning: this depends on T-036 because T-036 moves enemy culling
+into `SpawnEnemy`, so pieces get the lifetime and screen-exit rules without this
+task having to copy the edge-based kill bounds that T-036 removes. A death
+spawn is placed at the parent's position; the map spawn's screen edge and spawn
+point do not apply to it. There are no smaller asteroid sprites and no enemy
+scale, so the asteroid chain is shown with the existing asteroid entries.
+
+**Requirements:**
+- [ ] An enemy's data can list `death_spawns`. Each entry has the same fields as
+  a map spawn, apart from where it spawns. `data/enemy_database.json` without
+  them still loads.
+- [ ] Map spawns and death spawns share one spawn path, so pieces get their
+  behaviour copy, override, rotation step and phase index the same way map
+  spawn members do.
+- [ ] Death spawns are placed around the parent's position when it was killed.
+- [ ] Death spawns happen when the enemy is killed by any means, including
+  ramming the player (contact `self_damage`), and not when it escapes.
+- [ ] If the parent was in a group, its pieces join that group, so the group's
+  drop waits until every piece is gone, and a piece escaping cancels it as any
+  member escaping does. A death spawn entry with its own drop also puts its
+  pieces in a group of their own for that drop, as a map spawn does.
+- [ ] Pieces with no behaviour move at the parent's velocity when it died, taken
+  from its last step (position minus last position), so this works whatever the
+  parent was doing. Pieces with a behaviour follow only their behaviour.
+- [ ] `data/enemy_database.json` has a chain using the existing asteroids, for
+  example `asteroid_1` into `asteroid_2` pieces into `asteroid_3` pieces,
+  and a map spawn uses it.
+
+**Out of scope:**
+- `death_spawns` on `EnemySection`.
+- Smaller asteroid art, or a scale on `EnemyData`.
+- Adding inherited velocity to pieces that have a behaviour.
+
+**Open questions:**
+- Q: If the parent is in a group with a drop, do the pieces join that group, so
+  the drop waits until the last piece is killed? A: Yes, pieces join the
+  parent's group.
+- Q: Does an enemy that dies by ramming the player (contact `self_damage`) spawn
+  its pieces too? A: Yes. Any kill spawns them; only an escape does not.
+- Q: Does `EnemySection` get `death_spawns` as well? A: No, out of scope.
+- Q: Do pieces carry on with any of the parent's movement, or only follow their
+  own behaviour? A: Pieces with no behaviour move at the parent's velocity from
+  its last step. Pieces with a behaviour follow only their behaviour, because a
+  path drives position directly.
+- Q: How is "large splits into smaller" shown, with no smaller art? A: With a
+  chain of the existing asteroid entries. Smaller art is out of scope.
 
 **Notes:**
 

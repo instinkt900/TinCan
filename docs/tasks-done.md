@@ -1847,3 +1847,183 @@ behaviours in `data/behaviour_database.json`.
 6. Open `tiled_project/tincan.tiled-project` in Tiled. `EnemySpawn` has no
    `edge` member, and there is no `edge` enum. The stars map loads without
    property-type warnings.
+
+### [done] T-031 Make "edit in view" a toggle in the behaviour editor
+
+**Review:** reviewed 2026-09-25
+
+**Depends on:** none
+
+**Goal:**
+In the behaviour editor, "edit in view" should be a toggle. Today, once it is
+turned on, it cannot be turned off again without selecting another step.
+
+It is an `ImGui::RadioButton` on `selectedState` in
+`imgui_ext::InputBehaviourData` (`src/system_behaviour_editor.cpp`), and a
+radio button can only be turned on.
+
+**Requirements:**
+- [x] "Edit in view" on a path step is a toggle. Turning it off on the step it
+  is on for leaves no step edited in view.
+- [x] Only one step is edited in view at a time. Turning it on for a step turns
+  it off for the step that had it, as today.
+- [x] Turning it off clears the selected and dragged waypoint, as loading a
+  behaviour does. With no step edited in view, the canvas does not add, move
+  or delete waypoints, and every path is drawn as a faint reference path.
+
+**Out of scope:**
+The collapsible step sections (T-032). Any other change to the editor canvas,
+preview or guides.
+
+**Notes:**
+- The radio button is now an `ImGui::Checkbox` whose value is `i == selectedState`.
+  Ticking it sets `selectedState` to that step, which takes it from any other step.
+  Unticking it sets `selectedState` to -1.
+- The selected waypoint is cleared wherever no path step is edited in view, next to
+  the existing clear of the dragged waypoint. This also covers deleting the edited
+  step, or changing its type away from Path.
+- Assumption: switching "Edit in view" straight from one step to another keeps the
+  selected waypoint index, as it did before. The requirement covers turning it off only.
+
+**Commits:**
+- 541abd4 feat(T-031): make edit in view a toggle in the behaviour editor
+
+**Manual verification:**
+1. Start the game, press F2, and load a behaviour that has two or more path steps.
+2. Tick "Edit in view" on step 0. Its waypoints show handles in the game view.
+3. Tick it on step 1. Step 0 unticks, and step 1's handles show.
+4. Untick it on step 1. No step is ticked, no waypoint shows `>` in the panel, and
+   every path is drawn faint with no handles.
+5. With nothing ticked, left-click and right-click in the game view. No waypoint is
+   added, moved or deleted.
+
+### [done] T-032 Make behaviour steps collapsible sections
+
+**Review:** reviewed 2026-09-25
+
+**Depends on:** T-031
+
+**Goal:**
+The behaviour steps should be collapsible sections using the input label as a
+heading, or "Step N" if empty.
+
+The "input label" is the step's `Label` field (`BehaviourStateData::label`).
+The steps are listed in `imgui_ext::InputBehaviourData`
+(`src/system_behaviour_editor.cpp`), each as `N.` followed by its indented
+fields.
+
+**Requirements:**
+- [x] Each behaviour step in the behaviour editor is a collapsible section.
+- [x] The section heading is the step's label.
+- [x] If the label is empty, the heading is "Step N", where N is the step's
+  index counted from 0 (the first step is "Step 0").
+- [x] Sections start open.
+- [x] The step's controls, including the "Edit in view" toggle and "Delete",
+  stay inside the section.
+- [x] Editing a step's label changes its heading without collapsing or
+  resetting the section, and two steps with the same label open and close
+  on their own.
+
+**Out of scope:**
+Renaming "States:" and "Add state" in the editor, or "state" in code, to
+"step". The waypoint and modifier lists inside a step. The canvas.
+
+**Open questions:**
+- Q: Is N counted from 1 or from 0? A: From 0, matching the waypoint numbering
+  and the state index that log warnings print.
+- Q: Do sections start open or collapsed, and where do the step's controls go?
+  A: Open, with the controls inside the section.
+
+**Notes:**
+- Each step is an `ImGui::CollapsingHeader` with `ImGuiTreeNodeFlags_DefaultOpen`.
+  Its label is `<label or "Step N">###step` inside the existing `PushID(i)`, so the
+  heading text changes with the label while the ID stays the step's index.
+- The "Edit in view" checkbox is no longer on the same line as the `N.` number. It
+  is now the first control inside the section, indented with the other fields.
+- Assumption: a section's open state belongs to its place in the list. When a step
+  is deleted, the steps after it take on the open state of the step before them.
+- Assumption: a label that contains `##` or `###` is shown as ImGui treats such a
+  label. The text after the marker is hidden. Labels like that are not expected.
+
+**Commits:**
+- 5e9df33 feat(T-032): show behaviour steps as collapsible sections
+
+**Manual verification:**
+1. Start the game, press F2, and load a behaviour that has several steps.
+2. Every step is an open section. A step with a label is headed by that label. A
+   step with no label is headed "Step N", counted from 0.
+3. Each section holds the step's "Edit in view" toggle (path steps only), its
+   fields and "Delete". Collapse a section and check that all of them are hidden.
+4. Type in a step's Label field. The heading follows the text, and the section
+   stays open and keeps focus in the field.
+5. Give two steps the same label. Collapse one, and the other stays open.
+6. Clear a label. The heading goes back to "Step N".
+
+### [done] T-033 Keep editor keypresses out of the game
+
+**Review:** reviewed 2026-09-25
+
+**Depends on:** none
+
+**Goal:**
+When typing in an editor field, keypresses should not go through to the game.
+
+Today nothing filters key events for ImGui, in TinCan or in moth_toolkit.
+`GameLayer::OnKeyEvent` acts on Quit (Escape), ToggleProfiler (F1) and
+ToggleEditor (F2) on key-up. `GameWorld::OnKeyEvent` toggles Pause (P) and
+passes every key to `SystemInput::OnKey`, which drives movement, fire, the
+power weapon and affinity swap. So Escape in a text field quits the game, and
+the arrow keys move the player.
+
+**Requirements:**
+- [x] While an ImGui text field is active (`io.WantTextInput`), a key press
+  triggers no game binding: not Quit, ToggleProfiler, ToggleEditor, Pause or
+  any `SystemInput` action.
+- [x] While an editor window only has focus and no text field is active, keys
+  reach the game as today.
+- [x] A game key that is held when a text field becomes active is still
+  released when the key comes up. It does not stay held.
+- [x] The fix is in TinCan. moth_toolkit is not changed.
+
+**Out of scope:**
+Mouse input. Blocking keys whenever an ImGui window has focus
+(`io.WantCaptureKeyboard`).
+
+**Open questions:**
+- Q: Does the game stop getting keys only while a text field is active, or
+  whenever an ImGui window has focus? A: Only while a text field is active.
+- Q: Which bindings are blocked while typing? A: All of them, including
+  Escape, P, F1 and F2, so Escape cancels the edit rather than quitting.
+
+**Notes:**
+- The filter is at the top of `GameLayer::OnKeyEvent`, which runs before the event
+  is dispatched to `GameWorld`. While `ImGui::GetIO().WantTextInput` is set, a key-down
+  is marked handled, so neither the layer bindings, Pause nor `SystemInput` see it.
+- A key-up always reaches `GameWorld`, so `SystemInput::OnKey` releases a key that
+  was held before the text field became active. The layer bindings (Quit,
+  ToggleProfiler, ToggleEditor act on key-up) are skipped for a key-up while typing.
+- `GameLayer::m_keysPressedWhileTyping` remembers keys that went down while typing.
+  Their key-up fires no layer binding even after the field has closed. Without
+  this, the Escape that cancels an edit would quit on release, because ImGui closes
+  the field on the key-down.
+- Marking the key-down handled cannot starve ImGui. The GLFW backend is set up with
+  `install_callbacks = true`, so ImGui reads keys from GLFW, not from layer events,
+  and GameLayer is the only layer on the stack.
+- `WantTextInput` is the value from the last ImGui frame. A key pressed on the same
+  frame that a field is clicked can still reach the game.
+
+**Commits:**
+- c035d4e fix(T-033): keep keypresses in editor text fields out of the game
+
+**Manual verification:**
+1. Start the game and press F2 to open the editors.
+2. Click into a text field, for example "Save as" in the Behaviour Editor.
+3. Press the arrow keys, fire, P, F1 and F2. Text changes in the field only. The
+   player does not move or fire, the game does not pause, and the profiler and
+   editors do not toggle.
+4. Press Escape. The edit ends and the game does not quit. Press Escape again,
+   with no field active, and the game quits.
+5. Restart. Hold an arrow key so the player moves, click into a text field with the
+   mouse while holding it, then let go. The player stops moving.
+6. Click on an editor window but not in a text field (for example on a combo or
+   empty space). The arrow keys, P, F1 and F2 work as before.
