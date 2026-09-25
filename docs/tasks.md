@@ -313,6 +313,10 @@ lifetime in their data.
   the frame its lifetime runs out still counts as killed for its group's drop.
 - `ComponentBounds` is untouched and still culls projectiles and limits the
   player.
+- After the session, on request: an enemy spawned from the behaviour editor gets
+  a 120000 ms lifetime (`EditorSpawnLifetime` in
+  `src/system_behaviour_editor.cpp`) in place of its data's, so it stays long
+  enough to watch. The screen-exit rule still applies to it.
 
 **Commits:**
 - 94a22c0 feat(T-036): cull enemies by lifetime and by leaving the screen once
@@ -326,12 +330,13 @@ lifetime in their data.
 3. Kill a whole formation with a drop: the drop still appears. Let one member
    fly off screen: no drop.
 4. Add `"lifetime": 3000` to an enemy in `data/enemy_database.json`
-   temporarily, spawn it, and check it vanishes after about three seconds even
+   temporarily, spawn it from a map (not the behaviour editor, which overrides
+   the lifetime), and check it vanishes after about three seconds even
    while on screen. Revert the change.
 5. Spawn an enemy with sections (a multi-part enemy) and let it escape or time
    out: its sections go with it.
 6. In the behaviour editor (F2), spawn an enemy and leave it: it is removed
-   after 15 seconds, or when it leaves the screen after being on it.
+   after 120 seconds, or when it leaves the screen after being on it.
 7. An enemy spawned with no behaviour drifts down with the map and is removed
    after 15 seconds, before it reaches the bottom. This is accepted.
 
@@ -565,10 +570,6 @@ scale, so the asteroid chain is shown with the existing asteroid entries.
 
 ## Discovered
 
-- The `EnemySpawn` class default for `behaviour` is `basic`, which is not in
-  `data/behaviour_database.json`. A spawn that leaves `behaviour` unset logs
-  "Map spawn references unknown behaviour basic" and gets no behaviour.
-  (Session 2026-09-25.)
 - The Tiled `enemy_type` enum lacks `enemy_basic`, which `desert.tmj` spawns,
   and the `behaviour` enum lacks the new `drift_out`. (Session 2026-09-25.)
 - `tools/smoke_launch.sh` failed once in eight runs: the game did not exit

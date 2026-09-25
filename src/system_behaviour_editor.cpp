@@ -2,6 +2,7 @@
 #include "behaviour_transform.h"
 #include "debug_draw_path.h"
 #include "system_enemy_spawner.h"
+#include "system_lifetime.h"
 #include "gamedata_behaviour.h"
 #include "utils_imgui.h"
 #include <algorithm>
@@ -33,6 +34,9 @@ namespace {
     // where the behaviours the editor saves are kept. the whole file is read, the named behaviour is
     // replaced or added, and the file is written back, so its formatting and ordering are not preserved
     char const* const BehaviourDatabasePath = "data/behaviour_database.json";
+
+    // an enemy spawned from the editor is there to be watched, so it outlives its data's lifetime
+    uint32_t constexpr EditorSpawnLifetime = 120000;
 
     bool SaveBehaviour(std::string const& name, BehaviourData const& data) {
         nlohmann::json json;
@@ -347,7 +351,9 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
         // the enemy flies its own copy, anchored and turned the way a map spawn's copy would be
         auto spawnData = staticBehaviourData;
         TransformBehaviour(spawnData, staticSpawnRotation);
-        SystemEnemySpawner::SpawnEnemy(registry, *enemyData, spawnData, staticPosition, gamedata);
+        auto const enemy =
+            SystemEnemySpawner::SpawnEnemy(registry, *enemyData, spawnData, staticPosition, gamedata);
+        registry.Get<ComponentLifetime>(enemy).m_msLeft = EditorSpawnLifetime;
     }
     ImGui::EndDisabled();
     if (!canSpawn) {
