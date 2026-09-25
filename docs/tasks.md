@@ -234,7 +234,7 @@ discussed and deliberately left for later.
 
 **Manual verification:**
 
-### [todo] T-036 Add lifetime and screen-exit rules for escaping enemies
+### [done] T-036 Add lifetime and screen-exit rules for escaping enemies
 
 **Review:** reviewed 2026-09-25
 
@@ -268,18 +268,18 @@ it reaches the bottom. That is accepted: enemies used that way set a longer
 lifetime in their data.
 
 **Requirements:**
-- [ ] Each enemy's data can set a `lifetime` in milliseconds. It defaults to
+- [x] Each enemy's data can set a `lifetime` in milliseconds. It defaults to
   15000 when not set. `data/enemy_database.json` still loads unchanged.
-- [ ] An enemy that lives longer than its lifetime is escaped and removed.
-- [ ] An enemy becomes active when its position is inside the visible screen.
-- [ ] An active enemy whose position leaves the visible screen grown by 64 px
+- [x] An enemy that lives longer than its lifetime is escaped and removed.
+- [x] An enemy becomes active when its position is inside the visible screen.
+- [x] An active enemy whose position leaves the visible screen grown by 64 px
   on every side is escaped and removed.
-- [ ] An enemy that has never been active is removed only by its lifetime.
-- [ ] The lifetime keeps counting while the enemy is active.
-- [ ] An escaped enemy's sections are removed with it.
-- [ ] These rules replace all existing enemy culling. `SpawnMapEnemy` no longer
+- [x] An enemy that has never been active is removed only by its lifetime.
+- [x] The lifetime keeps counting while the enemy is active.
+- [x] An escaped enemy's sections are removed with it.
+- [x] These rules replace all existing enemy culling. `SpawnMapEnemy` no longer
   gives enemies kill bounds.
-- [ ] All enemies follow these rules, including those spawned with no behaviour
+- [x] All enemies follow these rules, including those spawned with no behaviour
   and those spawned from the behaviour editor.
 
 **Out of scope:**
@@ -301,10 +301,39 @@ lifetime in their data.
   enemy's position (its centre) is inside the screen. The border is 64 px.
 
 **Notes:**
+- `SpawnEnemy` gives every enemy root a `ComponentLifetime` (from
+  `EnemyData::lifetime`) and a new `ComponentScreenExit` (`m_active`).
+  `SystemWorldBounds` activates it and removes an active enemy that leaves the
+  screen grown by 64 px, because that system already has the world size.
+- An expired lifetime now sets `DeadTag` and `EscapedTag` instead of removing
+  the entity directly, so `UpdateDead` also removes its sections. Before this,
+  an expired entity's children were left for `UpdateParenting` to catch a frame
+  later. `ComponentLifetime` had no users, so nothing else changes.
+- The lifetime pass skips entities already marked dead, so an enemy killed in
+  the frame its lifetime runs out still counts as killed for its group's drop.
+- `ComponentBounds` is untouched and still culls projectiles and limits the
+  player.
 
 **Commits:**
+- 94a22c0 feat(T-036): cull enemies by lifetime and by leaving the screen once
+  active
 
 **Manual verification:**
+1. Play a map. Enemies that fly across and off the screen disappear shortly
+   after leaving it (within 64 px of the edge), from any side.
+2. A formation that waits or flies in from off screen is not removed before its
+   members come on screen, including members at the back of a long formation.
+3. Kill a whole formation with a drop: the drop still appears. Let one member
+   fly off screen: no drop.
+4. Add `"lifetime": 3000` to an enemy in `data/enemy_database.json`
+   temporarily, spawn it, and check it vanishes after about three seconds even
+   while on screen. Revert the change.
+5. Spawn an enemy with sections (a multi-part enemy) and let it escape or time
+   out: its sections go with it.
+6. In the behaviour editor (F2), spawn an enemy and leave it: it is removed
+   after 15 seconds, or when it leaves the screen after being on it.
+7. An enemy spawned with no behaviour drifts down with the map and is removed
+   after 15 seconds, before it reaches the bottom. This is accepted.
 
 ### [todo] T-038 Loop behaviours from a chosen state
 
