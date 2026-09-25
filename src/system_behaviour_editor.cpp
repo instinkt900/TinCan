@@ -224,7 +224,12 @@ namespace imgui_ext {
             ImGui::Text("%d.", i);
             if (data.states[i].type == BehaviourType::Path) {
                 ImGui::SameLine();
-                ImGui::RadioButton("Edit in view", &selectedState, i);
+                // one state at most is edited in view. turning it on here takes it from the state that had
+                // it, and turning it off leaves none
+                bool editInView = i == selectedState;
+                if (ImGui::Checkbox("Edit in view", &editInView)) {
+                    selectedState = editInView ? i : -1;
+                }
             }
             ImGui::Indent();
             InputBehaviourStateData(data.states[i], i == selectedState ? selectedWaypoint : -1);
@@ -364,6 +369,7 @@ void SystemBehaviourEditor::Draw(GameWorld& world, moth::gfx::IGraphics& graphic
     // flight agree. rebuilt every frame, because the path is being edited every frame
     ArcLengthLUT previewLut{ { 0.0f }, { 0.0f } };
     if (editedState == nullptr) {
+        staticSelectedWaypoint = -1;
         staticDraggedWaypoint = -1;
         staticPreviewPlaying = false;
     } else {
