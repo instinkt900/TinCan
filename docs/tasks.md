@@ -344,6 +344,183 @@ enemy spawns each, so migrating the data is a small job.
 
 **Manual verification:**
 
+### [todo] T-031 Make "edit in view" a toggle in the behaviour editor
+
+**Review:** unreviewed
+
+**Goal:**
+In the behaviour editor, "edit in view" should be a toggle. Today, once it is
+turned on, it cannot be turned off again without selecting another step.
+
+**Requirements:**
+- [ ] "Edit in view" can be turned off again on the same step it was turned on
+  for.
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
+### [todo] T-032 Make behaviour steps collapsible sections
+
+**Review:** unreviewed
+
+**Goal:**
+The behaviour steps should be collapsible sections using the input label as a
+heading, or "Step N" if empty.
+
+**Requirements:**
+- [ ] Each behaviour step in the behaviour editor is a collapsible section.
+- [ ] The section heading is the step's input label.
+- [ ] If the label is empty, the heading is "Step N".
+
+**Open questions:**
+- Q: Is N counted from 1 or from 0?
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
+### [todo] T-033 Keep editor keypresses out of the game
+
+**Review:** unreviewed
+
+**Goal:**
+When typing in an editor field, keypresses should not go through to the game.
+
+**Requirements:**
+- [ ] Keypresses made while typing in an editor field do not reach the game.
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
+### [todo] T-034 Rename the spawn position properties to spawn_x and spawn_y
+
+**Review:** unreviewed
+
+**Goal:**
+Change the `position_x` and `position_y` properties in Tiled objects to
+`spawn_x` and `spawn_y`. This better explains what they do. When they are
+present (or when a `use_spawn` toggle is enabled, if absence cannot be
+checked), the enemy or formation spawns at those screen coordinates.
+
+Context: `EnemySpawn` has `use_position`, `position_x` and `position_y` today
+(see T-029). T-030 also has an open question about what happens to these
+fields.
+
+**Requirements:**
+- [ ] The Tiled object properties `position_x` and `position_y` are renamed to
+  `spawn_x` and `spawn_y`.
+- [ ] When `spawn_x` and `spawn_y` are present (or `use_spawn` is enabled, if
+  absence cannot be checked), the enemy or formation spawns at those screen
+  coordinates.
+
+**Open questions:**
+- Q: Can the game tell that `spawn_x` and `spawn_y` are absent, or is a
+  `use_spawn` toggle needed? If it is needed, does it replace `use_position`?
+- Q: Are the existing maps migrated to the new names, and must the old names
+  still load?
+- Q: How does this relate to T-030, which may replace these fields with a
+  spawn offset?
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
+### [todo] T-035 Replace the behaviour edge with a formation rotation
+
+**Review:** unreviewed
+
+**Goal:**
+Change the behaviour's `edge` enum into a number that rotates the formation by
+a given amount.
+
+Context from the conversation: today the edge does three things in
+`SpawnMapEnemy` (`src/system_map.cpp`). It places the front of the formation
+just outside a screen side. It turns the formation offsets by 0, 180, -90 or 90
+degrees (`GetEdgeRotation`). And it pushes each member's kill bounds out on the
+entry side. It does not turn the path. An angle covers the offset rotation
+directly, but it does not say which screen side to place the formation at or
+which side to push the bounds out on. T-030's absolute paths would place the
+formation from the path. The bounds could be pushed out by the offset length
+on every side.
+
+**Requirements:**
+- [ ] The behaviour's `edge` enum is replaced by a number that rotates the
+  formation by that amount.
+
+**Out of scope:**
+A rotation per behaviour step, interpolated between steps, so a formation can
+spawn in one orientation and turn as it moves to the next step. This was
+discussed and deliberately left for later.
+
+**Open questions:**
+- Q: Where is the formation placed, and which side do the bounds reach out on,
+  once there is no edge? Does this task depend on T-030?
+- Q: Is the number in degrees, and what is the field called?
+- Q: What happens to existing behaviours that have `edge` set, for example
+  `in_n_out_bottom`?
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
+### [todo] T-036 Add lifetime and screen-exit rules for escaping enemies
+
+**Review:** unreviewed
+
+**Goal:**
+In relation to T-035, add rules for how enemies get culled or "escaped". When
+an enemy spawns, it gets a lifetime counter, defined in data, per enemy. If the
+enemy survives longer than that time, it is "escaped" and removed from the
+game. Once an enemy enters the visible screen area, it becomes "active". Once
+active, if it leaves the bounds of the visible area plus a small hardcoded
+border, it is also "escaped" and removed. The timer continues while the enemy
+is active and is the hard limit on an enemy's lifetime.
+
+Context from the conversation: T-035 removes the behaviour's edge, which today
+decides which side each member's kill bounds are pushed out on so that members
+still waiting off screen are not removed. These rules would replace the need
+for that.
+
+**Requirements:**
+- [ ] Each enemy's data defines a lifetime.
+- [ ] An enemy that lives longer than its lifetime is escaped and removed.
+- [ ] An enemy becomes active when it enters the visible screen area.
+- [ ] An active enemy that leaves the visible area plus a small hardcoded
+  border is escaped and removed.
+- [ ] The lifetime keeps counting while the enemy is active.
+- [ ] The lifetime is in milliseconds, and defaults to 15000 (15 seconds) when
+  an enemy's data does not set it.
+- [ ] These rules replace all existing enemy culling.
+- [ ] All enemies follow these rules, including those spawned with no
+  behaviour.
+
+**Open questions:**
+- Q: What units is the lifetime in, and what happens when an enemy's data does
+  not set it? A: Milliseconds, with a default of 15 seconds.
+- Q: Do these rules replace the current kill bounds (`ComponentBounds` with
+  `BoundsBehaviour::Kill`) for enemies completely? A: Yes. They replace any
+  existing enemy culling.
+- Q: Does an enemy spawned with no behaviour, which moves with the map, follow
+  the same rules? A: Yes. All enemies follow the same cull rules.
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
 ## Discovered
 
 - `SystemMap::Update` (`src/system_map.cpp`, the `m_cameraTop` line) has a
