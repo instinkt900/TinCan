@@ -436,7 +436,7 @@ change.
    loop state is kept. A behaviour saved without a loop has no `loop_from` key,
    and the existing behaviours still load and fly as before.
 
-### [todo] T-027 Spawn enemies when an enemy is killed
+### [done] T-027 Spawn enemies when an enemy is killed
 
 **Review:** reviewed 2026-09-25
 
@@ -472,23 +472,23 @@ point do not apply to it. There are no smaller asteroid sprites and no enemy
 scale, so the asteroid chain is shown with the existing asteroid entries.
 
 **Requirements:**
-- [ ] An enemy's data can list `death_spawns`. Each entry has the same fields as
+- [x] An enemy's data can list `death_spawns`. Each entry has the same fields as
   a map spawn, apart from where it spawns. `data/enemy_database.json` without
   them still loads.
-- [ ] Map spawns and death spawns share one spawn path, so pieces get their
+- [x] Map spawns and death spawns share one spawn path, so pieces get their
   behaviour copy, override, rotation step and phase index the same way map
   spawn members do.
-- [ ] Death spawns are placed around the parent's position when it was killed.
-- [ ] Death spawns happen when the enemy is killed by any means, including
+- [x] Death spawns are placed around the parent's position when it was killed.
+- [x] Death spawns happen when the enemy is killed by any means, including
   ramming the player (contact `self_damage`), and not when it escapes.
-- [ ] If the parent was in a group, its pieces join that group, so the group's
+- [x] If the parent was in a group, its pieces join that group, so the group's
   drop waits until every piece is gone, and a piece escaping cancels it as any
   member escaping does. A death spawn entry with its own drop also puts its
   pieces in a group of their own for that drop, as a map spawn does.
-- [ ] Pieces with no behaviour move at the parent's velocity when it died, taken
+- [x] Pieces with no behaviour move at the parent's velocity when it died, taken
   from its last step (position minus last position), so this works whatever the
   parent was doing. Pieces with a behaviour follow only their behaviour.
-- [ ] `data/enemy_database.json` has a chain using the existing asteroids, for
+- [x] `data/enemy_database.json` has a chain using the existing asteroids, for
   example `asteroid_1` into `asteroid_2` pieces into `asteroid_3` pieces,
   and a map spawn uses it.
 
@@ -512,10 +512,56 @@ scale, so the asteroid chain is shown with the existing asteroid entries.
   chain of the existing asteroid entries. Smaller art is out of scope.
 
 **Notes:**
+- Death spawn entries use the Tiled property names (`enemy_type`, `behaviour`,
+  `count`, `formation`, `spacing`, `scale_x`, `scale_y`, `speed`,
+  `behaviour_rotation`, `behaviour_rotation_step`, `drop`). `enemy_type` is a
+  name looked up when the enemy dies, not a `DataRef`, because a `DataRef`
+  holds its data by value and `EnemyData` cannot contain itself.
+- The shared path is `EnemySpawnDescription` and
+  `SystemEnemySpawner::SpawnFormation`. `SpawnMapEnemy` still works out the
+  edge, origin and formation rotation, then calls it. A death spawn uses the
+  parent's position as the origin and no formation rotation.
+- A piece can belong to its parent's groups and a group of its own, so
+  `ComponentGroupId` now holds a list of groups, and `SystemLifetime` removes a
+  dead member from each. Pieces join every group the parent was in, so a chain
+  (large → medium → small) keeps the top group waiting until the last small
+  piece is gone.
+- The spawn keeps the map spawn rule for its own group: one is made when
+  `count > 1` or there is a drop.
+- The velocity for pieces with no behaviour is the parent's last step divided
+  by this frame's ticks. The step was taken in the frame before, so at an
+  uneven frame rate the speed is slightly off.
+- The chain uses a new `drift_out` behaviour in the disposable
+  `data/behaviour_database.json` (straight down 200 px at 90 px/s), fanned out
+  by `behaviour_rotation_step`. Spacing is 64 so pieces of radius 32 do not
+  overlap.
+- No map spawned asteroids any more (the stars map was reworked after this task
+  was reviewed), so the requirement for a map spawn was met by adding one
+  `asteroid_1` spawn (`constant_speed`) to `tiled_project/maps/desert.tmj`,
+  which is not the map the game loads. Adding an object keeps the map loadable.
+  The stars map was left alone because it had just been reworked by hand.
 
 **Commits:**
+- 00b1139 feat(T-027): spawn enemies when an enemy is killed
 
 **Manual verification:**
+1. Temporarily point `GameWorld` (`src/game_world.cpp`, the `InitMap` call) at
+   `tiled_project/maps/desert.tmj`, or add an `asteroid_1` spawn to the stars
+   map in Tiled. An `asteroid_1` comes down about 10 seconds in.
+2. Shoot it: three `asteroid_2` pieces fan out down-left, down and down-right.
+   Shoot one: two `asteroid_3` pieces fan out. `asteroid_3` leaves nothing.
+3. Ram an asteroid with the player: its pieces still appear.
+4. Let an asteroid fly off the screen: nothing spawns.
+5. Group drop: in Tiled give the asteroid spawn a `drop`. Kill the asteroid and
+   every piece down the chain: the drop appears only after the last piece. Let
+   one piece escape: no drop.
+6. Put a `"drop": "weapon_drop_01"` on the asteroid_2 death spawn entry
+   temporarily: killing the three asteroid_2 pieces and all their asteroid_3
+   pieces drops it where the last one died. Revert.
+7. Remove the `behaviour` from a death spawn entry temporarily: the pieces
+   carry on in the direction and at the speed the parent was moving. Revert.
+8. The stars map plays as before, and enemy formations still spawn, fan out and
+   drop as they did.
 
 ## Discovered
 
