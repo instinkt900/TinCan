@@ -335,7 +335,7 @@ lifetime in their data.
 7. An enemy spawned with no behaviour drifts down with the map and is removed
    after 15 seconds, before it reaches the bottom. This is accepted.
 
-### [todo] T-038 Loop behaviours from a chosen state
+### [done] T-038 Loop behaviours from a chosen state
 
 **Review:** reviewed 2026-09-25
 
@@ -370,20 +370,20 @@ screen is removed by the enemy lifetime from T-036, when that is done.
 change.
 
 **Requirements:**
-- [ ] A behaviour can name a state to loop from. With none, it behaves as today,
+- [x] A behaviour can name a state to loop from. With none, it behaves as today,
   and behaviours without one still load.
-- [ ] After the last state, a looping behaviour continues from that state,
+- [x] After the last state, a looping behaviour continues from that state,
   indefinitely.
-- [ ] A spawn-relative behaviour's origin moves by the entity's displacement over
+- [x] A spawn-relative behaviour's origin moves by the entity's displacement over
   each pass, so each pass starts where the last one ended.
-- [ ] A world-space behaviour's origin does not move when it loops.
-- [ ] A loop whose pass uses no time does not spin forever within one update.
-- [ ] The behaviour editor can set the state to loop from, and can clear it.
-- [ ] Deleting a state in the editor keeps the loop pointing at the same state,
+- [x] A world-space behaviour's origin does not move when it loops.
+- [x] A loop whose pass uses no time does not spin forever within one update.
+- [x] The behaviour editor can set the state to loop from, and can clear it.
+- [x] Deleting a state in the editor keeps the loop pointing at the same state,
   or clears it when that state is the one deleted.
-- [ ] The editor preview shows three repeats of the loop, shifted as they would
+- [x] The editor preview shows three repeats of the loop, shifted as they would
   be in game.
-- [ ] The behaviour is saved and loaded with its loop state.
+- [x] The behaviour is saved and loaded with its loop state.
 
 **Out of scope:**
 - A repeat count (loop N times, then continue). Deferred until a behaviour needs
@@ -396,10 +396,45 @@ change.
   A: Neither. Looping covers the zigzag, so it is dropped.
 
 **Notes:**
+- The loop state is stored by index as `loop_from` on the behaviour, -1 (and
+  absent from the JSON) for none. States are known by their place in the list
+  elsewhere in the editor, and labels are optional and need not be unique.
+- The pass displacement is measured from the entity's position when it enters
+  the loop state, as the goal says. With a Snap entry that is before it jumps to
+  the path's first waypoint, so a loop state whose first waypoint is away from
+  where the last pass ends drifts by that gap each pass.
+- A pass that uses no time ends the update with the behaviour waiting at the
+  loop state, so it goes round at most once per update.
+- The editor works out one pass's shift from the authored paths: from the anchor
+  (looping from state 0) or the end of the state before the loop, to the end of
+  the last state. When either of those is not a path, or the behaviour is in
+  world space, no repeats are drawn; for a spawn-relative behaviour the panel
+  says why. World-space repeats would sit exactly on the first pass.
+- The repeats show each pass's paths and the approaches between states inside
+  a pass. The approach from the end of one pass back into the loop state is not
+  drawn, because `DrawEntryApproach` only looks at the state before in the list.
+- `StateHeading` was pulled out of the state list so the loop combo names states
+  the same way.
 
 **Commits:**
+- cfe983f feat(T-038): loop behaviours from a chosen state
 
 **Manual verification:**
+1. Open the behaviour editor (F2). Make a spawn-relative behaviour with one path
+   state `(0,0) → (60,40) → (0,80)` and set "Loop from" to it. Three green
+   repeats appear below the path, each 80 px further down.
+2. Spawn it with an enemy. It zigzags down the screen and does not snap back to
+   the spawn point, then leaves the screen (or times out, T-036).
+3. Make a behaviour with an intro path, then two states to repeat, and loop from
+   the second state. The intro plays once; the rest repeats from where it ends.
+4. Loop a straight / chase-the-player / straight behaviour. After each chase the
+   next pass carries on from where the chase left the enemy.
+5. Set the space to World and loop: the path repeats in place as a patrol.
+6. With a loop set on a later state, delete an earlier state: "Loop from" still
+   names the same state. Delete the loop state itself: it shows None.
+7. Pick None in "Loop from" to clear it. Save, restart, load the behaviour: the
+   loop state is kept. A behaviour saved without a loop has no `loop_from` key,
+   and the existing behaviours still load and fly as before.
 
 ### [todo] T-027 Spawn enemies when an enemy is killed
 
