@@ -7,11 +7,12 @@
 #include <spdlog/spdlog.h>
 #include "game_world.h"
 
-void UpdateLifetimes(moth::ecs::World& registry, uint32_t ticks, std::set<moth::ecs::Entity>& deadEntities) {
-    auto view = registry.View<ComponentLifetime>();
+void UpdateLifetimes(moth::ecs::World& registry, uint32_t ticks) {
+    auto view = registry.View<ComponentLifetime>(moth::ecs::Exclude<DeadTag>);
     for (auto [entity, lifetime] : view.each()) {
         if (lifetime.m_msLeft <= ticks) {
-            deadEntities.insert(entity);
+            // marked dead rather than removed here, so the dead pass takes its children with it
+            registry.GetOrEmplace<DeadTag>(entity);
             registry.GetOrEmplace<EscapedTag>(entity);
         } else {
             lifetime.m_msLeft -= ticks;
@@ -49,7 +50,7 @@ void SystemLifetime::Update(GameWorld& world, uint32_t ticks) {
     auto& registry = world.GetRegistry();
     std::set<moth::ecs::Entity> deadEntities;
 
-    UpdateLifetimes(registry, ticks, deadEntities);
+    UpdateLifetimes(registry, ticks);
     UpdateDead(registry, deadEntities);
 
     for (auto entity : deadEntities) {

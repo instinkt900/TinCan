@@ -7,7 +7,6 @@
 #include "system_group.h"
 #include "system_movement.h"
 #include "system_pickup.h"
-#include "system_world_bounds.h"
 #include <moth/graphics/utils/transform.h>
 #include <moth/profile/profiler.h>
 #include <moth/tilemap/tile_map_loader.h>
@@ -137,10 +136,6 @@ namespace {
             group = SystemGroup::CreateGroup(registry, drop);
         }
 
-        moth::gfx::FloatRect boundsRect{ { 0.0f, 0.0f }, static_cast<moth::gfx::FloatVec2>(world.GetWorldSize()) };
-        boundsRect.topLeft -= { SpawnMargin * 2.0f, SpawnMargin * 2.0f };
-        boundsRect.bottomRight += { SpawnMargin * 2.0f, SpawnMargin * 2.0f };
-
         // the front of the formation sits just outside its edge, level with the point. a top spawn keeps its
         // tiled height, which is where it triggered
         auto const worldSize = static_cast<moth::gfx::FloatVec2>(world.GetWorldSize());
@@ -187,25 +182,6 @@ namespace {
                 // move with the map so the enemy stays where it was placed
                 registry.Get<ComponentVelocity>(enemy).m_velocity = { 0.0f, scroll.m_scrollSpeed };
             }
-
-            // members behind the front spawn further outside the edge, so their bounds reach out that far too
-            auto& bounds = registry.Emplace<ComponentBounds>(enemy);
-            bounds.m_bounds = boundsRect;
-            switch (edge) {
-            case BehaviourEdge::Top:
-                bounds.m_bounds.topLeft.y += offset.y;
-                break;
-            case BehaviourEdge::Bottom:
-                bounds.m_bounds.bottomRight.y += offset.y;
-                break;
-            case BehaviourEdge::Left:
-                bounds.m_bounds.topLeft.x += offset.x;
-                break;
-            case BehaviourEdge::Right:
-                bounds.m_bounds.bottomRight.x += offset.x;
-                break;
-            }
-            bounds.m_behaviour = BoundsBehaviour::Kill;
 
             if (group != moth::ecs::kNullEntity) {
                 SystemGroup::AddMember(registry, group, enemy);

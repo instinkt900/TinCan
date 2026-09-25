@@ -16,6 +16,12 @@ struct ComponentBounds {
     moth::gfx::FloatRect m_bounds;
 };
 
+// An enemy becomes active once its position is on screen. From then on, leaving the screen and a small
+// border around it counts as an escape. Before that it waits off screen and only its lifetime removes it.
+struct ComponentScreenExit {
+    bool m_active = false;
+};
+
 class SystemWorldBounds {
     public:
         static void Update(GameWorld& world, uint32_t ticks);

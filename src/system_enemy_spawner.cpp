@@ -7,7 +7,9 @@
 #include "system_behaviour.h"
 #include "system_movement.h"
 #include "system_drawable.h"
+#include "system_lifetime.h"
 #include "system_weapon.h"
+#include "system_world_bounds.h"
 #include "tags.h"
 #include <moth/ecs/world.h>
 #include <moth/profile/profiler.h>
@@ -20,6 +22,10 @@ moth::ecs::Entity SystemEnemySpawner::SpawnEnemy(moth::ecs::World& registry, Ene
     auto& rootDetails = registry.Emplace<ComponentEntity>(rootEntity, Team::Enemy, data.affinity);
     registry.Emplace<ComponentPosition>(rootEntity, position);
     registry.Emplace<ComponentVelocity>(rootEntity);
+
+    // every enemy is culled the same way: by its lifetime, or by leaving the screen once it has been on it
+    registry.Emplace<ComponentLifetime>(rootEntity, 0u, data.lifetime);
+    registry.Emplace<ComponentScreenExit>(rootEntity);
 
     if (data.radius > 0.0f) {
         registry.Emplace<ComponentBody>(rootEntity, data.radius);

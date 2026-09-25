@@ -4,6 +4,11 @@
 #include <moth/ecs/world.h>
 #include "game_world.h"
 
+namespace {
+    // how far past the screen edge an active enemy may go before it counts as escaped
+    float constexpr ScreenExitBorder = 64.0f;
+}
+
 void KillOutOfBounds(moth::ecs::World& registry, moth::ecs::Entity entity, ComponentBounds const& bounds,
                      ComponentPosition& position) {
     registry.GetOrEmplace<DeadTag>(entity);
@@ -60,6 +65,21 @@ void SystemWorldBounds::Update(GameWorld& world, uint32_t ticks) {
     for (auto [entity, bounds, position] : view.each()) {
         if (!moth::core::IsInRect(position.m_position, bounds.m_bounds)) {
             HandleOutOfBounds(registry, entity, bounds, position);
+        }
+    }
+
+    auto const worldSize = static_cast<moth::gfx::FloatVec2>(world.GetWorldSize());
+    moth::gfx::FloatRect const screenRect{ { 0.0f, 0.0f }, worldSize };
+    auto exitRect = screenRect;
+    exitRect.topLeft -= { ScreenExitBorder, ScreenExitBorder };
+    exitRect.bottomRight += { ScreenExitBorder, ScreenExitBorder };
+    auto exitView = registry.View<ComponentScreenExit, ComponentPosition>(moth::ecs::Exclude<DeadTag>);
+    for (auto [entity, screenExit, position] : exitView.each()) {
+        if (!screenExit.m_active) {
+            screenExit.m_active = moth::core::IsInRect(position.m_position, screenRect);
+        } else if (!moth::core::IsInRect(position.m_position, exitRect)) {
+            registry.Emplace<DeadTag>(entity);
+            registry.GetOrEmplace<EscapedTag>(entity);
         }
     }
 }

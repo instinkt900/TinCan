@@ -42,6 +42,8 @@ struct EnemyData {
     DataRef<SpriteData> death_sprite;
     std::optional<ContactData> contact;
     std::map<std::string, EnemySection> sections;
+    // Milliseconds the enemy may live before it counts as escaped and is removed, whatever it is doing.
+    uint32_t lifetime = 15000;
 };
 
 inline void from_json(nlohmann::json const& json, EnemyData& data) {
@@ -54,5 +56,6 @@ inline void from_json(nlohmann::json const& json, EnemyData& data) {
     DATA_OPTIONAL(json, data, death_sprite);
     DATA_OPTIONAL(json, data, contact);
     DATA_OPTIONAL(json, data, sections);
+    DATA_OPTIONAL(json, data, lifetime);
 }
 
