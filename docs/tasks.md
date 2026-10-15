@@ -568,6 +568,53 @@ scale, so the asteroid chain is shown with the existing asteroid entries.
 8. The stars map plays as before, and enemy formations still spawn, fan out and
    drop as they did.
 
+### [todo] T-039 Level up weapons through repeated pickups
+
+**Review:** unreviewed
+
+**Goal:**
+Pickups currently add a separate weapon each, and the player weapons are built as
+an upgrade path (level 2 adds barrels to level 1, and so on). Because each level is
+its own pickup, the player can pick up level 5 without levels 2 to 4 and end up
+with an odd weapon. Instead, each weapon has several levels and one pickup. The
+first pickup adds the weapon at level 1, and each later pickup of the same weapon
+raises its level.
+
+The levels are defined in data as an ordered progression list rather than a
+name-suffix convention (`main_gun_01`, `main_gun_02`, ...), for example
+`"weapon_progressions": { "main_gun": ["player_weapon_01", "player_weapon_02",
+"player_weapon_03"] }`. `WeaponData` stays single-level, so enemy weapons are
+unchanged. Today the player levels are additive deltas (each has two barrels, set
+wider than the last); they become full definitions, so level 2 lists all 4
+barrels and level 3 all 6.
+
+**Requirements:**
+- [ ] The weapon data has ordered progressions that list a weapon's levels by
+      weapon name; `WeaponData` itself stays single-level.
+- [ ] A weapon pickup's `name` and the player's starting weapon refer to a
+      progression.
+- [ ] Picking up a weapon the player does not carry adds it at level 1.
+- [ ] Picking up a weapon the player carries raises it to the next level, and the
+      level stops at the last level of the progression.
+- [ ] A carried weapon records its progression and current level.
+- [ ] A level-up rebuilds the weapon from the next level's data and keeps its
+      timers, so it stays on the same beat as the other weapons (as `AddWeapon`
+      does for a new weapon).
+- [ ] The player weapon levels in `weapon_database_player.json` are full
+      definitions, not additive deltas.
+
+**Open questions:**
+- Q: What happens when the player picks up a weapon that is already at its last
+  level: nothing, or score or some other bonus?
+- Q: Do weapon levels survive the player dying, or reset to the starting weapon?
+- Q: Do enemy weapons stay plain single-level weapons?
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
 ## Discovered
 
 - The Tiled `enemy_type` enum lacks `enemy_basic`, which `desert.tmj` spawns,
