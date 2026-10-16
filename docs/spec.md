@@ -5,13 +5,13 @@ not in the game.
 
 **Status:** draft, 2026-10-16.
 
-- **Agreed:** controls, death and lives, score, power weapon, weapons, run
-  structure, screens, on-screen display, saves, high scores, and where art and
-  audio come from. Score values are agreed as starting values to tune.
+- **Agreed:** controls, death and lives, score, shield and affinity, power
+  weapon, weapons, pickups, run structure, screens, on-screen display, saves,
+  high scores, feel, and where art and audio come from. Score values are agreed
+  as starting values to tune.
 - **To revisit:** enemies, levels and bosses.
 - **Undecided:** the story.
-- **Still a first-draft proposal:** shield and affinity, pickups, feel, and
-  anything else not listed above.
+- **Still a first-draft proposal:** anything not listed above.
 
 ## How to use this spec
 
@@ -190,9 +190,13 @@ When the last life is lost, the game over screen shows (see [Run structure](#run
   shield's radius counts), and are removed when they leave the bottom of the
   screen.
 - Pickups come from:
-  - a formation's group drop (all members killed; this works today),
-  - heavies, carriers and bosses on death,
+  - pickup spawns placed in the map,
+  - drops set on an enemy spawn or a boss in the level data: a formation's group
+    drop (all members killed; this works today) or a single enemy's drop on
+    death,
   - the player's own death.
+- Which weapon a pickup or drop gives is set in the level data. It is never
+  random. Where the pickups go is up to level design.
 - On collect: a flash and sound, and the weapon's name and new level float up
   from the ship for 1 second ("SPREAD 2", or "+20 POWER" at max level).
 
@@ -210,9 +214,9 @@ own affinity. There is no enemy that switches affinity.
 | 3  | Aimer    | danger_3          | 40     | 1 shot at the player every 2 s                      | Paths                               | —               |
 | 4  | Sprayer  | danger_4          | 120    | Ring of 12 slow bullets every 2.5 s                 | Flies in, holds, flies out          | —               |
 | 5  | Chaser   | danger_5          | 30     | Nothing; rams                                       | Chases the player                   | —               |
-| 6  | Heavy    | danger_6 at 2×    | 600    | 5-way fan every 2 s, and 1 aimed shot every 1 s     | Slow; holds on screen               | Weapon pickup   |
+| 6  | Heavy    | danger_6 at 2×    | 600    | 5-way fan every 2 s, and 1 aimed shot every 1 s     | Slow; holds on screen               | Its drop        |
 | 7  | Splitter | asteroids         | 80     | Nothing                                             | Drifts; splits 1 → 3 → 2 (T-027)    | Pieces          |
-| 8  | Carrier  | danger_6 at 3×    | 400    | Releases 2 fodder every 2 s while alive             | Slow; crosses the screen once       | Weapon pickup   |
+| 8  | Carrier  | danger_6 at 3×    | 400    | Releases 2 fodder every 2 s while alive             | Slow; crosses the screen once       | Its drop        |
 
 - **Bullets** move at 150–400 px/s and are 8 px in radius. Enemy bullets are
   always slow enough to read.
@@ -242,7 +246,8 @@ weapons and hit flash.
 - **Entry:** the scroll pauses, the boss flies in from the top, one or two lines
   of dialog play, then it starts firing. It cannot be damaged during its entry.
 - **Death:** 2 seconds of chained explosions and shake, all enemy bullets on
-  screen are removed, then 3 weapon pickups drop and the level's exit starts.
+  screen are removed, then its drops (set in the level data) fall and the level's
+  exit starts.
 - Bosses are authored in the enemy data, as enemies with sections and phases. No
   boss editor.
 
@@ -403,7 +408,7 @@ Last level cleared ──▶ Credits ──▶ Main menu
 - Escape (or Start) opens the pause menu. It no longer quits the game.
 - **Restart** on the pause menu counts as a game over: the score goes to zero.
   Otherwise a player could restart before losing their last life and keep their
-  score.
+  score. The score is not submitted.
 - "LEVEL COMPLETE" is not a screen: it shows over the game during the level's
   [exit](#level-intro-and-exit).
 - There is **no settings screen**. Music volume, sound volume, fullscreen and the
@@ -440,9 +445,10 @@ same table.
 
 ### What a score is
 
-- A score is submitted when a run ends: at a **game over** (before the score goes
-  back to zero) and when the last level is cleared. Nothing is submitted mid-level, and a
-  score of zero is not submitted.
+- A score is submitted at a **game over** (before the score goes back to zero)
+  and when the last level is cleared. Nothing else submits a score: not a lost
+  life that leaves lives in hand, not Restart, and not Quit. A score of zero is
+  not submitted.
 - Each entry holds: the player name, the score, the furthest level reached, whether
   the run was completed, the number of lives lost, the date and the game version.
 - One table for the whole game. There are no tables per level or per version.
