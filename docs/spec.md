@@ -3,10 +3,15 @@
 The exact description of the game to build. If it is not in this document, it is
 not in the game.
 
-**Status:** draft, 2026-10-16. Agreed: one-hit death, lives, score and global
-high scores. Everything
-else is still a proposal from the first draft. Strike or change anything, then
-mark the spec as agreed.
+**Status:** draft, 2026-10-16.
+
+- **Agreed:** controls, death and lives, score, power weapon, weapons, run
+  structure, screens, on-screen display, saves, high scores, and where art and
+  audio come from. Score values are agreed as starting values to tune.
+- **To revisit:** enemies, levels and bosses.
+- **Undecided:** the story.
+- **Still a first-draft proposal:** shield and affinity, pickups, feel, and
+  anything else not listed above.
 
 ## How to use this spec
 
@@ -50,8 +55,9 @@ extra lives.
 
 - The play field is the map width (1088 px for a 34-tile map) by 1080 px, and
   the map scrolls down at 60 px/s.
-- Keyboard and gamepad both work. Bindings are in `data/input_database.json`,
-  and the game has no screen for changing them.
+- Keyboard and gamepad both work. Bindings are in `data/input_database.json`
+  and can be changed only by editing that file. The game has no screen for
+  remapping buttons.
 
 | Action          | Keyboard          | Gamepad          |
 | --------------- | ----------------- | ---------------- |
@@ -108,6 +114,9 @@ through while the ship is gone score nothing.
   best scores from getting through with no deaths.
 - Every 100,000 points gives a life (see [Death and lives](#death-and-lives)).
 - There is no multiplier or chain bonus.
+- Every score value, the boss bonuses and the points per extra life are data
+  values, kept where they are easy to find and change. They are expected to move
+  a lot as the game is built; the table below is only where they start.
 
 | Enemy    | Points | Enemy    | Points |
 | -------- | ------ | -------- | ------ |
@@ -149,7 +158,9 @@ When the last life is lost, the game over screen shows (see [Run structure](#run
 ## Weapons
 
 - The ship carries up to five weapons, one of each, and fires them all at once
-  while fire is held.
+  while fire is held. A new weapon adds to the ones already carried.
+- There is no limit on stacking: a player who collects everything carries all
+  five at level 3.
 - Each weapon has **3 levels**. The first pickup of a weapon adds it at level 1.
   Each later pickup raises it by one level (T-039).
 - A pickup for a weapon already at level 3 gives **20 power** instead.
@@ -226,8 +237,8 @@ weapons and hit flash.
 - A boss has **phases**. A phase starts when the sections it names are destroyed.
   A new phase can change the boss's movement and the weapons of its sections.
 - The boss dies when its **core** section is destroyed.
-- **Health bar:** one bar across the top of the screen for the whole boss, the
-  sum of its sections' health, with the boss's name.
+- There is no boss health bar. A boss shows damage through hit flashes and
+  wrecked sections.
 - **Entry:** the scroll pauses, the boss flies in from the top, one or two lines
   of dialog play, then it starts firing. It cannot be damaged during its entry.
 - **Death:** 2 seconds of chained explosions and shake, all enemy bullets on
@@ -320,6 +331,10 @@ Flagship Heart. Clearing it ends the run.
 
 ## Story
 
+**Undecided.** Everything in this section, including the dialog rules, is a
+placeholder from the first draft. Nothing here is built until the story is
+decided.
+
 Told only through dialog, in short radio lines between two characters:
 
 - **The Pilot**, flying the Tin Can, a patched-up salvage ship.
@@ -360,36 +375,52 @@ two at the boss, one at the exit.
 
 ## Menus and screens
 
-All screens are moth::ui layouts, in one style.
+A very basic flow. All screens are moth::ui layouts, in one style.
 
-| Screen         | Contents                                                          |
-| -------------- | ----------------------------------------------------------------- |
-| Title          | Game name; Continue (only with a save), New Run, High Scores, Settings, Quit |
-| Settings       | Player name, music volume, sound volume, fullscreen on or off     |
-| Pause          | Resume, Restart Level, Settings, Quit to Title                    |
-| Game over      | "GAME OVER" and the [high score table](#the-screen) with this run's score; Retry Level, Quit to Title |
-| Level complete | "LEVEL COMPLETE" and the score over the game for 3 seconds; no input |
-| Run complete   | Ending text (a few lines), the high score table with this run's score, then credits; back to Title |
-| High scores    | The [global table](#high-scores); back to Title                   |
+```
+Title ⇄ High scores ──any button──▶ Main menu ──New / Continue──▶ Level
+                                       ▲  │ High scores ──back──┘
+                                       │  └ Exit
+Level ──Pause──▶ Pause menu ──Resume──▶ Level
+                    ├ Restart ──▶ Level (counts as a game over)
+                    └ Quit ──▶ Main menu
+Level ──last life lost──▶ Game over ──Retry──▶ Level
+                             └ Quit ──▶ Main menu
+Last level cleared ──▶ Credits ──▶ Main menu
+```
 
-- **New Run** with a save present asks "Start a new run? Your saved run will be
+| Screen      | Contents                                                                  |
+| ----------- | ------------------------------------------------------------------------- |
+| Title       | The game name and "Press any button". After 10 s it changes to the high scores screen, and back after another 10 s, until a button is pressed |
+| Main menu   | Continue (only with a save), New, High Scores, Exit                       |
+| High scores | The [high score table](#the-screen); any button goes back                 |
+| Pause       | Resume, Restart, Quit (to the main menu)                                  |
+| Game over   | "GAME OVER" and the high score table with this run's score; Retry, Quit   |
+| Credits     | After the last level: the high score table with this run's score, then the credits; then the main menu |
+
+- **New** with a save present asks "Start a new run? Your saved run will be
   lost."
-- Escape opens the pause screen. It no longer quits the game.
-- **Restart Level** on the pause screen counts as a game over: the score goes to
-  zero. Otherwise a player could restart before losing their last life and keep
-  their score.
+- Escape (or Start) opens the pause menu. It no longer quits the game.
+- **Restart** on the pause menu counts as a game over: the score goes to zero.
+  Otherwise a player could restart before losing their last life and keep their
+  score.
+- "LEVEL COMPLETE" is not a screen: it shows over the game during the level's
+  [exit](#level-intro-and-exit).
+- There is **no settings screen**. Music volume, sound volume, fullscreen and the
+  player name are in a settings file that can be edited by hand.
 
 ### On-screen display
+
+Only the basics:
 
 | Where        | What                                                   |
 | ------------ | ------------------------------------------------------ |
 | Top left     | Lives as ship icons                                    |
 | Top right    | Score                                                  |
 | Bottom left  | Power meter, 10 segments; full segments glow           |
-| Bottom right | Carried weapons as icons, each with 1–3 level pips     |
-| Top centre   | Boss name and health bar, during boss fights only      |
 
-The ship and shield show the affinity, so the display does not.
+Nothing else. The ship and shield show the affinity, the ship's shots show its
+weapons, and the floating pickup text shows a new level.
 
 ## Saves
 
@@ -400,7 +431,7 @@ The ship and shield show the affinity, so the display does not.
 - A game over sets the saved score to zero at once, so quitting and continuing
   does not get the old score back.
 - Completing the run deletes the save.
-- Settings are saved separately and are kept.
+- The settings file is separate and is kept.
 
 ## High scores
 
@@ -410,7 +441,7 @@ same table.
 ### What a score is
 
 - A score is submitted when a run ends: at a **game over** (before the score goes
-  back to zero) and at **run complete**. Nothing is submitted mid-level, and a
+  back to zero) and when the last level is cleared. Nothing is submitted mid-level, and a
   score of zero is not submitted.
 - Each entry holds: the player name, the score, the furthest level reached, whether
   the run was completed, the number of lives lost, the date and the game version.
@@ -418,9 +449,12 @@ same table.
 
 ### Player name
 
-- Set in Settings: 3 to 12 letters, digits and spaces.
+- 3 to 12 letters, digits and spaces.
 - The first time a score would be submitted with no name set, the game asks for
-  one. Leaving it empty sends the score as "PILOT".
+  one and keeps it in the settings file. Leaving it empty sends the score as
+  "PILOT".
+- With no settings screen, the name is changed afterwards only by editing the
+  settings file.
 - There are no accounts or passwords. The same name from two machines is two
   different players who happen to share a name.
 
@@ -428,11 +462,12 @@ same table.
 
 The table has 10 rows, on one screen with no pages:
 
-- **Rows 1–9:** the global top 9: rank, name, score, furthest level (with a mark
-  for a completed run) and date.
+- **Rows 1–9:** the global top 9 scores: rank, name, score, furthest level (with
+  a mark for a completed run) and date. Every score counts, so one name can
+  appear more than once.
 - **Row 10:** the local player's row, highlighted, with its global rank.
   - On the **high scores screen**, it is the local player's best score.
-  - On the **game over** and **run complete** screens, it is the score for the run
+  - On the **game over** and **credits** screens, it is the score for the run
     that just ended.
 - When the local player's score is itself in the top 9, it is highlighted there
   and row 10 is left out.
@@ -449,15 +484,18 @@ The table has 10 rows, on one screen with no pages:
 
 ### The service
 
-- A small web service on the developer's own server, in its own repository.
+- A small web service, self-hosted on the developer's VPS or homelab, in its own
+  repository.
 - HTTPS with JSON. Two calls: submit a score (returns its rank), and fetch the
   top 9 (with the player's best and its rank).
+- The game talks HTTPS through a new toolkit module or a library such as
+  libcurl; which one is chosen when the work starts.
 - Each submission is signed with a key built into the game, and the service
   rejects unsigned scores and scores above the most the game could give. This
   stops casual tampering, not a determined cheat. The developer can delete
   entries by hand.
-- The service keeps every submitted score; the table shows each player name's
-  best score only once.
+- The service keeps every submitted score, and the table ranks every score, not
+  only each name's best.
 
 ## Audio
 
@@ -467,9 +505,10 @@ The table has 10 rows, on one screen with no pages:
   death, dialog line, menu move and select.
 - **Music:** one looping track per level, a boss track, and a title track. Six
   tracks in all.
-- The sources are CC0 or bought asset packs. Placeholder sounds (generated with
-  sfxr) are fine until the polish milestone (M8).
-- Volumes for music and sound are in the settings.
+- Audio follows the same rule as [art](#art): placeholder sounds and music from
+  anywhere, free or paid, until the final step. The final audio may be
+  commissioned or a paid pack.
+- Music and sound volumes are in the settings file.
 
 ## Feel
 
@@ -494,14 +533,15 @@ Shake and hit-stop are used only where the table says.
 
 ## Art
 
-- The placeholder art (danger sprites, asteroids, explosions, stars and desert
-  tilesets) is used until levels play from start to end.
+- For most of the project, the art is cobbled together from free and paid
+  assets, starting with what is there today (danger sprites, asteroids,
+  explosions, stars and desert tilesets).
+- The final art is commissioned or a paid asset pack, chosen at the final step,
+  in the polish milestone (M8).
 - The final art covers: the player ship and shield in both affinities, eight
   enemy types in both affinities, five bosses with wrecked sections, five pickup
   badges, shot sprites per weapon, explosions in three sizes, four tilesets, two
   portraits and the screens.
-- Where it comes from is decided at the start of the art pass, in the polish
-  milestone (M8).
 
 ## Not in the game
 
@@ -518,6 +558,8 @@ Shake and hit-stop are used only where the table says.
 | Mid-level checkpoints, continues       | A lost run restarts the level              |
 | Several save slots                     | One run at a time                          |
 | Control rebinding screen               | The input data file covers it              |
+| Settings screen                        | A settings file covers it                  |
+| Boss health bar, weapon display        | The on-screen display shows only the basics |
 | Shops or upgrades between levels       | Pickups are the only progression           |
 | Randomly generated levels              | Levels are authored by hand                |
 | Multiplayer                            | Simple                                     |
@@ -540,8 +582,7 @@ milestones.
   floating text are new.
 - **Enemies:** stats as in the table; sprayer rings, carrier release while alive
   and scaled sprites per enemy type are new.
-- **Bosses:** sections, protection, phases and the boss bar are built from
-  scratch (the existing section code is kept only if it fits).
+- **Bosses:** sections, protection and phases are built from scratch (the existing section code is kept only if it fits).
 - **Levels:** scroll pause (T-023), dialog, pickup spawns, level end, intro and
   exit (T-024), facing (T-028) and formation rotation (T-035).
 - **High scores:** the high scores screen, the player name, the local queue and
