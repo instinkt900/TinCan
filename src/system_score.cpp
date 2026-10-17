@@ -2,6 +2,7 @@
 #include "gamedata.h"
 #include "gamedata_player.h"
 #include "system_floating_text.h"
+#include "system_hud.h"
 #include "system_movement.h"
 #include "system_respawn.h"
 #include "system_sound.h"
@@ -40,6 +41,7 @@ void SystemScore::Add(moth::ecs::World& registry, int32_t points, GameData const
         return;
     }
     SystemSound::Play(registry, "extra_life");
+    SystemHud::FlashNewLife(registry);
     // the text rises from the ship. it is made after the views are done, because it adds to their pools
     moth::gfx::FloatVec2 shipPosition;
     bool hasShip = false;

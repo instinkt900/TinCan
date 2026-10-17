@@ -64,7 +64,6 @@ public:
     InputData const& GetInputBindings() const;
 
     float GetPlayerPower() const;
-    int32_t GetPlayerLives() const;
     int32_t GetPlayerScore() const;
 
     // makes the next ship after one was destroyed: it flies in from below the screen with the main gun at the level

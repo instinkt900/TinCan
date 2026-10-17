@@ -14,7 +14,7 @@ class GameLayer : public moth::ui::Layer {
 public:
     GameLayer(moth::gfx::platform::Window& window, moth::ui::Context& context,
               moth::gfx::IGraphics& graphics);
-    ~GameLayer() override = default;
+    ~GameLayer() override;
 
     GameLayer(const GameLayer&) = delete;
     GameLayer(GameLayer&&) = delete;
@@ -41,7 +41,6 @@ private:
     // pushed above this layer once, when this layer is added, and owned by the stack. it is shown and hidden rather
     // than pushed and removed, because the stack cannot change while it updates or draws its layers
     GameOverLayer* m_gameOverLayer = nullptr;
-    std::unique_ptr<moth::gfx::IFont> m_font;
     moth::profile::ProfilerPanel m_profilerPanel;
     // keys that went down while an editor text field was active, and have not come up yet
     std::unordered_set<moth::ui::Key> m_keysPressedWhileTyping;

@@ -18,6 +18,11 @@ GameLayer::GameLayer(moth::gfx::platform::Window& window, moth::ui::Context& con
     m_gameWorld = std::make_unique<GameWorld>(m_window, m_graphics);
 }
 
+// the world's textures and buffers may still be in use by the last frame, so the GPU finishes before they go
+GameLayer::~GameLayer() {
+    m_graphics.WaitIdle();
+}
+
 bool GameLayer::OnEvent(moth::ui::Event const& event) {
     moth::ui::EventDispatch dispatch(event);
     dispatch.Dispatch(this, &GameLayer::OnRequestQuitEvent);
@@ -93,32 +98,10 @@ void GameLayer::Draw() {
     auto const destRect = moth::gfx::IntRect{ static_cast<moth::gfx::IntVec2>(destPos),
                                            static_cast<moth::gfx::IntVec2>(destPos + destSize) };
     m_graphics.DrawImage(worldImage, destRect);
-
-    // draw the ui
-    auto const playerPower = m_gameWorld->GetPlayerPower();
-    auto const playerLives = m_gameWorld->GetPlayerLives();
-    auto const playerScore = m_gameWorld->GetPlayerScore();
-    m_graphics.SetColor(moth::gfx::BasicColors::White);
-    m_graphics.SetBlendMode(moth::gfx::BlendMode::Alpha);
-    m_graphics.DrawText(fmt::format("Player power: {}", playerPower), *m_font,
-                        moth::gfx::MakeRect(0, 0, m_window.GetWidth(), 120),
-                        moth::gfx::TextHorizAlignment::Left,
-                        moth::gfx::TextVertAlignment::Middle);
-    m_graphics.DrawText(fmt::format("Lives: {}", playerLives), *m_font,
-                        moth::gfx::MakeRect(0, 0, m_window.GetWidth(), 160),
-                        moth::gfx::TextHorizAlignment::Left,
-                        moth::gfx::TextVertAlignment::Middle);
-    m_graphics.DrawText(fmt::format("Score: {}", playerScore), *m_font,
-                        moth::gfx::MakeRect(0, 0, m_window.GetWidth(), 200),
-                        moth::gfx::TextHorizAlignment::Left,
-                        moth::gfx::TextVertAlignment::Middle);
 }
 
 void GameLayer::OnAddedToStack(moth::ui::LayerStack* stack) {
     Layer::OnAddedToStack(stack);
-
-    auto& surfaceContext = m_window.GetSurfaceContext();
-    m_font = surfaceContext.GetAssetContext().FontFromFile("assets/font.ttf", 24);
 
     auto gameOverLayer = std::make_unique<GameOverLayer>(m_context, m_gameWorld->GetInputBindings());
     m_gameOverLayer = gameOverLayer.get();

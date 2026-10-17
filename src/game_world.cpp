@@ -25,6 +25,7 @@
 #include "system_respawn.h"
 #include "system_floating_text.h"
 #include "system_score.h"
+#include "system_hud.h"
 #include "system_behaviour_editor.h"
 #include "system_formation_editor.h"
 #include "system_targeting.h"
@@ -60,6 +61,7 @@ void GameWorld::StartLevel() {
 
     m_registry.Emplace<ComponentSoundQueue>(m_registry.Create());
     m_registry.Emplace<ComponentHitStop>(m_registry.Create());
+    m_registry.Emplace<ComponentHud>(m_registry.Create());
 
     // m_worldSize = SystemMap::InitMap(m_registry, "tiled_project/maps/test.tmj", "tiled_project/tincan.tiled-project",
     m_worldSize = SystemMap::InitMap(m_registry, "tiled_project/maps/stars.tmj", "tiled_project/tincan.tiled-project",
@@ -121,6 +123,7 @@ void GameWorld::Update(uint32_t ticks) {
     { MOTH_PROFILE_SCOPE("SystemGroup"); SystemGroup::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemWorldBounds"); SystemWorldBounds::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemFloatingText"); SystemFloatingText::Update(*this, ticks); }
+    { MOTH_PROFILE_SCOPE("SystemHud"); SystemHud::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemAnimation"); SystemAnimation::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemDrawable"); SystemDrawable::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemSound"); SystemSound::Update(*this, ticks); }
@@ -138,6 +141,8 @@ void GameWorld::Draw() {
     if (m_font != nullptr) {
         MOTH_PROFILE_SCOPE("SystemFloatingText");
         SystemFloatingText::Draw(*this, m_graphics, *m_font);
+        MOTH_PROFILE_SCOPE("SystemHud");
+        SystemHud::Draw(*this, m_graphics, *m_font);
     }
     // the editors draw their paths and markers over the world, so nothing in the map or on it hides them
     if (m_editorModeOpen) {
@@ -155,10 +160,6 @@ float GameWorld::GetPlayerPower() const {
         return playerPower->m_power;
     }
     return 0.0f;
-}
-
-int32_t GameWorld::GetPlayerLives() const {
-    return SystemRespawn::GetLives(m_registry);
 }
 
 int32_t GameWorld::GetPlayerScore() const {
