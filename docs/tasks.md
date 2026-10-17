@@ -940,7 +940,7 @@ death today. The hit-stop comes from T-042. This task is allowed to change
    screen: the game stays smooth (F1 shows the frame times) and the sound is
    not deafening.
 
-### [todo] T-050 Add a test map for the core fight
+### [done] T-050 Add a test map for the core fight
 
 **Review:** reviewed 2026-10-17
 
@@ -955,14 +955,14 @@ Context from planning: the game loads `tiled_project/maps/stars.tmj` by a path i
 spawns.
 
 **Requirements:**
-- [ ] A new map, `tiled_project/maps/test.tmj`, about 2 minutes long, on the stars
+- [x] A new map, `tiled_project/maps/test.tmj`, about 2 minutes long, on the stars
   tileset, using only existing enemies, behaviours, formations and pickups.
-- [ ] It has light and dark fodder formations, gunners from both sides, a few
+- [x] It has light and dark fodder formations, gunners from both sides, a few
   enemies to absorb from, an asteroid chain, and formation drops that give main
   gun levels and homing.
-- [ ] The game takes a `--map <path>` command-line option. With none, it loads
+- [x] The game takes a `--map <path>` command-line option. With none, it loads
   the stars map, as today.
-- [ ] Both existing maps still load and play as before.
+- [x] Both existing maps still load and play as before.
 
 **Out of scope:**
 - New enemies, behaviours or pickups.
@@ -972,10 +972,45 @@ spawns.
   map as the default.
 
 **Notes:**
+- `tiled_project/maps/test.tmj` was generated from the stars map: the same
+  tilesets, image layers and properties, with its tile layer repeated to 260
+  rows (8320 px, about 2 minutes at 60 px/s), and the decoration layers left
+  out. Its object layer holds 22 enemy spawns, using only existing enemies,
+  behaviours, formations and pickups:
+  - light and dark fodder (danger_1) columns of 5 or 6 with `in_and_loop_*`,
+    four with drops (`pickup_main_gun` three times, `pickup_homing` twice);
+  - gunners (danger_2) and later danger_3 in pairs with `zigzag_left` and
+    `zigzag_right`, one of each colour;
+  - lines of danger_4 in each colour to absorb from;
+  - chasers (danger_5), asteroid chains (asteroid_1), and one large danger_6
+    of each colour.
+  Spawns with no behaviour take the class default, `constant_speed`, as in the
+  stars map. The zigzag spawns sit at x = -250 and 250, because those paths
+  are authored around x = 544 from their origin.
+- `main.cpp` reads `--map <path>` and passes it through `GameLayer` to
+  `GameWorld`, which keeps it for `StartLevel`, so a retry replays the same map.
+  With no option, the stars map loads, as before.
+- Checked by pointing the default at the test map temporarily and running the
+  launch check for 30 seconds (map loads, first waves spawn, no warnings or
+  errors), then reverting. The launch check itself takes no arguments.
+- The map was written by a script rather than in Tiled. Opening and saving it
+  in Tiled will reformat it.
 
 **Commits:**
+- ef898f3 feat(T-050): add a test map for the core fight
 
 **Manual verification:**
+1. Run `build/Debug/tincan --map tiled_project/maps/test.tmj` from the
+   repository root. Waves start within a few seconds and keep coming for about
+   two minutes.
+2. Kill a whole drop formation: a pickup appears where the last one died. The
+   early ones give main gun levels; the ones at about 0:26 and 1:38 give homing.
+3. There are light and dark gunners from both sides, lines of danger_4 to
+   absorb from, chasers, splitting asteroids and a large danger_6 near the
+   end.
+4. Run without `--map`: the stars map plays as before. Point `--map` at
+   `tiled_project/maps/desert.tmj`: it plays as before.
+5. Open `test.tmj` in Tiled: it loads, and the spawns show their properties.
 
 ### [todo] T-023 Pause the map scroll
 
