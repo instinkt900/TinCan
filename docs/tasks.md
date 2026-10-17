@@ -866,7 +866,7 @@ Context from planning: an enemy hit already sets the sprite's flash time in
    are absorbed) make no spark.
 5. Enemy death explosions look as before.
 
-### [todo] T-049 Add feel to absorbs and enemy deaths
+### [done] T-049 Add feel to absorbs and enemy deaths
 
 **Review:** reviewed 2026-10-17
 
@@ -884,15 +884,15 @@ death today. The hit-stop comes from T-042. This task is allowed to change
 `data/enemy_database.json`.
 
 **Requirements:**
-- [ ] An absorbed bullet moves into the centre of the shield over a short time
+- [x] An absorbed bullet moves into the centre of the shield over a short time
   before it is removed, and does no harm while it does.
-- [ ] The shield pulses on each absorb, and the power meter's current segment
+- [x] The shield pulses on each absorb, and the power meter's current segment
   ticks.
-- [ ] An enemy's death explosion is sized to the enemy.
-- [ ] Ordinary enemy deaths do not shake the camera.
-- [ ] An enemy marked large in its data has a bigger explosion, a camera shake
+- [x] An enemy's death explosion is sized to the enemy.
+- [x] Ordinary enemy deaths do not shake the camera.
+- [x] An enemy marked large in its data has a bigger explosion, a camera shake
   and a 50 ms hit-stop when it dies. danger_6 is marked large.
-- [ ] 50 enemies dying together stays smooth.
+- [x] 50 enemies dying together stays smooth.
 
 **Out of scope:**
 - Boss deaths (M5).
@@ -900,10 +900,45 @@ death today. The hit-stop comes from T-042. This task is allowed to change
 **Open questions:**
 
 **Notes:**
+- An absorbed bullet gets a `ComponentAbsorbing` and loses its
+  `ComponentProjectile`, body, velocity, bounds and targeting, after the
+  shield's views are done. It then moves from where it was caught to the
+  shield's centre over 80 ms and is removed. With no body or projectile
+  component it cannot hit anything or touch the ship on the way. The power and
+  the sound still come at the moment of the catch.
+- The shield's sprite swells by 20% and shrinks back over 150 ms on each
+  absorb, from the scale it started with (`ComponentShield::m_baseScale`).
+- The meter's tick: `SystemHud::TickPower` lights the segment the power went
+  into, a white overlay fading over 120 ms.
+- Enemy death explosions are scaled so the sprite is as wide as the enemy's
+  body (diameter over the sprite's frame width). Every enemy is 32 px in radius
+  today, so `explosion_01` (34 px) is drawn at about 1.9 times.
+- The camera shake on every enemy death is removed. Enemies with the new
+  `large` data flag get a `LargeTag`: their explosion is twice as big again,
+  with a 0.8, 400 ms shake and a 50 ms hit-stop (named constants in
+  `system_damage.cpp`). `danger_6_light` and `danger_6_dark` are marked large.
+- 50 deaths at once: each death adds one sprite and asks for one sound, and
+  the same sound asked for many times in a frame plays once (T-041). That was
+  only reasoned about, not measured; it is in the manual steps.
+- The 20-second launch check left the ship idle with its shield matching half
+  the enemy fire, so absorbs happened during it, with no errors.
 
 **Commits:**
+- 4affff7 feat(T-049): add feel to absorbs and enemy deaths
 
 **Manual verification:**
+1. Play the stars map and absorb bullets: each one slides quickly into the
+   middle of the shield before it vanishes, the shield bulges briefly, and the
+   meter segment taking the power lights up.
+2. A bullet sliding into the shield does not destroy the ship, even with the
+   ship moving onto it.
+3. Kill a danger_1 enemy: the explosion is about as wide as the enemy, and the
+   camera does not shake.
+4. Kill a danger_6 enemy (test map): a bigger explosion, a shake, and a very
+   short freeze.
+5. Kill a whole formation at once, or use the power weapon on a crowded
+   screen: the game stays smooth (F1 shows the frame times) and the sound is
+   not deafening.
 
 ### [todo] T-050 Add a test map for the core fight
 
