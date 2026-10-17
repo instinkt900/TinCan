@@ -82,14 +82,9 @@ void GameLayer::Draw() {
     m_graphics.DrawImage(worldImage, destRect);
 
     // draw the ui
-    auto const playerHealth = m_gameWorld->GetPlayerHealth();
     auto const playerPower = m_gameWorld->GetPlayerPower();
     m_graphics.SetColor(moth::gfx::BasicColors::White);
     m_graphics.SetBlendMode(moth::gfx::BlendMode::Alpha);
-    m_graphics.DrawText(fmt::format("Player health: {}", playerHealth), *m_font,
-                        moth::gfx::MakeRect(0, 0, m_window.GetWidth(), 80),
-                        moth::gfx::TextHorizAlignment::Left,
-                        moth::gfx::TextVertAlignment::Middle);
     m_graphics.DrawText(fmt::format("Player power: {}", playerPower), *m_font,
                         moth::gfx::MakeRect(0, 0, m_window.GetWidth(), 120),
                         moth::gfx::TextHorizAlignment::Left,

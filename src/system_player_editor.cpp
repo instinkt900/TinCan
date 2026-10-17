@@ -1,5 +1,4 @@
 #include "system_player_editor.h"
-#include "component_health.h"
 #include "gamedata_weapon.h"
 #include "system_shield.h"
 #include "system_weapon.h"
@@ -25,23 +24,6 @@ namespace {
             }
         }
         ImGui::EndCombo();
-    }
-
-    void DrawHealth(moth::ecs::World& registry, moth::ecs::Entity player) {
-        auto* health = registry.TryGet<ComponentHealth>(player);
-        if (health == nullptr) {
-            ImGui::TextUnformatted("The player has no health component");
-            return;
-        }
-
-        ImGui::SliderFloat("Health", &health->m_currentHealth, 0.0f, health->m_maxHealth);
-        ImGui::InputFloat("Max health", &health->m_maxHealth);
-        // a max of zero would leave the slider with no range to drag, and the health it holds has to
-        // stay inside whatever max was just typed
-        health->m_maxHealth = std::max(1.0f, health->m_maxHealth);
-        health->m_currentHealth = std::clamp(health->m_currentHealth, 0.0f, health->m_maxHealth);
-        ImGui::TextUnformatted("Emptying the bar does not kill the player: death is applied by a hit\n"
-                               "that takes the health to zero");
     }
 
     void DrawPower(moth::ecs::World& registry, moth::ecs::Entity player) {
@@ -108,9 +90,6 @@ void SystemPlayerEditor::Draw(GameWorld& world) {
         return;
     }
 
-    DrawHealth(registry, player);
-
-    ImGui::Separator();
     DrawPower(registry, player);
 
     ImGui::Separator();

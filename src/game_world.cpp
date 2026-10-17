@@ -12,7 +12,6 @@
 #include "system_contact.h"
 #include "system_drawable.h"
 #include "system_group.h"
-#include "component_health.h"
 #include "system_input.h"
 #include "system_lifetime.h"
 #include "system_map.h"
@@ -22,6 +21,7 @@
 #include "system_projectile.h"
 #include "system_shield.h"
 #include "system_sound.h"
+#include "system_hit_stop.h"
 #include "system_behaviour_editor.h"
 #include "system_formation_editor.h"
 #include "system_targeting.h"
@@ -41,6 +41,7 @@ GameWorld::GameWorld(moth::gfx::platform::Window& window, moth::gfx::IGraphics& 
     m_input = m_gamedata.GetInput();
     m_sounds = std::make_unique<SoundPlayer>(m_gamedata);
     m_registry.Emplace<ComponentSoundQueue>(m_registry.Create());
+    m_registry.Emplace<ComponentHitStop>(m_registry.Create());
 
     // m_worldSize = SystemMap::InitMap(m_registry, "tiled_project/maps/test.tmj", "tiled_project/tincan.tiled-project",
     m_worldSize = SystemMap::InitMap(m_registry, "tiled_project/maps/stars.tmj", "tiled_project/tincan.tiled-project",
@@ -61,6 +62,11 @@ void GameWorld::Update(uint32_t ticks) {
     if (m_paused) {
         // the presses still have to be cleared, or they fire on the frame the pause lifts
         SystemInput::EndFrame(*this);
+        return;
+    }
+    if (SystemHitStop::Freeze(*this, ticks)) {
+        // input is still read, so a press during the freeze is not lost
+        SystemInput::Update(*this, ticks);
         return;
     }
     { MOTH_PROFILE_SCOPE("SystemInput"); SystemInput::Update(*this, ticks); }
@@ -103,13 +109,6 @@ void GameWorld::Draw() {
         SystemPlayerEditor::Draw(*this);
     }
     { MOTH_PROFILE_SCOPE("Reset target"); m_graphics.SetTarget(nullptr); }
-}
-
-float GameWorld::GetPlayerHealth() const {
-    if (auto const* playerHealth = m_registry.TryGet<ComponentHealth>(m_player)) {
-        return playerHealth->m_currentHealth;
-    }
-    return 0.0f;
 }
 
 float GameWorld::GetPlayerPower() const {
@@ -155,8 +154,6 @@ void GameWorld::CreatePlayer() {
     if (playerData->sprite.valid()) {
         m_registry.Emplace<ComponentSprite>(m_player, *playerData->sprite);
     }
-    m_registry.Emplace<ComponentHealth>(m_player, playerData->health);
-
     if (playerData->death_sprite.valid()) {
         m_registry.Emplace<ComponentDeathSprite>(m_player, playerData->death_sprite.get());
     }

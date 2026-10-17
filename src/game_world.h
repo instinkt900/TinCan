@@ -54,7 +54,6 @@ public:
     // the key bindings the world loaded, for the game shell to read its own actions from
     InputData const& GetInputBindings() const;
 
-    float GetPlayerHealth() const;
     float GetPlayerPower() const;
 
     GameWorld(const GameWorld&) = delete;

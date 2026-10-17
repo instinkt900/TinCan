@@ -13,4 +13,8 @@ class SystemDamage {
 public:
     static void ApplyDamage(moth::ecs::World& registry, moth::ecs::Entity target, float damage,
                             GameData const& gamedata);
+
+    // The ship has no health: one hit destroys it, with the explosion, shake, hit-stop and sound that go
+    // with it. ApplyDamage sends any damage to the player here.
+    static void DestroyPlayer(moth::ecs::World& registry, moth::ecs::Entity player, GameData const& gamedata);
 };

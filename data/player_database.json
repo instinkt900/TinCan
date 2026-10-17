@@ -4,7 +4,6 @@
             "affinity": "Light",
             "sprite": "player_ship",
             "radius": 5,
-            "health": 100,
             "movement": {
                 "max_speed": 800,
                 "acceleration": 4500,
@@ -15,6 +14,7 @@
             "shield_sprite": "player_shield",
             "shield_radius": 45,
             "death_sprite": "explosion_02",
+            "death_sprite_scale": 2,
             "contact": {
                 "damage": 0,
                 "cooldown": 1000

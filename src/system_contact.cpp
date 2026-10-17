@@ -5,6 +5,7 @@
 #include "game_world.h"
 #include "system_damage.h"
 #include "system_movement.h"
+#include "system_projectile.h"
 #include "tags.h"
 #include "utils_collision.h"
 #include "utils_entity.h"
@@ -102,5 +103,31 @@ void SystemContact::Update(GameWorld& world, uint32_t ticks) {
         if (registry.Valid(hit.entity) && !registry.Has<DeadTag>(hit.entity)) {
             SystemDamage::ApplyDamage(registry, hit.entity, hit.damage, gamedata);
         }
+    }
+
+    // touching any enemy destroys the ship, whether or not the enemy takes part in contact. what the touch does
+    // to the enemy is still up to its contact data, above. the ship is destroyed after the views are done,
+    // because its explosion adds to the pools they walk
+    std::vector<moth::ecs::Entity> destroyed;
+    auto playerView = registry.View<PlayerTag, ComponentBody, ComponentPosition>(moth::ecs::Exclude<DeadTag>);
+    for (auto [player, playerBody, playerPosition] : playerView.each()) {
+        // bullets are the shield's and the projectile system's business, and pickups belong to no team
+        auto enemyView =
+            registry.View<ComponentBody, ComponentPosition>(moth::ecs::Exclude<DeadTag, ComponentProjectile>);
+        for (auto [enemy, enemyBody, enemyPosition] : enemyView.each()) {
+            auto const* enemyDetails = GetEntityDetails(registry, enemy);
+            if (enemyDetails == nullptr || enemyDetails->m_team != Team::Enemy) {
+                continue;
+            }
+            auto const t = SweepTest(playerPosition.m_position, playerPosition.m_lastPosition, playerBody.m_radius,
+                                     enemyPosition.m_position, enemyPosition.m_lastPosition, enemyBody.m_radius);
+            if (t < 1.0f) {
+                destroyed.push_back(player);
+                break;
+            }
+        }
+    }
+    for (auto const player : destroyed) {
+        SystemDamage::DestroyPlayer(registry, player, gamedata);
     }
 }

@@ -72,6 +72,7 @@ SOUNDS = {
     "hit": lambda: mix(noise(0.04, 0.35, 8.0, 3), tone(900, 600, 0.04, "sine", 0.2, 8.0)),
     "absorb": lambda: tone(600, 1400, 0.1, "sine", 0.35, 2.0),
     "enemy_death": lambda: mix(noise(0.35, 0.6, 5.0, 4), tone(200, 50, 0.35, "square", 0.25, 4.0)),
+    "player_death": lambda: mix(noise(0.9, 0.8, 3.0, 5), tone(120, 30, 0.9, "square", 0.35, 2.5)),
     "pickup": lambda: join(tone(660, 660, 0.06, "square", 0.25, 1.0),
                            tone(880, 880, 0.06, "square", 0.25, 1.0),
                            tone(1320, 1320, 0.1, "square", 0.25, 3.0)),

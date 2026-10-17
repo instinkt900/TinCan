@@ -4,7 +4,9 @@
 #include "component_health.h"
 #include "gamedata.h"
 #include "gamedata_pickup.h"
+#include "gamedata_player.h"
 #include "system_drawable.h"
+#include "system_hit_stop.h"
 #include "system_movement.h"
 #include "system_pickup.h"
 #include "system_sound.h"
@@ -12,8 +14,46 @@
 #include "utils_entity.h"
 #include <spdlog/spdlog.h>
 
+namespace {
+    // the player's death is the biggest moment in the fight, so its shake is stronger than any other
+    float const PlayerDeathShakeIntensity = 1.5f;
+    uint32_t const PlayerDeathShakeDuration = 800;
+    uint32_t const PlayerDeathHitStop = 100;
+}
+
+void SystemDamage::DestroyPlayer(moth::ecs::World& registry, moth::ecs::Entity player, GameData const& gamedata) {
+    if (registry.Has<DeadTag>(player)) {
+        return;
+    }
+    registry.Emplace<DeadTag>(player);
+
+    if (auto const* position = registry.TryGet<ComponentPosition>(player)) {
+        auto const* playerData = gamedata.GetPlayer();
+        if (auto const* deathSprite = registry.TryGet<ComponentDeathSprite>(player);
+            deathSprite != nullptr && deathSprite->m_sprite != nullptr) {
+            auto const explosion =
+                SystemDrawable::CreateOneShotSprite(registry, *deathSprite->m_sprite, position->m_position);
+            if (explosion != moth::ecs::kNullEntity && playerData != nullptr) {
+                auto& sprite = registry.Get<ComponentSprite>(explosion);
+                sprite.m_scale = { playerData->death_sprite_scale, playerData->death_sprite_scale };
+            }
+        }
+    }
+
+    SystemDrawable::StartCameraShake(registry, PlayerDeathShakeIntensity, PlayerDeathShakeDuration);
+    SystemHitStop::Start(registry, PlayerDeathHitStop);
+    SystemSound::Play(registry, "player_death");
+}
+
 void SystemDamage::ApplyDamage(moth::ecs::World& registry, moth::ecs::Entity target, float damage,
                                GameData const& gamedata) {
+    if (registry.Has<PlayerTag>(target)) {
+        if (damage > 0.0f) {
+            DestroyPlayer(registry, target, gamedata);
+        }
+        return;
+    }
+
     auto* entityHealth = registry.TryGet<ComponentHealth>(target);
     if (entityHealth == nullptr) {
         return;
