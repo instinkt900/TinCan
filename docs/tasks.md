@@ -482,7 +482,7 @@ its progression (T-039).
    with homing: die holding homing, collect a fresh homing, then the dropped
    one: power goes up by 20.
 
-### [todo] T-044 Score points and earn extra lives
+### [done] T-044 Score points and earn extra lives
 
 **Review:** reviewed 2026-10-17
 
@@ -498,20 +498,20 @@ by enemy role; today's enemies map to them by the spec's Art column. This task i
 allowed to change `data/enemy_database.json` and `data/player_database.json`.
 
 **Requirements:**
-- [ ] `EnemyData` has a `score`, 0 when not set.
-- [ ] Killing an enemy by any means (shots, the power weapon, ramming the ship)
+- [x] `EnemyData` has a `score`, 0 when not set.
+- [x] Killing an enemy by any means (shots, the power weapon, ramming the ship)
   adds its score. An escaped enemy adds nothing. Each death spawn piece scores
   its own value.
-- [ ] Starting values in `data/enemy_database.json`: danger_1 100, danger_2 300,
+- [x] Starting values in `data/enemy_database.json`: danger_1 100, danger_2 300,
   danger_3 300, danger_4 1000, danger_5 200, danger_6 5000, and each asteroid
   200.
-- [ ] Losing a life keeps the score.
-- [ ] Every 100,000 points (a data value in the player data) gives a life. A
+- [x] Losing a life keeps the score.
+- [x] Every 100,000 points (a data value in the player data) gives a life. A
   life earned at the most lives is lost. The progress towards the next life is
   kept separately from the score, so T-045 can reset it.
-- [ ] An extra life shows "1UP" floating up from the ship for 1 second, with a
+- [x] An extra life shows "1UP" floating up from the ship for 1 second, with a
   sound. The floating text can be reused for other text (M2).
-- [ ] The debug text in `GameLayer` shows the score until T-047 replaces it.
+- [x] The debug text in `GameLayer` shows the score until T-047 replaces it.
 
 **Out of scope:**
 - Boss sections and boss bonuses (M5).
@@ -521,10 +521,39 @@ allowed to change `data/enemy_database.json` and `data/player_database.json`.
 **Open questions:**
 
 **Notes:**
+- An enemy root with a `score` above 0 gets a `ComponentScoreValue` in
+  `SpawnEnemy`. `SystemLifetime` adds it when the enemy is removed without
+  `EscapedTag`, the same test it uses for death spawns, so kills by shots, the
+  power weapon or ramming all count, and escapes do not.
+- The score and the progress towards the next life are on `ComponentRun`
+  (`m_score`, `m_extraLifeProgress`), so the score survives a lost life.
+  `SystemScore` (`src/system_score.h`) adds points and gives the lives.
+- `extra_life_score` (100000) is a new player data field. A life earned at
+  `max_lives` is lost, with no text or sound.
+- The floating text is `SystemFloatingText` (`src/system_floating_text.h`): a
+  line that rises 60 px/s for its time, drawn in the world with a 32 px font
+  that `GameWorld` now loads. "1UP" rises from the ship for 1 second; with no
+  ship on screen (between a death and the next ship) the text is skipped, but
+  the life and sound still come.
+- Starting scores are written into every entry of `data/enemy_database.json` by
+  the spec's Art column: danger_1 100, danger_2 300, danger_3 300, danger_4
+  1000, danger_5 200, danger_6 5000, asteroids 200.
+- `extra_life` is a new placeholder sound.
 
 **Commits:**
+- f4f202e feat(T-044): score points and earn extra lives
 
 **Manual verification:**
+1. Play the stars map. The debug text shows "Score: 0". Kill a danger_1 enemy:
+   the score goes up by 100.
+2. Let an enemy fly off the screen: the score does not change.
+3. Ram an asteroid (test map): the asteroid's 200 points are added even though
+   the ship is destroyed.
+4. Lose a life: the score stays.
+5. To see an extra life quickly, set `extra_life_score` in
+   `data/player_database.json` to 500 temporarily. Kill five danger_1 enemies:
+   "1UP" rises from the ship for a second, a jingle plays, and Lives goes up by
+   one. At 5 lives, another 500 points gives nothing. Revert the value.
 
 ### [todo] T-045 Show the game over overlay and retry the level
 
