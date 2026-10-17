@@ -32,6 +32,8 @@ set(SOURCES
 	src/system_formation_editor.cpp
 	src/system_player_editor.cpp
 	src/debug_draw_path.cpp
+	src/sound_player.cpp
+	src/system_sound.cpp
 )
 
 find_package(moth_anim REQUIRED)

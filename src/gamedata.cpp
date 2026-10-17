@@ -10,6 +10,7 @@
 #include "gamedata_behaviour.h"
 #include "gamedata_player.h"
 #include "gamedata_input.h"
+#include "gamedata_sound.h"
 
 MAGIC_SERIALIZE_ENUM(GameDataCategory);
 
@@ -103,6 +104,9 @@ bool GameData::Load(std::filesystem::path const& path, SerializeContext const& c
             break;
         case GameDataCategory::Progressions:
             m_progressionDatabase.Load(categoryJson);
+            break;
+        case GameDataCategory::Sounds:
+            m_soundDatabase.Load(categoryJson);
             break;
         default:
             break;

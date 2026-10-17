@@ -1,0 +1,11 @@
+{
+    "sounds": {
+        "shot_main_gun": { "file": "assets/sounds/shot_main_gun.wav", "volume": 0.4, "voices": 4 },
+        "shot_homing": { "file": "assets/sounds/shot_homing.wav", "volume": 0.5, "voices": 4 },
+        "shot_enemy": { "file": "assets/sounds/shot_enemy.wav", "volume": 0.4, "voices": 8 },
+        "hit": { "file": "assets/sounds/hit.wav", "volume": 0.3, "voices": 8 },
+        "absorb": { "file": "assets/sounds/absorb.wav", "volume": 0.4, "voices": 8 },
+        "enemy_death": { "file": "assets/sounds/enemy_death.wav", "volume": 0.6, "voices": 12 },
+        "pickup": { "file": "assets/sounds/pickup.wav", "volume": 0.6, "voices": 2 }
+    }
+}

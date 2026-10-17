@@ -6,6 +6,7 @@
 #include "system_lifetime.h"
 #include "system_movement.h"
 #include "system_projectile.h"
+#include "system_sound.h"
 #include <moth/ecs/world.h>
 #include "game_world.h"
 #include "tags.h"
@@ -50,6 +51,7 @@ void SystemShield::Update(GameWorld& world, uint32_t ticks) {
 
                     // destroy projectile
                     registry.GetOrEmplace<DeadTag>(projectileEntity);
+                    SystemSound::Play(registry, "absorb");
 
                     // apply power
                     if (auto* ownerPower = registry.TryGet<ComponentPower>(shieldParenting.m_parent)) {

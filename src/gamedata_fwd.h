@@ -11,3 +11,4 @@ struct PickupData;
 struct BehaviourData;
 struct PlayerData;
 struct InputData;
+struct SoundData;

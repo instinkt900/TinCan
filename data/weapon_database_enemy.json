@@ -1,6 +1,7 @@
 {
     "weapons": {
         "enemy_danger_1_weapon": {
+            "sound": "shot_enemy",
             "damage": 10,
             "cooldown": 3000,
             "burst": 1,
@@ -17,6 +18,7 @@
             ]
         },
         "enemy_danger_2_weapon": {
+            "sound": "shot_enemy",
             "damage": 10,
             "cooldown": 4000,
             "burst": 4,

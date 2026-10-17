@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gamedata.h"
+#include "sound_player.h"
 #include "world_view.h"
 #include <moth/graphics/graphics/itarget.h>
 #include <moth/graphics/platform/window.h>
@@ -24,6 +25,7 @@ public:
     moth::ecs::World& GetRegistry() { return m_registry; }
     moth::ecs::World const& GetRegistry() const { return m_registry; }
     moth::ecs::Entity GetPlayerEntity() const { return m_player; }
+    SoundPlayer& GetSounds() { return *m_sounds; }
     moth::gfx::IntVec2 const& GetWorldSize() const { return m_worldSize; }
 
     // editor mode freezes the map scroll while it is open, so spawns hold still while editing. the
@@ -69,6 +71,7 @@ private:
     std::unique_ptr<moth::gfx::ITarget> m_worldSurface;
 
     GameData m_gamedata;
+    std::unique_ptr<SoundPlayer> m_sounds;
     InputData const* m_input = nullptr;
     moth::ecs::World m_registry;
     moth::ecs::Entity m_player = moth::ecs::kNullEntity;

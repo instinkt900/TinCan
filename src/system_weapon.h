@@ -31,6 +31,7 @@ struct Weapon {
     int32_t m_maxBurstCooldown = 0;
     bool m_playerTracking = false;
     std::string m_fireState;
+    std::string m_sound;
     ProjectileData m_projectile;
     float m_muzzleSpeed = 0;
     int32_t m_barrelGroupIndex = 0;

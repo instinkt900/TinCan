@@ -9,6 +9,7 @@
 #include "system_map.h"
 #include "system_movement.h"
 #include "system_shield.h"
+#include "system_sound.h"
 #include "system_weapon.h"
 #include "tags.h"
 #include "utils.h"
@@ -119,6 +120,7 @@ void SystemPickup::Update(GameWorld& world, uint32_t ticks) {
         if (t < 1.0f) {
             // detroy the pickup.
             registry.GetOrEmplace<DeadTag>(entity);
+            SystemSound::Play(registry, "pickup");
 
             PlayerPickup(pickup, playerPosition->m_position, registry, gamedata);
         }

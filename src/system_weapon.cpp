@@ -5,6 +5,7 @@
 #include "system_lifetime.h"
 #include "system_movement.h"
 #include "system_projectile.h"
+#include "system_sound.h"
 #include "system_world_bounds.h"
 #include "tags.h"
 #include <algorithm>
@@ -30,6 +31,7 @@ Weapon::Weapon(std::string name, WeaponData const& weapon)
     , m_maxBurstCooldown(weapon.burst_delay)
     , m_playerTracking(weapon.player_tracking)
     , m_fireState(weapon.fire_state)
+    , m_sound(weapon.sound)
     , m_projectile(*weapon.projectile)
     , m_muzzleSpeed(weapon.muzzle_speed) {
     m_barrelGroups.clear();
@@ -197,6 +199,8 @@ void SystemWeapon::Update(GameWorld& world, uint32_t ticks) {
                        (weapon.m_active || weapon.m_burst < burstCount)) {
                     weapon.m_burst -= 1;
                     weapon.m_burstCooldown += burstCooldown;
+
+                    SystemSound::Play(registry, weapon.m_sound);
 
                     if (!weapon.m_fireState.empty()) {
                         if (auto* sprite = registry.TryGet<ComponentSprite>(entity)) {

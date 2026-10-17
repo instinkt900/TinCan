@@ -21,6 +21,7 @@
 #include "system_player_editor.h"
 #include "system_projectile.h"
 #include "system_shield.h"
+#include "system_sound.h"
 #include "system_behaviour_editor.h"
 #include "system_formation_editor.h"
 #include "system_targeting.h"
@@ -38,6 +39,8 @@ GameWorld::GameWorld(moth::gfx::platform::Window& window, moth::gfx::IGraphics& 
     SerializeContext serializeContext{ m_gamedata, m_window.GetSurfaceContext() };
     m_gamedata.LoadDirectory("data", serializeContext);
     m_input = m_gamedata.GetInput();
+    m_sounds = std::make_unique<SoundPlayer>(m_gamedata);
+    m_registry.Emplace<ComponentSoundQueue>(m_registry.Create());
 
     // m_worldSize = SystemMap::InitMap(m_registry, "tiled_project/maps/test.tmj", "tiled_project/tincan.tiled-project",
     m_worldSize = SystemMap::InitMap(m_registry, "tiled_project/maps/stars.tmj", "tiled_project/tincan.tiled-project",
@@ -79,6 +82,7 @@ void GameWorld::Update(uint32_t ticks) {
     { MOTH_PROFILE_SCOPE("SystemWorldBounds"); SystemWorldBounds::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemAnimation"); SystemAnimation::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemDrawable"); SystemDrawable::Update(*this, ticks); }
+    { MOTH_PROFILE_SCOPE("SystemSound"); SystemSound::Update(*this, ticks); }
     SystemInput::EndFrame(*this);
 }
 

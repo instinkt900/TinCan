@@ -7,7 +7,9 @@
 #include "system_drawable.h"
 #include "system_movement.h"
 #include "system_pickup.h"
+#include "system_sound.h"
 #include "tags.h"
+#include "utils_entity.h"
 #include <spdlog/spdlog.h>
 
 void SystemDamage::ApplyDamage(moth::ecs::World& registry, moth::ecs::Entity target, float damage,
@@ -18,12 +20,17 @@ void SystemDamage::ApplyDamage(moth::ecs::World& registry, moth::ecs::Entity tar
     }
 
     auto const* targetPosition = registry.TryGet<ComponentPosition>(target);
+    auto const* targetDetails = GetEntityDetails(registry, target);
+    bool const isEnemy = targetDetails != nullptr && targetDetails->m_team == Team::Enemy;
 
     if (entityHealth->m_currentHealth > 0) {
         entityHealth->m_currentHealth -= damage;
         if (entityHealth->m_currentHealth <= 0) {
             SystemDrawable::StartCameraShake(registry, 0.5f, 500);
             registry.Emplace<DeadTag>(target);
+            if (isEnemy) {
+                SystemSound::Play(registry, "enemy_death");
+            }
 
             if (auto const* deathSprite = registry.TryGet<ComponentDeathSprite>(target);
                 deathSprite != nullptr && deathSprite->m_sprite != nullptr && targetPosition != nullptr) {
@@ -42,6 +49,10 @@ void SystemDamage::ApplyDamage(moth::ecs::World& registry, moth::ecs::Entity tar
                 }
             }
         }
+    }
+
+    if (isEnemy) {
+        SystemSound::Play(registry, "hit");
     }
 
     // flash damage indicator
