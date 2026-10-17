@@ -2,7 +2,6 @@
 #include "utils_collision.h"
 #include "component_body.h"
 #include "component_entity.h"
-#include "component_passives.h"
 #include "gamedata_pickup.h"
 #include "gamedata_weapon.h"
 #include "system_drawable.h"
@@ -75,39 +74,11 @@ void PlayerPickupWeapon(PickupData const& pickup, moth::gfx::FloatVec2 const& po
     SystemWeapon::AddWeapon(registry, playerEntity, pickup.name, *weaponData, gamedata);
 }
 
-void PlayerPickupPassive(PickupData const& pickup, moth::gfx::FloatVec2 const& position,
-                         moth::ecs::World& registry, GameData const& gamedata) {
-    auto const passiveTypeOpt = magic_enum::enum_cast<PassiveType>(pickup.name);
-    if (!passiveTypeOpt.has_value()) {
-        spdlog::error("PlayerPickupPassive - Unknown passive name {}", pickup.name);
-        return;
-    }
-
-    ComponentPassives* playerPassives = nullptr;
-    auto view = registry.View<ComponentPassives, PlayerTag>();
-    for (auto [entity, passives]: view.each()) {
-        playerPassives = &passives;
-    }
-
-    if (playerPassives == nullptr) {
-        spdlog::warn("PlayerPickupPassive - Cannot find player passives component.");
-        return;
-    }
-
-    auto const passiveType = passiveTypeOpt.value();
-    auto const currentBonus = PassiveValue(*playerPassives, passiveType);
-    auto const newBonus = PassiveAccumulate(passiveType, currentBonus, pickup.value.value_or(0));
-    playerPassives->m_value[passiveType] = newBonus;
-}
-
 void PlayerPickup(ComponentPickup const& pickup, moth::gfx::FloatVec2 const& position, moth::ecs::World& registry,
                   GameData const& gamedata) {
     switch (pickup.m_data.type) {
     case PickupType::Weapon:
         PlayerPickupWeapon(pickup.m_data, position, registry, gamedata);
-        break;
-    case PickupType::Passive:
-        PlayerPickupPassive(pickup.m_data, position, registry, gamedata);
         break;
     }
 }

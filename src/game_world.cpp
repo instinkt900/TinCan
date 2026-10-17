@@ -3,7 +3,6 @@
 #include "component_contact.h"
 #include "component_death_sprite.h"
 #include "component_entity.h"
-#include "component_passives.h"
 #include "gamedata_entity.h"
 #include "gamedata_weapon.h"
 #include "gamedata_input.h"
@@ -166,8 +165,6 @@ void GameWorld::CreatePlayer() {
 
     auto& power = m_registry.Emplace<ComponentPower>(m_player);
     power.m_power = 0;
-
-    m_registry.Emplace<ComponentPassives>(m_player);
 
     if (playerData->weapon.valid()) {
         SystemWeapon::InitWeapon(m_registry, m_player, playerData->weapon.ref_name(), *playerData->weapon,

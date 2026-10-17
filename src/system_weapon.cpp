@@ -1,6 +1,5 @@
 #include "system_weapon.h"
 #include "component_entity.h"
-#include "component_passives.h"
 #include "gamedata_weapon.h"
 #include "system_drawable.h"
 #include "system_lifetime.h"
@@ -98,22 +97,6 @@ Weapon* SystemWeapon::AddWeapon(moth::ecs::World& registry, moth::ecs::Entity en
     return &weapon;
 }
 
-struct Passives {
-    float cooldownMult = 1.0f;
-    float burstCooldownMult = 1.0f;
-    float damageMult = 1.0f;
-    float burstAdd = 0.0f;
-};
-
-void CollectPassives(moth::ecs::World& registry, moth::ecs::Entity entity, Passives& passives) {
-    if (auto const* component = registry.TryGet<ComponentPassives>(entity)) {
-        passives.cooldownMult = PassiveValue(*component, PassiveType::WeaponCooldown);
-        passives.burstCooldownMult = PassiveValue(*component, PassiveType::WeaponCooldownBurst);
-        passives.damageMult = PassiveValue(*component, PassiveType::WeaponDamage);
-        passives.burstAdd = PassiveValue(*component, PassiveType::WeaponBurst);
-    }
-}
-
 void SystemWeapon::Update(GameWorld& world, uint32_t ticks) {
     auto& registry = world.GetRegistry();
     ComponentPosition* playerPosition = nullptr;
@@ -131,23 +114,19 @@ void SystemWeapon::Update(GameWorld& world, uint32_t ticks) {
             continue;
         }
 
-        Passives passives;
-        CollectPassives(registry, entity, passives);
-
         for (auto& weapon : weapons.m_weapons) {
-            auto const weaponCooldown = static_cast<float>(weapon.m_maxCooldown) * passives.cooldownMult;
-            auto const burstCooldown =
-                std::max(50.0f, static_cast<float>(weapon.m_maxBurstCooldown) * passives.burstCooldownMult);
-            auto const burstCount = weapon.m_maxBurst + static_cast<int32_t>(passives.burstAdd);
-            auto const damage = weapon.m_damage * passives.damageMult;
+            auto const weaponCooldown = weapon.m_maxCooldown;
+            auto const burstCooldown = std::max(50, weapon.m_maxBurstCooldown);
+            auto const burstCount = weapon.m_maxBurst;
+            auto const damage = weapon.m_damage;
 
             if (weapon.m_cooldown > 0) {
                 weapon.m_cooldown -= static_cast<int32_t>(ticks);
             }
 
             if (weapon.m_cooldown <= 0 && weapon.m_active) {
-                weapon.m_burst = static_cast<int32_t>(burstCount);
-                weapon.m_cooldown += static_cast<int32_t>(weaponCooldown);
+                weapon.m_burst = burstCount;
+                weapon.m_cooldown += weaponCooldown;
             }
 
             if (weapon.m_burst > 0) {
@@ -158,7 +137,7 @@ void SystemWeapon::Update(GameWorld& world, uint32_t ticks) {
                 while (weapon.m_burstCooldown <= 0 && weapon.m_burst > 0 &&
                        (weapon.m_active || weapon.m_burst < burstCount)) {
                     weapon.m_burst -= 1;
-                    weapon.m_burstCooldown += static_cast<int32_t>(burstCooldown);
+                    weapon.m_burstCooldown += burstCooldown;
 
                     if (!weapon.m_fireState.empty()) {
                         if (auto* sprite = registry.TryGet<ComponentSprite>(entity)) {
