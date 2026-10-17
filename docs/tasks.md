@@ -409,7 +409,7 @@ flies the ship in the same way, so the fly-in should be reusable.
    gun level, no homing, and power 0.
 6. Lose all three: no ship comes back, and Lives shows 0.
 
-### [todo] T-043 Drop the carried weapons on death
+### [done] T-043 Drop the carried weapons on death
 
 **Review:** reviewed 2026-10-17
 
@@ -430,15 +430,15 @@ at the map's scroll speed. A weapon's pickup is the pickup entry whose `name` is
 its progression (T-039).
 
 **Requirements:**
-- [ ] On death, each carried weapon except the main gun drops as one pickup, using
+- [x] On death, each carried weapon except the main gun drops as one pickup, using
   that weapon's pickup look, spread out from where the ship died.
-- [ ] A dropped pickup adds as many levels of its weapon as the weapon had when
+- [x] A dropped pickup adds as many levels of its weapon as the weapon had when
   the ship died, on top of the ship's current level of it, or from none.
-- [ ] Each level that would go past the weapon's last level gives 20 power
+- [x] Each level that would go past the weapon's last level gives 20 power
   instead.
-- [ ] Dropped pickups drift down with the scroll and are removed after 8 seconds
+- [x] Dropped pickups drift down with the scroll and are removed after 8 seconds
   (a data value), or when they leave the bottom of the screen.
-- [ ] A weapon with no pickup entry is logged and not dropped.
+- [x] A weapon with no pickup entry is logged and not dropped.
 
 **Out of scope:**
 - Pickup badges and floating text (M2).
@@ -450,10 +450,37 @@ its progression (T-039).
   past the last give 20 power each.
 
 **Notes:**
+- `SystemPickup::DropWeapons` runs from `SystemDamage::DestroyPlayer`. It skips
+  the starting progression (the main gun) and weapons with no progression, such
+  as ones added in the Player Editor.
+- A weapon's pickup is the first `Weapon` pickup entry whose `name` is the
+  weapon's progression.
+- `ComponentPickup` has a new `m_levels` (1 for an ordinary pickup). Collecting
+  passes it to `SystemWeapon::AddWeaponLevels`, and each level past the last
+  gives `max_level_power`, as T-039's pickups do.
+- The drops are placed evenly on a 48 px ring round the death point, starting
+  straight up. They do not fly outwards; they appear spread and drift with the
+  scroll.
+- `drop_lifetime` (8000 ms) is a new player data field. A drop also gets kill
+  bounds whose bottom is the ship's bounds (the screen) plus the pickup radius,
+  so it is removed once it falls past the bottom.
+- Ordinary pickups are still not culled. That stays out of scope (M2).
 
 **Commits:**
+- 936d82b feat(T-043): drop the carried weapons on death
 
 **Manual verification:**
+1. On a map with drops (the T-050 test map), collect homing, then die. One
+   homing pickup appears beside where the ship died and drifts down with the
+   scroll. The main gun does not drop.
+2. Collect it with the next ship: homing comes back.
+3. Do not collect it: it disappears after 8 seconds, or when it falls off the
+   bottom of the screen, whichever comes first.
+4. Levels add up: with a weapon at level 2, die, collect a fresh pickup of it
+   (level 1), then the dropped one: the weapon is at level 3. Levels that go
+   past the last show as power (+20 each). Homing has one level until M2, so
+   with homing: die holding homing, collect a fresh homing, then the dropped
+   one: power goes up by 20.
 
 ### [todo] T-044 Score points and earn extra lives
 
@@ -922,3 +949,8 @@ and the `behaviour` enum lacks `drift_out`. (Found in session 2026-09-25.)
   within 15 seconds of the close request and was killed (exit 137), with no
   shutdown lines and no warnings in the log. It passed every other time.
   (Session 2026-09-25.)
+- Projectile kill bounds in `SystemWeapon::Update` call `MakeRect(-200, -200,
+  width + 200, height + 200)`, but `MakeRect` takes a width and height, so the
+  bounds end at the screen's right and bottom edges rather than 200 px past
+  them. Enemy bullets are removed as they reach the bottom edge. (Session
+  2026-10-17, T-043.)
