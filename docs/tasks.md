@@ -555,7 +555,7 @@ allowed to change `data/enemy_database.json` and `data/player_database.json`.
    "1UP" rises from the ship for a second, a jingle plays, and Lives goes up by
    one. At 5 lives, another 500 points gives nothing. Revert the value.
 
-### [todo] T-045 Show the game over overlay and retry the level
+### [done] T-045 Show the game over overlay and retry the level
 
 **Review:** reviewed 2026-10-17
 
@@ -582,20 +582,20 @@ The session writes the layout file by hand. A plain placeholder is fine: the art
 pass restyles it later.
 
 **Requirements:**
-- [ ] When the last life is lost, the overlay appears after the 1.5 s respawn
+- [x] When the last life is lost, the overlay appears after the 1.5 s respawn
   delay, where the ship would otherwise fly in.
-- [ ] The overlay is a moth::ui layout, in its own layer over the game. Its
+- [x] The overlay is a moth::ui layout, in its own layer over the game. Its
   "GAME OVER" text shows at once. A full-screen black element fades in from
   clear to opaque over 2 seconds, as an animation in the layout.
-- [ ] The game keeps running behind the overlay during the fade, and stops when
+- [x] The game keeps running behind the overlay during the fade, and stops when
   the fade ends.
-- [ ] After the fade, Fire retries and Quit exits the game. Before the fade ends,
+- [x] After the fade, Fire retries and Quit exits the game. Before the fade ends,
   neither does anything. Pause does nothing while the overlay shows.
-- [ ] Retry removes the overlay and restarts the map from its start: every enemy,
+- [x] Retry removes the overlay and restarts the map from its start: every enemy,
   projectile and pickup is gone, the scroll starts again, and the player has 3
   lives and the weapons, levels and power they had when the level started.
-- [ ] Retry sets the score and the progress towards the next extra life to 0.
-- [ ] The state the player had when the level started is recorded when the level
+- [x] Retry sets the score and the progress towards the next extra life to 0.
+- [x] The state the player had when the level started is recorded when the level
   starts, so M6 can carry it from the level before.
 
 **Out of scope:**
@@ -610,10 +610,58 @@ pass restyles it later.
 - Q: Who makes the layout? A: The session, by hand, as a placeholder.
 
 **Notes:**
+- The overlay is `GameOverLayer` (`src/game_over_layer.h`), a `moth::ui::Layer`
+  that loads `assets/layouts/game_over.mothui` with `NodeFactory`. The layout
+  was written by hand: a full-screen black `Rect` whose `ColorAlpha` goes 0 to 1
+  over the 60-frame (2 s at 30 fps) `fade_in` clip, the "GAME OVER" text, and a
+  "FIRE TO RETRY / ESCAPE TO QUIT" prompt that appears when the fade ends. The
+  fade's end is the clip's `EventAnimationStopped`, caught by the root's event
+  handler.
+- The layer is pushed once, from `GameLayer::OnAddedToStack`, and shown and
+  hidden rather than pushed and removed, because `LayerStack::Update` and
+  `Draw` walk the layer vector and cannot have it change underneath them.
+  `GameLayer` keeps a raw pointer; the stack owns it.
+- `GameLayer::Update` shows the overlay when `GameWorld::IsGameOver()` turns
+  true, stops updating the world once the overlay has faded, and on a retry
+  hides it and calls `GameWorld::RestartLevel`.
+- `SystemRespawn` now runs the respawn wait with no lives left too, and sets
+  `ComponentRun::m_gameOver` when it ends, so the overlay comes when the ship
+  would have flown in.
+- While shown, the overlay takes every key event, so Pause, F1 and F2 do
+  nothing. Before the fade ends the keys do nothing. After it, a Fire press
+  retries and a Quit release (Escape) fires `EventQuit`, as `GameLayer` does.
+- `GameWorld::StartLevel` clears the registry and builds the level again: the
+  map, the run entity with the starting lives and no score, and the ship from
+  `LevelEntryState` (`m_levelEntry`: weapons with levels, and power). The entry
+  state is the start of the run for now; M6 can set it from the level before.
+  The sound player, the loaded data and the world image are kept.
+  `CreatePlayer` now takes a weapon list and power.
+- The font is registered as `TinCan` in a new `assets/fonts.json` (pointing at
+  `assets/font.ttf`), loaded in `main.cpp` where the commented-out
+  `LoadProject` call was.
+- Checked with a one-off launch check run, with lives set to 1 and temporary
+  log lines in `Show()` and on the fade's end, left for 45 s: the overlay
+  showed after the ship was destroyed, the fade ended 2.0 s later, and the game
+  shut down cleanly. The temporary changes were reverted before the commit.
+  Retry and Quit need a key press, so they are in the manual steps.
+- A key held through a retry is not seen as held by the new level until it is
+  pressed again, because the run's input is rebuilt with it.
 
 **Commits:**
+- 86932a2 feat(T-045): show the game over overlay and retry the level
 
 **Manual verification:**
+1. Play the stars map and lose all three lives. About 1.5 s after the last
+   death, "GAME OVER" appears at once, and the game behind fades to black over
+   2 seconds while it keeps moving.
+2. When the fade ends, the game behind has stopped, and "FIRE TO RETRY  ESCAPE
+   TO QUIT" shows. Pressing keys during the fade does nothing, and P does not
+   pause.
+3. Press Fire: the overlay goes, and the map starts again from the beginning
+   with no enemies or bullets left over, Lives 3, Score 0, power 0 and the main
+   gun at level 1.
+4. Lose again and press Escape after the fade: the game closes.
+5. Resize the window while the overlay shows: it still covers the window.
 
 ### [todo] T-046 Rework the power weapon
 
