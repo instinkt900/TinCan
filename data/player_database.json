@@ -22,6 +22,15 @@
             "safe_time": 3000,
             "drop_lifetime": 8000,
             "extra_life_score": 100000,
+            "power_weapon": {
+                "max_power": 100,
+                "segment_power": 10,
+                "absorb_power": 1,
+                "missiles_per_segment": 4,
+                "missile_damage": 50,
+                "projectile": "player_homing_bullet",
+                "muzzle_speed": 200
+            },
             "contact": {
                 "damage": 0,
                 "cooldown": 1000

@@ -29,6 +29,9 @@ struct ComponentCamera {
     moth::gfx::FloatVec2 m_offset;
     moth::gfx::FloatVec2 m_shakeOffset;
     std::vector<CameraShake> m_shake;
+    // a white flash over the whole screen that fades out
+    uint32_t m_flashLeft = 0;
+    uint32_t m_flashDuration = 0;
 };
 
 struct ComponentSprite {
@@ -70,6 +73,7 @@ public:
     static void Draw(GameWorld& world, moth::gfx::IGraphics& graphics);
 
     static void StartCameraShake(moth::ecs::World& registry, float intensity, uint32_t duration);
+    static void StartScreenFlash(moth::ecs::World& registry, uint32_t duration);
 
     // Spawns a sprite at the position that removes itself once its animation
     // stops. Static sprites never stop, so they are rejected.

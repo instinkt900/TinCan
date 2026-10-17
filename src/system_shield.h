@@ -1,12 +1,17 @@
 #pragma once
 
 #include <moth/ecs/world.h>
+#include <algorithm>
 #include "gamedata_entity.h"
 
 class GameWorld;
 
 struct ComponentPower {
-    float m_power;
+    float m_power = 0.0f;
+    float m_maxPower = 0.0f; // power over this is lost
+
+    // adds power from any source, keeping it under the most it can hold
+    void Add(float amount) { m_power = std::clamp(m_power + amount, 0.0f, m_maxPower); }
 };
 
 struct ComponentShield {

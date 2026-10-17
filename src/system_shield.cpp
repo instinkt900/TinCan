@@ -5,6 +5,7 @@
 #include "system_drawable.h"
 #include "system_lifetime.h"
 #include "system_movement.h"
+#include "gamedata_player.h"
 #include "system_projectile.h"
 #include "system_sound.h"
 #include <moth/ecs/world.h>
@@ -13,6 +14,11 @@
 
 void SystemShield::Update(GameWorld& world, uint32_t ticks) {
     auto& registry = world.GetRegistry();
+    // each absorbed bullet is worth the same, whatever its damage
+    float absorbPower = 0.0f;
+    if (auto const* playerData = world.GetGameData().GetPlayer(); playerData != nullptr && playerData->power_weapon) {
+        absorbPower = playerData->power_weapon->absorb_power;
+    }
     auto view = registry.View<ComponentParenting, ComponentPosition, ComponentBody, ComponentShield>(
         moth::ecs::Exclude<DeadTag>);
 
@@ -55,7 +61,7 @@ void SystemShield::Update(GameWorld& world, uint32_t ticks) {
 
                     // apply power
                     if (auto* ownerPower = registry.TryGet<ComponentPower>(shieldParenting.m_parent)) {
-                        ownerPower->m_power += projectileData.m_damage;
+                        ownerPower->Add(absorbPower);
                     }
                 }
             }

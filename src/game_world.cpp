@@ -225,12 +225,15 @@ void GameWorld::CreatePlayer(std::vector<std::pair<std::string, int32_t>> const&
     }
 
     auto& playerPower = m_registry.Emplace<ComponentPower>(m_player);
-    playerPower.m_power = power;
+    playerPower.m_maxPower = playerData->power_weapon ? playerData->power_weapon->max_power : 0.0f;
+    playerPower.Add(power);
 
     for (auto const& [progression, level] : weapons) {
         SystemWeapon::AddWeaponLevels(m_registry, m_player, progression, level + 1, m_gamedata);
     }
-    SystemPowerWeapon::InitWeapon(m_registry, m_player, "dummy", m_gamedata);
+    if (playerData->power_weapon) {
+        SystemPowerWeapon::InitWeapon(m_registry, m_player, *playerData->power_weapon);
+    }
 
     if (playerData->contact.has_value()) {
         m_registry.Emplace<ComponentContact>(m_player, *playerData->contact);

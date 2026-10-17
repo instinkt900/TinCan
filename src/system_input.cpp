@@ -39,7 +39,7 @@ void SystemInput::Update(GameWorld& world, uint32_t ticks) {
         }
 
         if (auto* weapon = registry.TryGet<ComponentPowerWeapon>(entity)) {
-            weapon->m_activated = input.Held(InputAction::PowerWeapon);
+            weapon->m_activated = input.Pressed(InputAction::PowerWeapon);
         }
 
         if (auto* entityData = registry.TryGet<ComponentEntity>(entity)) {

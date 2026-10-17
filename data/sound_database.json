@@ -8,6 +8,8 @@
         "enemy_death": { "file": "assets/sounds/enemy_death.wav", "volume": 0.6, "voices": 12 },
         "player_death": { "file": "assets/sounds/player_death.wav", "volume": 0.8, "voices": 1 },
         "extra_life": { "file": "assets/sounds/extra_life.wav", "volume": 0.7, "voices": 1 },
+        "power_release": { "file": "assets/sounds/power_release.wav", "volume": 0.7, "voices": 2 },
+        "power_empty": { "file": "assets/sounds/power_empty.wav", "volume": 0.5, "voices": 1 },
         "pickup": { "file": "assets/sounds/pickup.wav", "volume": 0.6, "voices": 2 }
     }
 }

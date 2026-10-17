@@ -3,7 +3,6 @@
 #include "system_shield.h"
 #include "system_weapon.h"
 #include <algorithm>
-#include <cfloat>
 #include <imgui.h>
 #include <string>
 
@@ -33,9 +32,8 @@ namespace {
             return;
         }
 
-        // power has no ceiling in the game, so this is a drag rather than a slider
-        ImGui::DragFloat("Power", &power->m_power, 1.0f, 0.0f, FLT_MAX);
-        power->m_power = std::max(0.0f, power->m_power);
+        ImGui::SliderFloat("Power", &power->m_power, 0.0f, power->m_maxPower);
+        power->m_power = std::clamp(power->m_power, 0.0f, power->m_maxPower);
     }
 
     void DrawWeapons(GameWorld& world, moth::ecs::World& registry, moth::ecs::Entity player) {

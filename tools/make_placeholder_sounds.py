@@ -77,6 +77,8 @@ SOUNDS = {
                                tone(659, 659, 0.08, "square", 0.25, 1.0),
                                tone(784, 784, 0.08, "square", 0.25, 1.0),
                                tone(1047, 1047, 0.25, "square", 0.25, 2.0)),
+    "power_release": lambda: mix(tone(150, 1200, 0.5, "saw", 0.35, 2.0), noise(0.5, 0.3, 3.0, 6)),
+    "power_empty": lambda: tone(220, 180, 0.08, "square", 0.2, 3.0),
     "pickup": lambda: join(tone(660, 660, 0.06, "square", 0.25, 1.0),
                            tone(880, 880, 0.06, "square", 0.25, 1.0),
                            tone(1320, 1320, 0.1, "square", 0.25, 3.0)),

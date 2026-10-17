@@ -175,6 +175,7 @@ void SystemDrawable::Update(GameWorld& world, uint32_t ticks) {
 
     auto& camera = cameraView.get<ComponentCamera>(*cameraView.begin());
     UpdateCameraShake(camera, ticks);
+    camera.m_flashLeft -= std::min(camera.m_flashLeft, ticks);
 
     auto const dt = static_cast<float>(ticks) / 1000.0f;
     auto view = registry.View<ComponentSprite>(moth::ecs::Exclude<DeadTag>);
@@ -228,7 +229,25 @@ void SystemDrawable::Draw(GameWorld& world, moth::gfx::IGraphics& graphics) {
         DrawSprite(graphics, *draw.m_sprite, draw.m_position, draw.m_angle);
     }
 
+    if (camera.m_flashLeft > 0 && camera.m_flashDuration > 0) {
+        auto const alpha = static_cast<float>(camera.m_flashLeft) / static_cast<float>(camera.m_flashDuration);
+        auto const size = world.GetWorldSize();
+        graphics.SetBlendMode(moth::gfx::BlendMode::Alpha);
+        graphics.SetColor(moth::gfx::Color{ 1.0f, 1.0f, 1.0f, alpha });
+        graphics.DrawFillRectF(moth::gfx::MakeRect(0.0f, 0.0f, static_cast<float>(size.x), static_cast<float>(size.y)));
+        graphics.SetColor(moth::gfx::BasicColors::White);
+    }
+
     DrawDebugs(registry, graphics);
+}
+
+void SystemDrawable::StartScreenFlash(moth::ecs::World& registry, uint32_t duration) {
+    auto cameraView = registry.View<ComponentCamera>();
+    if (!cameraView.empty()) {
+        auto& camera = cameraView.get<ComponentCamera>(*cameraView.begin());
+        camera.m_flashLeft = duration;
+        camera.m_flashDuration = duration;
+    }
 }
 
 void SystemDrawable::StartCameraShake(moth::ecs::World& registry, float intensity, uint32_t duration) {

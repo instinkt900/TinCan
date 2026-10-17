@@ -82,7 +82,7 @@ void PlayerPickupWeapon(PickupData const& pickup, int32_t levels, moth::gfx::Flo
         auto const* playerData = gamedata.GetPlayer();
         auto* power = registry.TryGet<ComponentPower>(playerEntity);
         if (playerData != nullptr && power != nullptr) {
-            power->m_power += playerData->max_level_power * static_cast<float>(overflow);
+            power->Add(playerData->max_level_power * static_cast<float>(overflow));
         }
     }
 }
