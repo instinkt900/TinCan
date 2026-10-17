@@ -240,7 +240,7 @@ download sounds, so the placeholders are generated.
 6. To regenerate the placeholders, run `python3 tools/make_placeholder_sounds.py`
    from the repository root.
 
-### [todo] T-042 Destroy the ship with one hit
+### [done] T-042 Destroy the ship with one hit
 
 **Review:** reviewed 2026-10-17
 
@@ -260,16 +260,16 @@ There is no hit-stop yet. Until T-022, a destroyed ship does not come back, as
 today.
 
 **Requirements:**
-- [ ] The player has no health. `health` is gone from `PlayerData` and
+- [x] The player has no health. `health` is gone from `PlayerData` and
   `data/player_database.json`.
-- [ ] An enemy bullet that reaches the player's hitbox destroys the ship.
-- [ ] Contact with any enemy destroys the ship, including enemies with no
+- [x] An enemy bullet that reaches the player's hitbox destroys the ship.
+- [x] Contact with any enemy destroys the ship, including enemies with no
   `contact` data. What contact does to the enemy stays as its data says.
-- [ ] The player's death has a big explosion, a strong camera shake, a 100 ms
+- [x] The player's death has a big explosion, a strong camera shake, a 100 ms
   hit-stop and a death sound.
-- [ ] Hit-stop freezes the game update for a set time, so other events can use it
+- [x] Hit-stop freezes the game update for a set time, so other events can use it
   (T-049). The scroll and the enemies carry on after it.
-- [ ] The health line is gone from the debug text in `GameLayer`.
+- [x] The health line is gone from the debug text in `GameLayer`.
 
 **Out of scope:**
 - Lives and respawn (T-022).
@@ -279,10 +279,42 @@ today.
 **Open questions:**
 
 **Notes:**
+- `SystemDamage::DestroyPlayer` is the one place the ship is destroyed.
+  `ApplyDamage` sends any damage above 0 aimed at the player there, so bullets
+  and contact from enemies with `contact` data go through it unchanged.
+- Contact with enemies that have no `contact` data is a new check at the end of
+  `SystemContact::Update`: the player's body against every body on
+  `Team::Enemy` that is not a projectile (sections count through
+  `GetEntityDetails`). The ship is destroyed after the views finish, because
+  its explosion adds a `ComponentPosition`.
+- Hit-stop is `SystemHitStop` (`src/system_hit_stop.h`), a countdown on a
+  `ComponentHitStop` entity. While it runs, `GameWorld::Update` reads input and
+  skips everything else, so the scroll, enemies, shake and animations all hold.
+- The explosion is the player's `death_sprite`, scaled by a new
+  `death_sprite_scale` in the player data (2). The shake (1.5 intensity,
+  800 ms) and the 100 ms hit-stop are named constants in `system_damage.cpp`,
+  like the existing enemy-death shake. `player_death` is a new placeholder sound.
+- The player no longer has a `ComponentHealth`. Homing targeting only looks for
+  targets with health, and only the player's missiles home, so nothing that
+  targets the player is affected.
+- The Player Editor's health controls are removed with the component.
+- `GameWorld::GetPlayerHealth` is removed with the health text.
 
 **Commits:**
+- 3d4943e feat(T-042): destroy the ship with one hit
 
 **Manual verification:**
+1. Play the stars map. Switch the shield to the other colour and fly into an
+   enemy bullet: the ship explodes at once (twice the sprite's size), the camera
+   shakes hard, the game freezes for a moment, and the death sound plays. The
+   ship does not come back (lives come in T-022).
+2. With the shield the same colour as the bullets, they are absorbed and the
+   ship survives.
+3. Fly into a danger enemy (no contact data): the ship is destroyed, and the
+   enemy is unharmed.
+4. Fly into an asteroid (desert map or the T-050 test map): the ship is
+   destroyed and the asteroid breaks, as its contact data says.
+5. The top-left debug text no longer shows health.
 
 ### [todo] T-022 Give the player lives and a respawn
 
