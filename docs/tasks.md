@@ -316,7 +316,7 @@ today.
    destroyed and the asteroid breaks, as its contact data says.
 5. The top-left debug text no longer shows health.
 
-### [todo] T-022 Give the player lives and a respawn
+### [done] T-022 Give the player lives and a respawn
 
 **Review:** reviewed 2026-10-17
 
@@ -334,20 +334,20 @@ at the bottom centre, 160 px up from the bottom. The level intro in M4 (T-024)
 flies the ship in the same way, so the fly-in should be reusable.
 
 **Requirements:**
-- [ ] The player starts with 3 lives and holds at most 5. Both are data values.
-- [ ] A destroyed ship costs one life. The scroll and the enemies carry on.
-- [ ] 1.5 seconds after the death, the ship flies in from below the bottom
+- [x] The player starts with 3 lives and holds at most 5. Both are data values.
+- [x] A destroyed ship costs one life. The scroll and the enemies carry on.
+- [x] 1.5 seconds after the death, the ship flies in from below the bottom
   centre of the screen to its start point. The player has no control during the
   fly-in.
-- [ ] When it arrives, the player has control, and the ship is safe for 3
+- [x] When it arrives, the player has control, and the ship is safe for 3
   seconds: enemy bullets and contact do not destroy it. It blinks while safe, and
   it can fire and absorb.
-- [ ] On respawn, the main gun keeps its level, every other weapon is gone, and
+- [x] On respawn, the main gun keeps its level, every other weapon is gone, and
   power is 0.
-- [ ] With no lives left, the ship does not come back. (T-045 adds the game
+- [x] With no lives left, the ship does not come back. (T-045 adds the game
   over.)
-- [ ] The debug text in `GameLayer` shows the lives until T-047 replaces it.
-- [ ] The delays, the fly-in time and the safe time are data values.
+- [x] The debug text in `GameLayer` shows the lives until T-047 replaces it.
+- [x] The delays, the fly-in time and the safe time are data values.
 
 **Out of scope:**
 - Death drops (T-043).
@@ -365,10 +365,49 @@ flies the ship in the same way, so the fly-in should be reusable.
 - Q: Can lives be gained? A: Through score only (T-044).
 
 **Notes:**
+- The run's state is a `ComponentRun` on an entity of its own that lasts the
+  whole run (`src/system_respawn.h`): lives, the most lives, the main gun's
+  level at death, and the respawn countdown. T-044 and T-045 can add to it.
+- A destroyed ship is still removed, as before, and `GameWorld::RespawnPlayer`
+  makes a new one. `CreatePlayer` takes the main gun level and whether to fly
+  in. The shield of the old ship is removed by the existing orphan rule in
+  `UpdateParenting`.
+- The fly-in (`ComponentFlyIn`) moves the ship from 64 px below the screen to
+  the start point with a smooth ease. The ship has no `ComponentInput` and no
+  bounds until it arrives (the bounds would hold it on screen). T-024's level
+  intro can reuse `ComponentFlyIn`.
+- Keys held through a respawn: the run entity also carries a `ComponentInput`,
+  which `SystemInput::OnKey` keeps up to date with no ship. The arriving ship
+  copies its held keys, so fire held through a death keeps firing on arrival.
+- While the ship flies in or is safe (`ComponentSafe`), `DestroyPlayer` does
+  nothing. An enemy bullet that touches it is still removed, as any bullet that
+  hits a target is; it is not absorbed and gives no power.
+- Blinking toggles a new `ComponentSprite::m_visible` every 100 ms (a named
+  constant). Only the ship blinks; the shield stays shown.
+- Assumption: the respawned ship starts at the player data's affinity (light),
+  as a new ship does, rather than the affinity it had.
+- The values are new player data fields: `lives` 3, `max_lives` 5,
+  `respawn_delay` 1500, `fly_in_time` 1000 and `safe_time` 3000. The spec
+  gives no fly-in time; 1 second is a starting value.
+- The launch check does not destroy the ship, so the respawn is checked only by
+  reading the code and by the manual steps below.
 
 **Commits:**
+- f1c647f feat(T-022): give the player lives and a respawn
 
 **Manual verification:**
+1. Play the stars map. The debug text shows "Lives: 3".
+2. Die (switch colour and fly into a bullet). The scroll and enemies carry on.
+   About 1.5 s later the ship flies up from below the bottom centre over about
+   1 s. It does not respond to the arrow keys while it flies in. Lives: 2.
+3. On arrival it responds again, blinks for 3 s, and bullets of the other
+   colour and enemies do not destroy it. It can fire. After the blinking stops,
+   a hit destroys it.
+4. Hold fire while dying and keep holding: the new ship fires as soon as it
+   arrives, without pressing again.
+5. Collect main gun levels and homing, then die: the new ship has the same main
+   gun level, no homing, and power 0.
+6. Lose all three: no ship comes back, and Lives shows 0.
 
 ### [todo] T-043 Drop the carried weapons on death
 
