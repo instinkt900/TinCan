@@ -1,5 +1,6 @@
 #pragma once
 
+#include "game_over_layer.h"
 #include "game_world.h"
 #include <moth/graphics/events/event_window.h>
 #include <moth/graphics/graphics/igraphics.h>
@@ -34,8 +35,12 @@ private:
     void CreatePlayer();
 
     moth::gfx::platform::Window& m_window;
+    moth::ui::Context& m_context;
     moth::gfx::IGraphics& m_graphics;
     std::unique_ptr<GameWorld> m_gameWorld;
+    // pushed above this layer once, when this layer is added, and owned by the stack. it is shown and hidden rather
+    // than pushed and removed, because the stack cannot change while it updates or draws its layers
+    GameOverLayer* m_gameOverLayer = nullptr;
     std::unique_ptr<moth::gfx::IFont> m_font;
     moth::profile::ProfilerPanel m_profilerPanel;
     // keys that went down while an editor text field was active, and have not come up yet

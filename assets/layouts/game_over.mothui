@@ -1,0 +1,439 @@
+{
+    "mothui_version": 1,
+    "type": "Layout",
+    "class": "",
+    "blend": "Alpha",
+    "clips": [
+        {
+            "name": "fade_in",
+            "startFrame": 0,
+            "endFrame": 60,
+            "fps": 30.0,
+            "loopType": "Stop"
+        }
+    ],
+    "events": [],
+    "children": [
+        {
+            "type": "Rect",
+            "id": "background",
+            "class": "",
+            "blend": "Alpha",
+            "visible": true,
+            "pivot": [
+                0.5,
+                0.5
+            ],
+            "filled": true,
+            "tracks": [
+                {
+                    "target": "TopAnchor",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 0,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "BottomAnchor",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 1,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "LeftAnchor",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 0,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "RightAnchor",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 1,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "TopOffset",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 0,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "BottomOffset",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 0,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "LeftOffset",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 0,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "RightOffset",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 0,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "ColorRed",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 0,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "ColorGreen",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 0,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "ColorBlue",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 0,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "ColorAlpha",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 0.0,
+                            "interp": "Linear"
+                        },
+                        {
+                            "frame": 60,
+                            "value": 1.0,
+                            "interp": "Linear"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "Text",
+            "id": "title",
+            "class": "",
+            "blend": "Alpha",
+            "visible": true,
+            "pivot": [
+                0.5,
+                0.5
+            ],
+            "fontName": "TinCan",
+            "fontSize": 96,
+            "text": "GAME OVER",
+            "horizontalAlignment": "Center",
+            "verticalAlignment": "Middle",
+            "tracks": [
+                {
+                    "target": "TopAnchor",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 0.35,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "BottomAnchor",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 0.5,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "LeftAnchor",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 0,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "RightAnchor",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 1,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "TopOffset",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 0,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "BottomOffset",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 0,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "LeftOffset",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 0,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "RightOffset",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 0,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "ColorRed",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 1,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "ColorGreen",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 1,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "ColorBlue",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 1,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "ColorAlpha",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 1.0,
+                            "interp": "Linear"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "Text",
+            "id": "prompt",
+            "class": "",
+            "blend": "Alpha",
+            "visible": true,
+            "pivot": [
+                0.5,
+                0.5
+            ],
+            "fontName": "TinCan",
+            "fontSize": 32,
+            "text": "FIRE TO RETRY      ESCAPE TO QUIT",
+            "horizontalAlignment": "Center",
+            "verticalAlignment": "Middle",
+            "tracks": [
+                {
+                    "target": "TopAnchor",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 0.55,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "BottomAnchor",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 0.65,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "LeftAnchor",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 0,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "RightAnchor",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 1,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "TopOffset",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 0,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "BottomOffset",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 0,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "LeftOffset",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 0,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "RightOffset",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 0,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "ColorRed",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 1,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "ColorGreen",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 1,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "ColorBlue",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 1,
+                            "interp": "Linear"
+                        }
+                    ]
+                },
+                {
+                    "target": "ColorAlpha",
+                    "keyframes": [
+                        {
+                            "frame": 0,
+                            "value": 0.0,
+                            "interp": "Step"
+                        },
+                        {
+                            "frame": 60,
+                            "value": 1.0,
+                            "interp": "Linear"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "extra_data": {}
+}

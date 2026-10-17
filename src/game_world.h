@@ -2,6 +2,9 @@
 
 #include "gamedata.h"
 #include "sound_player.h"
+#include <string>
+#include <utility>
+#include <vector>
 #include "world_view.h"
 #include <moth/graphics/graphics/itarget.h>
 #include <moth/graphics/platform/window.h>
@@ -14,6 +17,12 @@
 enum class EditorWindow {
     Behaviour,
     Formation,
+};
+
+// What the player brings into a level, kept so that a game over can start the level again with it.
+struct LevelEntryState {
+    std::vector<std::pair<std::string, int32_t>> m_weapons; // each weapon's progression and level index
+    float m_power = 0.0f;
 };
 
 class GameWorld : public moth::ui::IEventListener {
@@ -62,6 +71,12 @@ public:
     // it had, and nothing else
     void RespawnPlayer(int32_t mainGunLevel);
 
+    // whether the last life is lost and its wait for a ship is over
+    bool IsGameOver() const;
+    // starts the level again after a game over: the map from its start, with the starting lives, the weapons and
+    // power the player entered the level with, and no score
+    void RestartLevel();
+
     GameWorld(const GameWorld&) = delete;
     GameWorld(GameWorld&&) = delete;
     GameWorld& operator=(const GameWorld&) = delete;
@@ -69,7 +84,8 @@ public:
 
 private:
     bool OnKeyEvent(moth::ui::EventKey const& event);
-    void CreatePlayer(int32_t mainGunLevel, bool flyIn);
+    void StartLevel();
+    void CreatePlayer(std::vector<std::pair<std::string, int32_t>> const& weapons, float power, bool flyIn);
 
     moth::gfx::platform::Window& m_window;
     moth::gfx::IGraphics& m_graphics;
@@ -83,6 +99,7 @@ private:
     moth::ecs::Entity m_player = moth::ecs::kNullEntity;
 
     WorldViewTransform m_viewTransform;
+    LevelEntryState m_levelEntry;
 
     bool m_paused = false;
     bool m_editorModeOpen = false;

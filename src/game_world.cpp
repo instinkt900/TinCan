@@ -43,15 +43,27 @@ GameWorld::GameWorld(moth::gfx::platform::Window& window, moth::gfx::IGraphics& 
     m_gamedata.LoadDirectory("data", serializeContext);
     m_input = m_gamedata.GetInput();
     m_sounds = std::make_unique<SoundPlayer>(m_gamedata);
+
+    // the run starts with the starting weapon at its first level and no power
+    if (auto const* playerData = m_gamedata.GetPlayer(); playerData != nullptr && !playerData->weapon.empty()) {
+        m_levelEntry.m_weapons.emplace_back(playerData->weapon, 0);
+    }
+    StartLevel();
+    m_worldSurface = m_window.GetDevice().CreateTarget(m_worldSize.x, m_worldSize.y);
+    m_font = m_window.GetSurfaceContext().GetAssetContext().FontFromFile("assets/font.ttf", 32);
+}
+
+void GameWorld::StartLevel() {
+    m_registry.Clear();
+    m_player = moth::ecs::kNullEntity;
+    m_paused = false;
+
     m_registry.Emplace<ComponentSoundQueue>(m_registry.Create());
     m_registry.Emplace<ComponentHitStop>(m_registry.Create());
 
     // m_worldSize = SystemMap::InitMap(m_registry, "tiled_project/maps/test.tmj", "tiled_project/tincan.tiled-project",
     m_worldSize = SystemMap::InitMap(m_registry, "tiled_project/maps/stars.tmj", "tiled_project/tincan.tiled-project",
                                      m_window.GetSurfaceContext().GetAssetContext(), WorldHeight);
-    m_worldSurface = m_window.GetDevice().CreateTarget(m_worldSize.x, m_worldSize.y);
-    m_font = m_window.GetSurfaceContext().GetAssetContext().FontFromFile("assets/font.ttf", 32);
-    // InitTestWorld();
 
     // the run outlives each ship, so it lives on an entity of its own
     if (auto const* playerData = m_gamedata.GetPlayer()) {
@@ -61,7 +73,15 @@ GameWorld::GameWorld(moth::gfx::platform::Window& window, moth::gfx::IGraphics& 
         runState.m_lives = std::clamp(playerData->lives, 1, runState.m_maxLives);
         m_registry.Emplace<ComponentInput>(run);
     }
-    CreatePlayer(0, false);
+    CreatePlayer(m_levelEntry.m_weapons, m_levelEntry.m_power, false);
+}
+
+void GameWorld::RestartLevel() {
+    StartLevel();
+}
+
+bool GameWorld::IsGameOver() const {
+    return SystemRespawn::IsGameOver(m_registry);
 }
 
 bool GameWorld::OnEvent(moth::ui::Event const& event) {
@@ -146,7 +166,11 @@ int32_t GameWorld::GetPlayerScore() const {
 }
 
 void GameWorld::RespawnPlayer(int32_t mainGunLevel) {
-    CreatePlayer(mainGunLevel, true);
+    auto const* playerData = m_gamedata.GetPlayer();
+    if (playerData == nullptr) {
+        return;
+    }
+    CreatePlayer({ { playerData->weapon, mainGunLevel } }, 0.0f, true);
 }
 
 InputData const& GameWorld::GetInputBindings() const {
@@ -166,7 +190,7 @@ bool GameWorld::OnKeyEvent(moth::ui::EventKey const& event) {
     return false;
 }
 
-void GameWorld::CreatePlayer(int32_t mainGunLevel, bool flyIn) {
+void GameWorld::CreatePlayer(std::vector<std::pair<std::string, int32_t>> const& weapons, float power, bool flyIn) {
     auto const* playerData = m_gamedata.GetPlayer();
     if (playerData == nullptr) {
         // GetPlayer logs the missing entry. Without it there is nothing to build
@@ -200,11 +224,11 @@ void GameWorld::CreatePlayer(int32_t mainGunLevel, bool flyIn) {
         m_registry.Emplace<ComponentInput>(m_player);
     }
 
-    auto& power = m_registry.Emplace<ComponentPower>(m_player);
-    power.m_power = 0;
+    auto& playerPower = m_registry.Emplace<ComponentPower>(m_player);
+    playerPower.m_power = power;
 
-    if (!playerData->weapon.empty()) {
-        SystemWeapon::AddWeaponLevels(m_registry, m_player, playerData->weapon, mainGunLevel + 1, m_gamedata);
+    for (auto const& [progression, level] : weapons) {
+        SystemWeapon::AddWeaponLevels(m_registry, m_player, progression, level + 1, m_gamedata);
     }
     SystemPowerWeapon::InitWeapon(m_registry, m_player, "dummy", m_gamedata);
 

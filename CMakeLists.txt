@@ -38,6 +38,7 @@ set(SOURCES
 	src/system_respawn.cpp
 	src/system_floating_text.cpp
 	src/system_score.cpp
+	src/game_over_layer.cpp
 )
 
 find_package(moth_anim REQUIRED)

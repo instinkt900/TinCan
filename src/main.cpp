@@ -8,11 +8,10 @@ void start(moth::gfx::platform::IPlatform& platform) {
     auto* uiWindow = application->GetUiWindow();
     auto& mothContext = uiWindow->GetMothContext();
     auto& graphics = uiWindow->GetGraphics();
-    //
-    // // load the fonts before layouts
-    // mothContext.GetFontFactory().LoadProject("assets/fonts.json");
-    //
-    // // add an example layer
+
+    // the fonts are loaded before any layout that names them
+    mothContext.GetFontFactory().LoadProject("assets/fonts.json");
+
     uiWindow->PushLayer(std::make_unique<GameLayer>(uiWindow->GetWindow(), mothContext, graphics));
 
     // start the application

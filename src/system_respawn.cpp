@@ -93,11 +93,10 @@ void SystemRespawn::OnPlayerDestroyed(moth::ecs::World& registry, moth::ecs::Ent
         }
     }
 
+    // the wait runs with no lives left too: the game over comes when the next ship would have
     run->m_lives = std::max(0, run->m_lives - 1);
-    if (run->m_lives > 0) {
-        run->m_respawning = true;
-        run->m_respawnLeft = playerData->respawn_delay;
-    }
+    run->m_respawning = true;
+    run->m_respawnLeft = playerData->respawn_delay;
 }
 
 bool SystemRespawn::IsProtected(moth::ecs::World& registry, moth::ecs::Entity player) {
@@ -112,13 +111,25 @@ int32_t SystemRespawn::GetLives(moth::ecs::World const& registry) {
     return 0;
 }
 
+bool SystemRespawn::IsGameOver(moth::ecs::World const& registry) {
+    auto view = registry.View<ComponentRun>();
+    for (auto [entity, run] : view.each()) {
+        return run.m_gameOver;
+    }
+    return false;
+}
+
 void SystemRespawn::Update(GameWorld& world, uint32_t ticks) {
     auto& registry = world.GetRegistry();
     if (auto* run = FindRun(registry); run != nullptr && run->m_respawning) {
         run->m_respawnLeft -= std::min(run->m_respawnLeft, ticks);
         if (run->m_respawnLeft == 0) {
             run->m_respawning = false;
-            world.RespawnPlayer(run->m_mainGunLevel);
+            if (run->m_lives > 0) {
+                world.RespawnPlayer(run->m_mainGunLevel);
+            } else {
+                run->m_gameOver = true;
+            }
         }
     }
 

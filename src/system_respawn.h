@@ -18,6 +18,7 @@ struct ComponentRun {
     bool m_respawning = false;
     int32_t m_score = 0;
     int32_t m_extraLifeProgress = 0; // points towards the next extra life, kept apart so a game over can clear it
+    bool m_gameOver = false;         // set when the wait for the next ship ends with no lives left
 };
 
 // A ship flying in from below the screen. It has no control until it arrives.
@@ -41,5 +42,6 @@ public:
     // whether the ship cannot be destroyed right now: while it flies in and while it is safe
     static bool IsProtected(moth::ecs::World& registry, moth::ecs::Entity player);
     static int32_t GetLives(moth::ecs::World const& registry);
+    static bool IsGameOver(moth::ecs::World const& registry);
     static void Update(GameWorld& world, uint32_t ticks);
 };

@@ -13,6 +13,7 @@
 GameLayer::GameLayer(moth::gfx::platform::Window& window, moth::ui::Context& context,
                      moth::gfx::IGraphics& graphics)
     : m_window(window)
+    , m_context(context)
     , m_graphics(graphics) {
     m_gameWorld = std::make_unique<GameWorld>(m_window, m_graphics);
 }
@@ -29,7 +30,19 @@ bool GameLayer::OnEvent(moth::ui::Event const& event) {
 
 void GameLayer::Update(uint32_t ticks) {
     MOTH_PROFILE_SCOPE("Update");
-    m_gameWorld->Update(ticks);
+    if (m_gameOverLayer != nullptr && m_gameOverLayer->TakeRetry()) {
+        m_gameOverLayer->Hide();
+        m_gameWorld->RestartLevel();
+    }
+
+    // the game carries on behind the game over overlay while it fades in, and stops once it has
+    if (m_gameOverLayer == nullptr || !m_gameOverLayer->IsFaded()) {
+        m_gameWorld->Update(ticks);
+    }
+
+    if (m_gameOverLayer != nullptr && !m_gameOverLayer->IsShown() && m_gameWorld->IsGameOver()) {
+        m_gameOverLayer->Show();
+    }
 }
 
 void GameLayer::Draw() {
@@ -106,6 +119,10 @@ void GameLayer::OnAddedToStack(moth::ui::LayerStack* stack) {
 
     auto& surfaceContext = m_window.GetSurfaceContext();
     m_font = surfaceContext.GetAssetContext().FontFromFile("assets/font.ttf", 24);
+
+    auto gameOverLayer = std::make_unique<GameOverLayer>(m_context, m_gameWorld->GetInputBindings());
+    m_gameOverLayer = gameOverLayer.get();
+    stack->PushLayer(std::move(gameOverLayer));
 }
 
 
