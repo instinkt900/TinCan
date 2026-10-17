@@ -92,8 +92,11 @@ The debug keys (F1 profiler, F2 editors) stay in all builds.
 1. The ship explodes (big explosion, screen shake, death sound). The scroll and
    the enemies carry on.
 2. Every carried weapon except the main gun drops as its own pickup, spread out
-   from where the ship died. Each pickup gives back that weapon at the level it
-   had. They drift down with the scroll and are gone after 8 seconds.
+   from where the ship died. Each pickup adds as many levels of its weapon as
+   the weapon had, on top of whatever the ship carries when it is collected: a
+   dropped spread 2, collected after a new spread pickup, gives spread 3. Each
+   level past 3 gives 20 power instead. They drift down with the scroll and are
+   gone after 8 seconds.
 3. The main gun keeps its level. Power goes to 0. Score is kept.
 4. After 1.5 seconds the ship flies in from the bottom centre of the screen. It is
    safe for 3 seconds and blinks, and it can fire during that time.
@@ -406,6 +409,10 @@ Last level cleared ──▶ Credits ──▶ Main menu
 | Game over   | "GAME OVER" and the high score table with this run's score; Retry, Quit   |
 | Credits     | After the last level: the high score table with this run's score, then the credits; then the main menu |
 
+- **Game over** is an overlay on the game. "GAME OVER" shows at once, and a
+  black background fades in over 2 seconds while the game carries on behind it.
+  When the fade ends, the game behind stops, and the overlay waits for Retry or
+  Quit.
 - **New** with a save present asks "Start a new run? Your saved run will be
   lost."
 - Escape (or Start) opens the pause menu. It no longer quits the game.

@@ -55,8 +55,8 @@ Build:
   with an enemy destroys the ship.
 - Lives, and the respawn with its safe time (T-022).
 - Death drops that give back each weapon at its level.
-- A last life lost restarts the level with the state the player entered it
-  with, as a game over does. The game over screen comes in M6.
+- The game over overlay, with Retry restarting the level as the spec says. Quit
+  exits the game until M6 adds the main menu, and M7 adds the high score table.
 - Score values in enemy data, the score, and an extra life every 100,000 points.
 - The power weapon as the spec says: 1 power per absorbed bullet, a cap of 100,
   and 4 missiles for each full segment.
@@ -181,6 +181,7 @@ Build:
   score table (M7 adds it).
 - Level to level flow, carrying lives, weapons, power and score.
 - The game over rule, and Restart counting as a game over.
+- Gamepad input, and Escape opening the pause menu instead of quitting.
 - The save, Continue, and the "Start a new run?" prompt.
 - The settings file: volumes, fullscreen and the player name.
 - The title music track.

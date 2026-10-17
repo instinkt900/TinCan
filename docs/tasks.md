@@ -12,24 +12,591 @@ to [tasks-done.md](tasks-done.md).
 
 ## Tasks
 
-### [todo] T-022 Give the player multiple lives
+### [todo] T-040 Remove the passive pickups
 
-**Review:** unreviewed
+**Review:** reviewed 2026-10-17
+
+**Depends on:** none
 
 **Goal:**
-Add multiple lives for the player.
+M1. The spec removes the passive pickups (fire rate, damage, burst), with their
+code. Weapon levels replace them (T-039).
+
+Context from planning: the passives are `ComponentPassives` and `PassiveType`
+(`src/component_passives.h`), `PickupType::Passive` and `PickupData::value`
+(`src/gamedata_pickup.h`), `PlayerPickupPassive` (`src/system_pickup.cpp`), and
+the `Passives` multipliers in `SystemWeapon::Update` (`src/system_weapon.cpp`).
+`CreatePlayer` (`src/game_world.cpp`) gives the player a `ComponentPassives`. No
+entry in `data/pickup_database.json` is a passive.
 
 **Requirements:**
-- [ ] The player has more than one life.
+- [ ] `ComponentPassives`, `PassiveType` and their helpers are removed, with
+  `src/component_passives.h`.
+- [ ] `PickupType` has no `Passive` value, and `PickupData` has no `value`.
+- [ ] `SystemWeapon::Update` fires each weapon with its own cooldown, burst,
+  burst delay and damage, with no multipliers.
+- [ ] `data/pickup_database.json` still loads, and weapons fire as before.
+
+**Out of scope:**
+- Any change to how weapon pickups work (T-039).
 
 **Open questions:**
-- Q: How many lives does the player start with, and is that a data value?
-- Q: What happens when a life is lost: respawn where, after what delay, with
-  what invulnerability if any?
-- Q: What is kept and what is lost on death (weapons, power-ups, score)?
-- Q: What happens when the last life is lost, and how does the game show the
-  lives remaining?
-- Q: Can lives be gained during play?
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
+### [todo] T-039 Level up weapons through repeated pickups
+
+**Review:** reviewed 2026-10-17
+
+**Depends on:** T-040
+
+**Goal:**
+M1. Pickups today add a separate weapon each, and the player weapons are built
+as an upgrade path (level 2 adds barrels to level 1, and so on). Because each
+level is its own pickup, the player can pick up level 3 without level 2. The
+spec instead gives each weapon 3 levels and one pickup: the first pickup adds
+the weapon at level 1, each later pickup raises it by one, and a pickup for a
+weapon at its last level gives 20 power.
+
+The levels are defined in data as an ordered progression list rather than a
+name-suffix convention, for example `"weapon_progressions": { "main_gun":
+["main_gun_1", "main_gun_2", "main_gun_3"] }`. `WeaponData` stays single-level,
+so enemy weapons are unchanged. Each level is a full definition, not a change to
+the level before.
+
+Context from planning: `AddWeapon` (`src/system_weapon.cpp`) already copies the
+first weapon's timers so a new weapon fires on the same beat. The pickups are
+`weapon_drop_01` (gives `player_weapon_01`) and `weapon_drop_02` (gives
+`player_weapon_02`) in `data/pickup_database.json`, and the Tiled `pickup` enum
+in `tiled_project/tincan.tiled-project` lists both. No map sets a `drop`, so no
+map refers to them. Power has no cap yet; T-046 adds it.
+
+This task is allowed to change `data/weapon_database_player.json`,
+`data/pickup_database.json`, `data/player_database.json` and the `pickup` enum in
+`tiled_project/tincan.tiled-project`.
+
+**Requirements:**
+- [ ] The weapon data has ordered progressions that list a weapon's levels by
+  weapon name. `WeaponData` itself stays single-level.
+- [ ] A weapon pickup's `name` and the player's starting weapon refer to a
+  progression.
+- [ ] Picking up a weapon the player does not carry adds it at level 1.
+- [ ] Picking up a weapon the player carries raises it by one level.
+- [ ] Picking up a weapon that is at its last level gives the player 20 power.
+  The 20 is a data value.
+- [ ] A carried weapon records its progression and current level.
+- [ ] A level-up rebuilds the weapon from the next level's data and keeps its
+  timers, so it stays on the same beat as the other weapons.
+- [ ] The main gun progression has the spec's three levels as full definitions:
+  2 barrels, 5 damage, every 100 ms; then 4 barrels; then 6 barrels at 7 damage.
+- [ ] The homing progression has one level, today's `player_weapon_homing_01`.
+- [ ] There is one pickup for the main gun and one for homing, and the Tiled
+  `pickup` enum lists exactly the pickups in `data/pickup_database.json`.
+- [ ] The player starts with the main gun at level 1.
+
+**Out of scope:**
+- Homing levels 2 and 3, and the other weapons (M2).
+- Pickup badges and the floating "WEAPON N" text (M2).
+- The power cap (T-046).
+- Enemy weapons.
+
+**Open questions:**
+- Q: What happens when the player picks up a weapon that is already at its last
+  level? A: It gives 20 power (spec).
+- Q: Do weapon levels survive the player dying? A: The main gun keeps its level;
+  the other weapons drop as pickups (T-043).
+- Q: Do enemy weapons stay plain single-level weapons? A: Yes.
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
+### [todo] T-041 Play sound effects
+
+**Review:** reviewed 2026-10-17
+
+**Depends on:** none
+
+**Goal:**
+M1. The game has no sound. The spec's Feel table needs a sound for nearly every
+event, and the roadmap counts a feature as done only with its sound, even a
+placeholder. This task adds sound effect playback first, so that the tasks after
+it can each add their own sounds.
+
+Context from planning: moth_toolkit has `moth_audio` 0.1.0 (miniaudio), used by
+`examples/audio_demo` with `self.requires("moth_audio/[~0.1]")`. The user adds
+`moth_audio/[~0.1]` to `conanfile.py` and `moth::audio` to `CMakeLists.txt`, and
+runs `conan install`, before the session; the session does not change either
+file. If the dependency is not there, the task is blocked. A session cannot
+download sounds, so the placeholders are generated.
+
+**Requirements:**
+- [ ] The game uses `moth_audio` from the dependency the user added.
+- [ ] Sounds are named entries in a new `data/sound_database.json`, loaded
+  through `GameData`, each with a file and a volume.
+- [ ] Game code plays a sound by its data entry, and a missing entry or file is
+  logged once and plays nothing.
+- [ ] Many copies of a sound can play at once, so 50 enemies dying together do
+  not cut each other off, and the number playing at once has a limit.
+- [ ] A script in `tools/` generates the placeholder sounds as WAV files in
+  `assets/sounds/`, and the generated files are committed.
+- [ ] Placeholder sounds play for: the player's shots (main gun and homing each
+  their own), an enemy shot, a hit on an enemy, an absorb, an enemy death and a
+  pickup.
+
+**Out of scope:**
+- Music (M4).
+- Volume settings (M6).
+- Sounds for events later tasks add (player death, extra life, power release and
+  empty): those tasks add them.
+
+**Open questions:**
+- Q: Who adds the `moth_audio` dependency? A: The user, before the session,
+  with `conan install`.
+- Q: Where do placeholder sounds come from? A: A script generates them.
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
+### [todo] T-042 Destroy the ship with one hit
+
+**Review:** reviewed 2026-10-17
+
+**Depends on:** T-041
+
+**Goal:**
+M1. As in Ikaruga, the ship has no health: one bullet that gets through the
+shield, or one contact with an enemy, destroys it (spec, Death and lives).
+
+Context from planning: the player has a `ComponentHealth` of 100 from
+`data/player_database.json`, and damage goes through `SystemDamage::ApplyDamage`
+(`src/system_damage.cpp`), which also shakes the camera on every death.
+Projectiles hit in `SystemProjectile`, contact is `SystemContact`, and only the
+asteroids have `contact` data, so touching a danger enemy does nothing today.
+The player's hitbox is its 5 px body; the 45 px shield is a separate entity.
+There is no hit-stop yet. Until T-022, a destroyed ship does not come back, as
+today.
+
+**Requirements:**
+- [ ] The player has no health. `health` is gone from `PlayerData` and
+  `data/player_database.json`.
+- [ ] An enemy bullet that reaches the player's hitbox destroys the ship.
+- [ ] Contact with any enemy destroys the ship, including enemies with no
+  `contact` data. What contact does to the enemy stays as its data says.
+- [ ] The player's death has a big explosion, a strong camera shake, a 100 ms
+  hit-stop and a death sound.
+- [ ] Hit-stop freezes the game update for a set time, so other events can use it
+  (T-049). The scroll and the enemies carry on after it.
+- [ ] The health line is gone from the debug text in `GameLayer`.
+
+**Out of scope:**
+- Lives and respawn (T-022).
+- Enemy health and damage.
+- The camera shake on ordinary enemy deaths (T-049).
+
+**Open questions:**
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
+### [todo] T-022 Give the player lives and a respawn
+
+**Review:** reviewed 2026-10-17
+
+**Depends on:** T-039, T-042
+
+**Goal:**
+M1. The run starts with 3 lives and holds at most 5. When the ship is destroyed,
+it comes back after a short time, safe for a moment, so that dying costs time
+and weapons but can be recovered (spec, Death and respawn).
+
+Context from planning: today a destroyed player entity is removed by
+`SystemLifetime` and nothing creates a new one; `SystemPickup` already treats no
+player as a normal state. `CreatePlayer` (`src/game_world.cpp`) places the ship
+at the bottom centre, 160 px up from the bottom. The level intro in M4 (T-024)
+flies the ship in the same way, so the fly-in should be reusable.
+
+**Requirements:**
+- [ ] The player starts with 3 lives and holds at most 5. Both are data values.
+- [ ] A destroyed ship costs one life. The scroll and the enemies carry on.
+- [ ] 1.5 seconds after the death, the ship flies in from below the bottom
+  centre of the screen to its start point. The player has no control during the
+  fly-in.
+- [ ] When it arrives, the player has control, and the ship is safe for 3
+  seconds: enemy bullets and contact do not destroy it. It blinks while safe, and
+  it can fire and absorb.
+- [ ] On respawn, the main gun keeps its level, every other weapon is gone, and
+  power is 0.
+- [ ] With no lives left, the ship does not come back. (T-045 adds the game
+  over.)
+- [ ] The debug text in `GameLayer` shows the lives until T-047 replaces it.
+- [ ] The delays, the fly-in time and the safe time are data values.
+
+**Out of scope:**
+- Death drops (T-043).
+- Score and extra lives (T-044).
+- The game over (T-045).
+
+**Open questions:**
+- Q: How many lives, and is that data? A: 3 at the start, at most 5, in data.
+- Q: Respawn where, after what delay, with what safe time? A: Fly-in from the
+  bottom centre after 1.5 s, then 3 s safe with blinking.
+- Q: Does the player control the ship during the fly-in? A: No, only once it
+  arrives. The safe time starts then.
+- Q: What is kept on death? A: The main gun's level and the score. The other
+  weapons drop (T-043), and power goes to 0.
+- Q: Can lives be gained? A: Through score only (T-044).
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
+### [todo] T-043 Drop the carried weapons on death
+
+**Review:** reviewed 2026-10-17
+
+**Depends on:** T-022
+
+**Goal:**
+M1. When the ship is destroyed, every weapon it carries except the main gun
+drops as its own pickup, so the player can win them back (spec, Death and
+respawn).
+
+A dropped pickup holds as many levels as its weapon had, and adds them on top
+of whatever the ship carries when it is collected. A dropped spread 2, collected
+after a new spread pickup (spread 1), gives spread 3. Each level past the last
+gives 20 power, as a pickup at the last level does.
+
+Context from planning: pickups are made by `SystemPickup::CreatePickup` and drift
+at the map's scroll speed. A weapon's pickup is the pickup entry whose `name` is
+its progression (T-039).
+
+**Requirements:**
+- [ ] On death, each carried weapon except the main gun drops as one pickup, using
+  that weapon's pickup look, spread out from where the ship died.
+- [ ] A dropped pickup adds as many levels of its weapon as the weapon had when
+  the ship died, on top of the ship's current level of it, or from none.
+- [ ] Each level that would go past the weapon's last level gives 20 power
+  instead.
+- [ ] Dropped pickups drift down with the scroll and are removed after 8 seconds
+  (a data value), or when they leave the bottom of the screen.
+- [ ] A weapon with no pickup entry is logged and not dropped.
+
+**Out of scope:**
+- Pickup badges and floating text (M2).
+- The collect radius (M2).
+
+**Open questions:**
+- Q: Does a dropped pickup set the weapon to its old level, or add levels? A: It
+  adds as many levels as the weapon had, on top of what the ship carries. Levels
+  past the last give 20 power each.
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
+### [todo] T-044 Score points and earn extra lives
+
+**Review:** reviewed 2026-10-17
+
+**Depends on:** T-022
+
+**Goal:**
+M1. Every enemy has a score value in its data, and killing it adds that value,
+whatever killed it. Every 100,000 points gives a life (spec, Score).
+
+Context from planning: `SystemLifetime` tells kills from escapes through
+`EscapedTag`, and death spawns are spawned there. The spec's starting values are
+by enemy role; today's enemies map to them by the spec's Art column. This task is
+allowed to change `data/enemy_database.json` and `data/player_database.json`.
+
+**Requirements:**
+- [ ] `EnemyData` has a `score`, 0 when not set.
+- [ ] Killing an enemy by any means (shots, the power weapon, ramming the ship)
+  adds its score. An escaped enemy adds nothing. Each death spawn piece scores
+  its own value.
+- [ ] Starting values in `data/enemy_database.json`: danger_1 100, danger_2 300,
+  danger_3 300, danger_4 1000, danger_5 200, danger_6 5000, and each asteroid
+  200.
+- [ ] Losing a life keeps the score.
+- [ ] Every 100,000 points (a data value in the player data) gives a life. A
+  life earned at the most lives is lost. The progress towards the next life is
+  kept separately from the score, so T-045 can reset it.
+- [ ] An extra life shows "1UP" floating up from the ship for 1 second, with a
+  sound. The floating text can be reused for other text (M2).
+- [ ] The debug text in `GameLayer` shows the score until T-047 replaces it.
+
+**Out of scope:**
+- Boss sections and boss bonuses (M5).
+- The score display (T-047).
+- Resetting the score on a game over (T-045).
+
+**Open questions:**
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
+### [todo] T-045 Show the game over overlay and retry the level
+
+**Review:** reviewed 2026-10-17
+
+**Depends on:** T-044
+
+**Goal:**
+M1. When the last life is lost, a game over overlay shows over the game.
+"GAME OVER" shows at once, and a black background element in the overlay fades
+in over 2 seconds while the game carries on behind it. When the fade ends, the
+game behind stops, and the overlay waits for a key: retry or quit (spec, Menus
+and screens).
+
+Retry restarts the level as a game over does: 3 lives, the weapons, levels and
+power the player had when they entered the level, and the score and the progress
+towards the next extra life back to zero (spec, Run structure).
+
+Context from planning: the spec makes every screen a moth::ui layout, and TinCan
+has none yet; `src/main.cpp` has the font project loading commented out. The game
+is one `GameLayer` holding a `GameWorld`. In M1 the level is the map the game
+loaded, entered at the start of the run. Escape is bound to `Quit` and exits the
+game today; M6 changes that.
+
+The session writes the layout file by hand. A plain placeholder is fine: the art
+pass restyles it later.
+
+**Requirements:**
+- [ ] When the last life is lost, the overlay appears after the 1.5 s respawn
+  delay, where the ship would otherwise fly in.
+- [ ] The overlay is a moth::ui layout, in its own layer over the game. Its
+  "GAME OVER" text shows at once. A full-screen black element fades in from
+  clear to opaque over 2 seconds, as an animation in the layout.
+- [ ] The game keeps running behind the overlay during the fade, and stops when
+  the fade ends.
+- [ ] After the fade, Fire retries and Quit exits the game. Before the fade ends,
+  neither does anything. Pause does nothing while the overlay shows.
+- [ ] Retry removes the overlay and restarts the map from its start: every enemy,
+  projectile and pickup is gone, the scroll starts again, and the player has 3
+  lives and the weapons, levels and power they had when the level started.
+- [ ] Retry sets the score and the progress towards the next extra life to 0.
+- [ ] The state the player had when the level started is recorded when the level
+  starts, so M6 can carry it from the level before.
+
+**Out of scope:**
+- The high score table on the overlay (M7).
+- Quit going to the main menu, and the pause menu's Restart (M6).
+- Saving (M6).
+
+**Open questions:**
+- Q: What does the game over look like in M1? A: An overlay with "GAME OVER" and
+  a black background that fades in over 2 seconds while the game carries on.
+  When the fade ends the game stops and the overlay waits to retry or quit.
+- Q: Who makes the layout? A: The session, by hand, as a placeholder.
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
+### [todo] T-046 Rework the power weapon
+
+**Review:** reviewed 2026-10-17
+
+**Depends on:** T-041
+
+**Goal:**
+M1. Power is stored up to 100, as 10 segments of 10. Pressing the power button
+spends every full segment, and each one fires 4 homing missiles. Each absorbed
+bullet adds 1 power (spec, Shield and affinity, Power weapon).
+
+Context from planning: today `SystemShield` adds the absorbed bullet's damage as
+power, with no cap. `SystemPowerWeapon::InitWeapon` sets the projectile, power
+per projectile, speed and damage in code, and fires one fan of up to 10° per shot
+every frame the button is held. `UpdateTargetingRandom`
+(`src/system_targeting.cpp`) already picks a random target. This task is allowed
+to change `data/player_database.json`.
+
+**Requirements:**
+- [ ] Each absorbed bullet adds 1 power.
+- [ ] Power is capped at 100. Power over the cap is lost, from any source,
+  including the 20 power from weapon pickups (T-039, T-043).
+- [ ] The power weapon's values are in the player data: the cap, the segment
+  size (10), missiles per segment (4), missile damage (50), the projectile and
+  its speed.
+- [ ] The power weapon fires on the press of its button, not while it is held.
+- [ ] A press spends every full segment and leaves the partial one. Each spent
+  segment fires 4 missiles that fan out from the ship and each seek a random
+  enemy.
+- [ ] A press with no full segment does nothing but play a short "empty" sound.
+- [ ] A release has a screen flash, a short camera shake and its own sound. It
+  does not clear bullets and does not make the ship safe.
+
+**Out of scope:**
+- The power meter (T-047).
+- The absorb effect (T-049).
+
+**Open questions:**
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
+### [todo] T-047 Show the on-screen display
+
+**Review:** reviewed 2026-10-17
+
+**Depends on:** T-044, T-046
+
+**Goal:**
+M1. The on-screen display shows only the basics: lives top left, score top
+right, and the power meter bottom left (spec, On-screen display).
+
+Context from planning: `GameLayer::Draw` draws the world into its own image,
+scales it into the window, then draws debug text lines for health and power.
+The display is drawn inside the play field, so it scales with the world and
+stays on the map whatever the window's shape.
+
+**Requirements:**
+- [ ] Top left: the lives as ship icons.
+- [ ] Top right: the score.
+- [ ] Bottom left: the power meter, 10 segments; full segments glow.
+- [ ] When an extra life is earned, the new icon flashes.
+- [ ] The display is drawn in the play field, over the world and under the game
+  over overlay, and scales with it.
+- [ ] The debug text lines in `GameLayer` are removed.
+
+**Out of scope:**
+- Any other display (spec: nothing else).
+
+**Open questions:**
+- Q: Inside the play field or at the window edges? A: Inside the play field.
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
+### [todo] T-048 Add feel to shots and hits
+
+**Review:** reviewed 2026-10-17
+
+**Depends on:** T-041
+
+**Goal:**
+M1. The spec's Feel table: when the player fires, a muzzle flash and the shot
+sound; when a shot hits an enemy, the enemy flashes white and a spark shows at
+the hit point.
+
+Context from planning: an enemy hit already sets the sprite's flash time in
+`SystemDamage::ApplyDamage`. One-shot sprites are made with
+`SystemDrawable::CreateOneShotSprite`. Placeholder art is fine.
+
+**Requirements:**
+- [ ] Each player weapon shows a muzzle flash at its barrels when it fires.
+- [ ] A player shot that hits an enemy shows a spark at the hit point.
+- [ ] A hit enemy flashes white.
+- [ ] The flash and spark sprites are named in data.
+
+**Out of scope:**
+- A spark and sprite per weapon (M2).
+
+**Open questions:**
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
+### [todo] T-049 Add feel to absorbs and enemy deaths
+
+**Review:** reviewed 2026-10-17
+
+**Depends on:** T-042, T-047
+
+**Goal:**
+M1. The spec's Feel table: an absorbed bullet pulls into the shield, the shield
+pulses, and the meter ticks. An enemy death has an explosion sized to the enemy
+and holds up with 50 on screen. A large enemy's death has a bigger explosion, a
+shake and a 50 ms hit-stop. Shake and hit-stop are used only where the table
+says.
+
+Context from planning: `SystemDamage::ApplyDamage` shakes the camera on every
+death today. The hit-stop comes from T-042. This task is allowed to change
+`data/enemy_database.json`.
+
+**Requirements:**
+- [ ] An absorbed bullet moves into the centre of the shield over a short time
+  before it is removed, and does no harm while it does.
+- [ ] The shield pulses on each absorb, and the power meter's current segment
+  ticks.
+- [ ] An enemy's death explosion is sized to the enemy.
+- [ ] Ordinary enemy deaths do not shake the camera.
+- [ ] An enemy marked large in its data has a bigger explosion, a camera shake
+  and a 50 ms hit-stop when it dies. danger_6 is marked large.
+- [ ] 50 enemies dying together stays smooth.
+
+**Out of scope:**
+- Boss deaths (M5).
+
+**Open questions:**
+
+**Notes:**
+
+**Commits:**
+
+**Manual verification:**
+
+### [todo] T-050 Add a test map for the core fight
+
+**Review:** reviewed 2026-10-17
+
+**Depends on:** T-039, T-044
+
+**Goal:**
+M1. A test map with a few waves, for replaying the fight while M1 to M3 are
+built (roadmap, M1).
+
+Context from planning: the game loads `tiled_project/maps/stars.tmj` by a path in
+`GameWorld`'s constructor. Pickups come only from spawn drops until M4 adds pickup
+spawns.
+
+**Requirements:**
+- [ ] A new map, `tiled_project/maps/test.tmj`, about 2 minutes long, on the stars
+  tileset, using only existing enemies, behaviours, formations and pickups.
+- [ ] It has light and dark fodder formations, gunners from both sides, a few
+  enemies to absorb from, an asteroid chain, and formation drops that give main
+  gun levels and homing.
+- [ ] The game takes a `--map <path>` command-line option. With none, it loads
+  the stars map, as today.
+- [ ] Both existing maps still load and play as before.
+
+**Out of scope:**
+- New enemies, behaviours or pickups.
+
+**Open questions:**
+- Q: How does the game pick the test map? A: A `--map` option, with the stars
+  map as the default.
 
 **Notes:**
 
@@ -42,20 +609,25 @@ Add multiple lives for the player.
 **Review:** unreviewed
 
 **Goal:**
-Add map scroll pause support. Some areas might want to pause for a time or for
-some kind of trigger, for example boss fights.
+M4. Add map scroll pause support. Some areas need the scroll to stop until a
+fight is over, for example set pieces and boss fights.
+
+From the spec (Levels, Map objects): a scroll pause is an object placed in the
+map. It stops the scroll until every enemy spawned since the last pause is gone,
+or a boss dies. While the scroll is paused the background still moves (the
+parallax stars), so the screen never looks frozen. Spawns below the pause wait
+for it to release.
 
 **Requirements:**
-- [ ] The map scroll can be paused for a time.
 - [ ] The map scroll can be paused until a trigger releases it.
 
 **Open questions:**
 - Q: How is a pause authored in the map data: a point on the map, a spawn, or
-  something else?
-- Q: What kinds of trigger release a pause (all spawned enemies dead, a named
-  enemy dead, a timer, a script)?
-- Q: Does anything else stop while the scroll is paused, for example the
-  background layers, the parallax or the spawning?
+  something else? A: An object placed in the map (spec).
+- Q: What kinds of trigger release a pause? A: Every enemy spawned since the last
+  pause is gone, or a boss dies (spec). No timer.
+- Q: Does anything else stop while the scroll is paused? A: The background keeps
+  moving; spawns below the pause wait for it (spec).
 - Q: Can a map hold several pauses, and can a pause be skipped?
 
 **Notes:**
@@ -69,21 +641,28 @@ some kind of trigger, for example boss fights.
 **Review:** unreviewed
 
 **Goal:**
-Add intro/exit animation support. The player flying in and out, or something
-like that.
+M4. Add the level intro and exit (spec, Level intro and exit).
+
+- Intro: the ship flies in from below the screen to its start point over 1.5
+  seconds while the level name shows. The player gets control when it arrives.
+- Exit: after a boss dies, the player has 3 seconds to collect the drops, then
+  loses control and the ship flies off the top of the screen. "LEVEL COMPLETE"
+  shows for 3 seconds, then the next level starts.
+
+The respawn fly-in (T-022) works the same way as the intro.
 
 **Requirements:**
-- [ ] A map can play an intro animation, such as the player flying in.
-- [ ] A map can play an exit animation, such as the player flying out.
+- [ ] A map plays an intro, with the player flying in.
+- [ ] A map plays an exit, with the player flying out.
 
 **Open questions:**
-- Q: Where does an intro or exit animation start and end: the map, a level, the
-  whole game, or all of these?
+- Q: Where does an intro or exit animation start and end? A: Each level (spec).
 - Q: Is the animation authored in data, or is it code?
 - Q: What does the player control during the animation, and what happens to the
-  scroll, the spawning and the enemies while it plays?
-- Q: Does it also cover death and respawn (see T-022), or only entering and
-  leaving a map?
+  scroll, the spawning and the enemies while it plays? A: No control during
+  either. The rest is not yet decided.
+- Q: Does it also cover death and respawn? A: The respawn fly-in is T-022; the
+  intro should reuse it.
 
 **Notes:**
 
@@ -135,66 +714,6 @@ behaviour state, rather than from the spawn. Plan the two tasks together.
 
 **Manual verification:**
 
-### [done] T-034 Rename the spawn position properties to spawn_x and spawn_y
-
-**Review:** reviewed 2026-09-25
-
-**Depends on:** none
-
-**Goal:**
-Change the `position_x` and `position_y` properties in Tiled objects to
-`spawn_x` and `spawn_y`. This better explains what they do. When the `use_spawn`
-toggle is on, the enemy or formation spawns at those screen coordinates.
-
-Context: `EnemySpawn` has `use_position`, `position_x` and `position_y` today
-(see T-029), read in `SpawnMapEnemy` (`src/system_map.cpp`). The tilemap loader
-fills in class defaults for properties Tiled did not write, so the game cannot
-tell an unset `spawn_x` from one set to its default. A toggle is needed.
-
-No map in `tiled_project/maps/` sets `use_position`, `position_x` or
-`position_y`, so no map data needs migrating. This task is allowed to change the
-`EnemySpawn` class in `tiled_project/tincan.tiled-project`, which the task
-profile otherwise lists as must-still-load.
-
-**Requirements:**
-- [x] The `EnemySpawn` class in `tiled_project/tincan.tiled-project` has
-  `use_spawn`, `spawn_x` and `spawn_y` in place of `use_position`, `position_x`
-  and `position_y`, with the same types and defaults.
-- [x] The game reads `use_spawn`, `spawn_x` and `spawn_y`. When `use_spawn` is
-  on, the enemy or formation spawns at those screen coordinates, as
-  `use_position` does today.
-- [x] Both maps still load and play as before.
-
-**Out of scope:**
-- Loading the old names. Nothing uses them.
-
-**Open questions:**
-- Q: Can the game tell that `spawn_x` and `spawn_y` are absent, or is a
-  `use_spawn` toggle needed? If it is needed, does it replace `use_position`?
-  A: A toggle is needed, because the loader fills in class defaults.
-  `use_spawn` replaces `use_position`.
-- Q: Are the existing maps migrated to the new names, and must the old names
-  still load? A: No map uses them, so there is nothing to migrate, and the old
-  names do not need to load.
-
-**Notes:**
-- The class members stay in Tiled's alphabetical order, so `spawn_x` and
-  `spawn_y` sit between `spacing` and `speed`.
-- No map sets the old names (checked with grep), so nothing was migrated.
-
-**Commits:**
-- 7df22bb refactor(T-034): rename spawn position properties to use_spawn,
-  spawn_x and spawn_y
-
-**Manual verification:**
-1. Open `tiled_project/tincan.tiled-project` in Tiled and check that an
-   `EnemySpawn` object shows `use_spawn`, `spawn_x` and `spawn_y`, with no
-   `use_position`, `position_x` or `position_y`.
-2. On a spawn, set `use_spawn` on and give `spawn_x`/`spawn_y` a screen point.
-   Play the map and check that the enemy appears at that point, level with it on
-   its entry edge, as `use_position` did before.
-3. Play both maps without changes and check they play as before.
-
 ### [todo] T-035 Replace the behaviour edge with a formation rotation
 
 **Review:** unreviewed
@@ -234,380 +753,18 @@ discussed and deliberately left for later.
 
 **Manual verification:**
 
-### [done] T-036 Add lifetime and screen-exit rules for escaping enemies
-
-**Review:** reviewed 2026-09-25
-
-**Depends on:** none
-
-**Goal:**
-In relation to T-035, add rules for how enemies get culled or "escaped". When
-an enemy spawns, it gets a lifetime counter, defined in data, per enemy. If the
-enemy survives longer than that time, it is "escaped" and removed from the
-game. Once an enemy enters the visible screen area, it becomes "active". Once
-active, if it leaves the bounds of the visible area plus a small hardcoded
-border, it is also "escaped" and removed. The timer continues while the enemy
-is active and is the hard limit on an enemy's lifetime.
-
-Context from the conversation: T-035 removes the behaviour's edge, which today
-decides which side each member's kill bounds are pushed out on so that members
-still waiting off screen are not removed. These rules would replace the need
-for that.
-
-Context from planning: every enemy is created by `SystemEnemySpawner::SpawnEnemy`
-(map spawns and the behaviour editor's Spawn button), so the rules can be set up
-there. `ComponentLifetime` (`src/system_lifetime.h`) already exists and nothing
-uses it yet. An escape already reaches groups through `EscapedTag`, so an
-escaped member cancels its group's drop as today. Enemies spawned from the
-behaviour editor have no bounds today and live until killed; under these rules
-they expire too.
-
-At `scroll_speed` 60 on the 1080 px screen, an enemy with no behaviour takes
-about 19 seconds to cross the screen, so the 15-second default removes it before
-it reaches the bottom. That is accepted: enemies used that way set a longer
-lifetime in their data.
-
-**Requirements:**
-- [x] Each enemy's data can set a `lifetime` in milliseconds. It defaults to
-  15000 when not set. `data/enemy_database.json` still loads unchanged.
-- [x] An enemy that lives longer than its lifetime is escaped and removed.
-- [x] An enemy becomes active when its position is inside the visible screen.
-- [x] An active enemy whose position leaves the visible screen grown by 64 px
-  on every side is escaped and removed.
-- [x] An enemy that has never been active is removed only by its lifetime.
-- [x] The lifetime keeps counting while the enemy is active.
-- [x] An escaped enemy's sections are removed with it.
-- [x] These rules replace all existing enemy culling. `SpawnMapEnemy` no longer
-  gives enemies kill bounds.
-- [x] All enemies follow these rules, including those spawned with no behaviour
-  and those spawned from the behaviour editor.
-
-**Out of scope:**
-- Projectile and pickup culling.
-- Changing any enemy's lifetime in `data/enemy_database.json`.
-
-**Open questions:**
-- Q: What units is the lifetime in, and what happens when an enemy's data does
-  not set it? A: Milliseconds, with a default of 15 seconds.
-- Q: Do these rules replace the current kill bounds (`ComponentBounds` with
-  `BoundsBehaviour::Kill`) for enemies completely? A: Yes. They replace any
-  existing enemy culling.
-- Q: Does an enemy spawned with no behaviour, which moves with the map, follow
-  the same rules? A: Yes. All enemies follow the same cull rules.
-- Q: The 15-second default removes map-drifting enemies before they cross the
-  screen. What should happen? A: Keep the 15-second default. Enemies used that
-  way set a longer lifetime per enemy.
-- Q: What counts as entering the screen, and how big is the border? A: The
-  enemy's position (its centre) is inside the screen. The border is 64 px.
-
-**Notes:**
-- `SpawnEnemy` gives every enemy root a `ComponentLifetime` (from
-  `EnemyData::lifetime`) and a new `ComponentScreenExit` (`m_active`).
-  `SystemWorldBounds` activates it and removes an active enemy that leaves the
-  screen grown by 64 px, because that system already has the world size.
-- An expired lifetime now sets `DeadTag` and `EscapedTag` instead of removing
-  the entity directly, so `UpdateDead` also removes its sections. Before this,
-  an expired entity's children were left for `UpdateParenting` to catch a frame
-  later. `ComponentLifetime` had no users, so nothing else changes.
-- The lifetime pass skips entities already marked dead, so an enemy killed in
-  the frame its lifetime runs out still counts as killed for its group's drop.
-- `ComponentBounds` is untouched and still culls projectiles and limits the
-  player.
-- After the session, on request: an enemy spawned from the behaviour editor gets
-  a 120000 ms lifetime (`EditorSpawnLifetime` in
-  `src/system_behaviour_editor.cpp`) in place of its data's, so it stays long
-  enough to watch. The screen-exit rule still applies to it.
-
-**Commits:**
-- 94a22c0 feat(T-036): cull enemies by lifetime and by leaving the screen once
-  active
-
-**Manual verification:**
-1. Play a map. Enemies that fly across and off the screen disappear shortly
-   after leaving it (within 64 px of the edge), from any side.
-2. A formation that waits or flies in from off screen is not removed before its
-   members come on screen, including members at the back of a long formation.
-3. Kill a whole formation with a drop: the drop still appears. Let one member
-   fly off screen: no drop.
-4. Add `"lifetime": 3000` to an enemy in `data/enemy_database.json`
-   temporarily, spawn it from a map (not the behaviour editor, which overrides
-   the lifetime), and check it vanishes after about three seconds even
-   while on screen. Revert the change.
-5. Spawn an enemy with sections (a multi-part enemy) and let it escape or time
-   out: its sections go with it.
-6. In the behaviour editor (F2), spawn an enemy and leave it: it is removed
-   after 120 seconds, or when it leaves the screen after being on it.
-7. An enemy spawned with no behaviour drifts down with the map and is removed
-   after 15 seconds, before it reaches the bottom. This is accepted.
-
-### [done] T-038 Loop behaviours from a chosen state
-
-**Review:** reviewed 2026-09-25
-
-**Depends on:** none
-
-**Goal:**
-Let a behaviour repeat, so repeating movement does not have to be authored for
-the whole length of the screen. A zigzag down the screen should be one short
-left-right segment set to loop, and other repeating patterns should work the
-same way, such as travelling straight for a time, chasing the player for a time,
-then travelling straight again.
-
-A behaviour gets an optional state to loop from. After its last state finishes,
-it goes back to that state and repeats, forever. Looping from the first state is
-a plain loop; looping from a later one allows an intro (fly in from the edge)
-before the repeating part.
-
-Spawn-relative states are all measured from the spawn origin, so a naive loop
-would replay the same segment in the same place. Each time the behaviour loops,
-the origin moves by how far the entity travelled over the last pass (its position
-when it entered the loop's first state compared with now). A segment such as
-`(0,0) → (60,40) → (0,80)` then keeps travelling down the screen, and a
-straight/chase/straight cycle carries on from wherever the chase left the enemy
-instead of snapping back towards the spawn point. World-space behaviours do not
-move their origin, so a looping world path is a fixed patrol.
-
-Context from planning: the state sequencing is in `SystemBehaviour::Update`
-(`src/system_behaviour.cpp`), and the origin is `ComponentBehaviour::m_origin`
-(`src/system_behaviour.h`). A behaviour that loops forever and never leaves the
-screen is removed by the enemy lifetime from T-036, when that is done.
-`data/behaviour_database.json` is disposable test data, so its schema may
-change.
-
-**Requirements:**
-- [x] A behaviour can name a state to loop from. With none, it behaves as today,
-  and behaviours without one still load.
-- [x] After the last state, a looping behaviour continues from that state,
-  indefinitely.
-- [x] A spawn-relative behaviour's origin moves by the entity's displacement over
-  each pass, so each pass starts where the last one ended.
-- [x] A world-space behaviour's origin does not move when it loops.
-- [x] A loop whose pass uses no time does not spin forever within one update.
-- [x] The behaviour editor can set the state to loop from, and can clear it.
-- [x] Deleting a state in the editor keeps the loop pointing at the same state,
-  or clears it when that state is the one deleted.
-- [x] The editor preview shows three repeats of the loop, shifted as they would
-  be in game.
-- [x] The behaviour is saved and loaded with its loop state.
-
-**Out of scope:**
-- A repeat count (loop N times, then continue). Deferred until a behaviour needs
-  it.
-- A triangle waveform for the `Wave` modifier.
-
-**Open questions:**
-- Q: A triangle waveform option for the `Wave` modifier would give a sharp
-  zigzag without looping. Is that part of this task, or a separate one?
-  A: Neither. Looping covers the zigzag, so it is dropped.
-
-**Notes:**
-- The loop state is stored by index as `loop_from` on the behaviour, -1 (and
-  absent from the JSON) for none. States are known by their place in the list
-  elsewhere in the editor, and labels are optional and need not be unique.
-- The pass displacement is measured from the entity's position when it enters
-  the loop state, as the goal says. With a Snap entry that is before it jumps to
-  the path's first waypoint, so a loop state whose first waypoint is away from
-  where the last pass ends drifts by that gap each pass.
-- A pass that uses no time ends the update with the behaviour waiting at the
-  loop state, so it goes round at most once per update.
-- The editor works out one pass's shift from the authored paths: from the anchor
-  (looping from state 0) or the end of the state before the loop, to the end of
-  the last state. When either of those is not a path, or the behaviour is in
-  world space, no repeats are drawn; for a spawn-relative behaviour the panel
-  says why. World-space repeats would sit exactly on the first pass.
-- The repeats show each pass's paths and the approaches between states inside
-  a pass. The approach from the end of one pass back into the loop state is not
-  drawn, because `DrawEntryApproach` only looks at the state before in the list.
-- `StateHeading` was pulled out of the state list so the loop combo names states
-  the same way.
-
-**Commits:**
-- cfe983f feat(T-038): loop behaviours from a chosen state
-
-**Manual verification:**
-1. Open the behaviour editor (F2). Make a spawn-relative behaviour with one path
-   state `(0,0) → (60,40) → (0,80)` and set "Loop from" to it. Three green
-   repeats appear below the path, each 80 px further down.
-2. Spawn it with an enemy. It zigzags down the screen and does not snap back to
-   the spawn point, then leaves the screen (or times out, T-036).
-3. Make a behaviour with an intro path, then two states to repeat, and loop from
-   the second state. The intro plays once; the rest repeats from where it ends.
-4. Loop a straight / chase-the-player / straight behaviour. After each chase the
-   next pass carries on from where the chase left the enemy.
-5. Set the space to World and loop: the path repeats in place as a patrol.
-6. With a loop set on a later state, delete an earlier state: "Loop from" still
-   names the same state. Delete the loop state itself: it shows None.
-7. Pick None in "Loop from" to clear it. Save, restart, load the behaviour: the
-   loop state is kept. A behaviour saved without a loop has no `loop_from` key,
-   and the existing behaviours still load and fly as before.
-
-### [done] T-027 Spawn enemies when an enemy is killed
-
-**Review:** reviewed 2026-09-25
-
-**Depends on:** T-036
-
-**Goal:**
-Split a large asteroid into several smaller ones when it is killed, handled
-generically on the data side rather than as an asteroid feature. Asteroids today
-are plain enemies with no weapon.
-
-The approach discussed: `EnemyData` gets a `death_spawns` list. Each entry
-describes a spawn with the same fields as a Tiled `EnemySpawn` (enemy, behaviour,
-count, formation, spacing, scale, speed, `behaviour_rotation`,
-`behaviour_rotation_step`, drop). `behaviour_rotation_step` fans the pieces out,
-so one short "drift out" behaviour gives pieces heading in different directions.
-Large to medium to small is a chain of entries, and the same field covers carriers
-that release fighters, mines that burst, and similar.
-
-The spawn logic in `SpawnMapEnemy` (`src/system_map.cpp`) would be split into a
-spawn description struct and a function that spawns from it, shared by map spawns
-and death spawns, so pieces get rotated behaviours and phase index the same way
-map spawns do.
-
-The spawns would trigger in `SystemLifetime`, which already tells killed entities
-from escaped ones, and not in `SystemDamage::ApplyDamage`, which runs inside view
-loops over the pools a new enemy adds to.
-
-Context from planning: this depends on T-036 because T-036 moves enemy culling
-into `SpawnEnemy`, so pieces get the lifetime and screen-exit rules without this
-task having to copy the edge-based kill bounds that T-036 removes. A death
-spawn is placed at the parent's position; the map spawn's screen edge and spawn
-point do not apply to it. There are no smaller asteroid sprites and no enemy
-scale, so the asteroid chain is shown with the existing asteroid entries.
-
-**Requirements:**
-- [x] An enemy's data can list `death_spawns`. Each entry has the same fields as
-  a map spawn, apart from where it spawns. `data/enemy_database.json` without
-  them still loads.
-- [x] Map spawns and death spawns share one spawn path, so pieces get their
-  behaviour copy, override, rotation step and phase index the same way map
-  spawn members do.
-- [x] Death spawns are placed around the parent's position when it was killed.
-- [x] Death spawns happen when the enemy is killed by any means, including
-  ramming the player (contact `self_damage`), and not when it escapes.
-- [x] If the parent was in a group, its pieces join that group, so the group's
-  drop waits until every piece is gone, and a piece escaping cancels it as any
-  member escaping does. A death spawn entry with its own drop also puts its
-  pieces in a group of their own for that drop, as a map spawn does.
-- [x] Pieces with no behaviour move at the parent's velocity when it died, taken
-  from its last step (position minus last position), so this works whatever the
-  parent was doing. Pieces with a behaviour follow only their behaviour.
-- [x] `data/enemy_database.json` has a chain using the existing asteroids, for
-  example `asteroid_1` into `asteroid_2` pieces into `asteroid_3` pieces,
-  and a map spawn uses it.
-
-**Out of scope:**
-- `death_spawns` on `EnemySection`.
-- Smaller asteroid art, or a scale on `EnemyData`.
-- Adding inherited velocity to pieces that have a behaviour.
-
-**Open questions:**
-- Q: If the parent is in a group with a drop, do the pieces join that group, so
-  the drop waits until the last piece is killed? A: Yes, pieces join the
-  parent's group.
-- Q: Does an enemy that dies by ramming the player (contact `self_damage`) spawn
-  its pieces too? A: Yes. Any kill spawns them; only an escape does not.
-- Q: Does `EnemySection` get `death_spawns` as well? A: No, out of scope.
-- Q: Do pieces carry on with any of the parent's movement, or only follow their
-  own behaviour? A: Pieces with no behaviour move at the parent's velocity from
-  its last step. Pieces with a behaviour follow only their behaviour, because a
-  path drives position directly.
-- Q: How is "large splits into smaller" shown, with no smaller art? A: With a
-  chain of the existing asteroid entries. Smaller art is out of scope.
-
-**Notes:**
-- Death spawn entries use the Tiled property names (`enemy_type`, `behaviour`,
-  `count`, `formation`, `spacing`, `scale_x`, `scale_y`, `speed`,
-  `behaviour_rotation`, `behaviour_rotation_step`, `drop`). `enemy_type` is a
-  name looked up when the enemy dies, not a `DataRef`, because a `DataRef`
-  holds its data by value and `EnemyData` cannot contain itself.
-- The shared path is `EnemySpawnDescription` and
-  `SystemEnemySpawner::SpawnFormation`. `SpawnMapEnemy` still works out the
-  edge, origin and formation rotation, then calls it. A death spawn uses the
-  parent's position as the origin and no formation rotation.
-- A piece can belong to its parent's groups and a group of its own, so
-  `ComponentGroupId` now holds a list of groups, and `SystemLifetime` removes a
-  dead member from each. Pieces join every group the parent was in, so a chain
-  (large → medium → small) keeps the top group waiting until the last small
-  piece is gone.
-- The spawn keeps the map spawn rule for its own group: one is made when
-  `count > 1` or there is a drop.
-- The velocity for pieces with no behaviour is the parent's last step divided
-  by this frame's ticks. The step was taken in the frame before, so at an
-  uneven frame rate the speed is slightly off.
-- The chain uses a new `drift_out` behaviour in the disposable
-  `data/behaviour_database.json` (straight down 200 px at 90 px/s), fanned out
-  by `behaviour_rotation_step`. Spacing is 64 so pieces of radius 32 do not
-  overlap.
-- No map spawned asteroids any more (the stars map was reworked after this task
-  was reviewed), so the requirement for a map spawn was met by adding one
-  `asteroid_1` spawn (`constant_speed`) to `tiled_project/maps/desert.tmj`,
-  which is not the map the game loads. Adding an object keeps the map loadable.
-  The stars map was left alone because it had just been reworked by hand.
-
-**Commits:**
-- 00b1139 feat(T-027): spawn enemies when an enemy is killed
-
-**Manual verification:**
-1. Temporarily point `GameWorld` (`src/game_world.cpp`, the `InitMap` call) at
-   `tiled_project/maps/desert.tmj`, or add an `asteroid_1` spawn to the stars
-   map in Tiled. An `asteroid_1` comes down about 10 seconds in.
-2. Shoot it: three `asteroid_2` pieces fan out down-left, down and down-right.
-   Shoot one: two `asteroid_3` pieces fan out. `asteroid_3` leaves nothing.
-3. Ram an asteroid with the player: its pieces still appear.
-4. Let an asteroid fly off the screen: nothing spawns.
-5. Group drop: in Tiled give the asteroid spawn a `drop`. Kill the asteroid and
-   every piece down the chain: the drop appears only after the last piece. Let
-   one piece escape: no drop.
-6. Put a `"drop": "weapon_drop_01"` on the asteroid_2 death spawn entry
-   temporarily: killing the three asteroid_2 pieces and all their asteroid_3
-   pieces drops it where the last one died. Revert.
-7. Remove the `behaviour` from a death spawn entry temporarily: the pieces
-   carry on in the direction and at the speed the parent was moving. Revert.
-8. The stars map plays as before, and enemy formations still spawn, fan out and
-   drop as they did.
-
-### [todo] T-039 Level up weapons through repeated pickups
+### [todo] T-051 Add the missing Tiled enum values
 
 **Review:** unreviewed
 
 **Goal:**
-Pickups currently add a separate weapon each, and the player weapons are built as
-an upgrade path (level 2 adds barrels to level 1, and so on). Because each level is
-its own pickup, the player can pick up level 5 without levels 2 to 4 and end up
-with an odd weapon. Instead, each weapon has several levels and one pickup. The
-first pickup adds the weapon at level 1, and each later pickup of the same weapon
-raises its level.
-
-The levels are defined in data as an ordered progression list rather than a
-name-suffix convention (`main_gun_01`, `main_gun_02`, ...), for example
-`"weapon_progressions": { "main_gun": ["player_weapon_01", "player_weapon_02",
-"player_weapon_03"] }`. `WeaponData` stays single-level, so enemy weapons are
-unchanged. Today the player levels are additive deltas (each has two barrels, set
-wider than the last); they become full definitions, so level 2 lists all 4
-barrels and level 3 all 6.
+M4. The Tiled `enemy_type` enum lacks `enemy_basic`, which `desert.tmj` spawns,
+and the `behaviour` enum lacks `drift_out`. (Found in session 2026-09-25.)
 
 **Requirements:**
-- [ ] The weapon data has ordered progressions that list a weapon's levels by
-      weapon name; `WeaponData` itself stays single-level.
-- [ ] A weapon pickup's `name` and the player's starting weapon refer to a
-      progression.
-- [ ] Picking up a weapon the player does not carry adds it at level 1.
-- [ ] Picking up a weapon the player carries raises it to the next level, and the
-      level stops at the last level of the progression.
-- [ ] A carried weapon records its progression and current level.
-- [ ] A level-up rebuilds the weapon from the next level's data and keeps its
-      timers, so it stays on the same beat as the other weapons (as `AddWeapon`
-      does for a new weapon).
-- [ ] The player weapon levels in `weapon_database_player.json` are full
-      definitions, not additive deltas.
+- [ ] The Tiled enums list every enemy and behaviour the maps and data use.
 
 **Open questions:**
-- Q: What happens when the player picks up a weapon that is already at its last
-  level: nothing, or score or some other bonus?
-- Q: Do weapon levels survive the player dying, or reset to the starting weapon?
-- Q: Do enemy weapons stay plain single-level weapons?
 
 **Notes:**
 
@@ -617,8 +774,6 @@ barrels and level 3 all 6.
 
 ## Discovered
 
-- The Tiled `enemy_type` enum lacks `enemy_basic`, which `desert.tmj` spawns,
-  and the `behaviour` enum lacks the new `drift_out`. (Session 2026-09-25.)
 - `tools/smoke_launch.sh` failed once in eight runs: the game did not exit
   within 15 seconds of the close request and was killed (exit 137), with no
   shutdown lines and no warnings in the log. It passed every other time.
