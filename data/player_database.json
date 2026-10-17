@@ -10,7 +10,8 @@
                 "acceleration": 4500,
                 "deceleration": 3500
             },
-            "weapon": "player_weapon_01",
+            "weapon": "main_gun",
+            "max_level_power": 20,
             "shield_sprite": "player_shield",
             "shield_radius": 45,
             "death_sprite": "explosion_02",

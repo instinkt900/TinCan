@@ -18,7 +18,8 @@ struct PlayerData {
     float radius = 5.0f;
     float health = 100.0f;
     MovementData movement;
-    DataRef<WeaponData> weapon;
+    std::string weapon; // the progression the player starts with, at its first level
+    float max_level_power = 20.0f; // power given by a weapon pickup that has no level left to give
     DataRef<SpriteData> shield_sprite;
     float shield_radius = 45.0f;
     DataRef<SpriteData> death_sprite;
@@ -32,6 +33,7 @@ inline void from_json(nlohmann::json const& json, PlayerData& data) {
     DATA_OPTIONAL(json, data, health);
     DATA_OPTIONAL(json, data, movement);
     DATA_REQUIRED(json, data, weapon);
+    DATA_OPTIONAL(json, data, max_level_power);
     DATA_OPTIONAL(json, data, shield_sprite);
     DATA_OPTIONAL(json, data, shield_radius);
     DATA_OPTIONAL(json, data, death_sprite);

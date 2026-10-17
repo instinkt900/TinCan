@@ -3,10 +3,12 @@
 #include "component_body.h"
 #include "component_entity.h"
 #include "gamedata_pickup.h"
+#include "gamedata_player.h"
 #include "gamedata_weapon.h"
 #include "system_drawable.h"
 #include "system_map.h"
 #include "system_movement.h"
+#include "system_shield.h"
 #include "system_weapon.h"
 #include "tags.h"
 #include "utils.h"
@@ -65,13 +67,16 @@ void PlayerPickupWeapon(PickupData const& pickup, moth::gfx::FloatVec2 const& po
         return;
     }
 
-    // the weapon joins the ones the player already carries
-    auto const* weaponData = gamedata.Get<WeaponData>(pickup.name);
-    if (weaponData == nullptr) {
-        spdlog::error("Unknown weapon {}", pickup.name);
-        return;
+    // the weapon joins the ones the player already carries, or goes up a level. a weapon with no level left
+    // to give turns the pickup into power instead
+    auto const overflow = SystemWeapon::AddWeaponLevels(registry, playerEntity, pickup.name, 1, gamedata);
+    if (overflow > 0) {
+        auto const* playerData = gamedata.GetPlayer();
+        auto* power = registry.TryGet<ComponentPower>(playerEntity);
+        if (playerData != nullptr && power != nullptr) {
+            power->m_power += playerData->max_level_power * static_cast<float>(overflow);
+        }
     }
-    SystemWeapon::AddWeapon(registry, playerEntity, pickup.name, *weaponData, gamedata);
 }
 
 void PlayerPickup(ComponentPickup const& pickup, moth::gfx::FloatVec2 const& position, moth::ecs::World& registry,

@@ -1,14 +1,14 @@
 {
     "pickups": {
-        "weapon_drop_01": {
+        "pickup_main_gun": {
             "sprite": "pickup_power",
             "type": "Weapon",
-            "name": "player_weapon_01"
+            "name": "main_gun"
         },
-        "weapon_drop_02": {
+        "pickup_homing": {
             "sprite": "pickup_power",
             "type": "Weapon",
-            "name": "player_weapon_02"
+            "name": "homing"
         }
     }
 }

@@ -167,8 +167,8 @@
             "type": "enum",
             "values": [
                 "none",
-                "weapon_drop_01",
-                "weapon_drop_02"
+                "pickup_main_gun",
+                "pickup_homing"
             ],
             "valuesAsFlags": false
         },
@@ -181,7 +181,7 @@
                     "name": "pickup",
                     "propertyType": "pickup",
                     "type": "string",
-                    "value": "weapon_drop_01"
+                    "value": "pickup_main_gun"
                 }
             ],
             "name": "PickupSpawn",

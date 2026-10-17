@@ -16,6 +16,7 @@ enum class GameDataCategory {
     Behaviours,
     Players,
     Input,
+    Progressions,
 };
 
 struct SerializeContext {
@@ -51,6 +52,8 @@ public:
             return &m_playerDatabase;
         } else if constexpr (T::Category == GameDataCategory::Input) {
             return &m_inputDatabase;
+        } else if constexpr (T::Category == GameDataCategory::Progressions) {
+            return &m_progressionDatabase;
         } else {
             return nullptr;
         }
@@ -76,6 +79,8 @@ public:
             return m_playerDatabase.Get(name);
         } else if constexpr (T::Category == GameDataCategory::Input) {
             return m_inputDatabase.Get(name);
+        } else if constexpr (T::Category == GameDataCategory::Progressions) {
+            return m_progressionDatabase.Get(name);
         } else {
             return nullptr;
         }
@@ -105,5 +110,6 @@ private:
     Database<BehaviourData> m_behaviourDatabase;
     Database<PlayerData> m_playerDatabase;
     Database<InputData> m_inputDatabase;
+    Database<WeaponProgressionData> m_progressionDatabase;
 };
 

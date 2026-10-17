@@ -2,6 +2,9 @@
 
 #include "gamedata_projectile.h"
 #include <moth/graphics/utils/vector.h>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 struct BarrelData {
     moth::gfx::FloatVec2 offset;
@@ -40,5 +43,21 @@ inline void from_json(nlohmann::json const& json, WeaponData& data) {
     DATA_REQUIRED(json, data, muzzle_speed);
     DATA_OPTIONAL(json, data, fire_state);
     DATA_REQUIRED(json, data, barrels);
+}
+
+// The levels of a player weapon, first to last, each the name of a full weapon entry. Pickups and the
+// player's starting weapon name a progression rather than a weapon, so a weapon can only be raised a level
+// at a time.
+struct WeaponProgressionData {
+    static constexpr GameDataCategory Category = GameDataCategory::Progressions;
+
+    std::vector<std::string> levels;
+};
+
+inline void from_json(nlohmann::json const& json, WeaponProgressionData& data) {
+    json.get_to(data.levels);
+    if (data.levels.empty()) {
+        throw std::runtime_error("a progression needs at least one level");
+    }
 }
 

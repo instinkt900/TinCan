@@ -101,6 +101,9 @@ bool GameData::Load(std::filesystem::path const& path, SerializeContext const& c
         case GameDataCategory::Input:
             m_inputDatabase.Load(categoryJson);
             break;
+        case GameDataCategory::Progressions:
+            m_progressionDatabase.Load(categoryJson);
+            break;
         default:
             break;
         }

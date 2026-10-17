@@ -166,9 +166,8 @@ void GameWorld::CreatePlayer() {
     auto& power = m_registry.Emplace<ComponentPower>(m_player);
     power.m_power = 0;
 
-    if (playerData->weapon.valid()) {
-        SystemWeapon::InitWeapon(m_registry, m_player, playerData->weapon.ref_name(), *playerData->weapon,
-                                 m_gamedata);
+    if (!playerData->weapon.empty()) {
+        SystemWeapon::AddWeaponLevels(m_registry, m_player, playerData->weapon, 1, m_gamedata);
     }
     SystemPowerWeapon::InitWeapon(m_registry, m_player, "dummy", m_gamedata);
 

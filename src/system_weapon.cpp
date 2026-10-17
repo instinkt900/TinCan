@@ -97,6 +97,65 @@ Weapon* SystemWeapon::AddWeapon(moth::ecs::World& registry, moth::ecs::Entity en
     return &weapon;
 }
 
+int32_t SystemWeapon::AddWeaponLevels(moth::ecs::World& registry, moth::ecs::Entity entity,
+                                      std::string const& progressionName, int32_t levels,
+                                      GameData const& gamedata) {
+    if (levels <= 0) {
+        return 0;
+    }
+    auto const* progression = gamedata.Get<WeaponProgressionData>(progressionName);
+    if (progression == nullptr) {
+        return 0;
+    }
+    auto const lastLevel = static_cast<int32_t>(progression->levels.size()) - 1;
+
+    auto& weapons = registry.GetOrEmplace<ComponentWeapon>(entity);
+    auto carried = std::find_if(weapons.m_weapons.begin(), weapons.m_weapons.end(),
+                                [&](Weapon const& weapon) { return weapon.m_progression == progressionName; });
+    if (carried == weapons.m_weapons.end()) {
+        auto const& firstName = progression->levels.front();
+        auto const* firstData = gamedata.Get<WeaponData>(firstName);
+        if (firstData == nullptr) {
+            return 0;
+        }
+        if (AddWeapon(registry, entity, firstName, *firstData, gamedata) == nullptr) {
+            return 0;
+        }
+        // AddWeapon may have grown the vector, so the weapon is found again rather than kept by iterator
+        carried = std::find_if(weapons.m_weapons.begin(), weapons.m_weapons.end(),
+                               [&](Weapon const& weapon) { return weapon.m_name == firstName; });
+        carried->m_progression = progressionName;
+        carried->m_level = 0;
+        levels -= 1;
+    }
+
+    auto const targetLevel = carried->m_level + levels;
+    auto const newLevel = std::min(targetLevel, lastLevel);
+    auto const overflow = targetLevel - newLevel;
+    if (newLevel == carried->m_level) {
+        return overflow;
+    }
+
+    auto const& levelName = progression->levels[static_cast<size_t>(newLevel)];
+    auto const* levelData = gamedata.Get<WeaponData>(levelName);
+    if (levelData == nullptr || !levelData->projectile.valid()) {
+        spdlog::error("Weapon level {} of {} cannot be built; keeping the current level", levelName,
+                      progressionName);
+        return overflow;
+    }
+
+    // the new level takes over the old one's timers, so it keeps firing on the same beat as the other weapons
+    Weapon raised(levelName, *levelData);
+    raised.m_progression = progressionName;
+    raised.m_level = newLevel;
+    raised.m_active = carried->m_active;
+    raised.m_cooldown = std::min(carried->m_cooldown, raised.m_maxCooldown);
+    raised.m_burst = std::min(carried->m_burst, raised.m_maxBurst);
+    raised.m_burstCooldown = carried->m_burstCooldown;
+    *carried = std::move(raised);
+    return overflow;
+}
+
 void SystemWeapon::Update(GameWorld& world, uint32_t ticks) {
     auto& registry = world.GetRegistry();
     ComponentPosition* playerPosition = nullptr;
