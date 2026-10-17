@@ -15,6 +15,11 @@
             "shield_radius": 45,
             "death_sprite": "explosion_02",
             "death_sprite_scale": 2,
+            "lives": 3,
+            "max_lives": 5,
+            "respawn_delay": 1500,
+            "fly_in_time": 1000,
+            "safe_time": 3000,
             "contact": {
                 "damage": 0,
                 "cooldown": 1000

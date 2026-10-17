@@ -83,10 +83,15 @@ void GameLayer::Draw() {
 
     // draw the ui
     auto const playerPower = m_gameWorld->GetPlayerPower();
+    auto const playerLives = m_gameWorld->GetPlayerLives();
     m_graphics.SetColor(moth::gfx::BasicColors::White);
     m_graphics.SetBlendMode(moth::gfx::BlendMode::Alpha);
     m_graphics.DrawText(fmt::format("Player power: {}", playerPower), *m_font,
                         moth::gfx::MakeRect(0, 0, m_window.GetWidth(), 120),
+                        moth::gfx::TextHorizAlignment::Left,
+                        moth::gfx::TextVertAlignment::Middle);
+    m_graphics.DrawText(fmt::format("Lives: {}", playerLives), *m_font,
+                        moth::gfx::MakeRect(0, 0, m_window.GetWidth(), 160),
                         moth::gfx::TextHorizAlignment::Left,
                         moth::gfx::TextVertAlignment::Middle);
 }

@@ -55,6 +55,11 @@ public:
     InputData const& GetInputBindings() const;
 
     float GetPlayerPower() const;
+    int32_t GetPlayerLives() const;
+
+    // makes the next ship after one was destroyed: it flies in from below the screen with the main gun at the level
+    // it had, and nothing else
+    void RespawnPlayer(int32_t mainGunLevel);
 
     GameWorld(const GameWorld&) = delete;
     GameWorld(GameWorld&&) = delete;
@@ -63,7 +68,7 @@ public:
 
 private:
     bool OnKeyEvent(moth::ui::EventKey const& event);
-    void CreatePlayer();
+    void CreatePlayer(int32_t mainGunLevel, bool flyIn);
 
     moth::gfx::platform::Window& m_window;
     moth::gfx::IGraphics& m_graphics;

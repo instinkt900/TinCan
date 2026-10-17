@@ -9,6 +9,7 @@
 #include "system_hit_stop.h"
 #include "system_movement.h"
 #include "system_pickup.h"
+#include "system_respawn.h"
 #include "system_sound.h"
 #include "tags.h"
 #include "utils_entity.h"
@@ -22,10 +23,11 @@ namespace {
 }
 
 void SystemDamage::DestroyPlayer(moth::ecs::World& registry, moth::ecs::Entity player, GameData const& gamedata) {
-    if (registry.Has<DeadTag>(player)) {
+    if (registry.Has<DeadTag>(player) || SystemRespawn::IsProtected(registry, player)) {
         return;
     }
     registry.Emplace<DeadTag>(player);
+    SystemRespawn::OnPlayerDestroyed(registry, player, gamedata);
 
     if (auto const* position = registry.TryGet<ComponentPosition>(player)) {
         auto const* playerData = gamedata.GetPlayer();

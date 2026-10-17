@@ -46,6 +46,7 @@ struct ComponentSprite {
     int32_t m_zOrder = 0;
 
     float m_flashTime = 0;
+    bool m_visible = true; // a hidden sprite is skipped by the draw, for blinking
 
     // spinScale multiplies the sprite's authored spin rate, so a sprite with no spin never turns no
     // matter what scale it is given.

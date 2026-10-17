@@ -22,6 +22,7 @@
 #include "system_shield.h"
 #include "system_sound.h"
 #include "system_hit_stop.h"
+#include "system_respawn.h"
 #include "system_behaviour_editor.h"
 #include "system_formation_editor.h"
 #include "system_targeting.h"
@@ -48,7 +49,16 @@ GameWorld::GameWorld(moth::gfx::platform::Window& window, moth::gfx::IGraphics& 
                                      m_window.GetSurfaceContext().GetAssetContext(), WorldHeight);
     m_worldSurface = m_window.GetDevice().CreateTarget(m_worldSize.x, m_worldSize.y);
     // InitTestWorld();
-    CreatePlayer();
+
+    // the run outlives each ship, so it lives on an entity of its own
+    if (auto const* playerData = m_gamedata.GetPlayer()) {
+        auto const run = m_registry.Create();
+        auto& runState = m_registry.Emplace<ComponentRun>(run);
+        runState.m_maxLives = std::max(1, playerData->max_lives);
+        runState.m_lives = std::clamp(playerData->lives, 1, runState.m_maxLives);
+        m_registry.Emplace<ComponentInput>(run);
+    }
+    CreatePlayer(0, false);
 }
 
 bool GameWorld::OnEvent(moth::ui::Event const& event) {
@@ -75,6 +85,7 @@ void GameWorld::Update(uint32_t ticks) {
         SystemMap::Update(*this, ticks);
     }
     { MOTH_PROFILE_SCOPE("SystemLifetime"); SystemLifetime::Update(*this, ticks); }
+    { MOTH_PROFILE_SCOPE("SystemRespawn"); SystemRespawn::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemBehaviour"); SystemBehaviour::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemTargeting"); SystemTargeting::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemMovement"); SystemMovement::Update(*this, ticks); }
@@ -118,6 +129,14 @@ float GameWorld::GetPlayerPower() const {
     return 0.0f;
 }
 
+int32_t GameWorld::GetPlayerLives() const {
+    return SystemRespawn::GetLives(m_registry);
+}
+
+void GameWorld::RespawnPlayer(int32_t mainGunLevel) {
+    CreatePlayer(mainGunLevel, true);
+}
+
 InputData const& GameWorld::GetInputBindings() const {
     // A missing input database is reported when it is looked up. Nothing is bound in that case, so
     // the game takes no input rather than every caller needing a null check.
@@ -135,7 +154,7 @@ bool GameWorld::OnKeyEvent(moth::ui::EventKey const& event) {
     return false;
 }
 
-void GameWorld::CreatePlayer() {
+void GameWorld::CreatePlayer(int32_t mainGunLevel, bool flyIn) {
     auto const* playerData = m_gamedata.GetPlayer();
     if (playerData == nullptr) {
         // GetPlayer logs the missing entry. Without it there is nothing to build
@@ -147,7 +166,9 @@ void GameWorld::CreatePlayer() {
 
     m_registry.Emplace<ComponentEntity>(m_player, Team::Player, playerData->affinity);
 
-    auto const position = moth::gfx::FloatVec2(m_worldSize.x / 2, m_worldSize.y - 160);
+    auto const startPosition = moth::gfx::FloatVec2(m_worldSize.x / 2, m_worldSize.y - 160);
+    // a ship that flies in starts below the bottom of the screen, far enough down to be out of sight
+    auto const position = flyIn ? moth::gfx::FloatVec2(startPosition.x, m_worldSize.y + 64) : startPosition;
     m_registry.Emplace<ComponentPosition>(m_player, position);
     m_registry.Emplace<ComponentBody>(m_player, playerData->radius);
 
@@ -162,13 +183,16 @@ void GameWorld::CreatePlayer() {
     velocity.m_velocity = { 0, 0 };
     m_registry.Emplace<ComponentMovement>(m_player, playerData->movement);
 
-    m_registry.Emplace<ComponentInput>(m_player);
+    // a ship flying in has no control until it arrives, so it is given its input then
+    if (!flyIn) {
+        m_registry.Emplace<ComponentInput>(m_player);
+    }
 
     auto& power = m_registry.Emplace<ComponentPower>(m_player);
     power.m_power = 0;
 
     if (!playerData->weapon.empty()) {
-        SystemWeapon::AddWeaponLevels(m_registry, m_player, playerData->weapon, 1, m_gamedata);
+        SystemWeapon::AddWeaponLevels(m_registry, m_player, playerData->weapon, mainGunLevel + 1, m_gamedata);
     }
     SystemPowerWeapon::InitWeapon(m_registry, m_player, "dummy", m_gamedata);
 
@@ -179,10 +203,18 @@ void GameWorld::CreatePlayer() {
     m_registry.Emplace<PlayerTag>(m_player);
     m_registry.Emplace<TargetTag>(m_player);
 
-    auto& bounds = m_registry.Emplace<ComponentBounds>(m_player);
-    bounds.m_behaviour = BoundsBehaviour::Limit;
-    bounds.m_bounds =
-        moth::gfx::MakeRect(0.0f, 0.0f, static_cast<float>(m_worldSize.x), static_cast<float>(m_worldSize.y));
+    if (flyIn) {
+        // the bounds would hold the ship on screen, so they are added when it arrives
+        auto& flyInState = m_registry.Emplace<ComponentFlyIn>(m_player);
+        flyInState.m_from = position;
+        flyInState.m_to = startPosition;
+        flyInState.m_duration = playerData->fly_in_time;
+    } else {
+        auto& bounds = m_registry.Emplace<ComponentBounds>(m_player);
+        bounds.m_behaviour = BoundsBehaviour::Limit;
+        bounds.m_bounds =
+            moth::gfx::MakeRect(0.0f, 0.0f, static_cast<float>(m_worldSize.x), static_cast<float>(m_worldSize.y));
+    }
 
     if (playerData->shield_sprite.valid()) {
         auto shield = m_registry.Create();

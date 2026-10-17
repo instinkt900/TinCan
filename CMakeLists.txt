@@ -35,6 +35,7 @@ set(SOURCES
 	src/sound_player.cpp
 	src/system_sound.cpp
 	src/system_hit_stop.cpp
+	src/system_respawn.cpp
 )
 
 find_package(moth_anim REQUIRED)

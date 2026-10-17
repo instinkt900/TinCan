@@ -205,6 +205,9 @@ void SystemDrawable::Draw(GameWorld& world, moth::gfx::IGraphics& graphics) {
     std::vector<DrawImage> m_blendedDraws;
 
     for (auto [entity, sprite, pos] : view.each()) {
+        if (!sprite.m_visible) {
+            continue;
+        }
         float angle = 0;
         if (auto const* details = registry.TryGet<ComponentEntity>(entity)) {
             angle = details->m_angle;

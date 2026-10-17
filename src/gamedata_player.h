@@ -24,6 +24,11 @@ struct PlayerData {
     DataRef<SpriteData> death_sprite;
     float death_sprite_scale = 2.0f; // the ship's explosion is bigger than its sprite
     std::optional<ContactData> contact;
+    int32_t lives = 3;
+    int32_t max_lives = 5;
+    uint32_t respawn_delay = 1500; // milliseconds from the ship being destroyed to the next one flying in
+    uint32_t fly_in_time = 1000;   // milliseconds the next ship takes to fly in from below the screen
+    uint32_t safe_time = 3000;     // milliseconds the next ship is safe once it arrives
 };
 
 inline void from_json(nlohmann::json const& json, PlayerData& data) {
@@ -38,4 +43,9 @@ inline void from_json(nlohmann::json const& json, PlayerData& data) {
     DATA_OPTIONAL(json, data, death_sprite);
     DATA_OPTIONAL(json, data, death_sprite_scale);
     DATA_OPTIONAL(json, data, contact);
+    DATA_OPTIONAL(json, data, lives);
+    DATA_OPTIONAL(json, data, max_lives);
+    DATA_OPTIONAL(json, data, respawn_delay);
+    DATA_OPTIONAL(json, data, fly_in_time);
+    DATA_OPTIONAL(json, data, safe_time);
 }
