@@ -663,7 +663,7 @@ pass restyles it later.
 4. Lose again and press Escape after the fade: the game closes.
 5. Resize the window while the overlay shows: it still covers the window.
 
-### [todo] T-046 Rework the power weapon
+### [done] T-046 Rework the power weapon
 
 **Review:** reviewed 2026-10-17
 
@@ -682,18 +682,18 @@ every frame the button is held. `UpdateTargetingRandom`
 to change `data/player_database.json`.
 
 **Requirements:**
-- [ ] Each absorbed bullet adds 1 power.
-- [ ] Power is capped at 100. Power over the cap is lost, from any source,
+- [x] Each absorbed bullet adds 1 power.
+- [x] Power is capped at 100. Power over the cap is lost, from any source,
   including the 20 power from weapon pickups (T-039, T-043).
-- [ ] The power weapon's values are in the player data: the cap, the segment
+- [x] The power weapon's values are in the player data: the cap, the segment
   size (10), missiles per segment (4), missile damage (50), the projectile and
   its speed.
-- [ ] The power weapon fires on the press of its button, not while it is held.
-- [ ] A press spends every full segment and leaves the partial one. Each spent
+- [x] The power weapon fires on the press of its button, not while it is held.
+- [x] A press spends every full segment and leaves the partial one. Each spent
   segment fires 4 missiles that fan out from the ship and each seek a random
   enemy.
-- [ ] A press with no full segment does nothing but play a short "empty" sound.
-- [ ] A release has a screen flash, a short camera shake and its own sound. It
+- [x] A press with no full segment does nothing but play a short "empty" sound.
+- [x] A release has a screen flash, a short camera shake and its own sound. It
   does not clear bullets and does not make the ship safe.
 
 **Out of scope:**
@@ -703,10 +703,39 @@ to change `data/player_database.json`.
 **Open questions:**
 
 **Notes:**
+- The values are a new `power_weapon` block in the player data
+  (`PowerWeaponData`): `max_power` 100, `segment_power` 10, `absorb_power` 1,
+  `missiles_per_segment` 4, `missile_damage` 50, `projectile`
+  (`player_homing_bullet`) and `muzzle_speed` 200. With no block, the player has
+  no power weapon and power is capped at 0.
+- `ComponentPower` now holds its cap, and every source adds through
+  `ComponentPower::Add`, which clamps: the shield, weapon pickups past their
+  last level (T-039, T-043), and the level's entry power. The Player Editor's
+  power control is now a slider up to the cap.
+- `SystemInput` sets the power weapon off `Pressed` instead of `Held`.
+- The missiles fan out as before: up to 10 degrees apart, centred on the ship's
+  forward direction, so 40 missiles cover 360 degrees. The projectile's
+  `Random` targeting picks each one's enemy.
+- The screen flash is new in `SystemDrawable` (`StartScreenFlash`): a white
+  rectangle over the world that fades over its time, drawn after the sprites.
+  The release uses a 150 ms flash and a 0.6, 300 ms shake (named constants in
+  `system_power_weapon.cpp`). `power_release` and `power_empty` are new
+  placeholder sounds.
 
 **Commits:**
+- 93afe62 feat(T-046): rework the power weapon
 
 **Manual verification:**
+1. Play the stars map and absorb bullets: the power readout goes up by 1 for
+   each, whatever the bullet.
+2. Absorb more than 100: power stops at 100.
+3. With 35 power, press Z once: 12 missiles fan out and seek different enemies,
+   the screen flashes white, the camera shakes briefly and a sweep sound plays.
+   Power is now 5. Holding Z does not fire again; each press fires once.
+4. With under 10 power, press Z: nothing fires, and a short low blip plays.
+5. Bullets on screen are not cleared by the release, and an enemy bullet can
+   still destroy the ship straight after it.
+6. At 100 power, collect a weapon pickup at its last level: power stays at 100.
 
 ### [todo] T-047 Show the on-screen display
 
