@@ -737,7 +737,7 @@ to change `data/player_database.json`.
    still destroy the ship straight after it.
 6. At 100 power, collect a weapon pickup at its last level: power stays at 100.
 
-### [todo] T-047 Show the on-screen display
+### [done] T-047 Show the on-screen display
 
 **Review:** reviewed 2026-10-17
 
@@ -753,13 +753,13 @@ The display is drawn inside the play field, so it scales with the world and
 stays on the map whatever the window's shape.
 
 **Requirements:**
-- [ ] Top left: the lives as ship icons.
-- [ ] Top right: the score.
-- [ ] Bottom left: the power meter, 10 segments; full segments glow.
-- [ ] When an extra life is earned, the new icon flashes.
-- [ ] The display is drawn in the play field, over the world and under the game
+- [x] Top left: the lives as ship icons.
+- [x] Top right: the score.
+- [x] Bottom left: the power meter, 10 segments; full segments glow.
+- [x] When an extra life is earned, the new icon flashes.
+- [x] The display is drawn in the play field, over the world and under the game
   over overlay, and scales with it.
-- [ ] The debug text lines in `GameLayer` are removed.
+- [x] The debug text lines in `GameLayer` are removed.
 
 **Out of scope:**
 - Any other display (spec: nothing else).
@@ -768,10 +768,46 @@ stays on the map whatever the window's shape.
 - Q: Inside the play field or at the window edges? A: Inside the play field.
 
 **Notes:**
+- The display is `SystemHud` (`src/system_hud.h`), drawn by `GameWorld::Draw`
+  into the world image after the sprites and floating text, so it scales with
+  the play field, does not shake, and sits under the game over overlay. Its
+  state (`ComponentHud`: the life icon sprite, a clock for the glow, and the
+  life flash timer) is on its own entity, made in `StartLevel`.
+- Lives: the player's sprite at 0.6 scale, 36 px apart from the top-left
+  corner, 16 px in. On an extra life, `SystemScore` calls
+  `SystemHud::FlashNewLife`, and the newest icon blinks every 100 ms for 1 s.
+- Score: the number, right-aligned top right, in the world's 32 px font.
+- Power meter: 10 segments of 28×12 px bottom left, each a tenth of the cap.
+  Empty segments are a faint white; the partly filled one is filled to its
+  share in dim yellow; full ones are yellow and pulse in brightness over
+  600 ms. All sizes are named constants in `system_hud.cpp`.
+- The debug text and the font in `GameLayer` are removed, with
+  `GameWorld::GetPlayerLives`, which only the text used. `GetPlayerPower`
+  was there before this session and is left, now unused.
+- Removing `GameLayer`'s font exposed a shutdown problem: the launch check
+  failed every time with Vulkan validation errors from destroying textures,
+  buffers and the frame's command buffer while the last frame was still in use.
+  The font's texture had been waiting for the GPU as it was destroyed, before
+  the world went. `GameLayer`'s destructor now calls `IGraphics::WaitIdle()`,
+  as moth_toolkit's own `Game` does at teardown. The launch check then passed
+  three runs out of three.
 
 **Commits:**
+- 5b81e55 feat(T-047): show the on-screen display
 
 **Manual verification:**
+1. Play the stars map. Top left shows three small ship icons, top right shows
+   the score (0), and bottom left shows ten empty meter segments. The old
+   debug text is gone.
+2. Absorb bullets: the meter fills a segment at a time, the partly full
+   segment fills in proportion, and full segments glow yellow and pulse.
+3. Fire the power weapon: the spent segments empty.
+4. Kill enemies: the score counts up. Lose a life: an icon goes.
+5. With `extra_life_score` set low (see T-044), earn a life: a new icon
+   appears and blinks for a second.
+6. Make the window wide or tall: the display stays inside the play field, on
+   the map's corners, and does not shake with the camera.
+7. Close the game: it closes cleanly (no Vulkan validation errors in the log).
 
 ### [todo] T-048 Add feel to shots and hits
 
