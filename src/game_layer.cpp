@@ -11,11 +11,11 @@
 #include <spdlog/spdlog.h>
 
 GameLayer::GameLayer(moth::gfx::platform::Window& window, moth::ui::Context& context,
-                     moth::gfx::IGraphics& graphics)
+                     moth::gfx::IGraphics& graphics, std::string const& mapPath)
     : m_window(window)
     , m_context(context)
     , m_graphics(graphics) {
-    m_gameWorld = std::make_unique<GameWorld>(m_window, m_graphics);
+    m_gameWorld = std::make_unique<GameWorld>(m_window, m_graphics, mapPath);
 }
 
 // the world's textures and buffers may still be in use by the last frame, so the GPU finishes before they go

@@ -27,7 +27,7 @@ struct LevelEntryState {
 
 class GameWorld : public moth::ui::IEventListener {
 public:
-    GameWorld(moth::gfx::platform::Window& window, moth::gfx::IGraphics& graphics);
+    GameWorld(moth::gfx::platform::Window& window, moth::gfx::IGraphics& graphics, std::string mapPath);
     ~GameWorld() override = default;
 
     GameData const& GetGameData() const { return m_gamedata; }
@@ -99,6 +99,7 @@ private:
 
     WorldViewTransform m_viewTransform;
     LevelEntryState m_levelEntry;
+    std::string m_mapPath;
 
     bool m_paused = false;
     bool m_editorModeOpen = false;

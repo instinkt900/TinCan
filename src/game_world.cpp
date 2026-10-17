@@ -37,9 +37,10 @@
 #include <moth/ui/events/event_dispatch.h>
 #include <moth/profile/profiler.h>
 
-GameWorld::GameWorld(moth::gfx::platform::Window& window, moth::gfx::IGraphics& graphics)
+GameWorld::GameWorld(moth::gfx::platform::Window& window, moth::gfx::IGraphics& graphics, std::string mapPath)
     : m_window(window)
-    , m_graphics(graphics) {
+    , m_graphics(graphics)
+    , m_mapPath(std::move(mapPath)) {
     SerializeContext serializeContext{ m_gamedata, m_window.GetSurfaceContext() };
     m_gamedata.LoadDirectory("data", serializeContext);
     m_input = m_gamedata.GetInput();
@@ -64,7 +65,7 @@ void GameWorld::StartLevel() {
     m_registry.Emplace<ComponentHud>(m_registry.Create());
 
     // m_worldSize = SystemMap::InitMap(m_registry, "tiled_project/maps/test.tmj", "tiled_project/tincan.tiled-project",
-    m_worldSize = SystemMap::InitMap(m_registry, "tiled_project/maps/stars.tmj", "tiled_project/tincan.tiled-project",
+    m_worldSize = SystemMap::InitMap(m_registry, m_mapPath, "tiled_project/tincan.tiled-project",
                                      m_window.GetSurfaceContext().GetAssetContext(), WorldHeight);
 
     // the run outlives each ship, so it lives on an entity of its own

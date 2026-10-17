@@ -13,7 +13,7 @@
 class GameLayer : public moth::ui::Layer {
 public:
     GameLayer(moth::gfx::platform::Window& window, moth::ui::Context& context,
-              moth::gfx::IGraphics& graphics);
+              moth::gfx::IGraphics& graphics, std::string const& mapPath);
     ~GameLayer() override;
 
     GameLayer(const GameLayer&) = delete;
