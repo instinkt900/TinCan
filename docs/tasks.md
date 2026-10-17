@@ -155,7 +155,7 @@ This task is allowed to change `data/weapon_database_player.json`,
 5. Open `tiled_project/tincan.tiled-project` in Tiled: the `pickup` enum lists
    `none`, `pickup_main_gun` and `pickup_homing`.
 
-### [todo] T-041 Play sound effects
+### [done] T-041 Play sound effects
 
 **Review:** reviewed 2026-10-17
 
@@ -175,16 +175,16 @@ file. If the dependency is not there, the task is blocked. A session cannot
 download sounds, so the placeholders are generated.
 
 **Requirements:**
-- [ ] The game uses `moth_audio` from the dependency the user added.
-- [ ] Sounds are named entries in a new `data/sound_database.json`, loaded
+- [x] The game uses `moth_audio` from the dependency the user added.
+- [x] Sounds are named entries in a new `data/sound_database.json`, loaded
   through `GameData`, each with a file and a volume.
-- [ ] Game code plays a sound by its data entry, and a missing entry or file is
+- [x] Game code plays a sound by its data entry, and a missing entry or file is
   logged once and plays nothing.
-- [ ] Many copies of a sound can play at once, so 50 enemies dying together do
+- [x] Many copies of a sound can play at once, so 50 enemies dying together do
   not cut each other off, and the number playing at once has a limit.
-- [ ] A script in `tools/` generates the placeholder sounds as WAV files in
+- [x] A script in `tools/` generates the placeholder sounds as WAV files in
   `assets/sounds/`, and the generated files are committed.
-- [ ] Placeholder sounds play for: the player's shots (main gun and homing each
+- [x] Placeholder sounds play for: the player's shots (main gun and homing each
   their own), an enemy shot, a hit on an enemy, an absorb, an enemy death and a
   pickup.
 
@@ -200,10 +200,45 @@ download sounds, so the placeholders are generated.
 - Q: Where do placeholder sounds come from? A: A script generates them.
 
 **Notes:**
+- `SoundPlayer` (`src/sound_player.h`) owns the `moth::audio::AudioEngine` and is
+  owned by `GameWorld`. Code asks for a sound with `SystemSound::Play(registry,
+  name)`, which queues it on a `ComponentSoundQueue` entity; `SystemSound::Update`
+  plays the queue at the end of the world update. That lets code with only the
+  registry, such as `SystemDamage::ApplyDamage`, ask for sounds.
+- The voice limit is per sound: each entry's `voices` (default 8). When every
+  voice is busy, the oldest-started one is restarted. A sound asked for many
+  times in one frame plays once.
+- A missing entry or file is logged once as an error, and the sound then stays
+  silent. If the audio engine cannot start, that is logged as an error and the
+  game plays without sound.
+- Weapons name their shot sound in a new optional `sound` field. Assumption:
+  adding an optional field to `data/weapon_database_enemy.json` (and the player
+  weapons) is allowed, because the file still loads with or without it and the
+  task needs a per-weapon sound. The other sounds use fixed entry names:
+  `hit`, `absorb`, `enemy_death` and `pickup`.
+- `EnemyTag` is never set on enemies, so the hit and death sounds play for
+  entities on `Team::Enemy` (through `GetEntityDetails`, so sections count).
+- `src/sound_player.cpp` and `src/system_sound.cpp` are added to `SOURCES` in
+  `CMakeLists.txt`, as the profile's rules require. The dependency lines were
+  already there.
+- The launch check was also run for 20 seconds, so that enemies fire during it.
+  It passed.
 
 **Commits:**
+- 4cd0521 feat(T-041): play sound effects
 
 **Manual verification:**
+1. Play the stars map with sound on. Holding fire plays the main gun's shot
+   sound; it stays clean, not cut off, at the full fire rate.
+2. Enemy shots make a sound. Hitting an enemy clicks, and killing one plays an
+   explosion. Killing a whole formation at once is not deafening.
+3. Absorb a bullet of the shield's colour: a rising chirp plays.
+4. Collect a pickup: a short arpeggio plays. A homing pickup's missiles have
+   their own shot sound.
+5. Rename `assets/sounds/hit.wav` temporarily: the game logs one error for it
+   and carries on without that sound. Restore it.
+6. To regenerate the placeholders, run `python3 tools/make_placeholder_sounds.py`
+   from the repository root.
 
 ### [todo] T-042 Destroy the ship with one hit
 
