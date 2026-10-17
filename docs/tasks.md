@@ -809,7 +809,7 @@ stays on the map whatever the window's shape.
    the map's corners, and does not shake with the camera.
 7. Close the game: it closes cleanly (no Vulkan validation errors in the log).
 
-### [todo] T-048 Add feel to shots and hits
+### [done] T-048 Add feel to shots and hits
 
 **Review:** reviewed 2026-10-17
 
@@ -825,10 +825,10 @@ Context from planning: an enemy hit already sets the sprite's flash time in
 `SystemDrawable::CreateOneShotSprite`. Placeholder art is fine.
 
 **Requirements:**
-- [ ] Each player weapon shows a muzzle flash at its barrels when it fires.
-- [ ] A player shot that hits an enemy shows a spark at the hit point.
-- [ ] A hit enemy flashes white.
-- [ ] The flash and spark sprites are named in data.
+- [x] Each player weapon shows a muzzle flash at its barrels when it fires.
+- [x] A player shot that hits an enemy shows a spark at the hit point.
+- [x] A hit enemy flashes white.
+- [x] The flash and spark sprites are named in data.
 
 **Out of scope:**
 - A spark and sprite per weapon (M2).
@@ -836,10 +836,35 @@ Context from planning: an enemy hit already sets the sprite's flash time in
 **Open questions:**
 
 **Notes:**
+- The sprites are new player data fields, `muzzle_flash_sprite` and
+  `hit_spark_sprite`, written inline in `data/player_database.json` rather than
+  as new entries in `data/sprite_database.json`, so the protected sprite
+  database is unchanged.
+- Both use new short clips added to `assets/sprites/explosion_01.json`:
+  `flash` (frames 0 to 4, 20 ms each) and `spark` (frames 0 to 7, 25 ms each).
+  The `explode` clip used by enemy deaths is untouched. They are placeholders
+  until the art pass; the flash is drawn at 0.5 scale, the spark at 0.4.
+- The muzzle flash is a one-shot sprite at each barrel that fires, parented to
+  the ship with the barrel's offset, so it stays on the barrel as the ship
+  moves. Only entities with `PlayerTag` flash.
+- The spark is a one-shot sprite at the shot's position when a player-team
+  projectile hits an enemy-team target, made in `SystemProjectile` before the
+  damage is applied.
+- The white flash on a hit enemy already existed (`ApplyDamage` sets the
+  sprite's flash time), so that requirement needed no change.
 
 **Commits:**
+- c4409f0 feat(T-048): add feel to shots and hits
 
 **Manual verification:**
+1. Play the stars map and hold fire. A short flash shows at each main gun
+   barrel with every shot, and it stays on the barrels while the ship moves.
+2. Shoot an enemy: a small spark shows where each shot hits, and the enemy
+   flashes white.
+3. Collect homing: its barrels flash too, and its missiles spark on hit.
+4. Enemy shots have no muzzle flash, and enemy bullets that hit the ship (or
+   are absorbed) make no spark.
+5. Enemy death explosions look as before.
 
 ### [todo] T-049 Add feel to absorbs and enemy deaths
 
