@@ -12,7 +12,7 @@ to [tasks-done.md](tasks-done.md).
 
 ## Tasks
 
-### [todo] T-040 Remove the passive pickups
+### [done] T-040 Remove the passive pickups
 
 **Review:** reviewed 2026-10-17
 
@@ -30,12 +30,12 @@ the `Passives` multipliers in `SystemWeapon::Update` (`src/system_weapon.cpp`).
 entry in `data/pickup_database.json` is a passive.
 
 **Requirements:**
-- [ ] `ComponentPassives`, `PassiveType` and their helpers are removed, with
+- [x] `ComponentPassives`, `PassiveType` and their helpers are removed, with
   `src/component_passives.h`.
-- [ ] `PickupType` has no `Passive` value, and `PickupData` has no `value`.
-- [ ] `SystemWeapon::Update` fires each weapon with its own cooldown, burst,
+- [x] `PickupType` has no `Passive` value, and `PickupData` has no `value`.
+- [x] `SystemWeapon::Update` fires each weapon with its own cooldown, burst,
   burst delay and damage, with no multipliers.
-- [ ] `data/pickup_database.json` still loads, and weapons fire as before.
+- [x] `data/pickup_database.json` still loads, and weapons fire as before.
 
 **Out of scope:**
 - Any change to how weapon pickups work (T-039).
@@ -43,10 +43,19 @@ entry in `data/pickup_database.json` is a passive.
 **Open questions:**
 
 **Notes:**
+- The 50 ms floor on the burst delay in `SystemWeapon::Update` is kept. It is
+  not a passive, and removing it would change how weapons fire.
+- `PickupType` keeps its one value, `Weapon`, so the pickup data format does not
+  change.
 
 **Commits:**
+- 06485fd refactor(T-040): remove the passive pickups
 
 **Manual verification:**
+1. Play the stars map. The player's main gun fires at the same rate and damage
+   as before, and enemy weapons fire as before.
+2. Collect a weapon pickup (kill a formation with a drop): it still adds the
+   weapon.
 
 ### [todo] T-039 Level up weapons through repeated pickups
 
