@@ -1191,3 +1191,7 @@ and the `behaviour` enum lacks `drift_out`. (Found in session 2026-09-25.)
   bounds end at the screen's right and bottom edges rather than 200 px past
   them. Enemy bullets are removed as they reach the bottom edge. (Session
   2026-10-17, T-043.)
+- T-051 is partly stale: the Tiled `behaviour` enum already lists `drift_out`.
+  `enemy_basic`, which `desert.tmj` spawns twice, is missing from the
+  `enemy_type` enum and also from `data/enemy_database.json`, so those spawns
+  name an enemy that does not exist. (Session 2026-10-17.)
