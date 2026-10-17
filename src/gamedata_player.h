@@ -30,6 +30,7 @@ struct PlayerData {
     uint32_t fly_in_time = 1000;   // milliseconds the next ship takes to fly in from below the screen
     uint32_t safe_time = 3000;     // milliseconds the next ship is safe once it arrives
     uint32_t drop_lifetime = 8000; // milliseconds a weapon dropped on death stays before it is gone
+    int32_t extra_life_score = 100000; // points for each extra life
 };
 
 inline void from_json(nlohmann::json const& json, PlayerData& data) {
@@ -50,4 +51,5 @@ inline void from_json(nlohmann::json const& json, PlayerData& data) {
     DATA_OPTIONAL(json, data, fly_in_time);
     DATA_OPTIONAL(json, data, safe_time);
     DATA_OPTIONAL(json, data, drop_lifetime);
+    DATA_OPTIONAL(json, data, extra_life_score);
 }

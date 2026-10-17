@@ -36,6 +36,8 @@ set(SOURCES
 	src/system_sound.cpp
 	src/system_hit_stop.cpp
 	src/system_respawn.cpp
+	src/system_floating_text.cpp
+	src/system_score.cpp
 )
 
 find_package(moth_anim REQUIRED)

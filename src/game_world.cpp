@@ -23,6 +23,8 @@
 #include "system_sound.h"
 #include "system_hit_stop.h"
 #include "system_respawn.h"
+#include "system_floating_text.h"
+#include "system_score.h"
 #include "system_behaviour_editor.h"
 #include "system_formation_editor.h"
 #include "system_targeting.h"
@@ -48,6 +50,7 @@ GameWorld::GameWorld(moth::gfx::platform::Window& window, moth::gfx::IGraphics& 
     m_worldSize = SystemMap::InitMap(m_registry, "tiled_project/maps/stars.tmj", "tiled_project/tincan.tiled-project",
                                      m_window.GetSurfaceContext().GetAssetContext(), WorldHeight);
     m_worldSurface = m_window.GetDevice().CreateTarget(m_worldSize.x, m_worldSize.y);
+    m_font = m_window.GetSurfaceContext().GetAssetContext().FontFromFile("assets/font.ttf", 32);
     // InitTestWorld();
 
     // the run outlives each ship, so it lives on an entity of its own
@@ -97,6 +100,7 @@ void GameWorld::Update(uint32_t ticks) {
     { MOTH_PROFILE_SCOPE("SystemPickup"); SystemPickup::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemGroup"); SystemGroup::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemWorldBounds"); SystemWorldBounds::Update(*this, ticks); }
+    { MOTH_PROFILE_SCOPE("SystemFloatingText"); SystemFloatingText::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemAnimation"); SystemAnimation::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemDrawable"); SystemDrawable::Update(*this, ticks); }
     { MOTH_PROFILE_SCOPE("SystemSound"); SystemSound::Update(*this, ticks); }
@@ -111,6 +115,10 @@ void GameWorld::Draw() {
     m_graphics.SetColor(moth::gfx::BasicColors::White);
     { MOTH_PROFILE_SCOPE("SystemMap::Draw"); SystemMap::Draw(*this, m_graphics); }
     { MOTH_PROFILE_SCOPE("SystemDrawable"); SystemDrawable::Draw(*this, m_graphics); }
+    if (m_font != nullptr) {
+        MOTH_PROFILE_SCOPE("SystemFloatingText");
+        SystemFloatingText::Draw(*this, m_graphics, *m_font);
+    }
     // the editors draw their paths and markers over the world, so nothing in the map or on it hides them
     if (m_editorModeOpen) {
         m_graphics.SetBlendMode(moth::gfx::BlendMode::Replace);
@@ -131,6 +139,10 @@ float GameWorld::GetPlayerPower() const {
 
 int32_t GameWorld::GetPlayerLives() const {
     return SystemRespawn::GetLives(m_registry);
+}
+
+int32_t GameWorld::GetPlayerScore() const {
+    return SystemScore::GetScore(m_registry);
 }
 
 void GameWorld::RespawnPlayer(int32_t mainGunLevel) {

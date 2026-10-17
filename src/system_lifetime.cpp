@@ -2,6 +2,7 @@
 #include "component_entity.h"
 #include "system_enemy_spawner.h"
 #include "system_group.h"
+#include "system_score.h"
 #include "system_movement.h"
 #include "tags.h"
 #include <moth/ecs/world.h>
@@ -113,6 +114,9 @@ void SystemLifetime::Update(GameWorld& world, uint32_t ticks) {
         // is never left empty while its pieces are still coming
         if (!escaped) {
             SpawnDeathSpawns(world, entity, ticks);
+            if (auto const* scoreValue = registry.TryGet<ComponentScoreValue>(entity)) {
+                SystemScore::Add(registry, scoreValue->m_score, world.GetGameData());
+            }
         }
 
         // notify any groups of a dead member. every route out of the world passes through here, so this is

@@ -82,6 +82,8 @@ struct EnemyData {
     uint32_t lifetime = 15000;
     // spawned where the enemy is killed, and not when it escapes
     std::vector<EnemyDeathSpawn> death_spawns;
+    // points for killing it, by any means
+    int32_t score = 0;
 };
 
 inline void from_json(nlohmann::json const& json, EnemyData& data) {
@@ -96,5 +98,6 @@ inline void from_json(nlohmann::json const& json, EnemyData& data) {
     DATA_OPTIONAL(json, data, sections);
     DATA_OPTIONAL(json, data, lifetime);
     DATA_OPTIONAL(json, data, death_spawns);
+    DATA_OPTIONAL(json, data, score);
 }
 

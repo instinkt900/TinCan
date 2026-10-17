@@ -21,6 +21,7 @@
             "fly_in_time": 1000,
             "safe_time": 3000,
             "drop_lifetime": 8000,
+            "extra_life_score": 100000,
             "contact": {
                 "damage": 0,
                 "cooldown": 1000

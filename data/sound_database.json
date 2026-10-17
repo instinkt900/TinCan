@@ -7,6 +7,7 @@
         "absorb": { "file": "assets/sounds/absorb.wav", "volume": 0.4, "voices": 8 },
         "enemy_death": { "file": "assets/sounds/enemy_death.wav", "volume": 0.6, "voices": 12 },
         "player_death": { "file": "assets/sounds/player_death.wav", "volume": 0.8, "voices": 1 },
+        "extra_life": { "file": "assets/sounds/extra_life.wav", "volume": 0.7, "voices": 1 },
         "pickup": { "file": "assets/sounds/pickup.wav", "volume": 0.6, "voices": 2 }
     }
 }

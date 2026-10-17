@@ -1,3 +1,4 @@
+#include "system_score.h"
 #include "system_enemy_spawner.h"
 #include "component_body.h"
 #include "component_contact.h"
@@ -53,6 +54,10 @@ moth::ecs::Entity SystemEnemySpawner::SpawnEnemy(moth::ecs::World& registry, Ene
 
     if (data.contact.has_value()) {
         registry.Emplace<ComponentContact>(rootEntity, *data.contact);
+    }
+
+    if (data.score > 0) {
+        registry.Emplace<ComponentScoreValue>(rootEntity, data.score);
     }
 
     if (!data.death_spawns.empty()) {

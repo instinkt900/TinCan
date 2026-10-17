@@ -16,6 +16,8 @@ struct ComponentRun {
     int32_t m_mainGunLevel = 0;  // the level the main gun had when the ship was destroyed, as a progression index
     uint32_t m_respawnLeft = 0;  // counts down to the next ship once one is destroyed
     bool m_respawning = false;
+    int32_t m_score = 0;
+    int32_t m_extraLifeProgress = 0; // points towards the next extra life, kept apart so a game over can clear it
 };
 
 // A ship flying in from below the screen. It has no control until it arrives.

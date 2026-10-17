@@ -56,6 +56,7 @@ public:
 
     float GetPlayerPower() const;
     int32_t GetPlayerLives() const;
+    int32_t GetPlayerScore() const;
 
     // makes the next ship after one was destroyed: it flies in from below the screen with the main gun at the level
     // it had, and nothing else
@@ -73,6 +74,7 @@ private:
     moth::gfx::platform::Window& m_window;
     moth::gfx::IGraphics& m_graphics;
     std::unique_ptr<moth::gfx::ITarget> m_worldSurface;
+    std::unique_ptr<moth::gfx::IFont> m_font; // for text drawn in the world, such as the floating "1UP"
 
     GameData m_gamedata;
     std::unique_ptr<SoundPlayer> m_sounds;
