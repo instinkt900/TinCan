@@ -20,6 +20,7 @@
             "respawn_delay": 1500,
             "fly_in_time": 1000,
             "safe_time": 3000,
+            "drop_lifetime": 8000,
             "contact": {
                 "damage": 0,
                 "cooldown": 1000

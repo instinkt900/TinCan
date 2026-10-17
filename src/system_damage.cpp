@@ -28,6 +28,7 @@ void SystemDamage::DestroyPlayer(moth::ecs::World& registry, moth::ecs::Entity p
     }
     registry.Emplace<DeadTag>(player);
     SystemRespawn::OnPlayerDestroyed(registry, player, gamedata);
+    SystemPickup::DropWeapons(registry, player, gamedata);
 
     if (auto const* position = registry.TryGet<ComponentPosition>(player)) {
         auto const* playerData = gamedata.GetPlayer();
