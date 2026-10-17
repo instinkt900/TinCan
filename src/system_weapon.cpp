@@ -1,5 +1,6 @@
 #include "system_weapon.h"
 #include "component_entity.h"
+#include "gamedata_player.h"
 #include "gamedata_weapon.h"
 #include "system_drawable.h"
 #include "system_lifetime.h"
@@ -167,8 +168,16 @@ void SystemWeapon::Update(GameWorld& world, uint32_t ticks) {
         playerPosition = registry.TryGet<ComponentPosition>(playerEntity);
     }
 
+    // only the player's weapons flash, at each barrel as it fires
+    SpriteData const* muzzleFlash = nullptr;
+    if (auto const* playerData = world.GetGameData().GetPlayer();
+        playerData != nullptr && playerData->muzzle_flash_sprite.valid()) {
+        muzzleFlash = playerData->muzzle_flash_sprite.get();
+    }
+
     auto view = registry.View<ComponentWeapon, ComponentPosition>();
     for (auto [entity, weapons, position] : view.each()) {
+        bool const flashes = muzzleFlash != nullptr && registry.Has<PlayerTag>(entity);
 
         auto const* entityDetails = GetEntityDetails(registry, entity);
         if (entityDetails == nullptr) {
@@ -233,6 +242,15 @@ void SystemWeapon::Update(GameWorld& world, uint32_t ticks) {
                                 -ProjectileBorder, -ProjectileBorder, world.GetWorldSize().x + ProjectileBorder,
                                 world.GetWorldSize().y + ProjectileBorder));
                             projectileBounds.m_behaviour = BoundsBehaviour::Kill;
+                        }
+
+                        if (flashes) {
+                            // the flash rides on the ship, so it stays at the barrel as the ship moves
+                            auto const flash = SystemDrawable::CreateOneShotSprite(registry, *muzzleFlash,
+                                                                                   position.m_position + offset);
+                            if (flash != moth::ecs::kNullEntity) {
+                                registry.Emplace<ComponentParenting>(flash, entity, offset);
+                            }
                         }
                     }
                 }

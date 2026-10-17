@@ -22,6 +22,18 @@
             "safe_time": 3000,
             "drop_lifetime": 8000,
             "extra_life_score": 100000,
+            "muzzle_flash_sprite": {
+                "sheet": "assets/sprites/explosion_01.json",
+                "clip": "flash",
+                "blend_mode": "Alpha",
+                "scale": [0.5, 0.5]
+            },
+            "hit_spark_sprite": {
+                "sheet": "assets/sprites/explosion_01.json",
+                "clip": "spark",
+                "blend_mode": "Alpha",
+                "scale": [0.4, 0.4]
+            },
             "power_weapon": {
                 "max_power": 100,
                 "segment_power": 10,

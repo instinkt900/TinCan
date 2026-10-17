@@ -2,6 +2,7 @@
 #include "utils_collision.h"
 #include "component_body.h"
 #include "component_entity.h"
+#include "gamedata_player.h"
 #include "gamedata_projectile.h"
 #include "system_damage.h"
 #include "system_drawable.h"
@@ -49,6 +50,15 @@ namespace {
 
                 // destroy projectile
                 registry.GetOrEmplace<DeadTag>(projectile.entity);
+
+                // a player shot sparks where it hits an enemy
+                if (projectile.entityDetails.m_team == Team::Player && target.entityDetails.m_team == Team::Enemy) {
+                    if (auto const* playerData = gamedata.GetPlayer();
+                        playerData != nullptr && playerData->hit_spark_sprite.valid()) {
+                        SystemDrawable::CreateOneShotSprite(registry, *playerData->hit_spark_sprite,
+                                                           projectile.position.m_position);
+                    }
+                }
 
                 // apply damage
                 auto damage = projectile.projectileDetails.m_damage;
