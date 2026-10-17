@@ -52,8 +52,16 @@ float SweepTest(moth::gfx::FloatVec2 const& obj1Pos, moth::gfx::FloatVec2 const&
     auto const vel2 = obj2Pos - obj2LastPos;
     auto const relativeVel = vel2 - vel1;
 
+    // the sweep covers this frame's movement, from where both started. circles that already overlap there have
+    // touched, however they are moving
+    auto const startRel = obj2LastPos - obj1LastPos;
+    auto const combinedRadius = obj1Radius + obj2Radius;
+    if (Dot(startRel, startRel) <= combinedRadius * combinedRadius) {
+        return 0.0f;
+    }
+
     float t = 0;
-    if (collisionSweepMovingStatic(obj1Pos, relativeVel, obj1Radius, obj2Pos, obj2Radius, &t)) {
+    if (collisionSweepMovingStatic(obj1LastPos, relativeVel, obj1Radius, obj2LastPos, obj2Radius, &t)) {
         return t;
     }
     return 1.0f;
