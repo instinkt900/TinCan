@@ -25,6 +25,7 @@ namespace {
     float const SegmentGap = 4.0f;
     // how fast full segments pulse, in milliseconds per pulse
     float const GlowPeriod = 600.0f;
+    uint32_t const PowerTickDuration = 120;
 
     ComponentHud* FindHud(moth::ecs::World& registry) {
         auto view = registry.View<ComponentHud>();
@@ -85,6 +86,10 @@ namespace {
         auto const phase = static_cast<float>(hud.m_time % static_cast<uint32_t>(GlowPeriod)) / GlowPeriod;
         auto const glow = 0.8f + (0.2f * std::sin(phase * 2.0f * moth::gfx::F_PI));
         auto const top = static_cast<float>(world.GetWorldSize().y - Margin) - SegmentHeight;
+        // the segment the last power went into, which lights up as power comes in
+        auto const tickSegment =
+            std::clamp(static_cast<int>(std::ceil(power / segmentPower)) - 1, 0, SegmentCount - 1);
+        auto const tick = static_cast<float>(hud.m_powerTickLeft) / static_cast<float>(PowerTickDuration);
 
         graphics.SetBlendMode(moth::gfx::BlendMode::Alpha);
         for (int i = 0; i < SegmentCount; ++i) {
@@ -100,6 +105,10 @@ namespace {
                 graphics.SetColor(moth::gfx::Color{ 1.0f, 0.9f, 0.3f, 0.5f });
                 graphics.DrawFillRectF(moth::gfx::MakeRect(left, top, SegmentWidth * fill, SegmentHeight));
             }
+            if (i == tickSegment && tick > 0.0f && power > 0.0f) {
+                graphics.SetColor(moth::gfx::Color{ 1.0f, 1.0f, 1.0f, 0.8f * tick });
+                graphics.DrawFillRectF(moth::gfx::MakeRect(left, top, SegmentWidth, SegmentHeight));
+            }
         }
         graphics.SetColor(moth::gfx::BasicColors::White);
     }
@@ -111,10 +120,17 @@ void SystemHud::FlashNewLife(moth::ecs::World& registry) {
     }
 }
 
+void SystemHud::TickPower(moth::ecs::World& registry) {
+    if (auto* hud = FindHud(registry)) {
+        hud->m_powerTickLeft = PowerTickDuration;
+    }
+}
+
 void SystemHud::Update(GameWorld& world, uint32_t ticks) {
     if (auto* hud = FindHud(world.GetRegistry())) {
         hud->m_time += ticks;
         hud->m_lifeFlashLeft -= std::min(hud->m_lifeFlashLeft, ticks);
+        hud->m_powerTickLeft -= std::min(hud->m_powerTickLeft, ticks);
     }
 }
 

@@ -56,6 +56,10 @@ moth::ecs::Entity SystemEnemySpawner::SpawnEnemy(moth::ecs::World& registry, Ene
         registry.Emplace<ComponentContact>(rootEntity, *data.contact);
     }
 
+    if (data.large) {
+        registry.Emplace<LargeTag>(rootEntity);
+    }
+
     if (data.score > 0) {
         registry.Emplace<ComponentScoreValue>(rootEntity, data.score);
     }

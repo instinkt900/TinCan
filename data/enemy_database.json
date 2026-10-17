@@ -163,6 +163,7 @@
             "death_sprite": "explosion_01"
         },
         "danger_6_light": {
+            "large": true,
             "score": 5000,
             "affinity": "Light",
             "health": 40,
@@ -172,6 +173,7 @@
             "death_sprite": "explosion_01"
         },
         "danger_6_dark": {
+            "large": true,
             "score": 5000,
             "affinity": "Dark",
             "health": 40,

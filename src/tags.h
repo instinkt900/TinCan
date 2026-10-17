@@ -16,6 +16,9 @@ struct DeadTag{};
 // Set alongside DeadTag, so that whatever removes the entity can tell its group which of the two happened.
 struct EscapedTag{};
 
+// Marks an enemy whose death is a big moment: a bigger explosion, a shake and a hit-stop.
+struct LargeTag{};
+
 // Marks the entity as playing a one-shot animation. The animation system kills
 // it once the animation stops.
 struct OneShotTag{};

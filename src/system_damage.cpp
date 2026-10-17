@@ -1,5 +1,6 @@
 #include "system_damage.h"
 #include "component_death_sprite.h"
+#include "component_body.h"
 #include "component_drop.h"
 #include "component_health.h"
 #include "gamedata.h"
@@ -20,6 +21,11 @@ namespace {
     float const PlayerDeathShakeIntensity = 1.5f;
     uint32_t const PlayerDeathShakeDuration = 800;
     uint32_t const PlayerDeathHitStop = 100;
+
+    float const LargeDeathShakeIntensity = 0.8f;
+    uint32_t const LargeDeathShakeDuration = 400;
+    uint32_t const LargeDeathHitStop = 50;
+    float const LargeExplosionScale = 2.0f;
 }
 
 void SystemDamage::DestroyPlayer(moth::ecs::World& registry, moth::ecs::Entity player, GameData const& gamedata) {
@@ -69,16 +75,33 @@ void SystemDamage::ApplyDamage(moth::ecs::World& registry, moth::ecs::Entity tar
     if (entityHealth->m_currentHealth > 0) {
         entityHealth->m_currentHealth -= damage;
         if (entityHealth->m_currentHealth <= 0) {
-            SystemDrawable::StartCameraShake(registry, 0.5f, 500);
             registry.Emplace<DeadTag>(target);
             if (isEnemy) {
                 SystemSound::Play(registry, "enemy_death");
             }
 
+            // only a large enemy shakes the screen and stops the game for a moment as it goes
+            bool const large = registry.Has<LargeTag>(target);
+            if (large) {
+                SystemDrawable::StartCameraShake(registry, LargeDeathShakeIntensity, LargeDeathShakeDuration);
+                SystemHitStop::Start(registry, LargeDeathHitStop);
+            }
+
             if (auto const* deathSprite = registry.TryGet<ComponentDeathSprite>(target);
                 deathSprite != nullptr && deathSprite->m_sprite != nullptr && targetPosition != nullptr) {
-                SystemDrawable::CreateOneShotSprite(registry, *deathSprite->m_sprite,
-                                                    targetPosition->m_position);
+                auto const explosion = SystemDrawable::CreateOneShotSprite(registry, *deathSprite->m_sprite,
+                                                                           targetPosition->m_position);
+                // the explosion is as wide as the enemy, and a large enemy's is bigger again
+                auto const* body = registry.TryGet<ComponentBody>(target);
+                if (explosion != moth::ecs::kNullEntity && body != nullptr) {
+                    auto& sprite = registry.Get<ComponentSprite>(explosion);
+                    auto const frameWidth = static_cast<float>(sprite.m_animator->GetSprite().GetWidth());
+                    if (frameWidth > 0.0f) {
+                        auto const scale =
+                            (body->m_radius * 2.0f / frameWidth) * (large ? LargeExplosionScale : 1.0f);
+                        sprite.m_scale = sprite.m_scale * scale;
+                    }
+                }
             }
 
             if (auto const* dropComponent = registry.TryGet<ComponentDrop>(target)) {

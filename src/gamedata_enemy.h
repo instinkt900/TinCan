@@ -84,6 +84,8 @@ struct EnemyData {
     std::vector<EnemyDeathSpawn> death_spawns;
     // points for killing it, by any means
     int32_t score = 0;
+    // a large enemy's death has a bigger explosion, a shake and a hit-stop
+    bool large = false;
 };
 
 inline void from_json(nlohmann::json const& json, EnemyData& data) {
@@ -99,5 +101,6 @@ inline void from_json(nlohmann::json const& json, EnemyData& data) {
     DATA_OPTIONAL(json, data, lifetime);
     DATA_OPTIONAL(json, data, death_spawns);
     DATA_OPTIONAL(json, data, score);
+    DATA_OPTIONAL(json, data, large);
 }
 
