@@ -57,7 +57,7 @@ entry in `data/pickup_database.json` is a passive.
 2. Collect a weapon pickup (kill a formation with a drop): it still adds the
    weapon.
 
-### [todo] T-039 Level up weapons through repeated pickups
+### [done] T-039 Level up weapons through repeated pickups
 
 **Review:** reviewed 2026-10-17
 
@@ -89,23 +89,23 @@ This task is allowed to change `data/weapon_database_player.json`,
 `tiled_project/tincan.tiled-project`.
 
 **Requirements:**
-- [ ] The weapon data has ordered progressions that list a weapon's levels by
+- [x] The weapon data has ordered progressions that list a weapon's levels by
   weapon name. `WeaponData` itself stays single-level.
-- [ ] A weapon pickup's `name` and the player's starting weapon refer to a
+- [x] A weapon pickup's `name` and the player's starting weapon refer to a
   progression.
-- [ ] Picking up a weapon the player does not carry adds it at level 1.
-- [ ] Picking up a weapon the player carries raises it by one level.
-- [ ] Picking up a weapon that is at its last level gives the player 20 power.
+- [x] Picking up a weapon the player does not carry adds it at level 1.
+- [x] Picking up a weapon the player carries raises it by one level.
+- [x] Picking up a weapon that is at its last level gives the player 20 power.
   The 20 is a data value.
-- [ ] A carried weapon records its progression and current level.
-- [ ] A level-up rebuilds the weapon from the next level's data and keeps its
+- [x] A carried weapon records its progression and current level.
+- [x] A level-up rebuilds the weapon from the next level's data and keeps its
   timers, so it stays on the same beat as the other weapons.
-- [ ] The main gun progression has the spec's three levels as full definitions:
+- [x] The main gun progression has the spec's three levels as full definitions:
   2 barrels, 5 damage, every 100 ms; then 4 barrels; then 6 barrels at 7 damage.
-- [ ] The homing progression has one level, today's `player_weapon_homing_01`.
-- [ ] There is one pickup for the main gun and one for homing, and the Tiled
+- [x] The homing progression has one level, today's `player_weapon_homing_01`.
+- [x] There is one pickup for the main gun and one for homing, and the Tiled
   `pickup` enum lists exactly the pickups in `data/pickup_database.json`.
-- [ ] The player starts with the main gun at level 1.
+- [x] The player starts with the main gun at level 1.
 
 **Out of scope:**
 - Homing levels 2 and 3, and the other weapons (M2).
@@ -121,10 +121,39 @@ This task is allowed to change `data/weapon_database_player.json`,
 - Q: Do enemy weapons stay plain single-level weapons? A: Yes.
 
 **Notes:**
+- Progressions are a new data category, `progressions`, in
+  `data/weapon_database_player.json`: each entry is a list of weapon names, first
+  level to last. (`weapon_progressions` cannot be a category key, because keys
+  are matched to `GameDataCategory` names.)
+- The player weapons are renamed to `main_gun_1` to `main_gun_3` and `homing_1`,
+  and the pickups to `pickup_main_gun` and `pickup_homing`. The Tiled `pickup`
+  enum and the `PickupSpawn` default follow. No map used the old names.
+- `SystemWeapon::AddWeaponLevels` adds or raises a weapon by any number of
+  levels and returns how many did not fit, so T-043's death drops can use it.
+  A carried weapon keeps its progression in `Weapon::m_progression` and its
+  level as an index in `Weapon::m_level`.
+- The 20 power is `max_level_power` in the player data. Power has no cap until
+  T-046.
+- Main gun level 2 is level 1's barrels plus the old level 2's (±12); level 3
+  adds the old level 3's (±20, 4 px forward) at 7 damage.
+- The player editor (F2) still adds weapons by weapon name. A weapon added there
+  has no progression, so a pickup of the same progression adds a second copy.
+  It is a debug tool and was left alone; M2 plans a debug tool for weapon levels.
 
 **Commits:**
+- 5336de6 feat(T-039): level up weapons through repeated pickups
 
 **Manual verification:**
+1. Play the stars map. The ship fires the main gun with 2 barrels.
+2. Give a formation a `pickup_main_gun` drop in Tiled (or use the T-050 test
+   map). Collect it: the main gun fires 4 barrels. Collect another: 6 barrels,
+   with more damage. The new barrels fire in step with the old ones.
+3. Collect a fourth main gun pickup: the barrels do not change, and the power
+   readout goes up by 20.
+4. Collect a `pickup_homing` drop: homing missiles join the main gun. Collect
+   another: power goes up by 20.
+5. Open `tiled_project/tincan.tiled-project` in Tiled: the `pickup` enum lists
+   `none`, `pickup_main_gun` and `pickup_homing`.
 
 ### [todo] T-041 Play sound effects
 
