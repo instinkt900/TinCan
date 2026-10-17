@@ -6,9 +6,9 @@ not in the game.
 **Status:** draft, 2026-10-16.
 
 - **Agreed:** controls, death and lives, score, shield and affinity, power
-  weapon, weapons, pickups, run structure, screens, on-screen display, saves,
-  high scores, feel, and where art and audio come from. Score values are agreed
-  as starting values to tune.
+  weapon, weapons, pickups, dialog, run structure, screens, on-screen display,
+  saves, high scores, feel, and where art and audio come from. Score values are
+  agreed as starting values to tune.
 - **To revisit:** enemies, levels and bosses.
 - **Undecided:** the story.
 - **Still a first-draft proposal:** anything not listed above.
@@ -334,11 +334,22 @@ Flagship Heart. Clearing it ends the run.
 | The Dreadnought     | 2 wing guns (400 each); 2 engines (500 each); core (2500), protected until the engines are gone | 1: wing guns fire aimed bursts. 2 (wing guns gone): engines fire rings. 3 (engines gone): core fires everything and moves |
 | The Flagship Heart  | 4 shield nodes (400 each, 2 light, 2 dark); core (4000), protected until the nodes are gone | 1: nodes fire rings of their colour. 2: core switches its bullets' colour every 4 s. 3 (below half health): faster, adds aimed shots |
 
+## Dialog
+
+How dialog is shown. What the lines say is the [story](#story).
+
+- A box across the bottom of the screen with a portrait, a name and one line.
+- Each line shows for 3 seconds, or longer for a long line (about 15 characters
+  per second). The action carries on behind it.
+- It cannot be skipped and never pauses the game.
+- Lines are in a data file, keyed by id, and map dialog objects name the ids.
+- Until the story is decided, the lines are placeholders.
+
 ## Story
 
-**Undecided.** Everything in this section, including the dialog rules, is a
-placeholder from the first draft. Nothing here is built until the story is
-decided.
+**Undecided.** Everything in this section is a placeholder from the first
+draft. The dialog system is built with placeholder lines; the story content is
+not written until the story is decided.
 
 Told only through dialog, in short radio lines between two characters:
 
@@ -357,14 +368,6 @@ The outline:
 
 About 6 to 10 lines per level: two at the intro, two to four during the level,
 two at the boss, one at the exit.
-
-### Dialog rules
-
-- A box across the bottom of the screen with a portrait, a name and one line.
-- Each line shows for 3 seconds, or longer for a long line (about 15 characters
-  per second). The action carries on behind it.
-- It cannot be skipped and never pauses the game.
-- Lines are in a data file, keyed by id, and map dialog objects name the ids.
 
 ## Run structure
 
@@ -543,7 +546,7 @@ Shake and hit-stop are used only where the table says.
   assets, starting with what is there today (danger sprites, asteroids,
   explosions, stars and desert tilesets).
 - The final art is commissioned or a paid asset pack, chosen at the final step,
-  in the polish milestone (M8).
+  in the polish milestone (M9).
 - The final art covers: the player ship and shield in both affinities, eight
   enemy types in both affinities, five bosses with wrecked sections, five pickup
   badges, shot sprites per weapon, explosions in three sizes, four tilesets, two
