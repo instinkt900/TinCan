@@ -36,12 +36,12 @@ void UpdateDead(moth::ecs::World& registry, std::set<moth::ecs::Entity>& deadEnt
                 deadEntities.insert(child);
             }
         }
-        // update any parent if a child dies
+        // update any parent if a child dies. only a child the parent counts as one of its pieces can take it
+        // down; things that just ride along, like the shield or a muzzle flash, are not in its children
         if (auto const* parenting = registry.TryGet<ComponentParenting>(entity)) {
             if (registry.Valid(parenting->m_parent)) {
                 auto& parentDetails = registry.Get<ComponentEntity>(parenting->m_parent);
-                parentDetails.m_children.erase(entity);
-                if (parentDetails.m_children.empty()) {
+                if (parentDetails.m_children.erase(entity) > 0 && parentDetails.m_children.empty()) {
                     // if no children are left, destroy the parent
                     deadEntities.insert(parenting->m_parent);
                 }
